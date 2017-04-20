@@ -1,0 +1,39 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    defaultConfig {
+        applicationId "com.iii.more.main"
+        minSdkVersion 19
+        targetSdkVersion 24
+        versionCode 2
+        versionName "1.1"
+    }
+}
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compile project(':aars')
+    compile project(':models')
+    compile 'com.android.support:appcompat-v7:25.2.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile files('libs/common.jar')
+    compile files('libs/premission.jar')
+    compile files('libs/TTS.jar')
+    // This libraries handles music playback
+    compile 'com.spotify.sdk:spotify-player-24-noconnect-2.20b@aar'
+    // This library handles authentication and authorization
+    compile 'com.spotify.sdk:spotify-android-auth-1.0.0@aar'
+    //This lib is to get an song information which the music is playing
+    compile 'com.github.kaaes:spotify-web-api-android:0.4.1'
+    compile files('libs/voice.jar')
+    compile files('libs/module.jar')
+}
