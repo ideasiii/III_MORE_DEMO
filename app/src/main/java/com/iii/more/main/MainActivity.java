@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 import com.iii.more.pocketshinx.PocketSphinxHandler;
@@ -14,9 +15,9 @@ import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
 import com.iii.more.spotify.SpotifyHandler;
+import com.iii.more.spotify.SpotifyParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
-
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,7 +43,8 @@ public class MainActivity extends Activity
     private VoiceRecognition mVoiceRecognition = null;
     private SemanticWordCMPHandler mSemanticWordCMPHandler = null;
     private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
-    
+    private TextView mTextView = null;
+    private TextView mResultTextView = null;
     private Handler mHandler = new Handler()
     {
         @Override
@@ -60,7 +62,8 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
+        mTextView = (TextView) findViewById(R.id.textView);
+        mResultTextView = (TextView) findViewById(R.id.result_text);
         ArrayList<String> permissions = new ArrayList<>();
         permissions.add(Manifest.permission.RECORD_AUDIO);
         mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
@@ -71,6 +74,7 @@ public class MainActivity extends Activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+        Logs.showTrace("mSpotifyHandler onActivityResult!!");
         mSpotifyHandler.onActivityResult(requestCode, resultCode, data);
     }
     
@@ -78,15 +82,10 @@ public class MainActivity extends Activity
     {
         mPocketSphinxHandler = new PocketSphinxHandler(this);
         mPocketSphinxHandler.setHandler(mHandler);
-        mPocketSphinxHandler.startListenAction();
         
         mTextToSpeechHandler = new TextToSpeechHandler(this);
         mTextToSpeechHandler.setHandler(mHandler);
         mTextToSpeechHandler.init();
-        
-        mSpotifyHandler = new SpotifyHandler(this);
-        mSpotifyHandler.setHandler(mHandler);
-        mSpotifyHandler.init();
         
         mVoiceRecognition = new VoiceRecognition(this);
         mVoiceRecognition.setHandler(mHandler);
@@ -98,6 +97,10 @@ public class MainActivity extends Activity
         
         mWebMediaPlayerHandler = new WebMediaPlayerHandler(this);
         mWebMediaPlayerHandler.setHandler(mHandler);
+        
+        mSpotifyHandler = new SpotifyHandler(this);
+        mSpotifyHandler.setHandler(mHandler);
+        mSpotifyHandler.init();
         
     }
     
@@ -120,6 +123,8 @@ public class MainActivity extends Activity
         mTextToSpeechHandler.shutdown();
         
         mSpotifyHandler.closeSpotify();
+        
+        mWebMediaPlayerHandler.stopPlayMediaStream();
         
         super.onDestroy();
     }
@@ -155,9 +160,40 @@ public class MainActivity extends Activity
             case CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER:
                 handleMessageVoiceRecognition(msg);
                 break;
+            case SpotifyParameters.CLASS_SPOTIFY:
+                handleMessageSpotify(msg);
+                break;
             default:
                 break;
         }
+    }
+    
+    public void handleMessageSpotify(Message msg)
+    {
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+        
+        Logs.showTrace("msg.arg2: " + String.valueOf(msg.arg2) + " message:" + message);
+        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+        {
+            
+            if (message.get("message").equals("DONE"))
+            {
+                //歌曲結束後
+                
+                
+            }
+        }
+        else
+        {
+            //異常例外處理
+            mSpotifyHandler.pauseMusic();
+            mPocketSphinxHandler.stopListenAction();
+            mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_SPOTIFY_UNAUTHORIZED, Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED);
+            
+            
+        }
+        
+        
     }
     
     public void handleMessagePermission(Message msg)
@@ -167,6 +203,8 @@ public class MainActivity extends Activity
             //start to init
             Logs.showTrace("start to init!");
             init();
+            //Logs.showTrace("start to say init success");
+            //mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_INIT_SUCCESS, Parameters.ID_SERVICE_INIT_SUCCESS);
         }
         else
         {
@@ -216,11 +254,12 @@ public class MainActivity extends Activity
             }
             else
             {
-                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_UNKNOWN, Parameters.ID_SERVICE_UNKNOWN);
+                onError(Parameters.ID_SERVICE_UNKNOWN);
             }
         }
         else
         {
+            //異常例外處理
             Logs.showError("[MainActivity] ERROR while sending message to CMP Controller");
             mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_UNKNOWN, Parameters.ID_SERVICE_UNKNOWN);
         }
@@ -235,7 +274,6 @@ public class MainActivity extends Activity
             //stop all service
             if (null != mSpotifyHandler)
             {
-                Logs.showTrace("####mSpotifyHandler");
                 mSpotifyHandler.pauseMusic();
             }
             if (null != mWebMediaPlayerHandler)
@@ -248,6 +286,7 @@ public class MainActivity extends Activity
         }
         else
         {
+            //異常例外處理
             Logs.showError("ERROR Message:" + msg.obj);
         }
         
@@ -255,6 +294,27 @@ public class MainActivity extends Activity
     
     public void handleMessageWebMediaPlayer(Message msg)
     {
+        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+        {
+            switch (msg.arg2)
+            {
+                case WebMediaPlayerParameters.COMPLETE_PLAY:
+                    mWebMediaPlayerHandler.stopPlayMediaStream();
+                    // mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
+                    break;
+                case WebMediaPlayerParameters.START_PLAY:
+                    break;
+                case WebMediaPlayerParameters.STOP_PLAY:
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            //異常例外處理
+            onError(Parameters.ID_SERVICE_IO_EXCEPTION);
+        }
         
         
     }
@@ -265,40 +325,48 @@ public class MainActivity extends Activity
         {
             mVoiceRecognition.stopListen();
             
-            HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+            final HashMap<String, String> message = (HashMap<String, String>) msg.obj;
             Logs.showTrace("get voice Text: " + message.get("message"));
             
             if (!message.get("message").isEmpty())
             {
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        mTextView.setText("您說的是: \"" + message.get("message") + " \"");
+                    }
+                });
                 mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters.getWordID(),
                         SemanticWordCMPParameters.TYPE_REQUEST_UNKNOWN, message.get("message"));
                 
-                //  mSpotifyHandler.playMusic(null);
+                //mSpotifyHandler.playMusic(null);
             }
+        }
+        else if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+        {
+            //startListen first handle
+        }
+        else if (msg.arg1 == ResponseCode.ERR_SPEECH_ERRORMESSAGE)
+        {
+            HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+            Logs.showTrace("get ERROR message: " + message.get("message"));
+            mVoiceRecognition.stopListen();
+            
+            if (message.get("message").equals("No match") || message.get("message").equals("No speech input"))
+            {
+                //TTS again and listen again
+                onError(Parameters.ID_SERVICE_UNKNOWN);
+            }
+            
         }
         else
         {
-            if (msg.arg1 == ResponseCode.ERR_SPEECH_ERRORMESSAGE)
-            {
-                HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-                Logs.showTrace("get ERROR message: " + message.get("message"));
-                mVoiceRecognition.stopListen();
-                
-                if (message.get("message").equals("No match") || message.get("message").equals("No speech input"))
-                {
-                    //TTS again and listen again
-                    mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_UNKNOWN, Parameters.ID_SERVICE_UNKNOWN);
-                }
-                
-            }
-            else
-            {
-                //startListen first handle
-            }
+            
         }
-        
-        
     }
+    
     
     public void analysisSemanticWord(String data)
     {
@@ -310,52 +378,159 @@ public class MainActivity extends Activity
             {
                 case SemanticWordCMPParameters.TYPE_RESPONSE_UNKNOWN:
                     //UNKNOWN Command
-                    mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_UNKNOWN, Parameters.ID_SERVICE_UNKNOWN);
+                    onError(Parameters.ID_SERVICE_UNKNOWN);
                     break;
                 case SemanticWordCMPParameters.TYPE_RESPONSE_SPOTIFY:
                     JSONObject music = tmp.getJSONObject("music");
-                    String songID = "";
-                    String songAlbum = "";
-                    String songName = "";
+                    
+                    final String songID;
+                    final String songAlbum;
+                    final String songName;
+                    final String songArtist;
+                    int source_from = -1;
+                    if (music.has("source"))
+                    {
+                        source_from = music.getInt("source");
+                    }
+                    
                     if (music.has("id"))
                     {
                         songID = music.getString("id");
+                    }
+                    
+                    else
+                    {
+                        songID = "";
                     }
                     if (music.has("album"))
                     {
                         songAlbum = music.getString("album");
                     }
+                    else
+                    {
+                        songAlbum = "";
+                    }
                     if (music.has("song"))
                     {
                         songName = music.getString("song");
                     }
-                    mSpotifyHandler.playMusic(songID);
+                    else
+                    {
+                        songName = "";
+                    }
+                    if (music.has("artist"))
+                    {
+                        songArtist = music.getString("artist");
+                    }
+                    else
+                    {
+                        songArtist = "";
+                    }
+                    switch (source_from)
+                    {
+                        case 1:
+                            if (music.has("host") && music.has("file"))
+                            {
+                                mWebMediaPlayerHandler.setHostAndFilePath(music.getString("host"), music.getString("file"));
+                                mWebMediaPlayerHandler.startPlayMediaStream();
+                                mPocketSphinxHandler.startListenAction(Parameters.MEDIA_PLAYED_SPHINX_THRESHOLD);
+                            }
+                            else
+                            {
+                                onError(Parameters.ID_SERVICE_IO_EXCEPTION);
+                            }
+                            break;
+                        case 2:
+                            if (songID.isEmpty())
+                            {
+                                //mPocketSphinxHandler.stopListenAction();
+                                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_SPOTIFY_UNAUTHORIZED, Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED);
+                                return;
+                            }
+                            runOnUiThread(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    mResultTextView.setText("目前Spotify播放: 歌手:" + songArtist + " 專輯:" + songAlbum + " 歌曲:" + songName);
+                                }
+                            });
+                            
+                            
+                            mSpotifyHandler.playMusic(songID);
+                            mPocketSphinxHandler.startListenAction(Parameters.MEDIA_PLAYED_SPHINX_THRESHOLD);
+                            break;
+                        default:
+                            onError(Parameters.ID_SERVICE_UNKNOWN);
+                            break;
+                    }
                     
                     break;
                 case SemanticWordCMPParameters.TYPE_RESPONSE_STORY:
                     JSONObject story = tmp.getJSONObject("story");
-                    String storyTitle = story.getString("title");
-                    String storyHostPath = story.getString("host");
-                    String storyFilePath = story.getString("story");
+                    Logs.showTrace("Story: Json :" + story.toString());
+                    final String storyTitle = story.getString("story");
                     
-                    mWebMediaPlayerHandler.setHostAndFilePath(storyHostPath, storyFilePath);
-                    mWebMediaPlayerHandler.startPlayMediaStream();
-                    mPocketSphinxHandler.startListenAction();
+                    
+                    runOnUiThread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            mResultTextView.setText("目前故事播放名稱: " + storyTitle);
+                        }
+                    });
+                    if (story.has("host") && story.has("file"))
+                    {
+                        mWebMediaPlayerHandler.setHostAndFilePath(story.getString("host"), story.getString("file"));
+                        mWebMediaPlayerHandler.startPlayMediaStream();
+                        mPocketSphinxHandler.startListenAction(Parameters.MEDIA_PLAYED_SPHINX_THRESHOLD);
+                    }
+                    else
+                    {
+                        onError(Parameters.ID_SERVICE_IO_EXCEPTION);
+                    }
+                    
+                    
                     break;
                 case SemanticWordCMPParameters.TYPE_RESPONSE_TTS:
-                    String toTTS = tmp.getString("tts");
-                    mTextToSpeechHandler.textToSpeech(toTTS, Parameters.ID_SERVICE_TTS_BEGIN);
                     
+                    mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
+                    
+                    final String toTTS = tmp.getString("tts");
+                    mTextToSpeechHandler.textToSpeech(toTTS, Parameters.ID_SERVICE_TTS_BEGIN);
+                    runOnUiThread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            mResultTextView.setText("目前TTS輸出: " + toTTS);
+                        }
+                    });
                     break;
             }
             
         }
         catch (JSONException e)
         {
+            onError(Parameters.ID_SERVICE_IO_EXCEPTION);
             Logs.showError("[MainActivity] analysisSemanticWord Exception:" + e.toString());
         }
         
         
+    }
+    
+    public void onError(String index)
+    {
+        switch (index)
+        {
+            case Parameters.ID_SERVICE_IO_EXCEPTION:
+                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_IO_EXCEPTION, Parameters.ID_SERVICE_IO_EXCEPTION);
+                break;
+            default:
+                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_UNKNOWN, Parameters.ID_SERVICE_UNKNOWN);
+                break;
+        }
     }
     
     @Override
@@ -387,21 +562,32 @@ public class MainActivity extends Activity
                         
                         break;
                     case Parameters.ID_SERVICE_TTS_BEGIN:
-                        mPocketSphinxHandler.startListenAction();
+                        
                         
                         break;
                     case Parameters.ID_SERVICE_UNKNOWN:
-                        mPocketSphinxHandler.startListenAction();
+                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                         break;
-                    
+                    case Parameters.ID_SERVICE_IO_EXCEPTION:
+                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
+                        break;
+                    case Parameters.ID_SERVICE_INIT_SUCCESS:
+                        Logs.showTrace("ID_SERVICE_INIT_SUCCESS");
+                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
+                        break;
+                    case Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED:
+                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                     default:
                         break;
-                    
                     
                 }
                 
                 
             }
+        }
+        else if (message.get("message").equals("init success"))
+        {
+            mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_INIT_SUCCESS, Parameters.ID_SERVICE_INIT_SUCCESS);
         }
     }
 }

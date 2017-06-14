@@ -10,12 +10,16 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
+import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import java.util.HashMap;
+
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.ResponseCode;
 
 /**
  * Created by joe on 2017/4/13.
@@ -36,11 +40,12 @@ public class SpotifyHandler extends BaseHandler implements SpotifyPlayer.Notific
     public void onActivityResult(int requestCode, int resultCode, Intent intent)
     {
         // Check if result comes from the correct activity
-        if (requestCode == SpotifyParameters.REQUSET_CODE)
+        if (requestCode == SpotifyParameters.REQUEST_CODE)
         {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN)
             {
+                Logs.showTrace("[SpotifyHandler] response.getAccessToken()" + response.getAccessToken().toString());
                 Config playerConfig = new Config(SpotifyHandler.this.mContext, response.getAccessToken(), SpotifyParameters.CLIENT_ID);
                 Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver()
                 {
@@ -72,7 +77,7 @@ public class SpotifyHandler extends BaseHandler implements SpotifyPlayer.Notific
         builder.setScopes(new String[]{"user-read-private", "streaming"});
         AuthenticationRequest request = builder.build();
         
-        AuthenticationClient.openLoginActivity((Activity) this.mContext, SpotifyParameters.REQUSET_CODE, request);
+        AuthenticationClient.openLoginActivity((Activity) this.mContext, SpotifyParameters.REQUEST_CODE, request);
         
         
     }
@@ -80,17 +85,23 @@ public class SpotifyHandler extends BaseHandler implements SpotifyPlayer.Notific
     
     public void closeSpotify()
     {
-        // VERY IMPORTANT! This must always be called or else you will leak resources
         Spotify.destroyPlayer(this);
     }
     
     @Override
     public void onPlaybackEvent(PlayerEvent playerEvent)
     {
-        Logs.showTrace("Playback event received: " + playerEvent.name());
+        
+        Logs.showTrace("[SpotifyHandler] Playback event received: " + playerEvent.name());
+        
         switch (playerEvent)
         {
-            // Handle event type as necessary
+            case kSpPlaybackNotifyAudioDeliveryDone:
+                HashMap<String, String> message = new HashMap<>();
+                message.put("message", "DONE");
+                callBackMessage(ResponseCode.ERR_SUCCESS, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
+                break;
+            
             default:
                 break;
         }
@@ -102,6 +113,12 @@ public class SpotifyHandler extends BaseHandler implements SpotifyPlayer.Notific
         Logs.showTrace("[SpotifyHandler] Playback error received: " + error.name());
         switch (error)
         {
+            case kSpErrorFailed:
+             //   HashMap<String, String> message = new HashMap<>();
+             //   message.put("message", "ERROR");
+             //   callBackMessage(ResponseCode.ERR_UNKNOWN, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
+    
+                break;
             // Handle error type as necessary
             default:
                 break;
@@ -115,13 +132,35 @@ public class SpotifyHandler extends BaseHandler implements SpotifyPlayer.Notific
         
     }
     
-    public void playMusic(String musicName)
+    public void playMusic(String musicTrackID)
     {
-        Logs.showTrace("[SpotifyHandler] now play music!");
-        
-        mSpotifyPlayer.playUri(null, "spotify:track:2TpxZ7JUBn3uw46aR7qd6V", 0, 0);
-        
-        
+        if (null != musicTrackID && !musicTrackID.isEmpty())
+        {
+            Logs.showTrace("[SpotifyHandler] now play music!");
+            
+            mSpotifyPlayer.playUri(new Player.OperationCallback()
+            {
+                @Override
+                public void onSuccess()
+                {
+                    Logs.showTrace("[Spotify] play Success!");
+                    HashMap<String, String> message = new HashMap<>();
+                    message.put("message", "START");
+                    callBackMessage(ResponseCode.ERR_SUCCESS, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
+                }
+                
+                @Override
+                public void onError(Error error)
+                {
+                    Logs.showTrace("[Spotify] play ERROR! " + error.toString());
+                    HashMap<String, String> message = new HashMap<>();
+                    message.put("message", error.toString());
+                    callBackMessage(ResponseCode.ERR_UNKNOWN, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
+    
+                   
+                }
+            }, musicTrackID, 0, 0);
+        }
     }
     
     public void pauseMusic()

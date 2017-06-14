@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="com.iii.more.main">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -12,7 +13,9 @@
         android:label="@string/app_name">
         <activity
             android:name="com.iii.more.main.MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -22,7 +25,8 @@
         <activity
             android:exported="true"
             android:name="com.spotify.sdk.android.authentication.AuthCallbackActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:screenOrientation="portrait">
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -35,10 +39,17 @@
             </intent-filter>
         </activity>
 
-        <activity
+       <!-- <activity
             android:launchMode="singleInstance"
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        </activity>-->
+        <activity
+            tools:replace="android:launchMode"
+            android:launchMode="standard"
+            android:name="com.spotify.sdk.android.authentication.LoginActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:screenOrientation="portrait">
         </activity>
       
     </application>

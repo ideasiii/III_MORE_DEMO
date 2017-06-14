@@ -55,7 +55,7 @@ public class WebMediaPlayerHandler extends BaseHandler
             @Override
             public void onCompletion(MediaPlayer mp)
             {
-                mp.release();
+                //mp.release();
                 HashMap<String, String> message = new HashMap<String, String>();
                 message.put("message", "success");
                 callBackMessage(ResponseCode.ERR_SUCCESS, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.COMPLETE_PLAY, message);
@@ -71,7 +71,7 @@ public class WebMediaPlayerHandler extends BaseHandler
                 HashMap<String, String> message = new HashMap<String, String>();
                 message.put("message", "something ERROR while playing");
                 callBackMessage(ResponseCode.ERR_UNKNOWN, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.START_PLAY, message);
-    
+                
                 return false;
             }
         });
@@ -100,7 +100,7 @@ public class WebMediaPlayerHandler extends BaseHandler
             HashMap<String, String> message = new HashMap<String, String>();
             message.put("message", e.toString());
             callBackMessage(ResponseCode.ERR_IO_EXCEPTION, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.START_PLAY, message);
-    
+            
         }
         catch (Exception e)
         {
@@ -108,7 +108,7 @@ public class WebMediaPlayerHandler extends BaseHandler
             HashMap<String, String> message = new HashMap<String, String>();
             message.put("message", e.toString());
             callBackMessage(ResponseCode.ERR_UNKNOWN, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.START_PLAY, message);
-    
+            
         }
         
         
@@ -125,14 +125,18 @@ public class WebMediaPlayerHandler extends BaseHandler
     
     public void stopPlayMediaStream()
     {
-        if (null != mMediaPlayer && mMediaPlayer.isPlaying())
+        if (null != mMediaPlayer)
         {
-            mMediaPlayer.stop();
-            mMediaPlayer = null;
-            HashMap<String, String> message = new HashMap<String, String>();
-            message.put("message", "success");
-            callBackMessage(ResponseCode.ERR_SUCCESS, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.STOP_PLAY, message);
-    
+            if (mMediaPlayer.isPlaying())
+            {
+                mMediaPlayer.stop();
+                mMediaPlayer.release();
+                mMediaPlayer = null;
+                HashMap<String, String> message = new HashMap<String, String>();
+                message.put("message", "success");
+                callBackMessage(ResponseCode.ERR_SUCCESS, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.STOP_PLAY, message);
+                
+            }
         }
         
     }

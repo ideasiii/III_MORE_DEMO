@@ -14,7 +14,6 @@ import edu.cmu.pocketsphinx.RecognitionListener;
 import edu.cmu.pocketsphinx.SpeechRecognizer;
 import edu.cmu.pocketsphinx.SpeechRecognizerSetup;
 
-
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.ListenReceiverAction;
 import sdk.ideas.common.Logs;
@@ -24,20 +23,15 @@ import sdk.ideas.common.ResponseCode;
 public class PocketSphinxHandler extends BaseHandler implements
         RecognitionListener, ListenReceiverAction
 {
-    /* Named searches allow to quickly reconfigure the decoder */
     private static final String KWS_SEARCH = "wakeup";
     
-    /* Keyword we are looking for to activate menu */
-    
-    
     private SpeechRecognizer recognizer = null;
-    
+    private boolean isStart = false;
     
     public PocketSphinxHandler(Context context)
     {
         super(context);
     }
-    // private static boolean isListening = false;
     
     public void setKeyWord(String keyWord)
     {
@@ -58,58 +52,48 @@ public class PocketSphinxHandler extends BaseHandler implements
         {
             PocketSphinxParameters.KEY_PHRASE_THRESHOLD = threshold;
         }
+        Logs.showTrace("[PocketSphinxHandler] now Theshold");
     }
     
     private void runRecognizerSetup()
     {
-        // if(isListening == false)
+        new AsyncTask<Void, Void, Exception>()
         {
-            // Recognizer initialization is a time-consuming and it involves IO,
-            // so we execute it in async task
-            new AsyncTask<Void, Void, Exception>()
+            @Override
+            protected Exception doInBackground(Void... params)
             {
-                @Override
-                protected Exception doInBackground(Void... params)
+                try
                 {
-                    try
-                    {
-                        Assets assets = new Assets(PocketSphinxHandler.super.mContext);
-                        File assetDir = assets.syncAssets();
-                        setupRecognizer(assetDir);
-                    }
-                    catch (IOException e)
-                    {
-                        return e;
-                    }
-                    return null;
+                    Assets assets = new Assets(PocketSphinxHandler.super.mContext);
+                    File assetDir = assets.syncAssets();
+                    setupRecognizer(assetDir);
                 }
-                
-                @Override
-                protected void onPostExecute(Exception result)
+                catch (IOException e)
                 {
-                    if (result != null)
-                    {
-                        HashMap<String, String> message = new HashMap<>();
-                        message.put("message", result.getMessage());
-                        callBackMessage(ResponseCode.ERR_UNKNOWN, PocketSphinxParameters.CLASS_POCKET_SPHINX, PocketSphinxParameters.METHOD_POCKET_SPHINX, message);
-                        
-                    }
-                    else
-                    {
-                        switchSearch(KWS_SEARCH);
-                    }
+                    return e;
                 }
-            }.execute();
-            //   isListening = true;
-        }
+                return null;
+            }
+            
+            @Override
+            protected void onPostExecute(Exception result)
+            {
+                if (result != null)
+                {
+                    HashMap<String, String> message = new HashMap<>();
+                    message.put("message", result.getMessage());
+                    callBackMessage(ResponseCode.ERR_UNKNOWN, PocketSphinxParameters.CLASS_POCKET_SPHINX, PocketSphinxParameters.METHOD_POCKET_SPHINX, message);
+                    
+                }
+                else
+                {
+                    switchSearch(KWS_SEARCH);
+                }
+            }
+        }.execute();
     }
     
     
-    /**
-     * In partial result we get quick updates about current hypothesis. In
-     * keyword spotting mode we can react here, in other modes we need to wait
-     * for final result in onResult.
-     */
     @Override
     public void onPartialResult(Hypothesis hypothesis)
     {
@@ -122,14 +106,13 @@ public class PocketSphinxHandler extends BaseHandler implements
         if (text.equals(PocketSphinxParameters.KEY_PHRASE))
         {
             Logs.showTrace("Sphinx get****" + PocketSphinxParameters.KEY_PHRASE + "****");
+            isStart = false;
             recognizer.stop();
             recognizer.shutdown();
         }
     }
     
-    /**
-     * This callback is called when we stop the recognizer.
-     */
+    
     @Override
     public void onResult(Hypothesis hypothesis)
     {
@@ -147,24 +130,17 @@ public class PocketSphinxHandler extends BaseHandler implements
     {
     }
     
-    /**
-     * We stop recognizer here to get a final result
-     */
+    
     @Override
     public void onEndOfSpeech()
     {
-        if (!recognizer.getSearchName().equals(KWS_SEARCH))
-        {
-            // switchSearch(KWS_SEARCH);
-            
-        }
+        
     }
     
     private void switchSearch(String searchName)
     {
         recognizer.stop();
         
-        // If we are not spotting, start listening with timeout (10000 ms or 10 seconds).
         if (searchName.equals(KWS_SEARCH))
         {
             recognizer.startListening(searchName);
@@ -177,11 +153,10 @@ public class PocketSphinxHandler extends BaseHandler implements
         recognizer = SpeechRecognizerSetup.defaultSetup()
                 .setAcousticModel(new File(assetsDir, "en-us-ptm"))
                 .setDictionary(new File(assetsDir, "cmudict-en-us.dict"))
-                .setRawLogDir(assetsDir) // To disable logging of raw audio comment out this call (takes a lot of space on the device)
+                .setRawLogDir(assetsDir)
                 .setKeywordThreshold(PocketSphinxParameters.KEY_PHRASE_THRESHOLD)
                 .getRecognizer();
         recognizer.addListener(this);
-        // Create keyword-activation search.
         recognizer.addKeyphraseSearch(KWS_SEARCH, PocketSphinxParameters.KEY_PHRASE);
     }
     
@@ -207,13 +182,40 @@ public class PocketSphinxHandler extends BaseHandler implements
         runRecognizerSetup();
     }
     
+    public void startListenAction(float threshold)
+    {
+        Logs.showTrace("startListenAction : isStart "+String.valueOf(isStart));
+        if(isStart == false)
+        {
+            isStart = true;
+            setKeyWordThreshold(threshold);
+            runRecognizerSetup();
+           
+        }
+        else
+        {
+            Logs.showError("stop it first!");
+        }
+        
+    }
+    
     @Override
     public void stopListenAction()
     {
-        if (null != recognizer)
-        {
-            recognizer.cancel();
-            recognizer.shutdown();
-        }
+        Logs.showTrace("stopListenAction : isStart "+String.valueOf(isStart));
+       if(isStart == true)
+       {
+           if (null != recognizer)
+           {
+               isStart = false;
+               recognizer.stop();
+               recognizer.cancel();
+               recognizer.shutdown();
+           }
+       }
+       else
+       {
+           Logs.showError("start it first");
+       }
     }
 }
