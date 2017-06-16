@@ -21,8 +21,6 @@ repositories {
 }
 
 dependencies {
-    compile project(':aars')
-    compile project(':models')
     compile 'com.android.support:appcompat-v7:25.2.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile files('libs/common.jar')
@@ -36,4 +34,5 @@ dependencies {
     compile 'com.github.kaaes:spotify-web-api-android:0.4.1'
     compile files('libs/voice.jar')
     compile files('libs/module.jar')
+    compile project(':ideassphinx')
 }

@@ -1,2 +1,2 @@
-include ':app', ':aars', ':models'
+include ':app', ':ideassphinx', ':pocketsphinx'
 

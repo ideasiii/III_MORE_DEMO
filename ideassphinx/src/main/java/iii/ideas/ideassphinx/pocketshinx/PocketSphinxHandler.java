@@ -1,5 +1,5 @@
 
-package com.iii.more.pocketshinx;
+package iii.ideas.ideassphinx.pocketshinx;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -36,6 +36,11 @@ public class PocketSphinxHandler extends BaseHandler implements
     public void setKeyWord(String keyWord)
     {
         PocketSphinxParameters.KEY_PHRASE = keyWord;
+    }
+    
+    public void setLanguageLocation(String location)
+    {
+        PocketSphinxParameters.LANGUAGE_MODEL = location;
     }
     
     public static void setKeyWordThreshold(float threshold)
@@ -105,10 +110,14 @@ public class PocketSphinxHandler extends BaseHandler implements
         String text = hypothesis.getHypstr();
         if (text.equals(PocketSphinxParameters.KEY_PHRASE))
         {
-            Logs.showTrace("Sphinx get****" + PocketSphinxParameters.KEY_PHRASE + "****");
+            Logs.showTrace("[PocketSphinxHandler]Sphinx get****" + PocketSphinxParameters.KEY_PHRASE + "****");
             isStart = false;
             recognizer.stop();
             recognizer.shutdown();
+        }
+        else
+        {
+            Logs.showTrace("[PocketSphinxHandler]Sphinx got:"+text);
         }
     }
     
@@ -149,10 +158,27 @@ public class PocketSphinxHandler extends BaseHandler implements
     
     private void setupRecognizer(File assetsDir) throws IOException
     {
+        String acousticModel = "";
+        String dictionary = "";
+        switch (PocketSphinxParameters.LANGUAGE_MODEL)
+        {
+            case PocketSphinxParameters.LANGUAGE_MODEL_EN:
+                acousticModel = "en-us-ptm";
+                dictionary = "cmudict-en-us.dict";
+                break;
+            case PocketSphinxParameters.LANGUAGE_MODEL_ZH:
+                acousticModel = "zh-tw-ptm";
+                dictionary = "cmudict-zh-tw.dic";
+                break;
+            default:
+                acousticModel = "en-us-ptm";
+                dictionary = "cmudict-en-us.dict";
+                break;
+        }
         
         recognizer = SpeechRecognizerSetup.defaultSetup()
-                .setAcousticModel(new File(assetsDir, "en-us-ptm"))
-                .setDictionary(new File(assetsDir, "cmudict-en-us.dict"))
+                .setAcousticModel(new File(assetsDir, acousticModel))
+                .setDictionary(new File(assetsDir, dictionary))
                 .setRawLogDir(assetsDir)
                 .setKeywordThreshold(PocketSphinxParameters.KEY_PHRASE_THRESHOLD)
                 .getRecognizer();
@@ -184,13 +210,13 @@ public class PocketSphinxHandler extends BaseHandler implements
     
     public void startListenAction(float threshold)
     {
-        Logs.showTrace("startListenAction : isStart "+String.valueOf(isStart));
-        if(isStart == false)
+        Logs.showTrace("startListenAction : isStart " + String.valueOf(isStart));
+        if (isStart == false)
         {
             isStart = true;
             setKeyWordThreshold(threshold);
             runRecognizerSetup();
-           
+            
         }
         else
         {
@@ -202,20 +228,20 @@ public class PocketSphinxHandler extends BaseHandler implements
     @Override
     public void stopListenAction()
     {
-        Logs.showTrace("stopListenAction : isStart "+String.valueOf(isStart));
-       if(isStart == true)
-       {
-           if (null != recognizer)
-           {
-               isStart = false;
-               recognizer.stop();
-               recognizer.cancel();
-               recognizer.shutdown();
-           }
-       }
-       else
-       {
-           Logs.showError("start it first");
-       }
+        Logs.showTrace("stopListenAction : isStart " + String.valueOf(isStart));
+        if (isStart == true)
+        {
+            if (null != recognizer)
+            {
+                isStart = false;
+                recognizer.stop();
+                recognizer.cancel();
+                recognizer.shutdown();
+            }
+        }
+        else
+        {
+            Logs.showError("start it first");
+        }
     }
 }

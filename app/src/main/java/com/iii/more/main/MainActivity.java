@@ -3,17 +3,23 @@ package com.iii.more.main;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
-import com.iii.more.pocketshinx.PocketSphinxHandler;
-import com.iii.more.pocketshinx.PocketSphinxParameters;
+
+import iii.ideas.ideassphinx.pocketshinx.PocketSphinxHandler;
+import iii.ideas.ideassphinx.pocketshinx.PocketSphinxParameters;
+
 import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
+import com.iii.more.download.image.ImageDownloadHandler;
 import com.iii.more.spotify.SpotifyHandler;
 import com.iii.more.spotify.SpotifyParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
@@ -21,6 +27,7 @@ import com.iii.more.stream.WebMediaPlayerParameters;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +52,7 @@ public class MainActivity extends Activity
     private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
     private TextView mTextView = null;
     private TextView mResultTextView = null;
+    private ImageView mImageView = null;
     private Handler mHandler = new Handler()
     {
         @Override
@@ -64,6 +72,7 @@ public class MainActivity extends Activity
         setContentView(R.layout.main);
         mTextView = (TextView) findViewById(R.id.textView);
         mResultTextView = (TextView) findViewById(R.id.result_text);
+        mImageView = (ImageView) findViewById(R.id.imageView);
         ArrayList<String> permissions = new ArrayList<>();
         permissions.add(Manifest.permission.RECORD_AUDIO);
         mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
@@ -82,6 +91,8 @@ public class MainActivity extends Activity
     {
         mPocketSphinxHandler = new PocketSphinxHandler(this);
         mPocketSphinxHandler.setHandler(mHandler);
+        // mPocketSphinxHandler.setKeyWord("資策會");
+        // mPocketSphinxHandler.setLanguageLocation("zh-tw");
         
         mTextToSpeechHandler = new TextToSpeechHandler(this);
         mTextToSpeechHandler.setHandler(mHandler);
@@ -116,16 +127,6 @@ public class MainActivity extends Activity
     protected void onDestroy()
     {
         Logs.showTrace("onDestroy");
-        
-        mPocketSphinxHandler.stopListenAction();
-        
-        mTextToSpeechHandler.stop();
-        mTextToSpeechHandler.shutdown();
-        
-        mSpotifyHandler.closeSpotify();
-        
-        mWebMediaPlayerHandler.stopPlayMediaStream();
-        
         super.onDestroy();
     }
     
@@ -134,9 +135,29 @@ public class MainActivity extends Activity
     protected void onStop()
     {
         Logs.showTrace("onStop");
+        endAll();
+        finish();
         super.onStop();
     }
     
+    @Override
+    protected void onPause()
+    {
+        Logs.showTrace("onPause");
+        super.onPause();
+    }
+    
+    public void endAll()
+    {
+        mPocketSphinxHandler.stopListenAction();
+        
+        mTextToSpeechHandler.stop();
+        mTextToSpeechHandler.shutdown();
+        
+        mSpotifyHandler.closeSpotify();
+        
+        mWebMediaPlayerHandler.stopPlayMediaStream();
+    }
     
     public void handleMessages(Message msg)
     {
@@ -387,6 +408,7 @@ public class MainActivity extends Activity
                     final String songAlbum;
                     final String songName;
                     final String songArtist;
+                    final String songImageURL;
                     int source_from = -1;
                     if (music.has("source"))
                     {
@@ -426,6 +448,15 @@ public class MainActivity extends Activity
                     {
                         songArtist = "";
                     }
+                    if (music.has("cover"))
+                    {
+                        songImageURL = music.getString("cover");
+                        
+                    }
+                    else
+                    {
+                        songImageURL = "https://i.scdn.co/image/be3210e0838ec7c2f40155d47ca80420e8b080a0";
+                    }
                     switch (source_from)
                     {
                         case 1:
@@ -452,6 +483,9 @@ public class MainActivity extends Activity
                                 @Override
                                 public void run()
                                 {
+                                    ImageDownloadHandler mImageDownloadHandler = new ImageDownloadHandler(mImageView);
+                                    mImageDownloadHandler.execute(songImageURL);
+                                    
                                     mResultTextView.setText("目前Spotify播放: 歌手:" + songArtist + " 專輯:" + songAlbum + " 歌曲:" + songName);
                                 }
                             });
@@ -533,18 +567,13 @@ public class MainActivity extends Activity
         }
     }
     
-    @Override
-    protected void onPause()
-    {
-        Logs.showTrace("onPause");
-        super.onPause();
-    }
     
     public void analysisTTSResponse(HashMap<String, String> message)
     {
         if (message.containsKey("TextID") && message.containsKey("TextStatus"))
         {
             boolean textStatusDone = message.get("TextStatus").equals("DONE");
+            boolean textStatusStart = message.get("TextStatus").equals("START");
             if (textStatusDone)
             {
                 switch (message.get("TextID"))
@@ -584,10 +613,33 @@ public class MainActivity extends Activity
                 
                 
             }
+            if(textStatusStart)
+            {
+                switch(message.get("TextID"))
+                {
+                    case Parameters.ID_SERVICE_START_UP_GREETINGS:
+                        runOnUiThread(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                mTextView.setText("");
+                                mResultTextView.setText("");
+                                mImageView.setImageResource(android.R.color.transparent);
+                            }
+                        });
+                       
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
         else if (message.get("message").equals("init success"))
         {
             mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_INIT_SUCCESS, Parameters.ID_SERVICE_INIT_SUCCESS);
         }
     }
+    
+    
 }

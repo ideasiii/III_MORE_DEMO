@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 
+import sdk.ideas.common.Logs;
 import sdk.ideas.module.Controller;
 
 /**
@@ -18,7 +19,6 @@ import sdk.ideas.module.Controller;
 
 public class SemanticWordCMPHandler extends CMPHandler
 {
-    
     
     
     public SemanticWordCMPHandler(Context context)
@@ -46,6 +46,8 @@ public class SemanticWordCMPHandler extends CMPHandler
                 JSONObject tmp = new JSONObject();
                 try
                 {
+                    tmp.put("device_id", SemanticDeviceID.getDeiceID(mContext));
+                    Logs.showTrace("deviceID" + SemanticDeviceID.getDeiceID(mContext));
                     tmp.put("id", id);
                     tmp.put("type", type);
                     tmp.put("total", 0);
@@ -54,7 +56,7 @@ public class SemanticWordCMPHandler extends CMPHandler
                 }
                 catch (JSONException e)
                 {
-                    e.printStackTrace();
+                    Logs.showError(e.toString());
                 }
                 super.sendCommandSynchronize(Controller.semantic_word_request, tmp.toString());
             }
@@ -74,9 +76,6 @@ public class SemanticWordCMPHandler extends CMPHandler
         }
         
     }
-    
-    
-    
     
     
 }

@@ -114,10 +114,10 @@ public class SpotifyHandler extends BaseHandler implements SpotifyPlayer.Notific
         switch (error)
         {
             case kSpErrorFailed:
-             //   HashMap<String, String> message = new HashMap<>();
-             //   message.put("message", "ERROR");
-             //   callBackMessage(ResponseCode.ERR_UNKNOWN, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
-    
+                //   HashMap<String, String> message = new HashMap<>();
+                //   message.put("message", "ERROR");
+                //   callBackMessage(ResponseCode.ERR_UNKNOWN, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
+                
                 break;
             // Handle error type as necessary
             default:
@@ -137,29 +137,39 @@ public class SpotifyHandler extends BaseHandler implements SpotifyPlayer.Notific
         if (null != musicTrackID && !musicTrackID.isEmpty())
         {
             Logs.showTrace("[SpotifyHandler] now play music!");
-            
-            mSpotifyPlayer.playUri(new Player.OperationCallback()
+            if (null != mSpotifyPlayer)
             {
-                @Override
-                public void onSuccess()
+                mSpotifyPlayer.playUri(new Player.OperationCallback()
                 {
-                    Logs.showTrace("[Spotify] play Success!");
-                    HashMap<String, String> message = new HashMap<>();
-                    message.put("message", "START");
-                    callBackMessage(ResponseCode.ERR_SUCCESS, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
-                }
-                
-                @Override
-                public void onError(Error error)
-                {
-                    Logs.showTrace("[Spotify] play ERROR! " + error.toString());
-                    HashMap<String, String> message = new HashMap<>();
-                    message.put("message", error.toString());
-                    callBackMessage(ResponseCode.ERR_UNKNOWN, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
+                    @Override
+                    public void onSuccess()
+                    {
+                        Logs.showTrace("[Spotify] play Success!");
+                        HashMap<String, String> message = new HashMap<>();
+                        message.put("message", "START");
+                        callBackMessage(ResponseCode.ERR_SUCCESS, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
+                    }
+                    
+                    @Override
+                    public void onError(Error error)
+                    {
+                        Logs.showTrace("[Spotify] play ERROR! " + error.toString());
+                        HashMap<String, String> message = new HashMap<>();
+                        message.put("message", error.toString());
+                        callBackMessage(ResponseCode.ERR_UNKNOWN, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
+                        
+                        
+                    }
+                }, musicTrackID, 0, 0);
+            }
+            else
+            {
+                Logs.showTrace("[Spotify] play ERROR! IO Exception" );
+                HashMap<String, String> message = new HashMap<>();
+                message.put("message", "IO Exception");
+                callBackMessage(ResponseCode.ERR_IO_EXCEPTION, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
     
-                   
-                }
-            }, musicTrackID, 0, 0);
+            }
         }
     }
     

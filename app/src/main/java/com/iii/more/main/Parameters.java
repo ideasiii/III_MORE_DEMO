@@ -32,8 +32,8 @@ public abstract class Parameters
     public static final String CMP_HOST_IP = "175.98.119.121";
     public static final int CMP_HOST_PORT = 2310;
     // for HTC10 1e-10f;  //for sampo 1e-25f;
-    public static final float MEDIA_PLAYED_SPHINX_THRESHOLD = 1e-12f;//// for HTC10 1e-15f;
-    public static final float DEFAULT_SPHINX_THRESHOLD = 1e-12f;
+    public static final float MEDIA_PLAYED_SPHINX_THRESHOLD = 1e-13f;//// for HTC10 1e-15f;
+    public static final float DEFAULT_SPHINX_THRESHOLD = 1e-13f;
     
 
     
