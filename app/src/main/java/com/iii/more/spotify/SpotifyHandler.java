@@ -55,15 +55,29 @@ public class SpotifyHandler extends BaseHandler implements SpotifyPlayer.Notific
                         mSpotifyPlayer = spotifyPlayer;
                         mSpotifyPlayer.addConnectionStateCallback(SpotifyHandler.this);
                         mSpotifyPlayer.addNotificationCallback(SpotifyHandler.this);
+                        HashMap<String, String> message = new HashMap<>();
+                        message.put("message", "success");
+                        callBackMessage(ResponseCode.ERR_SUCCESS, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_INIT, message);
+    
                     }
                     
                     @Override
                     public void onError(Throwable throwable)
                     {
-                        Logs.showTrace("[SpotifyHandler] Could not initialize player: " + throwable.getMessage());
+                        HashMap<String, String> message = new HashMap<>();
+                        message.put("message", throwable.getMessage());
+                        callBackMessage(ResponseCode.ERR_NOT_INIT, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_INIT, message);
+                        Logs.showError("[SpotifyHandler] Could not initialize player: " + throwable.getMessage());
                     }
                     
                 });
+            }
+            else
+            {
+                HashMap<String, String> message = new HashMap<>();
+                message.put("message", "some error about activity not get value");
+                callBackMessage(ResponseCode.ERR_NOT_INIT, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_INIT, message);
+                Logs.showError("[SpotifyHandler] something ERROR");
             }
         }
         
@@ -164,11 +178,11 @@ public class SpotifyHandler extends BaseHandler implements SpotifyPlayer.Notific
             }
             else
             {
-                Logs.showTrace("[Spotify] play ERROR! IO Exception" );
+                Logs.showTrace("[Spotify] play ERROR! IO Exception");
                 HashMap<String, String> message = new HashMap<>();
                 message.put("message", "IO Exception");
                 callBackMessage(ResponseCode.ERR_IO_EXCEPTION, SpotifyParameters.CLASS_SPOTIFY, SpotifyParameters.METHOD_PLAY_MUSIC, message);
-    
+                
             }
         }
     }

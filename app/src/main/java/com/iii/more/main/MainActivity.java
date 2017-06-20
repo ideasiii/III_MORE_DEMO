@@ -20,6 +20,8 @@ import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
 import com.iii.more.download.image.ImageDownloadHandler;
+import com.iii.more.init.InitCheckBoard;
+import com.iii.more.init.InitCheckBoardParameters;
 import com.iii.more.spotify.SpotifyHandler;
 import com.iii.more.spotify.SpotifyParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
@@ -50,6 +52,9 @@ public class MainActivity extends Activity
     private VoiceRecognition mVoiceRecognition = null;
     private SemanticWordCMPHandler mSemanticWordCMPHandler = null;
     private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
+    
+    private InitCheckBoard mInitCheckBoard = null;
+    
     private TextView mTextView = null;
     private TextView mResultTextView = null;
     private ImageView mImageView = null;
@@ -89,6 +94,10 @@ public class MainActivity extends Activity
     
     public void init()
     {
+        mInitCheckBoard = new InitCheckBoard(this);
+        mInitCheckBoard.setHandler(mHandler);
+        mInitCheckBoard.init();
+        
         mPocketSphinxHandler = new PocketSphinxHandler(this);
         mPocketSphinxHandler.setHandler(mHandler);
         // mPocketSphinxHandler.setKeyWord("資策會");
@@ -184,9 +193,21 @@ public class MainActivity extends Activity
             case SpotifyParameters.CLASS_SPOTIFY:
                 handleMessageSpotify(msg);
                 break;
+            case InitCheckBoardParameters.CLASS_INIT:
+                handleMessageInitCheckBoard(msg);
+                break;
             default:
                 break;
         }
+    }
+    
+    public void handleMessageInitCheckBoard(Message msg)
+    {
+        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+        {
+            mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_INIT_SUCCESS, Parameters.ID_SERVICE_INIT_SUCCESS);
+        }
+        
     }
     
     public void handleMessageSpotify(Message msg)
@@ -194,26 +215,41 @@ public class MainActivity extends Activity
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
         
         Logs.showTrace("msg.arg2: " + String.valueOf(msg.arg2) + " message:" + message);
-        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+        if (msg.arg2 == SpotifyParameters.METHOD_INIT)
         {
-            
-            if (message.get("message").equals("DONE"))
+            if (msg.arg1 == ResponseCode.ERR_SUCCESS)
             {
-                //歌曲結束後
+                InitCheckBoard.setSpotifyInit(true);
+            }
+            else
+            {
+                Logs.showError("ERROR message" + message.get("message"));
+            }
+            
+        }
+        else
+        {
+            if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+            {
+                
+                
+                if (message.get("message").equals("DONE"))
+                {
+                    //歌曲結束後
+                    
+                    
+                }
+            }
+            else
+            {
+                //異常例外處理
+                mSpotifyHandler.pauseMusic();
+                mPocketSphinxHandler.stopListenAction();
+                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_SPOTIFY_UNAUTHORIZED, Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED);
                 
                 
             }
         }
-        else
-        {
-            //異常例外處理
-            mSpotifyHandler.pauseMusic();
-            mPocketSphinxHandler.stopListenAction();
-            mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_SPOTIFY_UNAUTHORIZED, Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED);
-            
-            
-        }
-        
         
     }
     
@@ -244,6 +280,7 @@ public class MainActivity extends Activity
                 
                 break;
             case ResponseCode.ERR_NOT_INIT:
+                Logs.showError("TTS not init success");
                 break;
             case ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION:
                 
@@ -613,9 +650,9 @@ public class MainActivity extends Activity
                 
                 
             }
-            if(textStatusStart)
+            if (textStatusStart)
             {
-                switch(message.get("TextID"))
+                switch (message.get("TextID"))
                 {
                     case Parameters.ID_SERVICE_START_UP_GREETINGS:
                         runOnUiThread(new Runnable()
@@ -628,7 +665,7 @@ public class MainActivity extends Activity
                                 mImageView.setImageResource(android.R.color.transparent);
                             }
                         });
-                       
+                        
                         break;
                     default:
                         break;
@@ -637,7 +674,8 @@ public class MainActivity extends Activity
         }
         else if (message.get("message").equals("init success"))
         {
-            mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_INIT_SUCCESS, Parameters.ID_SERVICE_INIT_SUCCESS);
+            InitCheckBoard.setTTSInit(true);
+            
         }
     }
     
