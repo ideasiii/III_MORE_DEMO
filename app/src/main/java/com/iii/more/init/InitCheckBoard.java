@@ -14,8 +14,8 @@ import sdk.ideas.common.ResponseCode;
 
 public class InitCheckBoard extends BaseHandler
 {
-    private static boolean INIT_SPOTIFY = false;
-    private static boolean INIT_TTS = false;
+    private static int INIT_SPOTIFY = 0;
+    private static int INIT_TTS = 0;
     
     
     public InitCheckBoard(Context mContext)
@@ -30,27 +30,48 @@ public class InitCheckBoard extends BaseHandler
         mThread.start();
         
     }
+    private static void setInitKnown()
+    {
+        INIT_SPOTIFY = 0;
+        INIT_TTS = 0;
+    }
     
     
     public static void setSpotifyInit(boolean isOk)
     {
-        INIT_SPOTIFY = isOk;
+        if (isOk)
+        {
+            INIT_SPOTIFY = 1;
+        }
+        else
+        {
+            INIT_SPOTIFY = -1;
+        }
+        
     }
     
     public static void setTTSInit(boolean isOk)
     {
-        INIT_TTS = isOk;
+        if (isOk)
+        {
+            INIT_TTS = 1;
+        }
+        else
+        {
+            INIT_TTS = -1;
+        }
     }
     
     
     private static boolean isAllInit()
     {
-        if (INIT_SPOTIFY && INIT_TTS)
+        if (INIT_SPOTIFY == 1 && INIT_TTS == 1)
         {
             return true;
         }
         return false;
     }
+    
     
     
     private class InitCheckRunnable implements Runnable
@@ -64,16 +85,32 @@ public class InitCheckBoard extends BaseHandler
                 while (true)
                 {
                     Logs.showTrace("[InitCheckBoard] check init again!");
+                    HashMap<String, String> message = new HashMap<>();
                     if (InitCheckBoard.isAllInit())
                     {
-                        HashMap<String, String> message = new HashMap<>();
+                        InitCheckBoard.setInitKnown();
                         message.put("message", "success");
+                       
                         callBackMessage(ResponseCode.ERR_SUCCESS, InitCheckBoardParameters.CLASS_INIT, InitCheckBoardParameters.METHOD_INIT, message);
                         break;
                     }
+                    else
+                    {
+                        if (INIT_SPOTIFY == -1)
+                        {
+                            message.put("message", "Spofity not init");
+                            callBackMessage(ResponseCode.ERR_NOT_INIT, InitCheckBoardParameters.CLASS_INIT, InitCheckBoardParameters.METHOD_INIT, message);
+                            
+                        }
+                        else if (INIT_TTS == -1)
+                        {
+                            message.put("message", "TTS not init");
+                            callBackMessage(ResponseCode.ERR_NOT_INIT, InitCheckBoardParameters.CLASS_INIT, InitCheckBoardParameters.METHOD_INIT, message);
+                        }
+                    }
                     
                     
-                    Thread.sleep(1000);
+                    Thread.sleep(3000);
                 }
             }
             catch (Exception e)

@@ -22,7 +22,7 @@ import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
 /**
- * Created by joe on 2017/4/13.
+ * Created by joe on 2017/6/13.
  */
 
 public class SpotifyHandler extends BaseHandler implements SpotifyPlayer.NotificationCallback, ConnectionStateCallback

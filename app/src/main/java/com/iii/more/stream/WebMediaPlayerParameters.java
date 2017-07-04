@@ -10,5 +10,6 @@ public abstract class WebMediaPlayerParameters
     public static final int START_PLAY = 0;
     public static final int STOP_PLAY = 1;
     public static final int COMPLETE_PLAY = 2;
+    public static final int MOOD_IMAGE_SHOW = 3;
     
 }

@@ -3,14 +3,19 @@ package com.iii.more.main;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.bumptech.glide.request.target.Target;
+import com.iii.more.animate.AnimationHandler;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 
 import iii.ideas.ideassphinx.pocketshinx.PocketSphinxHandler;
@@ -19,14 +24,16 @@ import iii.ideas.ideassphinx.pocketshinx.PocketSphinxParameters;
 import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
-import com.iii.more.download.image.ImageDownloadHandler;
 import com.iii.more.init.InitCheckBoard;
 import com.iii.more.init.InitCheckBoardParameters;
+import com.iii.more.view.ViewHandler;
 import com.iii.more.spotify.SpotifyHandler;
 import com.iii.more.spotify.SpotifyParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
+import com.iii.more.tts.TTSCache;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,8 +59,11 @@ public class MainActivity extends Activity
     private VoiceRecognition mVoiceRecognition = null;
     private SemanticWordCMPHandler mSemanticWordCMPHandler = null;
     private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
-    
     private InitCheckBoard mInitCheckBoard = null;
+    private AnimationHandler mAnimationHandler = null;
+    
+    private ArrayList<String> mVoiceRms = null;
+    
     
     private TextView mTextView = null;
     private TextView mResultTextView = null;
@@ -74,10 +84,18 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        Logs.showTrace("[MainActivity] onCreate");
         setContentView(R.layout.main);
+        
         mTextView = (TextView) findViewById(R.id.textView);
+        mTextView.setTextColor(Color.WHITE);
+        
         mResultTextView = (TextView) findViewById(R.id.result_text);
+        mTextView.setTextColor(Color.WHITE);
+        
         mImageView = (ImageView) findViewById(R.id.imageView);
+        ViewHandler.setBackgroundColor(getResources().getColor(R.color.black), mImageView);
+        
         ArrayList<String> permissions = new ArrayList<>();
         permissions.add(Manifest.permission.RECORD_AUDIO);
         mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
@@ -94,22 +112,27 @@ public class MainActivity extends Activity
     
     public void init()
     {
+        
         mInitCheckBoard = new InitCheckBoard(this);
         mInitCheckBoard.setHandler(mHandler);
         mInitCheckBoard.init();
         
         mPocketSphinxHandler = new PocketSphinxHandler(this);
         mPocketSphinxHandler.setHandler(mHandler);
+        mPocketSphinxHandler.setKeyWord(Parameters.IDEAS_SPHINX_KEY_WORD);
         // mPocketSphinxHandler.setKeyWord("資策會");
         // mPocketSphinxHandler.setLanguageLocation("zh-tw");
         
         mTextToSpeechHandler = new TextToSpeechHandler(this);
         mTextToSpeechHandler.setHandler(mHandler);
+        Logs.showTrace("[MainActivity] mTextToSpeechHandler init Start!");
         mTextToSpeechHandler.init();
+        Logs.showTrace("[MainActivity] mTextToSpeechHandler init End!");
         
         mVoiceRecognition = new VoiceRecognition(this);
         mVoiceRecognition.setHandler(mHandler);
         mVoiceRecognition.setLocale(Locale.TAIWAN);
+        mVoiceRms = new ArrayList<>();
         
         CMPHandler.setIPAndPort(Parameters.CMP_HOST_IP, Parameters.CMP_HOST_PORT);
         mSemanticWordCMPHandler = new SemanticWordCMPHandler(this);
@@ -121,6 +144,11 @@ public class MainActivity extends Activity
         mSpotifyHandler = new SpotifyHandler(this);
         mSpotifyHandler.setHandler(mHandler);
         mSpotifyHandler.init();
+        
+        mAnimationHandler = new AnimationHandler(this);
+        mAnimationHandler.setImageView(mImageView);
+        
+        mAnimationHandler.setAnimateDuring(Parameters.ANIMATE_DURING);
         
     }
     
@@ -158,14 +186,19 @@ public class MainActivity extends Activity
     
     public void endAll()
     {
+        //InitCheckBoard.setInitKnown();
+        
         mPocketSphinxHandler.stopListenAction();
         
         mTextToSpeechHandler.stop();
+        Logs.showTrace("[MainActivity] mTextToSpeechHandler shutdown Start");
         mTextToSpeechHandler.shutdown();
+        Logs.showTrace("[MainActivity] mTextToSpeechHandler shutdown End");
         
         mSpotifyHandler.closeSpotify();
         
         mWebMediaPlayerHandler.stopPlayMediaStream();
+        mAnimationHandler.animateCancel();
     }
     
     public void handleMessages(Message msg)
@@ -205,9 +238,28 @@ public class MainActivity extends Activity
     {
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
+            Logs.showTrace("[MainActivity] InitCheckBoard INIT SUCCESSFUL!");
             mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_INIT_SUCCESS, Parameters.ID_SERVICE_INIT_SUCCESS);
         }
-        
+        else
+        {
+            if (msg.arg1 == ResponseCode.ERR_NOT_INIT)
+            {
+                HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+                switch (message.get("message"))
+                {
+                    case "Spofity not init":
+                        
+                        break;
+                    case "TTS not init":
+                        
+                        break;
+                    
+                }
+            }
+            
+            
+        }
     }
     
     public void handleMessageSpotify(Message msg)
@@ -223,6 +275,7 @@ public class MainActivity extends Activity
             }
             else
             {
+                InitCheckBoard.setSpotifyInit(false);
                 Logs.showError("ERROR message" + message.get("message"));
             }
             
@@ -280,10 +333,11 @@ public class MainActivity extends Activity
                 
                 break;
             case ResponseCode.ERR_NOT_INIT:
+                InitCheckBoard.setTTSInit(false);
                 Logs.showError("TTS not init success");
                 break;
             case ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION:
-                
+                InitCheckBoard.setTTSInit(false);
                 //deal with not found Google TTS Exception
                 mTextToSpeechHandler.downloadTTS();
                 
@@ -293,6 +347,7 @@ public class MainActivity extends Activity
                 
                 break;
             case ResponseCode.ERR_UNKNOWN:
+                InitCheckBoard.setTTSInit(false);
                 break;
             default:
                 break;
@@ -340,7 +395,32 @@ public class MainActivity extends Activity
             }
             
             //start to TTS Service
-            mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_START_UP_GREETINGS, Parameters.ID_SERVICE_START_UP_GREETINGS);
+            if (!mTextToSpeechHandler.getLocale().toString().equals(Locale.TAIWAN.toString()))
+            {
+                mTextToSpeechHandler.setLocale(Locale.TAIWAN);
+                TTSCache.setTTSHandlerInit(true);
+                mTextToSpeechHandler.init();
+            }
+            if (TTSCache.getTTSHandlerInit())
+            {
+                TTSCache.setTTSCache(Parameters.STRING_SERVICE_START_UP_GREETINGS, Parameters.ID_SERVICE_START_UP_GREETINGS);
+            }
+            else
+            {
+                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_START_UP_GREETINGS, Parameters.ID_SERVICE_START_UP_GREETINGS);
+            }
+            
+            //set view default color
+            ViewHandler.setBackgroundColor(getResources().getColor(R.color.black), mImageView);
+            
+            
+            //reset animate
+            mAnimationHandler.animateCancel();
+            
+            //reset Views
+            mImageView.setImageResource(0);
+            mTextView.setText("");
+            mResultTextView.setText("");
         }
         else
         {
@@ -364,6 +444,47 @@ public class MainActivity extends Activity
                     break;
                 case WebMediaPlayerParameters.STOP_PLAY:
                     break;
+                case WebMediaPlayerParameters.MOOD_IMAGE_SHOW:
+                    final String imageUrl = ((HashMap<String, String>) msg.obj).get("message");
+                    final String a = ((HashMap<String, String>) msg.obj).get("message");
+                    Logs.showTrace("[MainActivity] image show url" + msg.obj);
+                    runOnUiThread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            try
+                            {
+                                //set background color
+                                ViewHandler.setBackgroundColor(getResources().getColor(R.color.yellow), mImageView);
+                                
+                                GlideDrawableImageViewTarget imageViewPreview = new GlideDrawableImageViewTarget(mImageView);
+                                Glide.with(MainActivity.this)
+                                        .load(imageUrl)
+                                        .listener(new RequestListener<String, GlideDrawable>()
+                                        {
+                                            @Override
+                                            public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource)
+                                            {
+                                                return false;
+                                            }
+                                            
+                                            @Override
+                                            public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource)
+                                            {
+                                                return false;
+                                            }
+                                        })
+                                        .into(imageViewPreview);
+                                
+                                // mAnimationHandler.animateChange(2);
+                            }
+                            catch (Exception e)
+                            {
+                                Logs.showError("[MainActivity]" + e.toString());
+                            }
+                        }
+                    });
                 default:
                     break;
             }
@@ -379,11 +500,11 @@ public class MainActivity extends Activity
     
     public void handleMessageVoiceRecognition(Message msg)
     {
+        final HashMap<String, String> message = (HashMap<String, String>) msg.obj;
         if (msg.arg1 == ResponseCode.ERR_SUCCESS && msg.arg2 == ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER)
         {
             mVoiceRecognition.stopListen();
             
-            final HashMap<String, String> message = (HashMap<String, String>) msg.obj;
             Logs.showTrace("get voice Text: " + message.get("message"));
             
             if (!message.get("message").isEmpty())
@@ -398,9 +519,26 @@ public class MainActivity extends Activity
                 });
                 mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters.getWordID(),
                         SemanticWordCMPParameters.TYPE_REQUEST_UNKNOWN, message.get("message"));
-                
-                //mSpotifyHandler.playMusic(null);
+                //clear voice rms buff
+                if (null != mVoiceRms)
+                {
+                    mVoiceRms.clear();
+                    mVoiceRms = null;
+                }
             }
+        }
+        else if (msg.arg2 == ResponseCode.METHOD_RETURN_RMS_VOICE_RECOGNIZER)
+        {
+            if (null == mVoiceRms)
+            {
+                mVoiceRms = new ArrayList<>();
+            }
+            mVoiceRms.add(message.get("message"));
+            // Logs.showTrace("[VoiceRMS] " + message.get("message"));
+        }
+        else if (msg.arg2 == ResponseCode.METHOD_RETURN_BUFF_VOICE_RECOGNIZER)
+        {
+            Logs.showTrace("[VoiceBUFF] " + message.get("message"));
         }
         else if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
@@ -408,7 +546,6 @@ public class MainActivity extends Activity
         }
         else if (msg.arg1 == ResponseCode.ERR_SPEECH_ERRORMESSAGE)
         {
-            HashMap<String, String> message = (HashMap<String, String>) msg.obj;
             Logs.showTrace("get ERROR message: " + message.get("message"));
             mVoiceRecognition.stopListen();
             
@@ -492,7 +629,7 @@ public class MainActivity extends Activity
                     }
                     else
                     {
-                        songImageURL = "https://i.scdn.co/image/be3210e0838ec7c2f40155d47ca80420e8b080a0";
+                        songImageURL = "";
                     }
                     switch (source_from)
                     {
@@ -520,9 +657,11 @@ public class MainActivity extends Activity
                                 @Override
                                 public void run()
                                 {
-                                    ImageDownloadHandler mImageDownloadHandler = new ImageDownloadHandler(mImageView);
-                                    mImageDownloadHandler.execute(songImageURL);
-                                    
+                                    //  ImageDownloadHandler mImageDownloadHandler = new ImageDownloadHandler(mImageView);
+                                    // mImageDownloadHandler.execute(songImageURL);
+                                    Glide.with(MainActivity.this)
+                                            .load(songImageURL)
+                                            .into(mImageView);
                                     mResultTextView.setText("目前Spotify播放: 歌手:" + songArtist + " 專輯:" + songAlbum + " 歌曲:" + songName);
                                 }
                             });
@@ -538,9 +677,9 @@ public class MainActivity extends Activity
                     
                     break;
                 case SemanticWordCMPParameters.TYPE_RESPONSE_STORY:
-                    JSONObject story = tmp.getJSONObject("story");
-                    Logs.showTrace("Story: Json :" + story.toString());
-                    final String storyTitle = story.getString("story");
+                    JSONObject storyJsonObject = tmp.getJSONObject("story");
+                    Logs.showTrace("Story: Json :" + storyJsonObject.toString());
+                    final String storyTitle = storyJsonObject.getString("story");
                     
                     
                     runOnUiThread(new Runnable()
@@ -551,10 +690,16 @@ public class MainActivity extends Activity
                             mResultTextView.setText("目前故事播放名稱: " + storyTitle);
                         }
                     });
-                    if (story.has("host") && story.has("file"))
+                    if (storyJsonObject.has("host") && storyJsonObject.has("file"))
                     {
-                        mWebMediaPlayerHandler.setHostAndFilePath(story.getString("host"), story.getString("file"));
-                        mWebMediaPlayerHandler.startPlayMediaStream();
+                        mWebMediaPlayerHandler.setHostAndFilePath(storyJsonObject.getString("host"), storyJsonObject.getString("file"));
+                        JSONArray moodJsonArray = null;
+                        if (storyJsonObject.has("mood"))
+                        {
+                            moodJsonArray = storyJsonObject.getJSONArray("mood");
+                        }
+                        
+                        mWebMediaPlayerHandler.startPlayMediaStream(moodJsonArray);
                         mPocketSphinxHandler.startListenAction(Parameters.MEDIA_PLAYED_SPHINX_THRESHOLD);
                     }
                     else
@@ -568,8 +713,47 @@ public class MainActivity extends Activity
                     
                     mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                     
-                    final String toTTS = tmp.getString("tts");
-                    mTextToSpeechHandler.textToSpeech(toTTS, Parameters.ID_SERVICE_TTS_BEGIN);
+                    JSONObject ttsJson = tmp.getJSONObject("tts");
+                    
+                    if (ttsJson.has("lang"))
+                    {
+                        
+                        Locale localeSet = null;
+                        switch (ttsJson.getString("lang"))
+                        {
+                            case "zh":
+                                localeSet = Locale.TAIWAN;
+                                break;
+                            case "en":
+                                localeSet = Locale.US;
+                                break;
+                            default:
+                                localeSet = Locale.TAIWAN;
+                                break;
+                        }
+                        
+                        
+                        if (!mTextToSpeechHandler.getLocale().toString().equals(localeSet.toString()))
+                        {
+                            Logs.showTrace("[MainActivity] OLD getLocale():" + mTextToSpeechHandler.getLocale().toString());
+                            mTextToSpeechHandler.setLocale(localeSet);
+                            Logs.showTrace("[MainActivity] NEW getLocale():" + mTextToSpeechHandler.getLocale().toString());
+                            TTSCache.setTTSHandlerInit(true);
+                            mTextToSpeechHandler.init();
+                        }
+                    }
+                    
+                    
+                    final String toTTS = ttsJson.getString("content");
+                    Logs.showTrace("[MainActivity] translate Data:" + toTTS);
+                    if (TTSCache.getTTSHandlerInit())
+                    {
+                        TTSCache.setTTSCache(toTTS, Parameters.ID_SERVICE_TTS_BEGIN);
+                    }
+                    else
+                    {
+                        mTextToSpeechHandler.textToSpeech(toTTS, Parameters.ID_SERVICE_TTS_BEGIN);
+                    }
                     runOnUiThread(new Runnable()
                     {
                         @Override
@@ -660,9 +844,7 @@ public class MainActivity extends Activity
                             @Override
                             public void run()
                             {
-                                mTextView.setText("");
-                                mResultTextView.setText("");
-                                mImageView.setImageResource(android.R.color.transparent);
+                               
                             }
                         });
                         
@@ -675,9 +857,12 @@ public class MainActivity extends Activity
         else if (message.get("message").equals("init success"))
         {
             InitCheckBoard.setTTSInit(true);
-            
+            TTSCache.setTTSHandlerInit(false);
+            HashMap<String, String> ttsCache = TTSCache.getTTSCache();
+            if (null != ttsCache)
+            {
+                mTextToSpeechHandler.textToSpeech(ttsCache.get("tts"), ttsCache.get("param"));
+            }
         }
     }
-    
-    
 }

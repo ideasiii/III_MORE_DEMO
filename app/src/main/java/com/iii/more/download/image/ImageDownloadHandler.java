@@ -29,8 +29,11 @@ public class ImageDownloadHandler extends AsyncTask<String, Void, Bitmap>
         Bitmap mIcon11 = null;
         try
         {
-            InputStream in = new java.net.URL(urlString).openStream();
-            mIcon11 = BitmapFactory.decodeStream(in);
+            if (!urlString.isEmpty())
+            {
+                InputStream in = new java.net.URL(urlString).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            }
         }
         catch (Exception e)
         {
