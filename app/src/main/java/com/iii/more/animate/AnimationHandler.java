@@ -7,6 +7,9 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.google.gson.JsonObject;
+
+import org.json.JSONObject;
 
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
@@ -19,7 +22,7 @@ public class AnimationHandler extends BaseHandler
 {
     private Techniques mTechniques = null;
     private YoYo.YoYoString rope;
-    private View mImageView = null;
+    private View mView = null;
     private int animateDuring = AnimationParameters.ANIMATE_DEFAULT_DURING;
     
     Animator.AnimatorListener myAnimatorListener = new Animator.AnimatorListener()
@@ -57,15 +60,29 @@ public class AnimationHandler extends BaseHandler
         super(context);
     }
     
-    public void setImageView(View imageView)
+    public void setView(View imageView)
     {
-        mImageView = imageView;
+        mView = imageView;
     }
     
     public void setAnimateDuring(int animateDuring)
     {
         this.animateDuring = animateDuring;
         
+    }
+    
+    public void setAnimateJsonBehavior(JSONObject jsonBehavior)
+    {
+        ///////////
+        
+        
+        
+    }
+    public boolean startAnimate()
+    {
+        
+        
+        return false;
     }
     
     public void animateChange(int animateType)
@@ -77,7 +94,7 @@ public class AnimationHandler extends BaseHandler
             {
                 mTechniques = Techniques.values()[animateType];
                 mTechniques.getAnimator();
-                if (null != mTechniques)
+                if (null != mTechniques && null != mView)
                 {
                     rope = YoYo.with(mTechniques)
                             .duration(1200)
@@ -85,9 +102,7 @@ public class AnimationHandler extends BaseHandler
                             .pivot(YoYo.CENTER_PIVOT, YoYo.CENTER_PIVOT)
                             .interpolate(new AccelerateDecelerateInterpolator())
                             .withListener(myAnimatorListener)
-                            .playOn(mImageView);
-                    
-                    
+                            .playOn(mView);
                 }
                 else
                 {

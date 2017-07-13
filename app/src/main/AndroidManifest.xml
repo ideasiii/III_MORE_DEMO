@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <application
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name">
         <activity
@@ -40,11 +40,11 @@
             </intent-filter>
         </activity>
 
-       <!-- <activity
-            android:launchMode="singleInstance"
-            android:name="com.spotify.sdk.android.authentication.LoginActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-        </activity>-->
+        <!-- <activity
+             android:launchMode="singleInstance"
+             android:name="com.spotify.sdk.android.authentication.LoginActivity"
+             android:theme="@android:style/Theme.Translucent.NoTitleBar">
+         </activity>-->
         <activity
             tools:replace="android:launchMode"
             android:launchMode="standard"
@@ -52,7 +52,7 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:screenOrientation="portrait">
         </activity>
-      
+
     </application>
 
 </manifest>

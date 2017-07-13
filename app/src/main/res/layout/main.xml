@@ -3,32 +3,40 @@
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
+              android:keepScreenOn="true"
               android:orientation="vertical"
-              android:padding="16dp"
-              android:weightSum="1"
-              android:keepScreenOn="true">
+              android:weightSum="1">
 
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="500dp">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="500dp"
+            android:layout_height="300dp"
+            android:layout_marginBottom="360dp"
+            android:layout_marginLeft="100dp"
+            android:layout_marginRight="100dp"
+            android:layout_marginTop="20dp"
+            android:contentDescription="image"
+            app:srcCompat="@drawable/icon"/>
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:visibility="visible"/>
+
     <TextView
         android:id="@+id/result_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:srcCompat="@drawable/icon"
-        android:contentDescription="image"/>
-    </RelativeLayout>
-
-
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:visibility="visible"/>
 
 
 </LinearLayout>

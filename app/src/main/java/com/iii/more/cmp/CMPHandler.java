@@ -75,20 +75,25 @@ public class CMPHandler extends BaseHandler
             {
                 int status = Controller.cmpRequest(CMPHandler.mIP, CMPHandler.mPort, mCommand, mData, respPacket);
                 HashMap<String, String> message = new HashMap<>();
+                
+                
+                Logs.showTrace("[CMPHandler] status:" + String.valueOf(status));
                 switch (status)
                 {
                     case Controller.STATUS_ROK:
                         
                         if (null != respPacket.cmpBody && !respPacket.cmpBody.isEmpty())
                         {
+                            Logs.showTrace("[CMPHandler] respPacket.cmpBody" + String.valueOf(respPacket.cmpBody));
                             message.put("message", respPacket.cmpBody);
                             callBackMessage(ResponseCode.ERR_SUCCESS, mWhichClass, CMPParameters.CMP_RESPONSE_METHOD, message);
                         }
                         else
                         {
                             //message.put("message", "success!");
+                            Logs.showError("[CMPHandler] null respPacket.cmpBody");
                             callBackMessage(ResponseCode.ERR_SUCCESS, mWhichClass, CMPParameters.CMP_RESPONSE_METHOD, message);
-    
+                            
                         }
                         break;
                     

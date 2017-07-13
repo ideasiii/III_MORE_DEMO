@@ -224,7 +224,18 @@ public class WebMediaPlayerHandler extends BaseHandler
                 {
                     
                     //  Logs.showTrace("[WebMediaPlayerHandler] story length:" + String.valueOf(mMediaPlayer.getDuration()));
-                    
+                    for(int i=0;i<mMoodArray.size();i++)
+                    {
+                        Logs.showTrace("mood time"+String.valueOf(mMoodArray.keyAt(i)));
+                        if(mMoodArray.keyAt(i) == 0)
+                        {
+                            HashMap<String, String> message = new HashMap<String, String>();
+                            message.put("message", mMoodArray.get(mMoodArray.keyAt(i)));
+                            callBackMessage(ResponseCode.ERR_SUCCESS, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.MOOD_IMAGE_SHOW, message);
+                        }
+                        
+    
+                    }
                     while (true)
                     {
                         int currentTime = mMediaPlayer.getCurrentPosition();

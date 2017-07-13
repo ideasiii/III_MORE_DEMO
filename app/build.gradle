@@ -35,6 +35,7 @@ dependencies {
     compile files('libs/voice.jar')
     compile files('libs/module.jar')
 
+    compile 'com.kevalpatel2106:hiddencamera:1.3.2'
     compile project(':ideassphinx')
 
     compile project(':library')

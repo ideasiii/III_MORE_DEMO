@@ -7,9 +7,12 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.androidhiddencamera.HiddenCameraFragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
@@ -24,6 +27,7 @@ import iii.ideas.ideassphinx.pocketshinx.PocketSphinxParameters;
 import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
+import com.iii.more.display.DisplayHandler;
 import com.iii.more.init.InitCheckBoard;
 import com.iii.more.init.InitCheckBoardParameters;
 import com.iii.more.view.ViewHandler;
@@ -60,9 +64,11 @@ public class MainActivity extends Activity
     private SemanticWordCMPHandler mSemanticWordCMPHandler = null;
     private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
     private InitCheckBoard mInitCheckBoard = null;
-    private AnimationHandler mAnimationHandler = null;
+   
+    private DisplayHandler mDisplayHandler = null;
     
-    private ArrayList<String> mVoiceRms = null;
+    
+    //private ArrayList<String> mVoiceRms = null;
     
     
     private TextView mTextView = null;
@@ -85,19 +91,23 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         Logs.showTrace("[MainActivity] onCreate");
+        
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.main);
         
+        
         mTextView = (TextView) findViewById(R.id.textView);
-        mTextView.setTextColor(Color.WHITE);
         
         mResultTextView = (TextView) findViewById(R.id.result_text);
-        mTextView.setTextColor(Color.WHITE);
         
         mImageView = (ImageView) findViewById(R.id.imageView);
+        
         ViewHandler.setBackgroundColor(getResources().getColor(R.color.black), mImageView);
         
         ArrayList<String> permissions = new ArrayList<>();
         permissions.add(Manifest.permission.RECORD_AUDIO);
+        permissions.add(Manifest.permission.CAMERA);
+        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
         mRuntimePermissionHandler.setHandler(mHandler);
         mRuntimePermissionHandler.startRequestPermissions();
@@ -132,7 +142,7 @@ public class MainActivity extends Activity
         mVoiceRecognition = new VoiceRecognition(this);
         mVoiceRecognition.setHandler(mHandler);
         mVoiceRecognition.setLocale(Locale.TAIWAN);
-        mVoiceRms = new ArrayList<>();
+        //mVoiceRms = new ArrayList<>();
         
         CMPHandler.setIPAndPort(Parameters.CMP_HOST_IP, Parameters.CMP_HOST_PORT);
         mSemanticWordCMPHandler = new SemanticWordCMPHandler(this);
@@ -145,10 +155,7 @@ public class MainActivity extends Activity
         mSpotifyHandler.setHandler(mHandler);
         mSpotifyHandler.init();
         
-        mAnimationHandler = new AnimationHandler(this);
-        mAnimationHandler.setImageView(mImageView);
-        
-        mAnimationHandler.setAnimateDuring(Parameters.ANIMATE_DURING);
+       
         
     }
     
@@ -198,7 +205,7 @@ public class MainActivity extends Activity
         mSpotifyHandler.closeSpotify();
         
         mWebMediaPlayerHandler.stopPlayMediaStream();
-        mAnimationHandler.animateCancel();
+        mDisplayHandler.cancelDisplay();
     }
     
     public void handleMessages(Message msg)
@@ -248,7 +255,7 @@ public class MainActivity extends Activity
                 HashMap<String, String> message = (HashMap<String, String>) msg.obj;
                 switch (message.get("message"))
                 {
-                    case "Spofity not init":
+                    case "Spotify not init":
                         
                         break;
                     case "TTS not init":
@@ -384,6 +391,10 @@ public class MainActivity extends Activity
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
             
+            //   Logs.showTrace("[MainActivity] startService DemoCamService START");
+            //   startService(new Intent(MainActivity.this, DemoCamService.class));
+            //   Logs.showTrace("[MainActivity] startService DemoCamService END");
+            
             //stop all service
             if (null != mSpotifyHandler)
             {
@@ -446,7 +457,6 @@ public class MainActivity extends Activity
                     break;
                 case WebMediaPlayerParameters.MOOD_IMAGE_SHOW:
                     final String imageUrl = ((HashMap<String, String>) msg.obj).get("message");
-                    final String a = ((HashMap<String, String>) msg.obj).get("message");
                     Logs.showTrace("[MainActivity] image show url" + msg.obj);
                     runOnUiThread(new Runnable()
                     {
@@ -520,21 +530,22 @@ public class MainActivity extends Activity
                 mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters.getWordID(),
                         SemanticWordCMPParameters.TYPE_REQUEST_UNKNOWN, message.get("message"));
                 //clear voice rms buff
-                if (null != mVoiceRms)
+                /*if (null != mVoiceRms)
                 {
                     mVoiceRms.clear();
                     mVoiceRms = null;
-                }
+                }*/
             }
         }
         else if (msg.arg2 == ResponseCode.METHOD_RETURN_RMS_VOICE_RECOGNIZER)
         {
-            if (null == mVoiceRms)
+          /*  if (null == mVoiceRms)
             {
                 mVoiceRms = new ArrayList<>();
             }
             mVoiceRms.add(message.get("message"));
-            // Logs.showTrace("[VoiceRMS] " + message.get("message"));
+             Logs.showTrace("[VoiceRMS] " + message.get("message"));
+        */
         }
         else if (msg.arg2 == ResponseCode.METHOD_RETURN_BUFF_VOICE_RECOGNIZER)
         {
@@ -568,14 +579,23 @@ public class MainActivity extends Activity
         try
         {
             JSONObject tmp = new JSONObject(data);
-            int type = tmp.getInt("type");
-            switch (type)
+            
+            if (tmp.has("display"))
+            {
+                JSONObject display = tmp.getJSONObject("display");
+                
+                
+            }
+            
+            
+            switch (tmp.getInt("type"))
             {
                 case SemanticWordCMPParameters.TYPE_RESPONSE_UNKNOWN:
                     //UNKNOWN Command
                     onError(Parameters.ID_SERVICE_UNKNOWN);
                     break;
                 case SemanticWordCMPParameters.TYPE_RESPONSE_SPOTIFY:
+                case SemanticWordCMPParameters.TYPE_RESPONSE_MUSIC:
                     JSONObject music = tmp.getJSONObject("music");
                     
                     final String songID;
@@ -763,6 +783,11 @@ public class MainActivity extends Activity
                         }
                     });
                     break;
+                case SemanticWordCMPParameters.TYPE_RESPONSE_VIDEO:
+                    //play video which from local to youtube
+                    
+                    
+                    break;
             }
             
         }
@@ -844,7 +869,7 @@ public class MainActivity extends Activity
                             @Override
                             public void run()
                             {
-                               
+                                
                             }
                         });
                         

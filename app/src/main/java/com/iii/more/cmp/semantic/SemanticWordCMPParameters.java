@@ -24,7 +24,8 @@ public abstract class SemanticWordCMPParameters
     public static final int TYPE_RESPONSE_SPOTIFY = 1;
     public static final int TYPE_RESPONSE_STORY = 2;
     public static final int TYPE_RESPONSE_TTS = 3;
-    
+    public static final int TYPE_RESPONSE_MUSIC = 4;
+    public static final int TYPE_RESPONSE_VIDEO = 5;
     
     
 }
