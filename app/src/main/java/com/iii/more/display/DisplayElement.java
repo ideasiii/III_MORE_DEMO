@@ -1,6 +1,7 @@
 package com.iii.more.display;
 
 import android.graphics.Color;
+import android.support.annotation.ColorInt;
 
 import org.json.JSONObject;
 
@@ -15,12 +16,12 @@ public class DisplayElement
     public int timeDuring = -1;
     public int nextTime = -1;
     public String imageURL = null;
-    public int backgroundColor = null;
+    public int backgroundColor = 0;
     public String description = null;
     public JSONObject animation = null;
     public JSONObject text = null;
     
-    public DisplayElement(int timeDuring, int nextTime, String imageURL, int backgroundColor, String description, JSONObject animation, JSONObject text)
+    public DisplayElement(int timeDuring, int nextTime, String imageURL,@ColorInt int backgroundColor, String description, JSONObject animation, JSONObject text)
     {
         this.animation = animation;
         this.backgroundColor = backgroundColor;
@@ -34,7 +35,7 @@ public class DisplayElement
     
     public void print()
     {
-        Logs.showTrace("[DisplayElement] timeDuring:" + String.valueOf(timeDuring) + " nextTime:" +
+        Logs.showTrace("[DisplayElement] imageURL:" + imageURL + " color:" + String.valueOf(backgroundColor) + " timeDuring:" + String.valueOf(timeDuring) + " nextTime:" +
                 String.valueOf(nextTime) + " url:" + imageURL + " text:" + text.toString() +
                 " animation:" + animation.toString());
     }

@@ -1,6 +1,9 @@
 package com.iii.more.view;
 
 import android.graphics.Color;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
+import android.support.annotation.NonNull;
 import android.view.View;
 
 /**
@@ -9,14 +12,14 @@ import android.view.View;
 
 public class ViewHandler
 {
-    public static void setBackgroundColor(int color, View view)
+    public static void setBackgroundColor(@ColorInt int color, View view)
     {
         View root = view.getRootView();
         root.setBackgroundColor(color);
         view.setBackgroundColor(color);
     }
     
-    public static void setBackgroundColor(Color color, View view)
+    public static void setBackgroundColor(@NonNull Color color, View view)
     {
         setBackgroundColor(color, view);
         

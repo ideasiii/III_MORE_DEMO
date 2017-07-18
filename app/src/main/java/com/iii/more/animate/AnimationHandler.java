@@ -4,6 +4,11 @@ import android.animation.Animator;
 import android.content.Context;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.CycleInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.GridLayoutAnimationController;
+import android.view.animation.LinearInterpolator;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -21,9 +26,9 @@ import sdk.ideas.common.Logs;
 public class AnimationHandler extends BaseHandler
 {
     private Techniques mTechniques = null;
-    private YoYo.YoYoString rope;
+    private YoYo.YoYoString rope = null;
     private View mView = null;
-    private int animateDuring = AnimationParameters.ANIMATE_DEFAULT_DURING;
+    private JSONObject mAnimateBehavior = null;
     
     Animator.AnimatorListener myAnimatorListener = new Animator.AnimatorListener()
     {
@@ -60,64 +65,134 @@ public class AnimationHandler extends BaseHandler
         super(context);
     }
     
-    public void setView(View imageView)
+    public void setView(View view)
     {
-        mView = imageView;
+        mView = view;
     }
     
-    public void setAnimateDuring(int animateDuring)
-    {
-        this.animateDuring = animateDuring;
-        
-    }
     
     public void setAnimateJsonBehavior(JSONObject jsonBehavior)
     {
-        ///////////
+        Logs.showTrace("[AnimationHandler]Animate Json:" + jsonBehavior.toString());
         
-        
-        
-    }
-    public boolean startAnimate()
-    {
-        
-        
-        return false;
+        mAnimateBehavior = jsonBehavior;
     }
     
-    public void animateChange(int animateType)
+    public boolean startAnimate()
     {
-        animateCancel();
-        if (animateType != -1)
+        return animateChange();
+    }
+    
+    private boolean animateChange()
+    {
+        if (null != mAnimateBehavior)
         {
             try
             {
-                mTechniques = Techniques.values()[animateType];
-                mTechniques.getAnimator();
-                if (null != mTechniques && null != mView)
+                int animateType = mAnimateBehavior.getInt(AnimationParameters.STRING_JSON_KEY_TYPE);
+                
+                if (animateType == AnimationParameters.TYPE_NOT_CHANGE)
                 {
-                    rope = YoYo.with(mTechniques)
-                            .duration(1200)
-                            .repeat(YoYo.INFINITE)
-                            .pivot(YoYo.CENTER_PIVOT, YoYo.CENTER_PIVOT)
-                            .interpolate(new AccelerateDecelerateInterpolator())
-                            .withListener(myAnimatorListener)
-                            .playOn(mView);
+                    return true;
+                    
+                }
+                else if (animateType == AnimationParameters.TYPE_CANCEL)
+                {
+                    animateCancel();
                 }
                 else
                 {
-                    //index access invalid
+                    animateCancel();
                     
+                    
+                    animateType -= 1;
+                    if (animateType >= 0 && animateType < AnimationParameters.TYPE_MAX)
+                    {
+                        mTechniques = Techniques.values()[animateType];
+                        mTechniques.getAnimator();
+                        if (null != mTechniques && null != mView)
+                        {
+                            YoYo.AnimationComposer mAnimationComposer = YoYo.with(mTechniques);
+                            
+                            if (mAnimateBehavior.has(AnimationParameters.STRING_JSON_KEY_DURATION))
+                            {
+                                mAnimationComposer.duration(mAnimateBehavior.getInt(AnimationParameters.STRING_JSON_KEY_DURATION));
+                            }
+                            else
+                            {
+                                mAnimationComposer.duration(AnimationParameters.DEFAULT_DURING);
+                            }
+                            if (mAnimateBehavior.has(AnimationParameters.STRING_JSON_KEY_REPEAT))
+                            {
+                                if (mAnimateBehavior.getInt(AnimationParameters.STRING_JSON_KEY_REPEAT) == 1)
+                                {
+                                    mAnimationComposer.repeat(YoYo.INFINITE);
+                                }
+                            }
+                            else
+                            {
+                                //default just show once
+                            }
+                            if (mAnimateBehavior.has(AnimationParameters.STRING_JSON_KEY_INTERPOLATE))
+                            {
+                                switch (mAnimateBehavior.getInt(AnimationParameters.STRING_JSON_KEY_INTERPOLATE))
+                                {
+                                    case AnimationParameters.INTERPOLATOR_LINEAR:
+                                        mAnimationComposer.interpolate(new LinearInterpolator());
+                                        break;
+                                    
+                                    case AnimationParameters.INTERPOLATOR_ACCELERATE_DECELERATE:
+                                        mAnimationComposer.interpolate(new AccelerateDecelerateInterpolator());
+                                        break;
+                                    
+                                    case AnimationParameters.INTERPOLATOR_ACCELERATE:
+                                        mAnimationComposer.interpolate(new AccelerateInterpolator());
+                                        break;
+                                    
+                                    case AnimationParameters.INTERPOLATOR_CYCLE:
+                                        mAnimationComposer.interpolate(new CycleInterpolator(
+                                                AnimationParameters.DEFAULT_INTERPOLATOR_CYCLE_Parameter));
+                                        break;
+                                    
+                                    case AnimationParameters.INTERPOLATOR_DECELERATE:
+                                        mAnimationComposer.interpolate(new DecelerateInterpolator());
+                                        break;
+                                    default:
+                                        mAnimationComposer.interpolate(new LinearInterpolator());
+                                        break;
+                                }
+                                
+                            }
+                            
+                            
+                            rope = mAnimationComposer
+                                    .pivot(YoYo.CENTER_PIVOT, YoYo.CENTER_PIVOT)
+                                    .withListener(myAnimatorListener)
+                                    .playOn(mView);
+                            
+                            return true;
+                        }
+                        else
+                        {
+                            //index access invalid
+                            Logs.showError("[AnimationHandler] Animate Type not Support");
+                        }
+                    }
+                    else
+                    {
+                        //index access invalid
+                        Logs.showError("[AnimationHandler] Animate Type not Support");
+                    }
                 }
+                
             }
+            
             catch (Exception e)
             {
                 Logs.showError(e.toString());
             }
-            
-            
         }
-        
+        return false;
     }
     
     public void animateCancel()
@@ -128,6 +203,7 @@ public class AnimationHandler extends BaseHandler
             {
                 Logs.showTrace("[AnimationHandler] stop animate!");
                 rope.stop();
+                rope = null;
             }
         }
     }

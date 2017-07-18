@@ -3,22 +3,17 @@ package com.iii.more.main;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
+import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.androidhiddencamera.HiddenCameraFragment;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
-import com.bumptech.glide.request.target.Target;
-import com.iii.more.animate.AnimationHandler;
+
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 
 import iii.ideas.ideassphinx.pocketshinx.PocketSphinxHandler;
@@ -28,16 +23,15 @@ import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
 import com.iii.more.display.DisplayHandler;
+import com.iii.more.display.DisplayParameters;
 import com.iii.more.init.InitCheckBoard;
 import com.iii.more.init.InitCheckBoardParameters;
-import com.iii.more.view.ViewHandler;
 import com.iii.more.spotify.SpotifyHandler;
 import com.iii.more.spotify.SpotifyParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
 import com.iii.more.tts.TTSCache;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -64,13 +58,10 @@ public class MainActivity extends Activity
     private SemanticWordCMPHandler mSemanticWordCMPHandler = null;
     private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
     private InitCheckBoard mInitCheckBoard = null;
-   
+    
     private DisplayHandler mDisplayHandler = null;
     
-    
-    //private ArrayList<String> mVoiceRms = null;
-    
-    
+    private RelativeLayout mRelativeLayout = null;
     private TextView mTextView = null;
     private TextView mResultTextView = null;
     private ImageView mImageView = null;
@@ -102,7 +93,7 @@ public class MainActivity extends Activity
         
         mImageView = (ImageView) findViewById(R.id.imageView);
         
-        ViewHandler.setBackgroundColor(getResources().getColor(R.color.black), mImageView);
+        mRelativeLayout = (RelativeLayout) findViewById(R.id.relativelayout);
         
         ArrayList<String> permissions = new ArrayList<>();
         permissions.add(Manifest.permission.RECORD_AUDIO);
@@ -142,7 +133,6 @@ public class MainActivity extends Activity
         mVoiceRecognition = new VoiceRecognition(this);
         mVoiceRecognition.setHandler(mHandler);
         mVoiceRecognition.setLocale(Locale.TAIWAN);
-        //mVoiceRms = new ArrayList<>();
         
         CMPHandler.setIPAndPort(Parameters.CMP_HOST_IP, Parameters.CMP_HOST_PORT);
         mSemanticWordCMPHandler = new SemanticWordCMPHandler(this);
@@ -155,14 +145,25 @@ public class MainActivity extends Activity
         mSpotifyHandler.setHandler(mHandler);
         mSpotifyHandler.init();
         
-       
+        HashMap<Integer, View> hashMapViews = new HashMap<>();
+        hashMapViews.put(DisplayParameters.RELATIVE_LAYOUT_ID, mRelativeLayout);
+        hashMapViews.put(DisplayParameters.TEXT_VIEW_ID, mTextView);
+        hashMapViews.put(DisplayParameters.RESULT_TEXT_VIEW_ID, mResultTextView);
+        hashMapViews.put(DisplayParameters.IMAGE_VIEW_ID, mImageView);
+        
+        mDisplayHandler = new DisplayHandler(this);
+        
+        mDisplayHandler.setDisplayView(hashMapViews);
+        mDisplayHandler.init();
+        mDisplayHandler.resetAllDisplayViews();
+        
         
     }
     
     
     @Override
     public void onRequestPermissionsResult(int requestCode,
-            String[] permissions, int[] grantResults)
+            @NonNull String[] permissions, @NonNull int[] grantResults)
     {
         mRuntimePermissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
@@ -205,7 +206,9 @@ public class MainActivity extends Activity
         mSpotifyHandler.closeSpotify();
         
         mWebMediaPlayerHandler.stopPlayMediaStream();
-        mDisplayHandler.cancelDisplay();
+        
+        mDisplayHandler.resetAllDisplayViews();
+        mDisplayHandler.resetDisplayData();
     }
     
     public void handleMessages(Message msg)
@@ -390,11 +393,6 @@ public class MainActivity extends Activity
     {
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
-            
-            //   Logs.showTrace("[MainActivity] startService DemoCamService START");
-            //   startService(new Intent(MainActivity.this, DemoCamService.class));
-            //   Logs.showTrace("[MainActivity] startService DemoCamService END");
-            
             //stop all service
             if (null != mSpotifyHandler)
             {
@@ -421,17 +419,9 @@ public class MainActivity extends Activity
                 mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_START_UP_GREETINGS, Parameters.ID_SERVICE_START_UP_GREETINGS);
             }
             
-            //set view default color
-            ViewHandler.setBackgroundColor(getResources().getColor(R.color.black), mImageView);
+            mDisplayHandler.resetAllDisplayViews();
+            mDisplayHandler.resetDisplayData();
             
-            
-            //reset animate
-            mAnimationHandler.animateCancel();
-            
-            //reset Views
-            mImageView.setImageResource(0);
-            mTextView.setText("");
-            mResultTextView.setText("");
         }
         else
         {
@@ -452,49 +442,16 @@ public class MainActivity extends Activity
                     // mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                     break;
                 case WebMediaPlayerParameters.START_PLAY:
+                    
+                    mDisplayHandler.startDisplay();
+                    
                     break;
                 case WebMediaPlayerParameters.STOP_PLAY:
                     break;
                 case WebMediaPlayerParameters.MOOD_IMAGE_SHOW:
                     final String imageUrl = ((HashMap<String, String>) msg.obj).get("message");
                     Logs.showTrace("[MainActivity] image show url" + msg.obj);
-                    runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            try
-                            {
-                                //set background color
-                                ViewHandler.setBackgroundColor(getResources().getColor(R.color.yellow), mImageView);
-                                
-                                GlideDrawableImageViewTarget imageViewPreview = new GlideDrawableImageViewTarget(mImageView);
-                                Glide.with(MainActivity.this)
-                                        .load(imageUrl)
-                                        .listener(new RequestListener<String, GlideDrawable>()
-                                        {
-                                            @Override
-                                            public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource)
-                                            {
-                                                return false;
-                                            }
-                                            
-                                            @Override
-                                            public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource)
-                                            {
-                                                return false;
-                                            }
-                                        })
-                                        .into(imageViewPreview);
-                                
-                                // mAnimationHandler.animateChange(2);
-                            }
-                            catch (Exception e)
-                            {
-                                Logs.showError("[MainActivity]" + e.toString());
-                            }
-                        }
-                    });
+                
                 default:
                     break;
             }
@@ -529,28 +486,9 @@ public class MainActivity extends Activity
                 });
                 mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters.getWordID(),
                         SemanticWordCMPParameters.TYPE_REQUEST_UNKNOWN, message.get("message"));
-                //clear voice rms buff
-                /*if (null != mVoiceRms)
-                {
-                    mVoiceRms.clear();
-                    mVoiceRms = null;
-                }*/
             }
         }
-        else if (msg.arg2 == ResponseCode.METHOD_RETURN_RMS_VOICE_RECOGNIZER)
-        {
-          /*  if (null == mVoiceRms)
-            {
-                mVoiceRms = new ArrayList<>();
-            }
-            mVoiceRms.add(message.get("message"));
-             Logs.showTrace("[VoiceRMS] " + message.get("message"));
-        */
-        }
-        else if (msg.arg2 == ResponseCode.METHOD_RETURN_BUFF_VOICE_RECOGNIZER)
-        {
-            Logs.showTrace("[VoiceBUFF] " + message.get("message"));
-        }
+        
         else if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
             //startListen first handle
@@ -582,9 +520,7 @@ public class MainActivity extends Activity
             
             if (tmp.has("display"))
             {
-                JSONObject display = tmp.getJSONObject("display");
-                
-                
+                mDisplayHandler.setDisplayJson(tmp.getJSONObject("display"));
             }
             
             
@@ -599,10 +535,10 @@ public class MainActivity extends Activity
                     JSONObject music = tmp.getJSONObject("music");
                     
                     final String songID;
-                    final String songAlbum;
+               /*     final String songAlbum;
                     final String songName;
                     final String songArtist;
-                    final String songImageURL;
+                    final String songImageURL;*/
                     int source_from = -1;
                     if (music.has("source"))
                     {
@@ -618,7 +554,7 @@ public class MainActivity extends Activity
                     {
                         songID = "";
                     }
-                    if (music.has("album"))
+                   /* if (music.has("album"))
                     {
                         songAlbum = music.getString("album");
                     }
@@ -650,7 +586,7 @@ public class MainActivity extends Activity
                     else
                     {
                         songImageURL = "";
-                    }
+                    }*/
                     switch (source_from)
                     {
                         case 1:
@@ -672,19 +608,7 @@ public class MainActivity extends Activity
                                 mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_SPOTIFY_UNAUTHORIZED, Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED);
                                 return;
                             }
-                            runOnUiThread(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    //  ImageDownloadHandler mImageDownloadHandler = new ImageDownloadHandler(mImageView);
-                                    // mImageDownloadHandler.execute(songImageURL);
-                                    Glide.with(MainActivity.this)
-                                            .load(songImageURL)
-                                            .into(mImageView);
-                                    mResultTextView.setText("目前Spotify播放: 歌手:" + songArtist + " 專輯:" + songAlbum + " 歌曲:" + songName);
-                                }
-                            });
+                           
                             
                             
                             mSpotifyHandler.playMusic(songID);
@@ -698,28 +622,13 @@ public class MainActivity extends Activity
                     break;
                 case SemanticWordCMPParameters.TYPE_RESPONSE_STORY:
                     JSONObject storyJsonObject = tmp.getJSONObject("story");
-                    Logs.showTrace("Story: Json :" + storyJsonObject.toString());
                     final String storyTitle = storyJsonObject.getString("story");
                     
                     
-                    runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            mResultTextView.setText("目前故事播放名稱: " + storyTitle);
-                        }
-                    });
                     if (storyJsonObject.has("host") && storyJsonObject.has("file"))
                     {
                         mWebMediaPlayerHandler.setHostAndFilePath(storyJsonObject.getString("host"), storyJsonObject.getString("file"));
-                        JSONArray moodJsonArray = null;
-                        if (storyJsonObject.has("mood"))
-                        {
-                            moodJsonArray = storyJsonObject.getJSONArray("mood");
-                        }
-                        
-                        mWebMediaPlayerHandler.startPlayMediaStream(moodJsonArray);
+                        mWebMediaPlayerHandler.startPlayMediaStream();
                         mPocketSphinxHandler.startListenAction(Parameters.MEDIA_PLAYED_SPHINX_THRESHOLD);
                     }
                     else
@@ -762,8 +671,6 @@ public class MainActivity extends Activity
                             mTextToSpeechHandler.init();
                         }
                     }
-                    
-                    
                     final String toTTS = ttsJson.getString("content");
                     Logs.showTrace("[MainActivity] translate Data:" + toTTS);
                     if (TTSCache.getTTSHandlerInit())
@@ -774,14 +681,7 @@ public class MainActivity extends Activity
                     {
                         mTextToSpeechHandler.textToSpeech(toTTS, Parameters.ID_SERVICE_TTS_BEGIN);
                     }
-                    runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            mResultTextView.setText("目前TTS輸出: " + toTTS);
-                        }
-                    });
+                    
                     break;
                 case SemanticWordCMPParameters.TYPE_RESPONSE_VIDEO:
                     //play video which from local to youtube
@@ -856,22 +756,13 @@ public class MainActivity extends Activity
                         break;
                     
                 }
-                
-                
             }
             if (textStatusStart)
             {
                 switch (message.get("TextID"))
                 {
                     case Parameters.ID_SERVICE_START_UP_GREETINGS:
-                        runOnUiThread(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                
-                            }
-                        });
+                        
                         
                         break;
                     default:

@@ -98,7 +98,7 @@ public class WebMediaPlayerHandler extends BaseHandler
             @Override
             public void onCompletion(MediaPlayer mp)
             {
-                HashMap<String, String> message = new HashMap<String, String>();
+                HashMap<String, String> message = new HashMap<>();
                 message.put("message", "success");
                 callBackMessage(ResponseCode.ERR_SUCCESS, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.COMPLETE_PLAY, message);
             }
@@ -110,7 +110,8 @@ public class WebMediaPlayerHandler extends BaseHandler
             {
                 Logs.showTrace("[WebMediaPlayerHandler] something ERROR");
                 
-                HashMap<String, String> message = new HashMap<String, String>();
+                HashMap<String, String> message;
+                message = new HashMap<String, String>();
                 message.put("message", "something ERROR while playing");
                 callBackMessage(ResponseCode.ERR_UNKNOWN, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.START_PLAY, message);
                 
@@ -124,6 +125,11 @@ public class WebMediaPlayerHandler extends BaseHandler
             {
                 Logs.showTrace("[WebMediaPlayerHandler] now start!");
                 mp.start();
+                
+                HashMap<String, String> message = new HashMap<>();
+                message.put("message", "success");
+                callBackMessage(ResponseCode.ERR_SUCCESS, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.START_PLAY, message);
+    
                 if (null != mStoryMoodThread)
                 {
                     mStoryMoodThread.start();
