@@ -1,4 +1,4 @@
-package com.iii.more.display;
+package com.iii.more.screen.display;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -16,7 +16,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 import com.iii.more.animate.AnimationHandler;
-import com.iii.more.view.ViewHandler;
+import com.iii.more.screen.view.ViewHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,7 +44,24 @@ public class DisplayHandler extends BaseHandler
     private Handler mDisplayHandler = null;
     private DisplayRunnable mDisplayRunnable = null;
     private ArrayDeque<DisplayElement> mDisplayQueue = null;
-    
+    RequestListener mRequestListener = new RequestListener<String, GlideDrawable>()
+    {
+        @Override
+        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource)
+        {
+            Logs.showError("[RequestListener] Exception: " + e.toString() + " Model: " + model + " isFirstResource: " + String.valueOf(isFirstResource));
+            
+            ((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID)).setImageResource(0);
+            return false;
+        }
+        
+        @Override
+        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource)
+        {
+            Logs.showTrace("[RequestListener] Model: " + model + " isFromMemoryCache: " + String.valueOf(isFromMemoryCache) + " isFirstResource: " + String.valueOf(isFirstResource));
+            return false;
+        }
+    };
     
     public DisplayHandler(@NonNull Context context)
     {
@@ -62,13 +79,13 @@ public class DisplayHandler extends BaseHandler
     
     public void resetAllDisplayViews()
     {
-        if(null != mDisplayHandler && null!= mAnimationHandler && null != mHashMapViews)
+        if (null != mDisplayHandler && null != mAnimationHandler && null != mHashMapViews)
         {
             mDisplayHandler.removeCallbacks(mDisplayRunnable);
-    
+            
             //cancel animation
             mAnimationHandler.animateCancel();
-    
+            
             //clear view to default statue
             for (int key : mHashMapViews.keySet())
             {
@@ -78,7 +95,11 @@ public class DisplayHandler extends BaseHandler
                 }
                 else if (mHashMapViews.get(key) instanceof ImageView)
                 {
-                    ((ImageView) mHashMapViews.get(key)).setImageResource(0);
+                    //((ImageView) mHashMapViews.get(key)).setImageResource(0);
+                    Glide.with(mContext)
+                            .load("")
+                            .listener(mRequestListener)
+                            .into(new GlideDrawableImageViewTarget(((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID))));
                 }
                 else if (mHashMapViews.get(key) instanceof RelativeLayout)
                 {
@@ -108,7 +129,7 @@ public class DisplayHandler extends BaseHandler
             {
                 if (displayJson.has(DisplayParameters.STRING_JSON_KEY_SHOW))
                 {
-                    this.mDisplayJsonArray = sortJsonArray(displayJson.getJSONArray("show"));
+                    this.mDisplayJsonArray = sortJsonArray(displayJson.getJSONArray(DisplayParameters.STRING_JSON_KEY_SHOW));
                     if (this.mDisplayJsonArray == null)
                     {
                         return false;
@@ -240,24 +261,10 @@ public class DisplayHandler extends BaseHandler
                 
                 ViewHandler.setBackgroundColor(display.backgroundColor, mHashMapViews.get(DisplayParameters.RELATIVE_LAYOUT_ID));
                 
-                GlideDrawableImageViewTarget imageViewPreview = new GlideDrawableImageViewTarget(((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID)));
                 Glide.with(mContext)
                         .load(display.imageURL)
-                        .listener(new RequestListener<String, GlideDrawable>()
-                        {
-                            @Override
-                            public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource)
-                            {
-                                return false;
-                            }
-                            
-                            @Override
-                            public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource)
-                            {
-                                return false;
-                            }
-                        })
-                        .into(imageViewPreview);
+                        .listener(mRequestListener)
+                        .into(new GlideDrawableImageViewTarget(((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID))));
                 
                 
             }

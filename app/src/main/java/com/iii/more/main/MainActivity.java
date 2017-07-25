@@ -22,15 +22,20 @@ import iii.ideas.ideassphinx.pocketshinx.PocketSphinxParameters;
 import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
-import com.iii.more.display.DisplayHandler;
-import com.iii.more.display.DisplayParameters;
+import com.iii.more.screen.display.DisplayHandler;
+import com.iii.more.screen.display.DisplayParameters;
 import com.iii.more.init.InitCheckBoard;
 import com.iii.more.init.InitCheckBoardParameters;
+import com.iii.more.sensor.SensorHandler;
+import com.iii.more.sensor.SensorParameters;
 import com.iii.more.spotify.SpotifyHandler;
 import com.iii.more.spotify.SpotifyParameters;
+import com.iii.more.state.StateHandler;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
 import com.iii.more.tts.TTSCache;
+import com.iii.more.screen.view.AlertDialogHandler;
+import com.iii.more.screen.view.AlertDialogParameters;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +45,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
+import premission.settings.WriteSettingPermissionHandler;
+import premission.settings.WriteSettingPermissionParameters;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
@@ -61,10 +68,19 @@ public class MainActivity extends Activity
     
     private DisplayHandler mDisplayHandler = null;
     
+    private WriteSettingPermissionHandler mWriteSettingPermissionHandler = null;
+    private AlertDialogHandler mAlertDialogHandler = null;
+    
+    private SensorHandler mSensorHandler = null;
+    
+    private StateHandler mStateHandler = null;
+    
     private RelativeLayout mRelativeLayout = null;
     private TextView mTextView = null;
     private TextView mResultTextView = null;
     private ImageView mImageView = null;
+    
+    
     private Handler mHandler = new Handler()
     {
         @Override
@@ -95,20 +111,43 @@ public class MainActivity extends Activity
         
         mRelativeLayout = (RelativeLayout) findViewById(R.id.relativelayout);
         
-        ArrayList<String> permissions = new ArrayList<>();
-        permissions.add(Manifest.permission.RECORD_AUDIO);
-        permissions.add(Manifest.permission.CAMERA);
-        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
-        mRuntimePermissionHandler.setHandler(mHandler);
-        mRuntimePermissionHandler.startRequestPermissions();
+        mWriteSettingPermissionHandler = new WriteSettingPermissionHandler(this);
+        mWriteSettingPermissionHandler.setHandler(mHandler);
+        
+        if (!mWriteSettingPermissionHandler.check())
+        {
+            mAlertDialogHandler = new AlertDialogHandler(this);
+            mAlertDialogHandler.setHandler(mHandler);
+            mAlertDialogHandler.setText(getResources().getString(R.string.writesettingtitle),
+                    getResources().getString(R.string.writesettingcontent), getResources().getString(R.string.positivebutton),
+                    getResources().getString(R.string.negativebutton));
+            mAlertDialogHandler.init();
+            mAlertDialogHandler.show();
+        }
+        else
+        {
+            ArrayList<String> permissions = new ArrayList<>();
+            permissions.add(Manifest.permission.RECORD_AUDIO);
+            permissions.add(Manifest.permission.CAMERA);
+            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
+            mRuntimePermissionHandler.setHandler(mHandler);
+            mRuntimePermissionHandler.startRequestPermissions();
+        }
+        
     }
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        Logs.showTrace("mSpotifyHandler onActivityResult!!");
-        mSpotifyHandler.onActivityResult(requestCode, resultCode, data);
+        if (null != mWriteSettingPermissionHandler)
+        {
+            mWriteSettingPermissionHandler.onActivityResult(requestCode, resultCode, data);
+        }
+        if (null != mSpotifyHandler)
+        {
+            mSpotifyHandler.onActivityResult(requestCode, resultCode, data);
+        }
     }
     
     public void init()
@@ -157,6 +196,15 @@ public class MainActivity extends Activity
         mDisplayHandler.init();
         mDisplayHandler.resetAllDisplayViews();
         
+        mSensorHandler = new SensorHandler(this);
+        ArrayList<Integer> m = new ArrayList<>();
+        m.add(SensorParameters.TYPE_LIGHT);
+        m.add(SensorParameters.TYPE_PROXIMITY);
+        mSensorHandler.init(m);
+        mSensorHandler.startListenAction();
+        
+        mStateHandler = new StateHandler(this);
+        mStateHandler.init();
         
     }
     
@@ -181,7 +229,7 @@ public class MainActivity extends Activity
     {
         Logs.showTrace("onStop");
         endAll();
-        finish();
+        
         super.onStop();
     }
     
@@ -195,24 +243,34 @@ public class MainActivity extends Activity
     public void endAll()
     {
         //InitCheckBoard.setInitKnown();
+        if (null != mPocketSphinxHandler && null != mTextToSpeechHandler && null != mSpotifyHandler && null != mDisplayHandler)
         
-        mPocketSphinxHandler.stopListenAction();
-        
-        mTextToSpeechHandler.stop();
-        Logs.showTrace("[MainActivity] mTextToSpeechHandler shutdown Start");
-        mTextToSpeechHandler.shutdown();
-        Logs.showTrace("[MainActivity] mTextToSpeechHandler shutdown End");
-        
-        mSpotifyHandler.closeSpotify();
-        
-        mWebMediaPlayerHandler.stopPlayMediaStream();
-        
-        mDisplayHandler.resetAllDisplayViews();
-        mDisplayHandler.resetDisplayData();
+        {
+            mPocketSphinxHandler.stopListenAction();
+            
+            
+            mTextToSpeechHandler.stop();
+            Logs.showTrace("[MainActivity] mTextToSpeechHandler shutdown Start");
+            mTextToSpeechHandler.shutdown();
+            Logs.showTrace("[MainActivity] mTextToSpeechHandler shutdown End");
+            
+            mSpotifyHandler.closeSpotify();
+            
+            mWebMediaPlayerHandler.stopPlayMediaStream();
+            
+            mDisplayHandler.resetAllDisplayViews();
+            mDisplayHandler.resetDisplayData();
+            
+            mSensorHandler.stopListenAction();
+    
+            mStateHandler.cancelStateRunnable();
+            finish();
+        }
     }
     
     public void handleMessages(Message msg)
     {
+       
         switch (msg.what)
         {
             case CMPParameters.CLASS_CMP_SEMANTIC_WORD:
@@ -239,8 +297,54 @@ public class MainActivity extends Activity
             case InitCheckBoardParameters.CLASS_INIT:
                 handleMessageInitCheckBoard(msg);
                 break;
+            case WriteSettingPermissionParameters.CLASS_WRITE_SETTING:
+                handleMessageWriteSettingPermission(msg);
+                break;
+            case AlertDialogParameters.CLASS_ALERT_DIALOG:
+                handleMessageAlertDialog(msg);
+                break;
+            
+            
             default:
                 break;
+        }
+    }
+    
+    public void handleMessageWriteSettingPermission(Message msg)
+    {
+        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+        {
+            ArrayList<String> permissions = new ArrayList<>();
+            permissions.add(Manifest.permission.RECORD_AUDIO);
+            permissions.add(Manifest.permission.CAMERA);
+            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
+            mRuntimePermissionHandler.setHandler(mHandler);
+            mRuntimePermissionHandler.startRequestPermissions();
+            
+            
+        }
+        else
+        {
+            //close app
+            finish();
+        }
+        
+    }
+    
+    public void handleMessageAlertDialog(Message msg)
+    {
+        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+        {
+            HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+            if (message.get("message").equals(AlertDialogParameters.ONCLICK_NEGATIVE_BUTTON))
+            {
+                finish();
+            }
+            else if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
+            {
+                mWriteSettingPermissionHandler.getPermission();
+            }
         }
     }
     
@@ -275,7 +379,6 @@ public class MainActivity extends Activity
     public void handleMessageSpotify(Message msg)
     {
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        
         Logs.showTrace("msg.arg2: " + String.valueOf(msg.arg2) + " message:" + message);
         if (msg.arg2 == SpotifyParameters.METHOD_INIT)
         {
@@ -299,7 +402,7 @@ public class MainActivity extends Activity
                 if (message.get("message").equals("DONE"))
                 {
                     //歌曲結束後
-                    
+                    mStateHandler.startWaitState();
                     
                 }
             }
@@ -393,6 +496,8 @@ public class MainActivity extends Activity
     {
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
+            mStateHandler.cancelStateRunnable();
+            
             //stop all service
             if (null != mSpotifyHandler)
             {
@@ -439,6 +544,7 @@ public class MainActivity extends Activity
             {
                 case WebMediaPlayerParameters.COMPLETE_PLAY:
                     mWebMediaPlayerHandler.stopPlayMediaStream();
+                    mStateHandler.startWaitState();
                     // mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                     break;
                 case WebMediaPlayerParameters.START_PLAY:
@@ -449,8 +555,8 @@ public class MainActivity extends Activity
                 case WebMediaPlayerParameters.STOP_PLAY:
                     break;
                 case WebMediaPlayerParameters.MOOD_IMAGE_SHOW:
-                    final String imageUrl = ((HashMap<String, String>) msg.obj).get("message");
-                    Logs.showTrace("[MainActivity] image show url" + msg.obj);
+                    //final String imageUrl = ((HashMap<String, String>) msg.obj).get("message");
+                    //Logs.showTrace("[MainActivity] image show url" + msg.obj);
                 
                 default:
                     break;
@@ -504,6 +610,10 @@ public class MainActivity extends Activity
                 onError(Parameters.ID_SERVICE_UNKNOWN);
             }
             
+        }
+        else if(msg.arg1 == ResponseCode.ERR_IO_EXCEPTION)
+        {
+            onError(Parameters.ID_SERVICE_IO_EXCEPTION);
         }
         else
         {
@@ -608,7 +718,6 @@ public class MainActivity extends Activity
                                 mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_SPOTIFY_UNAUTHORIZED, Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED);
                                 return;
                             }
-                           
                             
                             
                             mSpotifyHandler.playMusic(songID);
@@ -738,6 +847,7 @@ public class MainActivity extends Activity
                         break;
                     case Parameters.ID_SERVICE_TTS_BEGIN:
                         
+                        mStateHandler.startWaitState();
                         
                         break;
                     case Parameters.ID_SERVICE_UNKNOWN:

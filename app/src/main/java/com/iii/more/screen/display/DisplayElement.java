@@ -1,6 +1,5 @@
-package com.iii.more.display;
+package com.iii.more.screen.display;
 
-import android.graphics.Color;
 import android.support.annotation.ColorInt;
 
 import org.json.JSONObject;

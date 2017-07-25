@@ -36,6 +36,8 @@ public abstract class Parameters
     public static final float DEFAULT_SPHINX_THRESHOLD = 1e-13f;//1e-20f;//1e-11f;
     
     public static final String IDEAS_SPHINX_KEY_WORD = "hi ideas";
-    public static final int ANIMATE_DURING = 3000;
+    
+    
+
     
 }

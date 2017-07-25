@@ -1,8 +1,7 @@
-package com.iii.more.view;
+package com.iii.more.screen.view;
 
 import android.graphics.Color;
 import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.view.View;
 
@@ -24,6 +23,9 @@ public class ViewHandler
         setBackgroundColor(color, view);
         
     }
+    
+    
+    
     
     
 }

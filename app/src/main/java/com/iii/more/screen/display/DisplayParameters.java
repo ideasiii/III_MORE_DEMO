@@ -1,6 +1,7 @@
-package com.iii.more.display;
+package com.iii.more.screen.display;
 
 import android.graphics.Color;
+import android.os.Environment;
 
 /**
  * Created by joe on 2017/7/12.
@@ -25,6 +26,8 @@ public class DisplayParameters
     public static final String STRING_JSON_KEY_DESCRIPTION = "description";
     public static final String STRING_JSON_KEY_ENABLE = "enable";
     public static final String STRING_JSON_KEY_SHOW = "show";
+    
+    public static final String STRING_PATH_IMAGE = Environment.getExternalStorageDirectory()+"/more/image/";
     
     
     
