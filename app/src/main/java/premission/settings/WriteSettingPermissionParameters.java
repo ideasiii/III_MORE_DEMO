@@ -6,7 +6,7 @@ package premission.settings;
 
 public class WriteSettingPermissionParameters
 {
-    public static final int REQUEST_CODE = 92468;
+    public static final int REQUEST_CODE = 3246;
     
     public static final int CLASS_WRITE_SETTING = 9102;
     public static final int METHOD_CHECK_PERMISSION = 0;

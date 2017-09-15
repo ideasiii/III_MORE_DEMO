@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="red">#ffff0000</color>
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
-    <color name="yellow">#f2c438</color>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#323232</color>
+    <color name="colorPrimaryDark">#191919</color>
+    <color name="default_app_color">#FFA0C9EC </color>
+    <color name="tumblr_primary">#36465D</color>
 </resources>

@@ -1,41 +1,50 @@
 package com.iii.more.main;
 
 import android.Manifest;
-import android.app.Activity;
+
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.Window;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
-import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
+import com.iii.more.ai.HttpAPIHandler;
+import com.iii.more.ai.HttpAPIParameters;
+import com.iii.more.dmp.device.DeviceDMPHandler;
+import com.iii.more.dmp.device.DeviceDMPParameters;
+import com.iii.more.animate.AnimationHandler;
 
-import iii.ideas.ideassphinx.pocketshinx.PocketSphinxHandler;
-import iii.ideas.ideassphinx.pocketshinx.PocketSphinxParameters;
 
+import com.iii.more.bluetooth.ble.ReadPenBLEHandler;
+import com.iii.more.bluetooth.ble.ReadPenBLEParameters;
 import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
+import com.iii.more.cmp.semantic.SemanticDeviceID;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
-import com.iii.more.screen.display.DisplayHandler;
-import com.iii.more.screen.display.DisplayParameters;
-import com.iii.more.init.InitCheckBoard;
+import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
+import com.iii.more.init.InitCheckBoardHandler;
 import com.iii.more.init.InitCheckBoardParameters;
-import com.iii.more.sensor.SensorHandler;
-import com.iii.more.sensor.SensorParameters;
-import com.iii.more.spotify.SpotifyHandler;
-import com.iii.more.spotify.SpotifyParameters;
-import com.iii.more.state.StateHandler;
-import com.iii.more.stream.WebMediaPlayerHandler;
-import com.iii.more.stream.WebMediaPlayerParameters;
-import com.iii.more.tts.TTSCache;
-import com.iii.more.screen.view.AlertDialogHandler;
-import com.iii.more.screen.view.AlertDialogParameters;
+import com.iii.more.logic.LogicHandler;
+import com.iii.more.logic.LogicParameters;
+import com.iii.more.screen.view.display.DisplayHandler;
+import com.iii.more.screen.view.display.DisplayParameters;
+
+import com.iii.more.screen.view.fab.FloatingActionButtonHandler;
+import com.iii.more.screen.view.fab.FloatingActionButtonParameters;
+import com.iii.more.screen.view.menu.MenuHandler;
+import com.iii.more.screen.view.menu.MenuParameters;
+
+
+import com.iii.more.screen.view.alterdialog.AlertDialogHandler;
+import com.iii.more.screen.view.alterdialog.AlertDialogParameters;
+import com.scalified.fab.ActionButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,7 +52,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 import premission.settings.WriteSettingPermissionHandler;
 import premission.settings.WriteSettingPermissionParameters;
@@ -51,42 +59,53 @@ import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.tool.premisson.RuntimePermissionHandler;
-import sdk.ideas.tool.speech.tts.TextToSpeechHandler;
-import sdk.ideas.tool.speech.voice.VoiceRecognition;
 
 
-public class MainActivity extends Activity
+public class MainActivity extends AppCompatActivity
+
 {
-    private RuntimePermissionHandler mRuntimePermissionHandler = null;
-    private PocketSphinxHandler mPocketSphinxHandler = null;
-    private TextToSpeechHandler mTextToSpeechHandler = null;
-    private SpotifyHandler mSpotifyHandler = null;
-    private VoiceRecognition mVoiceRecognition = null;
-    private SemanticWordCMPHandler mSemanticWordCMPHandler = null;
-    private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
-    private InitCheckBoard mInitCheckBoard = null;
-    
-    private DisplayHandler mDisplayHandler = null;
-    
+    //permission check board
     private WriteSettingPermissionHandler mWriteSettingPermissionHandler = null;
+    private RuntimePermissionHandler mRuntimePermissionHandler = null;
     private AlertDialogHandler mAlertDialogHandler = null;
     
-    private SensorHandler mSensorHandler = null;
+    //Jugo server connect
+    private SemanticWordCMPHandler mSemanticWordCMPHandler = null;
     
-    private StateHandler mStateHandler = null;
+    //AI Server connect
+    private HttpAPIHandler mHttpAPIHandler = null;
+    
+    //Analysis Activity Json
+    private LogicHandler mLogicHandler = null;
+    //Analysis Display Json
+    private DisplayHandler mDisplayHandler = null;
+    
+    //private SensorHandler mSensorHandler = null;
     
     private RelativeLayout mRelativeLayout = null;
     private TextView mTextView = null;
     private TextView mResultTextView = null;
     private ImageView mImageView = null;
     
+    //layout handler
+    private MenuHandler mMenuHandler = null;
+    private FloatingActionButtonHandler mFABHandler = null;
+    
+    //init handler
+    private InitCheckBoardHandler mInitCheckBoardHandler = null;
+    
+    //BLE connect read pen
+    private ReadPenBLEHandler mReadPenBLEHandler = null;
+    
+    //2 floor device server connect
+    private DeviceDMPHandler mDeviceDMPHandler = null;
     
     private Handler mHandler = new Handler()
     {
         @Override
         public void handleMessage(Message msg)
         {
-            Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) +
+            Logs.showTrace("[MainActivity] Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) +
                     " From: " + String.valueOf(msg.arg2) + " Message: " + msg.obj);
             handleMessages(msg);
         }
@@ -99,40 +118,27 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         Logs.showTrace("[MainActivity] onCreate");
         
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.main);
+        mAlertDialogHandler = new AlertDialogHandler(this);
+        mAlertDialogHandler.setHandler(mHandler);
+        mAlertDialogHandler.init();
+        showMoreWelcomeLogo();
         
-        
-        mTextView = (TextView) findViewById(R.id.textView);
-        
-        mResultTextView = (TextView) findViewById(R.id.result_text);
-        
-        mImageView = (ImageView) findViewById(R.id.imageView);
-        
-        mRelativeLayout = (RelativeLayout) findViewById(R.id.relativelayout);
-        
-        mWriteSettingPermissionHandler = new WriteSettingPermissionHandler(this);
-        mWriteSettingPermissionHandler.setHandler(mHandler);
-        
-        if (!mWriteSettingPermissionHandler.check())
+    }
+    
+    private void showMoreWelcomeLogo()
+    {
+        setContentView(R.layout.welcome_layout);
+        AnimationHandler animationHandler = new AnimationHandler(this);
+        animationHandler.setView(findViewById(R.id.logo_image_view));
+        try
         {
-            mAlertDialogHandler = new AlertDialogHandler(this);
-            mAlertDialogHandler.setHandler(mHandler);
-            mAlertDialogHandler.setText(getResources().getString(R.string.writesettingtitle),
-                    getResources().getString(R.string.writesettingcontent), getResources().getString(R.string.positivebutton),
-                    getResources().getString(R.string.negativebutton));
-            mAlertDialogHandler.init();
-            mAlertDialogHandler.show();
+            animationHandler.setAnimateJsonBehavior(new JSONObject("{\"type\":1,\"duration\":3000,\"repeat\":0, \"interpolate\":1}"));
+            animationHandler.startAnimate();
+            mHandler.sendEmptyMessageDelayed(Parameters.MESSAGE_END_WELCOME_LAYOUT, 3100);
         }
-        else
+        catch (JSONException e)
         {
-            ArrayList<String> permissions = new ArrayList<>();
-            permissions.add(Manifest.permission.RECORD_AUDIO);
-            permissions.add(Manifest.permission.CAMERA);
-            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
-            mRuntimePermissionHandler.setHandler(mHandler);
-            mRuntimePermissionHandler.startRequestPermissions();
+            Logs.showError("[MainActivity] " + e.toString());
         }
         
     }
@@ -144,45 +150,61 @@ public class MainActivity extends Activity
         {
             mWriteSettingPermissionHandler.onActivityResult(requestCode, resultCode, data);
         }
-        if (null != mSpotifyHandler)
+        if (null != mLogicHandler)
         {
-            mSpotifyHandler.onActivityResult(requestCode, resultCode, data);
+            mLogicHandler.onActivityResult(requestCode, resultCode, data);
         }
     }
     
+    public void initLoadingData(int flag)
+    {
+        mInitCheckBoardHandler = new InitCheckBoardHandler(this);
+        mInitCheckBoardHandler.setHandler(mHandler);
+        mInitCheckBoardHandler.init(flag);
+        mInitCheckBoardHandler.startCheckInit();
+    }
+    
+    public void initDeviceServer()
+    {
+        mDeviceDMPHandler = new DeviceDMPHandler(this);
+        mDeviceDMPHandler.setHandler(mHandler);
+        mDeviceDMPHandler.init(Parameters.DMP_HOST_IP, Parameters.DMP_HOST_PORT,
+                SemanticDeviceID.getDeiceID(this));
+    }
+    
+    public void initReadPen()
+    {
+        mReadPenBLEHandler = new ReadPenBLEHandler(this);
+        mReadPenBLEHandler.setHandler(mHandler);
+        mReadPenBLEHandler.init();
+    }
+    
+    
     public void init()
     {
+        setContentView(R.layout.main);
+        mMenuHandler = new MenuHandler(this);
+        mMenuHandler.setHandler(mHandler);
+        mMenuHandler.setIDs(R.id.root_layout, R.id.menu_layout, R.id.arc_layout, R.id.play_btn);
         
-        mInitCheckBoard = new InitCheckBoard(this);
-        mInitCheckBoard.setHandler(mHandler);
-        mInitCheckBoard.init();
         
-        mPocketSphinxHandler = new PocketSphinxHandler(this);
-        mPocketSphinxHandler.setHandler(mHandler);
-        mPocketSphinxHandler.setKeyWord(Parameters.IDEAS_SPHINX_KEY_WORD);
-        // mPocketSphinxHandler.setKeyWord("資策會");
-        // mPocketSphinxHandler.setLanguageLocation("zh-tw");
+        mFABHandler = new FloatingActionButtonHandler(this);
+        mFABHandler.setHandler(mHandler);
+        mFABHandler.setID(R.id.fab_btn);
+        mFABHandler.init(R.drawable.start_image, 50.0f, ActionButton.Animations.SCALE_UP, ActionButton.Animations.SCALE_DOWN);
         
-        mTextToSpeechHandler = new TextToSpeechHandler(this);
-        mTextToSpeechHandler.setHandler(mHandler);
-        Logs.showTrace("[MainActivity] mTextToSpeechHandler init Start!");
-        mTextToSpeechHandler.init();
-        Logs.showTrace("[MainActivity] mTextToSpeechHandler init End!");
         
-        mVoiceRecognition = new VoiceRecognition(this);
-        mVoiceRecognition.setHandler(mHandler);
-        mVoiceRecognition.setLocale(Locale.TAIWAN);
+        mTextView = (TextView) findViewById(R.id.textView);
+        
+        mResultTextView = (TextView) findViewById(R.id.result_text);
+        
+        mImageView = (ImageView) findViewById(R.id.imageView);
+        
+        mRelativeLayout = (RelativeLayout) findViewById(R.id.relativelayout);
         
         CMPHandler.setIPAndPort(Parameters.CMP_HOST_IP, Parameters.CMP_HOST_PORT);
         mSemanticWordCMPHandler = new SemanticWordCMPHandler(this);
         mSemanticWordCMPHandler.setHandler(mHandler);
-        
-        mWebMediaPlayerHandler = new WebMediaPlayerHandler(this);
-        mWebMediaPlayerHandler.setHandler(mHandler);
-        
-        mSpotifyHandler = new SpotifyHandler(this);
-        mSpotifyHandler.setHandler(mHandler);
-        mSpotifyHandler.init();
         
         HashMap<Integer, View> hashMapViews = new HashMap<>();
         hashMapViews.put(DisplayParameters.RELATIVE_LAYOUT_ID, mRelativeLayout);
@@ -191,21 +213,25 @@ public class MainActivity extends Activity
         hashMapViews.put(DisplayParameters.IMAGE_VIEW_ID, mImageView);
         
         mDisplayHandler = new DisplayHandler(this);
-        
+        mDisplayHandler.setHandler(mHandler);
         mDisplayHandler.setDisplayView(hashMapViews);
         mDisplayHandler.init();
         mDisplayHandler.resetAllDisplayViews();
         
+        mLogicHandler = new LogicHandler(this);
+        mLogicHandler.setHandler(mHandler);
+        mLogicHandler.init();
+        
+        mHttpAPIHandler = new HttpAPIHandler(this);
+        mHttpAPIHandler.setHandler(mHandler);
+        /*
         mSensorHandler = new SensorHandler(this);
         ArrayList<Integer> m = new ArrayList<>();
         m.add(SensorParameters.TYPE_LIGHT);
         m.add(SensorParameters.TYPE_PROXIMITY);
         mSensorHandler.init(m);
         mSensorHandler.startListenAction();
-        
-        mStateHandler = new StateHandler(this);
-        mStateHandler.init();
-        
+        */
     }
     
     
@@ -220,6 +246,16 @@ public class MainActivity extends Activity
     protected void onDestroy()
     {
         Logs.showTrace("onDestroy");
+        
+        if (null != mDisplayHandler)
+        {
+            mDisplayHandler.killAll();
+        }
+        if (null != mLogicHandler)
+        {
+            mLogicHandler.killAll();
+        }
+        
         super.onDestroy();
     }
     
@@ -242,87 +278,415 @@ public class MainActivity extends Activity
     
     public void endAll()
     {
-        //InitCheckBoard.setInitKnown();
-        if (null != mPocketSphinxHandler && null != mTextToSpeechHandler && null != mSpotifyHandler && null != mDisplayHandler)
-        
+        if (null != mLogicHandler)
         {
-            mPocketSphinxHandler.stopListenAction();
-            
-            
-            mTextToSpeechHandler.stop();
-            Logs.showTrace("[MainActivity] mTextToSpeechHandler shutdown Start");
-            mTextToSpeechHandler.shutdown();
-            Logs.showTrace("[MainActivity] mTextToSpeechHandler shutdown End");
-            
-            mSpotifyHandler.closeSpotify();
-            
-            mWebMediaPlayerHandler.stopPlayMediaStream();
-            
-            mDisplayHandler.resetAllDisplayViews();
-            mDisplayHandler.resetDisplayData();
-            
-            mSensorHandler.stopListenAction();
-    
-            mStateHandler.cancelStateRunnable();
-            finish();
+            mLogicHandler.endAll();
         }
     }
     
     public void handleMessages(Message msg)
     {
-       
+        
         switch (msg.what)
         {
+            case Parameters.MESSAGE_END_WELCOME_LAYOUT:
+                //start to check permission
+                writeSettingPermissionCheck();
+                break;
+            
             case CMPParameters.CLASS_CMP_SEMANTIC_WORD:
                 handleMessageSWCMP(msg);
                 break;
+            
             case CtrlType.MSG_RESPONSE_PERMISSION_HANDLER:
                 handleMessagePermission(msg);
                 break;
-            case WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER:
-                handleMessageWebMediaPlayer(msg);
+            
+            case WriteSettingPermissionParameters.CLASS_WRITE_SETTING:
+                handleMessageWriteSettingPermission(msg);
                 break;
-            case PocketSphinxParameters.CLASS_POCKET_SPHINX:
-                handleMessageSphinx(msg);
+            
+            case AlertDialogParameters.CLASS_ALERT_DIALOG:
+                handleMessageAlertDialog(msg);
                 break;
-            case CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER:
-                handleMessageTTS(msg);
+            case FloatingActionButtonParameters.CLASS_FAB:
+                handleMessageFAB(msg);
                 break;
-            case CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER:
-                handleMessageVoiceRecognition(msg);
+            case MenuParameters.CLASS_MENU:
+                handleMessageMenu(msg);
                 break;
-            case SpotifyParameters.CLASS_SPOTIFY:
-                handleMessageSpotify(msg);
+            case LogicParameters.CLASS_LOGIC:
+                handleMessageLogic(msg);
                 break;
             case InitCheckBoardParameters.CLASS_INIT:
                 handleMessageInitCheckBoard(msg);
                 break;
-            case WriteSettingPermissionParameters.CLASS_WRITE_SETTING:
-                handleMessageWriteSettingPermission(msg);
-                break;
-            case AlertDialogParameters.CLASS_ALERT_DIALOG:
-                handleMessageAlertDialog(msg);
+            
+            case ReadPenBLEParameters.CLASS_ReadPenBLE:
+                handleMessageReadPenBLE(msg);
                 break;
             
+            case DisplayParameters.CLASS_DISPLAY:
+                handleMessageDisplay(msg);
+                break;
             
+            case DeviceDMPParameters.CLASS_DMP_DEVICE:
+                handleMessageDeviceDMP(msg);
+                break;
+            case HttpAPIParameters.CLASS_HTTP_API:
+                handleMessageHttpAPI(msg);
+                break;
             default:
                 break;
         }
+    }
+    
+    private void handleMessageHttpAPI(Message msg)
+    {
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+        mLogicHandler.ttsService(Parameters.ID_SERVICE_FRIEND_RESPONSE, message.get("message"));
+    }
+    
+    private void handleMessageDeviceDMP(Message msg)
+    {
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+        switch (msg.arg2)
+        {
+            case DeviceDMPParameters.METHOD_INIT:
+                if (msg.arg1 == ResponseCode.ERR_IO_EXCEPTION)
+                {
+                    mInitCheckBoardHandler.setDeviceServerState(InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_FAIL);
+                }
+                else
+                {
+                    mInitCheckBoardHandler.setDeviceServerState(InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_SUCCESS);
+                }
+                break;
+            case DeviceDMPParameters.METHOD_DISPLAY:
+                if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+                {
+                    //Logs.showTrace("[MainActivity]" +);
+                    try
+                    {
+                        if (null != mDisplayHandler)
+                        {
+                            if (mLogicHandler.getMode() == LogicParameters.MODE_STORY
+                                    || mLogicHandler.getMode() == LogicParameters.MODE_GAME)
+                            {
+                                mDisplayHandler.setDisplayJson(new JSONObject(message.get("display")));
+                                mDisplayHandler.startDisplay();
+                            }
+                        }
+                    }
+                    catch (JSONException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    if (null != mSemanticWordCMPHandler)
+                    {
+                        if (mLogicHandler.getMode() == LogicParameters.MODE_STORY)
+                        {
+                            mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters.getWordID(),
+                                    SemanticWordCMPParameters.TYPE_REQUEST_STORY, message.get("rfid_card"));
+                        }
+                    }
+                }
+                break;
+            
+            default:
+                
+                
+                break;
+        }
+        
+    }
+    
+    private void handleMessageDisplay(Message msg)
+    {
+        switch (msg.arg2)
+        {
+            case DisplayParameters.METHOD_CLICK:
+                Logs.showTrace("[MainActivity] get OnClick!");
+                
+                switch (mLogicHandler.getMode())
+                {
+                    case LogicParameters.MODE_STORY:
+                        mLogicHandler.endAll();
+                        mDisplayHandler.resetAllDisplayViews();
+                        mLogicHandler.startUp();
+                        break;
+                    case LogicParameters.MODE_FRIEND:
+                        
+                        mLogicHandler.endAll();
+                        mDisplayHandler.resetAllDisplayViews();
+                        mLogicHandler.startUpFriend();
+                        
+                        
+                        break;
+                    case LogicParameters.MODE_GAME:
+                        
+                        break;
+                    
+                }
+                break;
+            default:
+                break;
+            
+        }
+    }
+    
+    
+    private void handleMessageReadPenBLE(Message msg)
+    {
+        Logs.showTrace("[MainActivity] handleMessageReadPenBLE");
+        switch (msg.arg2)
+        {
+            case ReadPenBLEParameters.METHOD_CONNECT:
+                if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+                {
+                    mInitCheckBoardHandler.setBLEState(InitCheckBoardParameters.STATE_READ_PEN_CONNECT);
+                }
+                else
+                {
+                    mInitCheckBoardHandler.setBLEState(InitCheckBoardParameters.STATE_READ_PEN_DISCONNECT);
+                }
+                break;
+            case ReadPenBLEParameters.METHOD_RECEIVE:
+                HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+                if (mLogicHandler.getMode() == LogicParameters.MODE_STORY)
+                {
+                    Logs.showTrace("[MainActivity] send ble data to server");
+                    mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters.getWordID(),
+                            SemanticWordCMPParameters.TYPE_REQUEST_BLE, message.get("message"));
+                }
+                
+                
+                break;
+            
+            
+        }
+        
+    }
+    
+    private void handleMessageInitCheckBoard(Message msg)
+    {
+        Logs.showTrace("[MainActivity] handleMessageInitCheckBoard");
+        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+        {
+            switch (msg.arg2)
+            {
+                case InitCheckBoardParameters.METHOD_DEVICE_SERVER:
+                    //do something
+                    initDeviceServer();
+                    break;
+                case InitCheckBoardParameters.METHOD_READ_PEN:
+                    Logs.showTrace("[MainActivity] METHOD_READ_PEN");
+                    initReadPen();
+                    break;
+                case InitCheckBoardParameters.METHOD_INIT:
+                    init();
+                    break;
+                default:
+                    break;
+                
+            }
+            
+        }
+        else if (ResponseCode.ERR_BLUETOOTH_DEVICE_NOT_FOUND == msg.arg1)
+        {
+            showAlertDialogConnectDeviceServerERROR(0);
+            
+        }
+        else if (ResponseCode.ERR_IO_EXCEPTION == msg.arg1)
+        {
+            showAlertDialogConnectDeviceServerERROR(1);
+            
+        }
+        else if (ResponseCode.ERR_UNKNOWN == msg.arg1)
+        {
+            showAlertDialogConnectDeviceServerERROR(2);
+            
+        }
+        
+    }
+    
+    
+    private void handleMessageLogic(Message msg)
+    {
+        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+        {
+            HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+            switch (msg.arg2)
+            {
+                case LogicParameters.METHOD_VOICE:
+                    switch (mLogicHandler.getMode())
+                    {
+                        case LogicParameters.MODE_STORY:
+                            Logs.showTrace("[MainActivity] Send Story Message to Jugo Server");
+                            
+                            mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters.getWordID(),
+                                    SemanticWordCMPParameters.TYPE_REQUEST_STORY, message.get("message"));
+                            break;
+                        case LogicParameters.MODE_GAME:
+                            
+                            
+                            break;
+                        case LogicParameters.MODE_FRIEND:
+                            Logs.showTrace("[MainActivity] Send Friend Message to AI Server");
+                            mHttpAPIHandler.execute(message.get("message"));
+                            break;
+                        default:
+                            
+                            break;
+                    }
+                    break;
+                case LogicParameters.METHOD_SPHINX:
+                    mDisplayHandler.resetAllDisplayViews();
+                
+                
+                default:
+                    
+                    
+                    break;
+                
+            }
+        }
+    }
+    
+    private void handleMessageMenu(Message msg)
+    {
+        //hide menu
+        mMenuHandler.hideMenu(mFABHandler.getFabX(), mFABHandler.getFabY(), mFABHandler.getFabRadius());
+        
+        //show fab
+        
+        mHandler.postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                mFABHandler.show();
+            }
+        }, 1200);
+        
+        
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+        switch (Integer.valueOf(message.get("onClick")))
+        {
+            case R.id.play_btn:
+                Toast.makeText(this, "點選遊戲模式", Toast.LENGTH_SHORT).show();
+                mLogicHandler.startUp(Parameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE);
+                break;
+            case R.id.story_btn:
+                Toast.makeText(this, "這點選故事模式", Toast.LENGTH_SHORT).show();
+                mLogicHandler.startUp(Parameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE);
+                
+                break;
+            case R.id.friend_btn:
+                Toast.makeText(this, "點選交友模式", Toast.LENGTH_SHORT).show();
+                mLogicHandler.startUp(Parameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE);
+                break;
+            default:
+                Logs.showError("unknown button !");
+                break;
+            
+            
+        }
+        
+        
+        //launch service
+        //XXXXX
+        
+        
+    }
+    
+    private void handleMessageFAB(Message msg)
+    {
+        
+        //hide button
+        mFABHandler.hide();
+        
+        //show menu layout
+        mMenuHandler.showMenu(mFABHandler.getFabX(), mFABHandler.getFabY(), mFABHandler.getFabRadius());
+        
+        //stop logic service
+        mLogicHandler.setMode(LogicParameters.MODE_UNKNOWN);
+        
+        mLogicHandler.endAll();
+        mDisplayHandler.resetAllDisplayViews();
+    }
+    
+    
+    private void writeSettingPermissionCheck()
+    {
+        mWriteSettingPermissionHandler = new WriteSettingPermissionHandler(this);
+        mWriteSettingPermissionHandler.setHandler(mHandler);
+        if (!mWriteSettingPermissionHandler.check())
+        {
+            showAlertDialogWritingPermission();
+        }
+        else
+        {
+            runtimePermissionCheck();
+        }
+    }
+    
+    private void showAlertDialogWritingPermission()
+    {
+        
+        mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_WRITE_PERMISSION, getResources().getString(R.string.writesettingtitle),
+                getResources().getString(R.string.writesettingcontent), getResources().getString(R.string.positivebutton),
+                getResources().getString(R.string.negativebutton), false);
+        
+        mAlertDialogHandler.show();
+    }
+    
+    private void showAlertDialogDeviceID()
+    {
+        mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_ENTER_DEVICE_ID, "章魚Device ID",
+                "請輸入章魚Device ID", "OK", "", true);
+        mAlertDialogHandler.setEditText(Parameters.DEFAULT_DEVICE_ID);
+        mAlertDialogHandler.show();
+        
+    }
+    
+    private void showAlertDialogConfirmConnectDeviceServer()
+    {
+        mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONFIRM_CONNECT_DEVICE, "章魚裝置連結",
+                "是否要與章魚裝置連線", "是的", "不要", false);
+        mAlertDialogHandler.show();
+        
+    }
+    
+    private void showAlertDialogConnectDeviceServerERROR(int flag)
+    {
+        if (flag == 0)
+        {
+            mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
+                    "與章魚裝置Bluetooth連線失敗，請開起Bluetooth、重開APP與點讀筆，再試一次!", "是的", "", false);
+            mAlertDialogHandler.show();
+        }
+        else if (flag == 1)
+        {
+            mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
+                    "與章魚裝置連線失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
+            mAlertDialogHandler.show();
+        }
+        else if (flag == 2)
+        {
+            mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
+                    "與章魚裝置連線不明失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
+            mAlertDialogHandler.show();
+        }
+        
+        
     }
     
     public void handleMessageWriteSettingPermission(Message msg)
     {
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
-            ArrayList<String> permissions = new ArrayList<>();
-            permissions.add(Manifest.permission.RECORD_AUDIO);
-            permissions.add(Manifest.permission.CAMERA);
-            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
-            mRuntimePermissionHandler.setHandler(mHandler);
-            mRuntimePermissionHandler.startRequestPermissions();
-            
-            
+            runtimePermissionCheck();
         }
         else
         {
@@ -336,87 +700,65 @@ public class MainActivity extends Activity
     {
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
+            Logs.showTrace("[MainActivity] in handleMessageAlertDialog");
             HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-            if (message.get("message").equals(AlertDialogParameters.ONCLICK_NEGATIVE_BUTTON))
+            Logs.showTrace("[MainActivity] id:" + message.get("id"));
+            switch (message.get("id"))
             {
-                finish();
-            }
-            else if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
-            {
-                mWriteSettingPermissionHandler.getPermission();
-            }
-        }
-    }
-    
-    public void handleMessageInitCheckBoard(Message msg)
-    {
-        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-        {
-            Logs.showTrace("[MainActivity] InitCheckBoard INIT SUCCESSFUL!");
-            mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_INIT_SUCCESS, Parameters.ID_SERVICE_INIT_SUCCESS);
-        }
-        else
-        {
-            if (msg.arg1 == ResponseCode.ERR_NOT_INIT)
-            {
-                HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-                switch (message.get("message"))
-                {
-                    case "Spotify not init":
-                        
-                        break;
-                    case "TTS not init":
-                        
-                        break;
+                
+                case Parameters.ALERT_DIALOG_WRITE_PERMISSION:
+                    if (message.get("message").equals(AlertDialogParameters.ONCLICK_NEGATIVE_BUTTON))
+                    {
+                        finish();
+                    }
+                    else if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
+                    {
+                        mWriteSettingPermissionHandler.getPermission();
+                    }
+                    break;
+                case Parameters.ALERT_DIALOG_CONNECTING_DEVICE:
+                    if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
+                    {
+                        finish();
+                        //init();
+                        //can not connect to 2 floor server set flag or something handle
+                    }
                     
-                }
-            }
-            
-            
-        }
-    }
-    
-    public void handleMessageSpotify(Message msg)
-    {
-        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        Logs.showTrace("msg.arg2: " + String.valueOf(msg.arg2) + " message:" + message);
-        if (msg.arg2 == SpotifyParameters.METHOD_INIT)
-        {
-            if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-            {
-                InitCheckBoard.setSpotifyInit(true);
-            }
-            else
-            {
-                InitCheckBoard.setSpotifyInit(false);
-                Logs.showError("ERROR message" + message.get("message"));
-            }
-            
-        }
-        else
-        {
-            if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-            {
-                
-                
-                if (message.get("message").equals("DONE"))
-                {
-                    //歌曲結束後
-                    mStateHandler.startWaitState();
+                    break;
+                case Parameters.ALERT_DIALOG_ENTER_DEVICE_ID:
                     
-                }
-            }
-            else
-            {
-                //異常例外處理
-                mSpotifyHandler.pauseMusic();
-                mPocketSphinxHandler.stopListenAction();
-                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_SPOTIFY_UNAUTHORIZED, Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED);
+                    if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
+                    {
+                        Logs.showTrace("[MainActivity] getText:" + message.get("edit"));
+                        DeviceDMPParameters.setDeviceID(message.get("edit"));
+                        initLoadingData(Parameters.MODE_CONNECT_DEVICE);
+                    }
+                    break;
+                case Parameters.ALERT_DIALOG_CONFIRM_CONNECT_DEVICE:
+                    if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
+                    {
+                        //set flag false
+                        Parameters.setModeFlag(Parameters.MODE_CONNECT_DEVICE);
+                        //start to set device id
+                        showAlertDialogDeviceID();
+                        
+                        
+                    }
+                    else if (message.get("message").equals(AlertDialogParameters.ONCLICK_NEGATIVE_BUTTON))
+                    {
+                        //set flag true
+                        Parameters.setModeFlag(Parameters.MODE_NOT_CONNECT_DEVICE);
+                        
+                        //not to connect 2 floor server and readPen
+                        initLoadingData(Parameters.MODE_NOT_CONNECT_DEVICE);
+                        
+                        
+                    }
+                    break;
                 
                 
             }
         }
-        
     }
     
     public void handleMessagePermission(Message msg)
@@ -424,10 +766,20 @@ public class MainActivity extends Activity
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
             //start to init
-            Logs.showTrace("start to init!");
-            init();
-            //Logs.showTrace("start to say init success");
-            //mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_INIT_SUCCESS, Parameters.ID_SERVICE_INIT_SUCCESS);
+            HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+            for (String key : message.keySet())
+            {
+                if (!message.get(key).equals("1"))
+                {
+                    finish();
+                }
+            }
+            Logs.showTrace("[MainActivity] END Permission Check");
+            Logs.showTrace("[MainActivity] start to confirm Connect Device Server!");
+            //XXXXXX
+            
+            showAlertDialogConfirmConnectDeviceServer();
+            //init();
         }
         else
         {
@@ -436,38 +788,20 @@ public class MainActivity extends Activity
         }
     }
     
-    public void handleMessageTTS(Message msg)
+    public void runtimePermissionCheck()
     {
-        switch (msg.arg1)
-        {
-            case ResponseCode.ERR_SUCCESS:
-                analysisTTSResponse((HashMap<String, String>) msg.obj);
-                
-                
-                break;
-            case ResponseCode.ERR_NOT_INIT:
-                InitCheckBoard.setTTSInit(false);
-                Logs.showError("TTS not init success");
-                break;
-            case ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION:
-                InitCheckBoard.setTTSInit(false);
-                //deal with not found Google TTS Exception
-                mTextToSpeechHandler.downloadTTS();
-                
-                //deal with ACCESSIBILITY page can not open Exception
-                //Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                //startActivityForResult(intent, 0);
-                
-                break;
-            case ResponseCode.ERR_UNKNOWN:
-                InitCheckBoard.setTTSInit(false);
-                break;
-            default:
-                break;
-        }
-        
+        ArrayList<String> permissions = new ArrayList<>();
+        permissions.add(Manifest.permission.RECORD_AUDIO);
+        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
+        mRuntimePermissionHandler.setHandler(mHandler);
+        mRuntimePermissionHandler.startRequestPermissions();
     }
     
+    
+    //from jugo server
     public void handleMessageSWCMP(Message msg)
     {
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
@@ -480,145 +814,18 @@ public class MainActivity extends Activity
             }
             else
             {
-                onError(Parameters.ID_SERVICE_UNKNOWN);
+                mLogicHandler.onError(Parameters.ID_SERVICE_UNKNOWN);
             }
         }
         else
         {
             //異常例外處理
             Logs.showError("[MainActivity] ERROR while sending message to CMP Controller");
-            mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_UNKNOWN, Parameters.ID_SERVICE_UNKNOWN);
+            
+            //call logicHandler onERROR
+            mLogicHandler.onError(Parameters.ID_SERVICE_UNKNOWN);
         }
         
-    }
-    
-    public void handleMessageSphinx(Message msg)
-    {
-        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-        {
-            mStateHandler.cancelStateRunnable();
-            
-            //stop all service
-            if (null != mSpotifyHandler)
-            {
-                mSpotifyHandler.pauseMusic();
-            }
-            if (null != mWebMediaPlayerHandler)
-            {
-                mWebMediaPlayerHandler.stopPlayMediaStream();
-            }
-            
-            //start to TTS Service
-            if (!mTextToSpeechHandler.getLocale().toString().equals(Locale.TAIWAN.toString()))
-            {
-                mTextToSpeechHandler.setLocale(Locale.TAIWAN);
-                TTSCache.setTTSHandlerInit(true);
-                mTextToSpeechHandler.init();
-            }
-            if (TTSCache.getTTSHandlerInit())
-            {
-                TTSCache.setTTSCache(Parameters.STRING_SERVICE_START_UP_GREETINGS, Parameters.ID_SERVICE_START_UP_GREETINGS);
-            }
-            else
-            {
-                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_START_UP_GREETINGS, Parameters.ID_SERVICE_START_UP_GREETINGS);
-            }
-            
-            mDisplayHandler.resetAllDisplayViews();
-            mDisplayHandler.resetDisplayData();
-            
-        }
-        else
-        {
-            //異常例外處理
-            Logs.showError("ERROR Message:" + msg.obj);
-        }
-        
-    }
-    
-    public void handleMessageWebMediaPlayer(Message msg)
-    {
-        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-        {
-            switch (msg.arg2)
-            {
-                case WebMediaPlayerParameters.COMPLETE_PLAY:
-                    mWebMediaPlayerHandler.stopPlayMediaStream();
-                    mStateHandler.startWaitState();
-                    // mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
-                    break;
-                case WebMediaPlayerParameters.START_PLAY:
-                    
-                    mDisplayHandler.startDisplay();
-                    
-                    break;
-                case WebMediaPlayerParameters.STOP_PLAY:
-                    break;
-                case WebMediaPlayerParameters.MOOD_IMAGE_SHOW:
-                    //final String imageUrl = ((HashMap<String, String>) msg.obj).get("message");
-                    //Logs.showTrace("[MainActivity] image show url" + msg.obj);
-                
-                default:
-                    break;
-            }
-        }
-        else
-        {
-            //異常例外處理
-            onError(Parameters.ID_SERVICE_IO_EXCEPTION);
-        }
-        
-        
-    }
-    
-    public void handleMessageVoiceRecognition(Message msg)
-    {
-        final HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        if (msg.arg1 == ResponseCode.ERR_SUCCESS && msg.arg2 == ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER)
-        {
-            mVoiceRecognition.stopListen();
-            
-            Logs.showTrace("get voice Text: " + message.get("message"));
-            
-            if (!message.get("message").isEmpty())
-            {
-                runOnUiThread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        mTextView.setText("您說的是: \"" + message.get("message") + " \"");
-                    }
-                });
-                mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters.getWordID(),
-                        SemanticWordCMPParameters.TYPE_REQUEST_UNKNOWN, message.get("message"));
-            }
-        }
-        
-        else if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-        {
-            //startListen first handle
-        }
-        else if (msg.arg1 == ResponseCode.ERR_SPEECH_ERRORMESSAGE)
-        {
-            Logs.showTrace("get ERROR message: " + message.get("message"));
-            mVoiceRecognition.stopListen();
-            
-            if (message.get("message").equals("No match") || message.get("message").equals("No speech input"))
-            {
-                //TTS again and listen again
-                onError(Parameters.ID_SERVICE_UNKNOWN);
-            }
-            
-        }
-        else if(msg.arg1 == ResponseCode.ERR_IO_EXCEPTION)
-        {
-            onError(Parameters.ID_SERVICE_IO_EXCEPTION);
-        }
-        else
-        {
-            
-        }
     }
     
     
@@ -626,269 +833,50 @@ public class MainActivity extends Activity
     {
         try
         {
-            JSONObject tmp = new JSONObject(data);
+            JSONObject responseData = new JSONObject(data);
             
-            if (tmp.has("display"))
+            if (responseData.has("display"))
             {
-                mDisplayHandler.setDisplayJson(tmp.getJSONObject("display"));
+                Logs.showTrace("[MainActivity] display Data:" + responseData.getJSONObject("display").toString());
+                if (responseData.getJSONObject("display").length() != 0)
+                {
+                    mDisplayHandler.resetAllDisplayViews();
+                    mDisplayHandler.setDisplayJson(responseData.getJSONObject("display"));
+                    mDisplayHandler.startDisplay();
+                }
+                else
+                {
+                    Logs.showError("[MainActivity] No Display Data!!");
+                }
             }
             
-            
-            switch (tmp.getInt("type"))
+            if (responseData.has("activity"))
             {
-                case SemanticWordCMPParameters.TYPE_RESPONSE_UNKNOWN:
-                    //UNKNOWN Command
-                    onError(Parameters.ID_SERVICE_UNKNOWN);
-                    break;
-                case SemanticWordCMPParameters.TYPE_RESPONSE_SPOTIFY:
-                case SemanticWordCMPParameters.TYPE_RESPONSE_MUSIC:
-                    JSONObject music = tmp.getJSONObject("music");
-                    
-                    final String songID;
-               /*     final String songAlbum;
-                    final String songName;
-                    final String songArtist;
-                    final String songImageURL;*/
-                    int source_from = -1;
-                    if (music.has("source"))
-                    {
-                        source_from = music.getInt("source");
-                    }
-                    
-                    if (music.has("id"))
-                    {
-                        songID = music.getString("id");
-                    }
-                    
-                    else
-                    {
-                        songID = "";
-                    }
-                   /* if (music.has("album"))
-                    {
-                        songAlbum = music.getString("album");
-                    }
-                    else
-                    {
-                        songAlbum = "";
-                    }
-                    if (music.has("song"))
-                    {
-                        songName = music.getString("song");
-                    }
-                    else
-                    {
-                        songName = "";
-                    }
-                    if (music.has("artist"))
-                    {
-                        songArtist = music.getString("artist");
-                    }
-                    else
-                    {
-                        songArtist = "";
-                    }
-                    if (music.has("cover"))
-                    {
-                        songImageURL = music.getString("cover");
-                        
-                    }
-                    else
-                    {
-                        songImageURL = "";
-                    }*/
-                    switch (source_from)
-                    {
-                        case 1:
-                            if (music.has("host") && music.has("file"))
-                            {
-                                mWebMediaPlayerHandler.setHostAndFilePath(music.getString("host"), music.getString("file"));
-                                mWebMediaPlayerHandler.startPlayMediaStream();
-                                mPocketSphinxHandler.startListenAction(Parameters.MEDIA_PLAYED_SPHINX_THRESHOLD);
-                            }
-                            else
-                            {
-                                onError(Parameters.ID_SERVICE_IO_EXCEPTION);
-                            }
-                            break;
-                        case 2:
-                            if (songID.isEmpty())
-                            {
-                                //mPocketSphinxHandler.stopListenAction();
-                                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_SPOTIFY_UNAUTHORIZED, Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED);
-                                return;
-                            }
-                            
-                            
-                            mSpotifyHandler.playMusic(songID);
-                            mPocketSphinxHandler.startListenAction(Parameters.MEDIA_PLAYED_SPHINX_THRESHOLD);
-                            break;
-                        default:
-                            onError(Parameters.ID_SERVICE_UNKNOWN);
-                            break;
-                    }
-                    
-                    break;
-                case SemanticWordCMPParameters.TYPE_RESPONSE_STORY:
-                    JSONObject storyJsonObject = tmp.getJSONObject("story");
-                    final String storyTitle = storyJsonObject.getString("story");
-                    
-                    
-                    if (storyJsonObject.has("host") && storyJsonObject.has("file"))
-                    {
-                        mWebMediaPlayerHandler.setHostAndFilePath(storyJsonObject.getString("host"), storyJsonObject.getString("file"));
-                        mWebMediaPlayerHandler.startPlayMediaStream();
-                        mPocketSphinxHandler.startListenAction(Parameters.MEDIA_PLAYED_SPHINX_THRESHOLD);
-                    }
-                    else
-                    {
-                        onError(Parameters.ID_SERVICE_IO_EXCEPTION);
-                    }
-                    
-                    
-                    break;
-                case SemanticWordCMPParameters.TYPE_RESPONSE_TTS:
-                    
-                    mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
-                    
-                    JSONObject ttsJson = tmp.getJSONObject("tts");
-                    
-                    if (ttsJson.has("lang"))
-                    {
-                        
-                        Locale localeSet = null;
-                        switch (ttsJson.getString("lang"))
-                        {
-                            case "zh":
-                                localeSet = Locale.TAIWAN;
-                                break;
-                            case "en":
-                                localeSet = Locale.US;
-                                break;
-                            default:
-                                localeSet = Locale.TAIWAN;
-                                break;
-                        }
-                        
-                        
-                        if (!mTextToSpeechHandler.getLocale().toString().equals(localeSet.toString()))
-                        {
-                            Logs.showTrace("[MainActivity] OLD getLocale():" + mTextToSpeechHandler.getLocale().toString());
-                            mTextToSpeechHandler.setLocale(localeSet);
-                            Logs.showTrace("[MainActivity] NEW getLocale():" + mTextToSpeechHandler.getLocale().toString());
-                            TTSCache.setTTSHandlerInit(true);
-                            mTextToSpeechHandler.init();
-                        }
-                    }
-                    final String toTTS = ttsJson.getString("content");
-                    Logs.showTrace("[MainActivity] translate Data:" + toTTS);
-                    if (TTSCache.getTTSHandlerInit())
-                    {
-                        TTSCache.setTTSCache(toTTS, Parameters.ID_SERVICE_TTS_BEGIN);
-                    }
-                    else
-                    {
-                        mTextToSpeechHandler.textToSpeech(toTTS, Parameters.ID_SERVICE_TTS_BEGIN);
-                    }
-                    
-                    break;
-                case SemanticWordCMPParameters.TYPE_RESPONSE_VIDEO:
-                    //play video which from local to youtube
-                    
-                    
-                    break;
+                Logs.showTrace("[MainActivity] activity Data:" + responseData.getJSONObject("activity").toString());
+                if (responseData.getJSONObject("activity").length() != 0)
+                {
+                    mLogicHandler.setActivityJson(responseData.getJSONObject("activity"));
+                    mLogicHandler.startActivity();
+                }
+                else
+                {
+                    Logs.showError("[MainActivity] No Activity Data!!");
+                }
+                
             }
-            
+            else
+            {
+                Logs.showError("[MainActivity] No Activity Data!!");
+                
+            }
         }
         catch (JSONException e)
         {
-            onError(Parameters.ID_SERVICE_IO_EXCEPTION);
+            mLogicHandler.onError(Parameters.ID_SERVICE_IO_EXCEPTION);
             Logs.showError("[MainActivity] analysisSemanticWord Exception:" + e.toString());
         }
         
-        
-    }
-    
-    public void onError(String index)
-    {
-        switch (index)
-        {
-            case Parameters.ID_SERVICE_IO_EXCEPTION:
-                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_IO_EXCEPTION, Parameters.ID_SERVICE_IO_EXCEPTION);
-                break;
-            default:
-                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_UNKNOWN, Parameters.ID_SERVICE_UNKNOWN);
-                break;
-        }
     }
     
     
-    public void analysisTTSResponse(HashMap<String, String> message)
-    {
-        if (message.containsKey("TextID") && message.containsKey("TextStatus"))
-        {
-            boolean textStatusDone = message.get("TextStatus").equals("DONE");
-            boolean textStatusStart = message.get("TextStatus").equals("START");
-            if (textStatusDone)
-            {
-                switch (message.get("TextID"))
-                {
-                    case Parameters.ID_SERVICE_START_UP_GREETINGS:
-                        mVoiceRecognition.startListen();
-                        
-                        break;
-                    case Parameters.ID_SERVICE_MUSIC_BEGIN:
-                        
-                        
-                        break;
-                    case Parameters.ID_SERVICE_STORY_BEGIN:
-                        
-                        
-                        break;
-                    case Parameters.ID_SERVICE_TTS_BEGIN:
-                        
-                        mStateHandler.startWaitState();
-                        
-                        break;
-                    case Parameters.ID_SERVICE_UNKNOWN:
-                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
-                        break;
-                    case Parameters.ID_SERVICE_IO_EXCEPTION:
-                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
-                        break;
-                    case Parameters.ID_SERVICE_INIT_SUCCESS:
-                        Logs.showTrace("ID_SERVICE_INIT_SUCCESS");
-                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
-                        break;
-                    case Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED:
-                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
-                    default:
-                        break;
-                    
-                }
-            }
-            if (textStatusStart)
-            {
-                switch (message.get("TextID"))
-                {
-                    case Parameters.ID_SERVICE_START_UP_GREETINGS:
-                        
-                        
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-        else if (message.get("message").equals("init success"))
-        {
-            InitCheckBoard.setTTSInit(true);
-            TTSCache.setTTSHandlerInit(false);
-            HashMap<String, String> ttsCache = TTSCache.getTTSCache();
-            if (null != ttsCache)
-            {
-                mTextToSpeechHandler.textToSpeech(ttsCache.get("tts"), ttsCache.get("param"));
-            }
-        }
-    }
 }

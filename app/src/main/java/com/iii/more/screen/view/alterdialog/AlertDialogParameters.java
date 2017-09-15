@@ -1,4 +1,4 @@
-package com.iii.more.screen.view;
+package com.iii.more.screen.view.alterdialog;
 
 /**
  * Created by joe on 2017/7/20.

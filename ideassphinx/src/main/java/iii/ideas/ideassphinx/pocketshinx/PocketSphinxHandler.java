@@ -19,6 +19,8 @@ import sdk.ideas.common.ListenReceiverAction;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
+import static iii.ideas.ideassphinx.pocketshinx.PocketSphinxParameters.enable;
+
 
 public class PocketSphinxHandler extends BaseHandler implements
         RecognitionListener, ListenReceiverAction
@@ -27,6 +29,7 @@ public class PocketSphinxHandler extends BaseHandler implements
     
     private SpeechRecognizer recognizer = null;
     private boolean isStart = false;
+    StartUpTask mStartUpTask = null;
     
     public PocketSphinxHandler(Context context)
     {
@@ -62,40 +65,18 @@ public class PocketSphinxHandler extends BaseHandler implements
     
     private void runRecognizerSetup()
     {
-        new AsyncTask<Void, Void, Exception>()
+        if (null != mStartUpTask)
         {
-            @Override
-            protected Exception doInBackground(Void... params)
+            if (mStartUpTask.isCancelled() == false)
             {
-                try
-                {
-                    Assets assets = new Assets(PocketSphinxHandler.super.mContext);
-                    File assetDir = assets.syncAssets();
-                    setupRecognizer(assetDir);
-                }
-                catch (IOException e)
-                {
-                    return e;
-                }
-                return null;
+                mStartUpTask.cancel(true);
             }
-            
-            @Override
-            protected void onPostExecute(Exception result)
-            {
-                if (result != null)
-                {
-                    HashMap<String, String> message = new HashMap<>();
-                    message.put("message", result.getMessage());
-                    callBackMessage(ResponseCode.ERR_UNKNOWN, PocketSphinxParameters.CLASS_POCKET_SPHINX, PocketSphinxParameters.METHOD_POCKET_SPHINX, message);
-                    
-                }
-                else
-                {
-                    switchSearch(KWS_SEARCH);
-                }
-            }
-        }.execute();
+            mStartUpTask = null;
+        }
+        
+        mStartUpTask = new StartUpTask();
+        mStartUpTask.execute();
+        
     }
     
     
@@ -111,13 +92,14 @@ public class PocketSphinxHandler extends BaseHandler implements
         if (text.equals(PocketSphinxParameters.KEY_PHRASE))
         {
             Logs.showTrace("[PocketSphinxHandler]Sphinx get****" + PocketSphinxParameters.KEY_PHRASE + "****");
-            isStart = false;
+            
             recognizer.stop();
             recognizer.shutdown();
+            isStart = false;
         }
         else
         {
-            Logs.showTrace("[PocketSphinxHandler]Sphinx got:"+text);
+            Logs.showTrace("[PocketSphinxHandler]Sphinx got:" + text);
         }
     }
     
@@ -144,6 +126,11 @@ public class PocketSphinxHandler extends BaseHandler implements
     public void onEndOfSpeech()
     {
         
+    }
+    
+    public static void setSphinxEnable(boolean enable)
+    {
+        PocketSphinxParameters.enable = enable;
     }
     
     private void switchSearch(String searchName)
@@ -205,43 +192,93 @@ public class PocketSphinxHandler extends BaseHandler implements
     @Override
     public void startListenAction()
     {
-        runRecognizerSetup();
+        if (enable)
+        {
+            if (isStart == false)
+            {
+                isStart = true;
+                runRecognizerSetup();
+            }
+        }
     }
     
     public void startListenAction(float threshold)
     {
-        Logs.showTrace("startListenAction : isStart " + String.valueOf(isStart));
-        if (isStart == false)
+        if (enable)
         {
-            isStart = true;
-            setKeyWordThreshold(threshold);
-            runRecognizerSetup();
-            
+            Logs.showTrace("startListenAction : isStart " + String.valueOf(isStart));
+            if (isStart == false)
+            {
+                isStart = true;
+                setKeyWordThreshold(threshold);
+                runRecognizerSetup();
+                
+            }
+            else
+            {
+                Logs.showError("stop it first!");
+            }
         }
-        else
-        {
-            Logs.showError("stop it first!");
-        }
-        
     }
     
     @Override
     public void stopListenAction()
     {
-        Logs.showTrace("stopListenAction : isStart " + String.valueOf(isStart));
-        if (isStart == true)
+        if (enable)
         {
-            if (null != recognizer)
+            Logs.showTrace("stopListenAction : isStart " + String.valueOf(isStart));
+            if (isStart == true)
             {
-                isStart = false;
-                recognizer.stop();
-                recognizer.cancel();
-                recognizer.shutdown();
+                if (null != recognizer)
+                {
+                    
+                    recognizer.stop();
+                    recognizer.cancel();
+                    recognizer.shutdown();
+                    isStart = false;
+                }
+            }
+            else
+            {
+                Logs.showError("start it first");
             }
         }
-        else
+    }
+    
+    
+    class StartUpTask extends AsyncTask<Void, Void, Exception>
+    {
+        @Override
+        protected Exception doInBackground(Void... params)
         {
-            Logs.showError("start it first");
+            try
+            {
+                Assets assets = new Assets(PocketSphinxHandler.super.mContext);
+                File assetDir = assets.syncAssets();
+                setupRecognizer(assetDir);
+            }
+            catch (IOException e)
+            {
+                return e;
+            }
+            return null;
         }
+        
+        @Override
+        protected void onPostExecute(Exception result)
+        {
+            if (result != null)
+            {
+                HashMap<String, String> message = new HashMap<>();
+                message.put("message", result.getMessage());
+                callBackMessage(ResponseCode.ERR_UNKNOWN, PocketSphinxParameters.CLASS_POCKET_SPHINX, PocketSphinxParameters.METHOD_POCKET_SPHINX, message);
+                
+            }
+            else
+            {
+                switchSearch(KWS_SEARCH);
+            }
+        }
+        
     }
 }

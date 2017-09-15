@@ -1,9 +1,10 @@
-package com.iii.more.screen.view;
+package com.iii.more.screen.view.alterdialog;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
+import android.widget.EditText;
 
 import java.util.HashMap;
 
@@ -21,22 +22,29 @@ public class AlertDialogHandler extends BaseHandler
     private String title = "";
     private String positiveButtonString = "";
     private String negativeButtonString = "";
+    private String id = "";
+    private boolean editable = false;
+    
     private DialogInterface.OnClickListener positiveOnClickListener = null;
     private DialogInterface.OnClickListener negativeOnClickListener = null;
+    
+    private EditText editText = null;
     
     public AlertDialogHandler(@NonNull Context context)
     {
         super(context);
     }
     
-    public void setText(String title, String content, String positiveButtonString, String negativeButtonString)
+    public void setText(String id, String title, String content, String positiveButtonString, String negativeButtonString, boolean editable)
     {
+        this.id = id;
         this.title = title;
         this.content = content;
         this.positiveButtonString = positiveButtonString;
         this.negativeButtonString = negativeButtonString;
-        
+        this.editable = editable;
     }
+    
     
     public void init()
     {
@@ -47,8 +55,13 @@ public class AlertDialogHandler extends BaseHandler
             public void onClick(DialogInterface dialog, int which)
             {
                 HashMap<String, String> message = new HashMap<>();
-                
+                message.put("id", id);
                 message.put("message", AlertDialogParameters.ONCLICK_POSITIVE_BUTTON);
+                if (editable)
+                {
+                    message.put("edit", editText.getText().toString());
+                }
+                
                 callBackMessage(ResponseCode.ERR_SUCCESS, AlertDialogParameters.CLASS_ALERT_DIALOG, AlertDialogParameters.METHOD_SHOW, message);
                 
             }
@@ -60,12 +73,21 @@ public class AlertDialogHandler extends BaseHandler
             public void onClick(DialogInterface dialog, int which)
             {
                 HashMap<String, String> message = new HashMap<>();
-                
+                message.put("id", id);
                 message.put("message", AlertDialogParameters.ONCLICK_NEGATIVE_BUTTON);
                 callBackMessage(ResponseCode.ERR_SUCCESS, AlertDialogParameters.CLASS_ALERT_DIALOG, AlertDialogParameters.METHOD_SHOW, message);
                 
             }
         };
+        editText = new EditText(mContext);
+    }
+    
+    public void setEditText(String text)
+    {
+        if (null != editText)
+        {
+            editText.setText(text);
+        }
     }
     
     public void show()
@@ -88,12 +110,28 @@ public class AlertDialogHandler extends BaseHandler
             String positiveString, DialogInterface.OnClickListener positiveOnClickListener,
             String negativeString, DialogInterface.OnClickListener negativeOnClickListener)
     {
-        new AlertDialog.Builder(context)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(positiveString, positiveOnClickListener)
-                .setNegativeButton(negativeString, negativeOnClickListener)
-                .show();
+        AlertDialog.Builder tmp = new AlertDialog.Builder(context);
+        
+        tmp.setTitle(title);
+        tmp.setMessage(message);
+        tmp.setCancelable(false);
+        
+        if (null != positiveString && positiveString.length() != 0)
+        {
+            tmp.setPositiveButton(positiveString, positiveOnClickListener);
+        }
+        if (null != negativeString && negativeButtonString.length() != 0)
+        {
+            tmp.setNegativeButton(negativeString, negativeOnClickListener);
+        }
+        if (editable)
+        {
+            tmp.setView(editText);
+        }
+        
+        tmp.show();
+        
+        
     }
     
     

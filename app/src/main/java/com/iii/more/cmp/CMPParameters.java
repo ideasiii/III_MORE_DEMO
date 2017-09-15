@@ -8,7 +8,7 @@ public abstract class CMPParameters
 {
     public static final int CLASS_CMP = 9426;
     public static final int CLASS_CMP_SEMANTIC_WORD = 9424;
-    
+    public static final int CLASS_CMP_DEVICE = 9234;
     public static final int CMP_RESPONSE_METHOD = 0;
     
     public static final int SYNCHRONIZE_MODE = 0;

@@ -1,4 +1,4 @@
-package com.iii.more.screen.display;
+package com.iii.more.screen.view.display;
 
 import android.support.annotation.ColorInt;
 

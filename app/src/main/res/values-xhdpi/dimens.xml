@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 720p -->
+<resources>
+
+    <dimen name="welcome_layout_logo_width">300dp</dimen>
+    <dimen name="welcome_layout_logo_height">200dp</dimen>
+
+    <dimen name="layout_radius_large">250dp</dimen>
+
+    <dimen name="layout_child_offset_large">300dp</dimen>
+
+    <dimen name="item_circle_size_large">250dp</dimen>
+    <dimen name="item_circle_size_medium">48dp</dimen>
+    <dimen name="item_circle_size_small">36dp</dimen>
+
+    <dimen name="item_font_size_large">32sp</dimen>
+    <dimen name="item_font_size_medium">24sp</dimen>
+    <dimen name="item_font_size_small">16sp</dimen>
+
+
+</resources>

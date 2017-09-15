@@ -1,4 +1,4 @@
-package com.iii.more.screen.display;
+package com.iii.more.screen.view.display;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -16,6 +16,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 import com.iii.more.animate.AnimationHandler;
+import com.iii.more.main.R;
 import com.iii.more.screen.view.ViewHandler;
 
 import org.json.JSONArray;
@@ -31,12 +32,13 @@ import java.util.List;
 
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.ResponseCode;
 
 /**
  * Created by joe on 2017/7/11.
  */
 
-public class DisplayHandler extends BaseHandler
+public class DisplayHandler extends BaseHandler implements View.OnClickListener
 {
     private JSONArray mDisplayJsonArray = null;
     private AnimationHandler mAnimationHandler = null;
@@ -72,6 +74,7 @@ public class DisplayHandler extends BaseHandler
     {
         mAnimationHandler = new AnimationHandler(mContext);
         mAnimationHandler.setView(mHashMapViews.get(DisplayParameters.RELATIVE_LAYOUT_ID));
+        mHashMapViews.get(DisplayParameters.RELATIVE_LAYOUT_ID).setOnClickListener(this);
         mDisplayQueue = new ArrayDeque<>();
         mDisplayHandler = new Handler(Looper.getMainLooper());
         mDisplayRunnable = new DisplayRunnable();
@@ -95,15 +98,16 @@ public class DisplayHandler extends BaseHandler
                 }
                 else if (mHashMapViews.get(key) instanceof ImageView)
                 {
-                    //((ImageView) mHashMapViews.get(key)).setImageResource(0);
-                    Glide.with(mContext)
-                            .load("")
-                            .listener(mRequestListener)
-                            .into(new GlideDrawableImageViewTarget(((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID))));
+                    ((ImageView) mHashMapViews.get(key)).setImageResource(R.drawable.default_image);
+                    // Glide.with(mContext)
+                    //        .load("")
+                    //        .listener(mRequestListener)
+                    //        .into(new GlideDrawableImageViewTarget(((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID))));
                 }
                 else if (mHashMapViews.get(key) instanceof RelativeLayout)
                 {
-                    ViewHandler.setBackgroundColor(DisplayParameters.DEFAULT_BACKGROUND_COLOR,
+                    
+                    ViewHandler.setBackgroundColor(mContext.getResources().getColor(DisplayParameters.DEFAULT_BACKGROUND_COLOR),
                             mHashMapViews.get(key));
                 }
             }
@@ -111,6 +115,16 @@ public class DisplayHandler extends BaseHandler
         else
         {
             Logs.showError("[DisplayHandler] something ERROR in resetAllDisplayViews method");
+        }
+    }
+    
+    public void killAll()
+    {
+        if (null != mDisplayHandler && null != mAnimationHandler)
+        {
+            mDisplayHandler.removeCallbacks(mDisplayRunnable);
+            
+            mAnimationHandler.animateCancel();
         }
     }
     
@@ -143,6 +157,7 @@ public class DisplayHandler extends BaseHandler
             else
             {
                 //not show
+                resetDisplayData();
                 this.resetAllDisplayViews();
                 return true;
             }
@@ -224,7 +239,7 @@ public class DisplayHandler extends BaseHandler
             mDisplayQueue.add(tmp);
             
             //for debugging using
-            tmp.print();
+            //tmp.print();
         }
         
         
@@ -268,6 +283,24 @@ public class DisplayHandler extends BaseHandler
                 
                 
             }
+            
+            
+        }
+    }
+    
+    @Override
+    public void onClick(View v)
+    {
+        if (v instanceof RelativeLayout)
+        {
+            Logs.showTrace("[DisplayHandler] you click screen");
+            
+            HashMap<String, String> message = new HashMap<>();
+            message.put("message", "onClick");
+            message.put("id", String.valueOf(v.getId()));
+            
+            callBackMessage(ResponseCode.ERR_SUCCESS, DisplayParameters.CLASS_DISPLAY,
+                    DisplayParameters.METHOD_CLICK, message);
             
             
         }
