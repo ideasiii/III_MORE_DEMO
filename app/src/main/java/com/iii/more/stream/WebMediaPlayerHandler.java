@@ -28,13 +28,22 @@ public class WebMediaPlayerHandler extends BaseHandler
     private MediaPlayer mMediaPlayer = null;
     private String hostPath = "";
     private String filePath = "";
-    private Thread mStoryMoodThread = null;
-    private SparseArray<String> mMoodArray = null;
-    private final static int RANGE = 50;
+    private static final int DEFAULT_POSITION_TIME = 0;
+    private int saveCurrentPositionTime = DEFAULT_POSITION_TIME;
+    
     
     public WebMediaPlayerHandler(Context context)
     {
         super(context);
+    }
+    
+    private int getCurrentPositionTime()
+    {
+        if (null != mMediaPlayer)
+        {
+            return mMediaPlayer.getCurrentPosition();
+        }
+        return -1;
     }
     
     public boolean setHostAndFilePath(String hostPath, String filePath)
@@ -51,40 +60,6 @@ public class WebMediaPlayerHandler extends BaseHandler
             Logs.showError("[WebMediaPlayerHandler] " + e.toString());
         }
         return anyError;
-    }
-    
-    public void startPlayMediaStream(JSONArray moodJsonArray)
-    {
-        if (null != moodJsonArray)
-        {
-            mMoodArray = new SparseArray<>();
-            for (int i = 0; i < moodJsonArray.length(); i++)
-            {
-                JSONObject tmp = null;
-                try
-                {
-                    tmp = (JSONObject) moodJsonArray.get(i);
-                    if (tmp.has("time") && tmp.has("host") && tmp.has("file"))
-                    {
-                        int time = Integer.valueOf(tmp.getString("time"));
-                        String url = tmp.getString("host") + tmp.getString("file");
-                        mMoodArray.append(time, url);
-                    }
-                    
-                }
-                catch (JSONException e)
-                {
-                    Logs.showTrace(e.toString());
-                }
-                
-                
-            }
-        }
-        mStoryMoodThread = new Thread(new StoryMoodChangeRunnable());
-        
-        startPlayMediaStream();
-        
-        
     }
     
     
@@ -124,16 +99,15 @@ public class WebMediaPlayerHandler extends BaseHandler
             public void onPrepared(MediaPlayer mp)
             {
                 Logs.showTrace("[WebMediaPlayerHandler] now start!");
+                
+                saveCurrentPositionTime = DEFAULT_POSITION_TIME;
+                
                 mp.start();
                 
                 HashMap<String, String> message = new HashMap<>();
                 message.put("message", "success");
                 callBackMessage(ResponseCode.ERR_SUCCESS, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.START_PLAY, message);
-    
-                if (null != mStoryMoodThread)
-                {
-                    mStoryMoodThread.start();
-                }
+                
             }
         });
         
@@ -180,8 +154,32 @@ public class WebMediaPlayerHandler extends BaseHandler
         if (null != mMediaPlayer && mMediaPlayer.isPlaying())
         {
             mMediaPlayer.pause();
+            saveCurrentPositionTime = this.getCurrentPositionTime();
+            //callback let user know when stop
+            HashMap<String, String> message = new HashMap<>();
+            message.put("message", String.valueOf(saveCurrentPositionTime));
+            callBackMessage(ResponseCode.ERR_SUCCESS, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.PAUSE_PLAY, message);
+            
+            
         }
         
+    }
+    
+    public void resumePlayMediaStream()
+    {
+        if (null != mMediaPlayer && !mMediaPlayer.isPlaying())
+        {
+            if (DEFAULT_POSITION_TIME != saveCurrentPositionTime)
+            {
+                mMediaPlayer.seekTo(saveCurrentPositionTime);
+            }
+            else
+            {
+                mMediaPlayer.seekTo(DEFAULT_POSITION_TIME);
+            }
+            mMediaPlayer.start();
+            
+        }
     }
     
     public void stopPlayMediaStream()
@@ -194,18 +192,7 @@ public class WebMediaPlayerHandler extends BaseHandler
                 mMediaPlayer.release();
                 mMediaPlayer = null;
                 
-                //clear moodJsonArray Data
-                if (null != mMoodArray)
-                {
-                    mMoodArray.clear();
-                    mMoodArray = null;
-                }
-                //stop thread which handle moodJsonArray Data
-                if (null != mStoryMoodThread)
-                {
-                    mStoryMoodThread.interrupt();
-                    mStoryMoodThread = null;
-                }
+                saveCurrentPositionTime = DEFAULT_POSITION_TIME;
                 
                 HashMap<String, String> message = new HashMap<String, String>();
                 message.put("message", "success");
@@ -214,71 +201,6 @@ public class WebMediaPlayerHandler extends BaseHandler
             }
         }
         
-    }
-    
-    
-    private class StoryMoodChangeRunnable implements Runnable
-    {
-        
-        @Override
-        public void run()
-        {
-            try
-            {
-                
-                if (null != mMoodArray)
-                {
-                    
-                    //  Logs.showTrace("[WebMediaPlayerHandler] story length:" + String.valueOf(mMediaPlayer.getDuration()));
-                    for(int i=0;i<mMoodArray.size();i++)
-                    {
-                        Logs.showTrace("mood time"+String.valueOf(mMoodArray.keyAt(i)));
-                        if(mMoodArray.keyAt(i) == 0)
-                        {
-                            HashMap<String, String> message = new HashMap<String, String>();
-                            message.put("message", mMoodArray.get(mMoodArray.keyAt(i)));
-                            callBackMessage(ResponseCode.ERR_SUCCESS, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.MOOD_IMAGE_SHOW, message);
-                        }
-                        
-    
-                    }
-                    while (true)
-                    {
-                        int currentTime = mMediaPlayer.getCurrentPosition();
-                        //  Logs.showTrace("[WebMediaPlayerHandler] now current:" + String.valueOf(currentTime));
-                        
-                        for (int i = 0; i < mMoodArray.size(); i++)
-                        {
-                            if (mMoodArray.keyAt(i) > currentTime && mMoodArray.keyAt(i) <= currentTime + RANGE)
-                            {
-                                HashMap<String, String> message = new HashMap<String, String>();
-                                message.put("message", mMoodArray.get(mMoodArray.keyAt(i)));
-                                callBackMessage(ResponseCode.ERR_SUCCESS, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.MOOD_IMAGE_SHOW, message);
-                                break;
-                            }
-                        }
-                        
-                        if (mMediaPlayer.getDuration() == mMediaPlayer.getCurrentPosition())
-                        {
-                            break;
-                        }
-                        
-                        
-                        Thread.sleep(50);
-                        
-                    }
-                }
-            }
-            catch (InterruptedException e)
-            {
-                Logs.showTrace("[WebMediaPlayerHandler] story track STOP");
-            }
-            catch (Exception e)
-            {
-                Logs.showTrace("[WebMediaPlayerHandler] story error" + e.toString());
-            }
-            
-        }
     }
     
     

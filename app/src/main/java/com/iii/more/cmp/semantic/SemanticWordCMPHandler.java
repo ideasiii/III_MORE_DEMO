@@ -34,7 +34,7 @@ public class SemanticWordCMPHandler extends CMPHandler
             int wordByteLen = -1;
             try
             {
-                wordByteLen = words.getBytes("UTF-8").length;
+                wordByteLen = words.getBytes(CMPParameters.CODE_TYPE).length;
             }
             catch (UnsupportedEncodingException e)
             {
@@ -66,11 +66,11 @@ public class SemanticWordCMPHandler extends CMPHandler
                 {
                     //handle long word solution
                     
-                    
                 }
                 else
                 {
                     //ERROR get byte string len
+                    
                 }
             }
         }

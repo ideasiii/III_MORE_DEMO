@@ -14,6 +14,8 @@ public abstract class CMPParameters
     public static final int SYNCHRONIZE_MODE = 0;
     public static final int ASYNCHRONIZE_MODE = 1;
     
+    public static final String CODE_TYPE = "UTF-8";
+    
    
     
     

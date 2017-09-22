@@ -224,6 +224,7 @@ public class MainActivity extends AppCompatActivity
         
         mHttpAPIHandler = new HttpAPIHandler(this);
         mHttpAPIHandler.setHandler(mHandler);
+        
         /*
         mSensorHandler = new SensorHandler(this);
         ArrayList<Integer> m = new ArrayList<>();
@@ -256,6 +257,11 @@ public class MainActivity extends AppCompatActivity
             mLogicHandler.killAll();
         }
         
+        //close 2 floor server socket connect
+        if (null != mDeviceDMPHandler)
+        {
+            mDeviceDMPHandler.stopConnectedThread();
+        }
         super.onDestroy();
     }
     
@@ -492,6 +498,10 @@ public class MainActivity extends AppCompatActivity
             }
             
         }
+        else if (ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER == msg.arg1)
+        {
+            showAlertDialogConnectDeviceServerERROR(3);
+        }
         else if (ResponseCode.ERR_BLUETOOTH_DEVICE_NOT_FOUND == msg.arg1)
         {
             showAlertDialogConnectDeviceServerERROR(0);
@@ -662,8 +672,8 @@ public class MainActivity extends AppCompatActivity
     {
         if (flag == 0)
         {
-            mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
-                    "與章魚裝置Bluetooth連線失敗，請開起Bluetooth、重開APP與點讀筆，再試一次!", "是的", "", false);
+            mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE_BLUETOOTH, "章魚裝置連結",
+                    "與章魚裝置Bluetooth點讀筆連線失敗，按是不進行連線，按否則結束程式，重新再試一次!", "是", "否", false);
             mAlertDialogHandler.show();
         }
         else if (flag == 1)
@@ -676,6 +686,13 @@ public class MainActivity extends AppCompatActivity
         {
             mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
                     "與章魚裝置連線不明失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
+            mAlertDialogHandler.show();
+        }
+        else if (flag == 3)
+        {
+            mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
+                    "與裝置Bluetooth點讀筆連線失敗，請先確認智慧型裝置Bluetooth是否開啟或是章魚裝置Bluetooth是否開起，重新再試一次!"
+                    , "是", "", false);
             mAlertDialogHandler.show();
         }
         
@@ -724,6 +741,18 @@ public class MainActivity extends AppCompatActivity
                         //can not connect to 2 floor server set flag or something handle
                     }
                     
+                    break;
+                case Parameters.ALERT_DIALOG_CONNECTING_DEVICE_BLUETOOTH:
+                    if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
+                    {
+                        
+                        init();
+                        //can not connect to 2 floor server set flag or something handle
+                    }
+                    else if (message.get("message").equals(AlertDialogParameters.ONCLICK_NEGATIVE_BUTTON))
+                    {
+                        finish();
+                    }
                     break;
                 case Parameters.ALERT_DIALOG_ENTER_DEVICE_ID:
                     

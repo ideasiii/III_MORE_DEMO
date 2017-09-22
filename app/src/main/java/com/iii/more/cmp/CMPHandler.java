@@ -43,7 +43,7 @@ public class CMPHandler extends BaseHandler
         t.start();
     }
     
-    public void sendCommandAsynchronize(int nCommand, String bodyData)
+    private void sendCommandAsynchronize(int nCommand, String bodyData)
     {
         Thread t = new Thread(new CMPSocketRunnable(nCommand, bodyData, CMPParameters.ASYNCHRONIZE_MODE));
         t.start();

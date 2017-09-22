@@ -118,7 +118,7 @@ public class ReadPenBLEHandler extends BaseHandler
                 message.put("message", "please open bluetooth!");
                 
                 
-                callBackMessage(ResponseCode.ERR_BLUETOOTH_DEVICE_NOT_FOUND, ReadPenBLEParameters.CLASS_ReadPenBLE,
+                callBackMessage(ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER, ReadPenBLEParameters.CLASS_ReadPenBLE,
                          ReadPenBLEParameters.METHOD_CONNECT, message);
             }
         }

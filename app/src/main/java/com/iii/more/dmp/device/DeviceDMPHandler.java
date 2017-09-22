@@ -67,6 +67,14 @@ public class DeviceDMPHandler extends BaseHandler
         mDMPHandler.startReceiveThread(DMPParameters.METHOD_INIT);
     }
     
+    public void stopConnectedThread()
+    {
+        if (null != mDMPHandler)
+        {
+            mDMPHandler.stopReceiveThread();
+        }
+    }
+    
     private void handleDMP(Message msg)
     {
         HashMap<String, String> message = new HashMap<>();

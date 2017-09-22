@@ -7,12 +7,10 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.GridLayoutAnimationController;
 import android.view.animation.LinearInterpolator;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
-import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
 
@@ -20,7 +18,7 @@ import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
 
 /**
- * Created by joe on 2017/6/30.
+ * Created by joe on 2017/9/04.
  */
 
 public class AnimationHandler extends BaseHandler

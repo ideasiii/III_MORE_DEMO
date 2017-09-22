@@ -70,6 +70,11 @@ public class InitCheckBoardHandler extends BaseHandler
                 callBackMessage(ResponseCode.ERR_SUCCESS, InitCheckBoardParameters.CLASS_INIT,
                         InitCheckBoardParameters.METHOD_INIT, message);
             }
+            else if(msg.what == ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER)
+            {
+                callBackMessage(ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER, InitCheckBoardParameters.CLASS_INIT,
+                        InitCheckBoardParameters.METHOD_INIT, message);
+            }
             else if (msg.what == ResponseCode.ERR_BLUETOOTH_DEVICE_NOT_FOUND)
             {
                 callBackMessage(ResponseCode.ERR_BLUETOOTH_DEVICE_NOT_FOUND, InitCheckBoardParameters.CLASS_INIT,
