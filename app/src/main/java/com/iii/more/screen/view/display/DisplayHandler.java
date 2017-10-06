@@ -46,6 +46,9 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener
     private Handler mDisplayHandler = null;
     private DisplayRunnable mDisplayRunnable = null;
     private ArrayDeque<DisplayElement> mDisplayQueue = null;
+    private ArrayDeque<DisplayElement> mSaveDisplayQueue = null;
+    private DisplayElement theLastDisplayElement = null;
+    
     RequestListener mRequestListener = new RequestListener<String, GlideDrawable>()
     {
         @Override
@@ -78,6 +81,39 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener
         mDisplayQueue = new ArrayDeque<>();
         mDisplayHandler = new Handler(Looper.getMainLooper());
         mDisplayRunnable = new DisplayRunnable();
+    }
+    
+    
+    public void pauseDisplaying(int seconds)
+    {
+        //停止Runnable
+        killAll();
+        
+        if (null == mSaveDisplayQueue)
+        {
+            mSaveDisplayQueue = new ArrayDeque<>();
+        }
+        else
+        {
+            mSaveDisplayQueue.clear();
+        }
+        
+        theLastDisplayElement.nextTime = seconds - theLastDisplayElement.timeDuring;
+        
+        mSaveDisplayQueue.add(theLastDisplayElement);
+        
+        for (int i = 0; i < mDisplayQueue.size(); i++)
+        {
+            mSaveDisplayQueue.add(mDisplayQueue.poll());
+        }
+        
+    }
+    
+    public void resumeDisplaying()
+    {
+        mDisplayQueue = mSaveDisplayQueue.clone();
+        startDisplay();
+        
     }
     
     public void resetAllDisplayViews()
@@ -261,7 +297,9 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener
     {
         if (null != mDisplayQueue)
         {
-            final DisplayElement display = mDisplayQueue.poll();
+            DisplayElement display = mDisplayQueue.poll();
+            theLastDisplayElement = display;
+            
             if (null != display)
             {
                 //set next time

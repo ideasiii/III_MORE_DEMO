@@ -29,8 +29,12 @@ import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticDeviceID;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
+import com.iii.more.http.server.DeviceHttpServerHandler;
+import com.iii.more.http.server.DeviceHttpServerParameters;
 import com.iii.more.init.InitCheckBoardHandler;
 import com.iii.more.init.InitCheckBoardParameters;
+import com.iii.more.interrupt.logic.InterruptLogicHandler;
+import com.iii.more.interrupt.logic.InterruptLogicParameters;
 import com.iii.more.logic.LogicHandler;
 import com.iii.more.logic.LogicParameters;
 import com.iii.more.screen.view.display.DisplayHandler;
@@ -46,18 +50,22 @@ import com.iii.more.screen.view.alterdialog.AlertDialogHandler;
 import com.iii.more.screen.view.alterdialog.AlertDialogParameters;
 import com.scalified.fab.ActionButton;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import premission.settings.WriteSettingPermissionHandler;
 import premission.settings.WriteSettingPermissionParameters;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
+import sdk.ideas.ctrl.bluetooth.BluetoothHandler;
 import sdk.ideas.tool.premisson.RuntimePermissionHandler;
 
 
@@ -100,6 +108,14 @@ public class MainActivity extends AppCompatActivity
     //2 floor device server connect
     private DeviceDMPHandler mDeviceDMPHandler = null;
     
+    //2 floor deivce http server connect
+    private DeviceHttpServerHandler mDeviceHttpServerHandler = null;
+    
+    private InterruptLogicHandler mInterruptLogicHandler = null;
+    
+    //connect to bluetooth device
+    private BluetoothHandler mBluetoothHandler = null;
+    
     private Handler mHandler = new Handler()
     {
         @Override
@@ -117,6 +133,8 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         Logs.showTrace("[MainActivity] onCreate");
+        
+        initInterruptLogic();
         
         mAlertDialogHandler = new AlertDialogHandler(this);
         mAlertDialogHandler.setHandler(mHandler);
@@ -150,10 +168,11 @@ public class MainActivity extends AppCompatActivity
         {
             mWriteSettingPermissionHandler.onActivityResult(requestCode, resultCode, data);
         }
-        if (null != mLogicHandler)
+        if (null != mBluetoothHandler)
         {
-            mLogicHandler.onActivityResult(requestCode, resultCode, data);
+            mBluetoothHandler.onActivityResult(requestCode, resultCode, data);
         }
+        
     }
     
     public void initLoadingData(int flag)
@@ -164,7 +183,7 @@ public class MainActivity extends AppCompatActivity
         mInitCheckBoardHandler.startCheckInit();
     }
     
-    public void initDeviceServer()
+    public void initDeviceSocketServer()
     {
         mDeviceDMPHandler = new DeviceDMPHandler(this);
         mDeviceDMPHandler.setHandler(mHandler);
@@ -179,6 +198,29 @@ public class MainActivity extends AppCompatActivity
         mReadPenBLEHandler.init();
     }
     
+    public void initDeviceHttpServer()
+    {
+        mDeviceHttpServerHandler = new DeviceHttpServerHandler(this);
+        mDeviceHttpServerHandler.setHandler(mHandler);
+        mDeviceHttpServerHandler.connectToServerByGet(DeviceHttpServerParameters.URL_DEFAULT_PARAM);
+    }
+    
+    public void initInterruptLogic()
+    {
+        mInterruptLogicHandler = new InterruptLogicHandler(this);
+        mInterruptLogicHandler.setHandler(mHandler);
+        Logs.showTrace("[MainActivity] initInterruptLogic success!");
+    }
+    
+    public void initBluetoothDevice()
+    {
+        mBluetoothHandler = new BluetoothHandler(this);
+        mBluetoothHandler.setHandler(mHandler);
+        mBluetoothHandler.startListenAction();
+        
+        mBluetoothHandler.setBluetooth(true);
+        
+    }
     
     public void init()
     {
@@ -225,6 +267,10 @@ public class MainActivity extends AppCompatActivity
         mHttpAPIHandler = new HttpAPIHandler(this);
         mHttpAPIHandler.setHandler(mHandler);
         
+      
+        
+       
+        
         /*
         mSensorHandler = new SensorHandler(this);
         ArrayList<Integer> m = new ArrayList<>();
@@ -247,6 +293,11 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy()
     {
         Logs.showTrace("onDestroy");
+        if (null != mBluetoothHandler)
+        {
+            mBluetoothHandler.stopListenAction();
+            mBluetoothHandler.closeBluetoothLink();
+        }
         
         if (null != mDisplayHandler)
         {
@@ -262,6 +313,8 @@ public class MainActivity extends AppCompatActivity
         {
             mDeviceDMPHandler.stopConnectedThread();
         }
+        
+        
         super.onDestroy();
     }
     
@@ -342,7 +395,230 @@ public class MainActivity extends AppCompatActivity
             case HttpAPIParameters.CLASS_HTTP_API:
                 handleMessageHttpAPI(msg);
                 break;
+            case DeviceHttpServerParameters.CLASS_DEVICE_HTTP_SERVER:
+                handleMessageDeviceHttpServer(msg);
+                break;
+            
+            case CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER:
+                handleMessageBluetoothDevice(msg);
+                break;
+            
+            case InterruptLogicParameters.CLASS_INTERRUPT_LOGIC:
+                handleMessageInterruptLogic(msg);
+                break;
+            
             default:
+                break;
+        }
+    }
+    
+    private void handleMessageInterruptLogic(Message msg)
+    {
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+        
+        switch (msg.arg2)
+        {
+            case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
+                String trigger_result = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
+                if (null != mLogicHandler)
+                {
+                    switch (trigger_result)
+                    {
+                        case "握手":
+                            mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你好呀!今天有沒有乖乖啊!", "zh");
+                            break;
+                        case "拍手":
+                            mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你好棒棒!。我們一起拍手吧!", "zh");
+                            break;
+                        case "擠壓":
+                            mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "我的臉好痛喔，不可以壓我的臉喔。", "zh");
+                            break;
+                        case "拍頭":
+                            mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你 幹 嘛打我，打人是不對的喲!", "zh");
+                            break;
+                    }
+                }
+                
+                if (null != mDisplayHandler)
+                {
+                    try
+                    {
+                        mDisplayHandler.setDisplayJson(new JSONObject(message.get("display")));
+                        mDisplayHandler.startDisplay();
+                    }
+                    catch (JSONException e)
+                    {
+                        Logs.showError("[MainActivity] handleMessageInterruptLogic ERROR: " + e.toString());
+                    }
+                    
+                }
+                break;
+            
+        }
+        
+        
+    }
+    
+    private void handleMessageBluetoothDevice(Message msg)
+    {
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+        switch (msg.arg2)
+        {
+            case ResponseCode.METHOD_SETUP_BLUETOOTH:
+                if (msg.arg1 == ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER)
+                {
+                    mInitCheckBoardHandler.setBluetoothDeviceState(InitCheckBoardParameters.STATE_DEVICE_DISCONNECT);
+                }
+                break;
+            case ResponseCode.BLUETOOTH_IS_ON:
+                mBluetoothHandler.connectDeviceByName(Parameters.DEFAULT_DEVICE_ID);
+                break;
+            case ResponseCode.ERR_BLUETOOTH_DEVICE_NOT_FOUND:
+                
+                break;
+            
+            case ResponseCode.METHOD_OPEN_BLUETOOTH_CONNECTED_LINK:
+                
+                if (msg.arg1 == ResponseCode.ERR_BLUETOOTH_DEVICE_NOT_FOUND)
+                {
+                    //show ERROR Bluetooth device not found
+                    mInitCheckBoardHandler.setBluetoothDeviceState(InitCheckBoardParameters.STATE_DEVICE_DISCONNECT);
+                    
+                }
+                else if (msg.arg1 == ResponseCode.ERR_IO_EXCEPTION)
+                {
+                    //show ERROR Bluetooth found and paired not io Exception
+                    mInitCheckBoardHandler.setBluetoothDeviceState(InitCheckBoardParameters.STATE_DEVICE_DISCONNECT);
+                }
+                else if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+                {
+                    
+                    Logs.showTrace("[MainActivity] setBluetoothDeviceState :true ");
+                    mInitCheckBoardHandler.setBluetoothDeviceState(InitCheckBoardParameters.STATE_DEVICE_CONNECT);
+                }
+                break;
+            case ResponseCode.METHOD_GET_MESSAGE_BLUETOOTH:
+                
+                if (null != mLogicHandler)
+                {
+                    if (mLogicHandler.getMode() == LogicParameters.MODE_GAME ||
+                            mLogicHandler.getMode() == LogicParameters.MODE_UNKNOWN)
+                    {
+                        
+                        if (handMadeCheckBluetoothRFIDData(message.get("message")) == false)
+                        {
+                            if (null != mInterruptLogicHandler)
+                            {
+                                mInterruptLogicHandler.setDeviceEventData(message.get("message"));
+                                mInterruptLogicHandler.startEventDataAnalysis();
+                            }
+                        }
+                        
+                    }
+                    else if(mLogicHandler.getMode() == LogicParameters.MODE_STORY)
+                    {
+                       // mLogicHandler
+                        
+                        
+                    }
+                }
+                break;
+            
+            default:
+                break;
+        }
+        
+        
+    }
+    
+    
+    private boolean handMadeCheckBluetoothRFIDData(String inputData)
+    {
+        if (inputData.contains("RFID"))
+        {
+            JSONObject animate = new JSONObject();
+            try
+            {
+                animate.put("type", 2);
+                
+                animate.put("duration", 3000);
+                animate.put("repeat", 0);
+                animate.put("interpolate", 1);
+                
+                //create display json
+                JSONObject data = new JSONObject();
+                data.put("time", 0);
+                data.put("host", "https://smabuild.sytes.net/edubot/OCTOBO_Expressions/");
+                data.put("color", "#FFA0C9EC");
+                data.put("description", "快樂");
+                data.put("animation", animate);
+                data.put("text", new JSONObject());
+                data.put("file", "OCTOBO_Expressions-17.png");
+                JSONArray show = new JSONArray();
+                show.put(data);
+                
+                JSONObject display = new JSONObject();
+                display.put("enable", 1);
+                display.put("show", show);
+                if (null != mDisplayHandler)
+                {
+                    mDisplayHandler.setDisplayJson(display);
+                    mDisplayHandler.startDisplay();
+                }
+                
+                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN,
+                        "This  is  an  Apple !", "en");
+                
+            }
+            catch (JSONException e)
+            {
+                Logs.showError("[MainActivity] handMadeCheckBluetoothRFIDData ERROR: " + e.toString());
+            }
+            return true;
+        }
+        return false;
+        
+        
+    }
+    
+    private void handleMessageDeviceHttpServer(Message msg)
+    {
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+        switch (msg.arg2)
+        {
+            case DeviceHttpServerParameters.METHOD_HTTP_GET_RESPONSE:
+                if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+                {
+                    try
+                    {
+                        JSONObject tmp = new JSONObject(message.get("message"));
+                        if (tmp.has("rules"))
+                        {
+                            JSONArray rules = tmp.getJSONArray("rules");
+                            mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(rules.toString());
+                        }
+                    }
+                    catch (JSONException e)
+                    {
+                        Logs.showError("[MainActivity] handleMessageDeviceHttpServer: " + e.toString());
+                        Logs.showError("[MainActivity] use DEFAULT_LOGIC_BEHAVIOR_DATA ");
+                        mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(
+                                InterruptLogicParameters.DEFAULT_LOGIC_BEHAVIOR_DATA);
+                    }
+                    
+                    Logs.showTrace("[MainActivity] connect Server Success, use server logic behavior!");
+                    mInitCheckBoardHandler.setDeviceServerState(InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_SUCCESS);
+                }
+                else
+                {
+                    
+                    mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(
+                            InterruptLogicParameters.DEFAULT_LOGIC_BEHAVIOR_DATA);
+                    
+                    Logs.showTrace("[MainActivity] connect Server Error, use default logic behavior!");
+                    mInitCheckBoardHandler.setDeviceServerState(InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_SUCCESS);
+                    
+                }
                 break;
         }
     }
@@ -350,7 +626,7 @@ public class MainActivity extends AppCompatActivity
     private void handleMessageHttpAPI(Message msg)
     {
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        mLogicHandler.ttsService(Parameters.ID_SERVICE_FRIEND_RESPONSE, message.get("message"));
+        mLogicHandler.ttsService(TTSParameters.ID_SERVICE_FRIEND_RESPONSE, message.get("message"));
     }
     
     private void handleMessageDeviceDMP(Message msg)
@@ -477,18 +753,27 @@ public class MainActivity extends AppCompatActivity
     private void handleMessageInitCheckBoard(Message msg)
     {
         Logs.showTrace("[MainActivity] handleMessageInitCheckBoard");
+        
+        
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
             switch (msg.arg2)
             {
-                case InitCheckBoardParameters.METHOD_DEVICE_SERVER:
-                    //do something
-                    initDeviceServer();
+                case InitCheckBoardParameters.METHOD_DEVICE_SOCKET_SERVER:
+                    initDeviceSocketServer();
                     break;
                 case InitCheckBoardParameters.METHOD_READ_PEN:
-                    Logs.showTrace("[MainActivity] METHOD_READ_PEN");
                     initReadPen();
                     break;
+                
+                case InitCheckBoardParameters.METHOD_DEVICE_HTTP_SERVER:
+                    initDeviceHttpServer();
+                    break;
+                
+                case InitCheckBoardParameters.METHOD_BLUETOOTH_DEVICE:
+                    initBluetoothDevice();
+                    break;
+                
                 case InitCheckBoardParameters.METHOD_INIT:
                     init();
                     break;
@@ -585,16 +870,16 @@ public class MainActivity extends AppCompatActivity
         {
             case R.id.play_btn:
                 Toast.makeText(this, "點選遊戲模式", Toast.LENGTH_SHORT).show();
-                mLogicHandler.startUp(Parameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE);
+                mLogicHandler.startUp(TTSParameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE);
                 break;
             case R.id.story_btn:
                 Toast.makeText(this, "這點選故事模式", Toast.LENGTH_SHORT).show();
-                mLogicHandler.startUp(Parameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE);
+                mLogicHandler.startUp(TTSParameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE);
                 
                 break;
             case R.id.friend_btn:
                 Toast.makeText(this, "點選交友模式", Toast.LENGTH_SHORT).show();
-                mLogicHandler.startUp(Parameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE);
+                mLogicHandler.startUp(TTSParameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE);
                 break;
             default:
                 Logs.showError("unknown button !");
@@ -673,7 +958,7 @@ public class MainActivity extends AppCompatActivity
         if (flag == 0)
         {
             mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE_BLUETOOTH, "章魚裝置連結",
-                    "與章魚裝置Bluetooth點讀筆連線失敗，按是不進行連線，按否則結束程式，重新再試一次!", "是", "否", false);
+                    "與章魚裝置Bluetooth連線失敗，按是不進行連線，按否則結束程式，重新再試一次!", "是", "否", false);
             mAlertDialogHandler.show();
         }
         else if (flag == 1)
@@ -843,7 +1128,7 @@ public class MainActivity extends AppCompatActivity
             }
             else
             {
-                mLogicHandler.onError(Parameters.ID_SERVICE_UNKNOWN);
+                mLogicHandler.onError(TTSParameters.ID_SERVICE_UNKNOWN);
             }
         }
         else
@@ -852,7 +1137,7 @@ public class MainActivity extends AppCompatActivity
             Logs.showError("[MainActivity] ERROR while sending message to CMP Controller");
             
             //call logicHandler onERROR
-            mLogicHandler.onError(Parameters.ID_SERVICE_UNKNOWN);
+            mLogicHandler.onError(TTSParameters.ID_SERVICE_UNKNOWN);
         }
         
     }
@@ -901,7 +1186,7 @@ public class MainActivity extends AppCompatActivity
         }
         catch (JSONException e)
         {
-            mLogicHandler.onError(Parameters.ID_SERVICE_IO_EXCEPTION);
+            mLogicHandler.onError(TTSParameters.ID_SERVICE_IO_EXCEPTION);
             Logs.showError("[MainActivity] analysisSemanticWord Exception:" + e.toString());
         }
         

@@ -1,10 +1,10 @@
 package com.iii.more.ai;
 
 /**
- * Created by joe on 2017/8/28.
+ * Created by joe on 2017/9/09.
  */
 
-public class HttpAPIParameters
+public abstract class HttpAPIParameters
 {
     public static final int CLASS_HTTP_API = 1587;
     public static final int METHOD_HTTP_GET_RESPONSE = 0;

@@ -10,7 +10,7 @@ import sdk.ideas.common.Logs;
  * Created by joe on 2017/4/18.
  */
 
-public class Tools
+public abstract class Tools
 {
     public static boolean validateMicAvailability()
     {

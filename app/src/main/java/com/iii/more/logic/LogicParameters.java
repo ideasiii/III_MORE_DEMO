@@ -14,9 +14,7 @@ public class LogicParameters
     public static final int MODE_STORY = 1;
     public static final int MODE_GAME = 2;
     public static final int MODE_UNKNOWN = -1;
-    
-    
-    
+    public static final int MODE_INTERRUPT = 4;
     
     
 }

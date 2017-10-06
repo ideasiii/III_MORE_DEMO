@@ -1,16 +1,13 @@
 package com.iii.more.logic;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Message;
 import android.support.annotation.NonNull;
 
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 import com.iii.more.init.InitCheckBoardParameters;
 import com.iii.more.main.Parameters;
-import com.iii.more.spotify.SpotifyHandler;
-import com.iii.more.spotify.SpotifyParameters;
-import com.iii.more.state.StateHandler;
+import com.iii.more.main.TTSParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
 import com.iii.more.tts.TTSCache;
@@ -50,9 +47,6 @@ public class LogicHandler extends BaseHandler
     private VoiceRecognition mVoiceRecognition = null;
     private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
     private TextToSpeechHandler mTextToSpeechHandler = null;
-    // private SpotifyHandler mSpotifyHandler = null;
-    //private InitCheckBoard mInitCheckBoardHandler = null;
-    //private StateHandler mStateHandler = null;
     
     private int mModeNow = MODE_UNKNOWN;
     
@@ -98,13 +92,9 @@ public class LogicHandler extends BaseHandler
             case CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER:
                 handleMessageVoiceRecognition(msg);
                 break;
-            //  case SpotifyParameters.CLASS_SPOTIFY:
-            //     handleMessageSpotify(msg);
-            //     break;
             case InitCheckBoardParameters.CLASS_INIT:
                 handleMessageInitCheckBoard(msg);
                 break;
-            
             default:
                 break;
         }
@@ -115,7 +105,7 @@ public class LogicHandler extends BaseHandler
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
             Logs.showTrace("[MainActivity] InitCheckBoard INIT SUCCESSFUL!");
-            mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_INIT_SUCCESS, Parameters.ID_SERVICE_INIT_SUCCESS);
+            mTextToSpeechHandler.textToSpeech(TTSParameters.STRING_SERVICE_INIT_SUCCESS, TTSParameters.ID_SERVICE_INIT_SUCCESS);
         }
         else
         {
@@ -142,13 +132,8 @@ public class LogicHandler extends BaseHandler
     {
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
         {
-            
-            
             //stop all service
-           /* if (null != mSpotifyHandler)
-            {
-                mSpotifyHandler.pauseMusic();
-            }*/
+            
             if (null != mWebMediaPlayerHandler)
             {
                 mWebMediaPlayerHandler.stopPlayMediaStream();
@@ -167,11 +152,11 @@ public class LogicHandler extends BaseHandler
             {
                 if (TTSCache.getTTSHandlerInit())
                 {
-                    TTSCache.setTTSCache(Parameters.STRING_SERVICE_STORY_BEGIN, Parameters.ID_SERVICE_STORY_BEGIN);
+                    TTSCache.setTTSCache(TTSParameters.STRING_SERVICE_STORY_BEGIN, TTSParameters.ID_SERVICE_STORY_BEGIN);
                 }
                 else
                 {
-                    mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_STORY_BEGIN, Parameters.ID_SERVICE_STORY_BEGIN);
+                    mTextToSpeechHandler.textToSpeech(TTSParameters.STRING_SERVICE_STORY_BEGIN, TTSParameters.ID_SERVICE_STORY_BEGIN);
                 }
             }
             else
@@ -179,7 +164,7 @@ public class LogicHandler extends BaseHandler
                 Logs.showError("[LogicHandler] Not support other mode yet!!");
             }
             
-            // callback to mainActivity to displayview reset
+            // callback to mainActivity to display view reset
             HashMap<String, String> message = new HashMap<>();
             message.put("message", "get startup");
             
@@ -223,7 +208,7 @@ public class LogicHandler extends BaseHandler
         else
         {
             //異常例外處理
-            onError(Parameters.ID_SERVICE_IO_EXCEPTION);
+            onError(TTSParameters.ID_SERVICE_IO_EXCEPTION);
         }
         
         
@@ -261,13 +246,13 @@ public class LogicHandler extends BaseHandler
             if (message.get("message").equals("No match") || message.get("message").equals("No speech input"))
             {
                 //TTS again and listen again
-                onError(Parameters.ID_SERVICE_UNKNOWN);
+                onError(TTSParameters.ID_SERVICE_UNKNOWN);
             }
             
         }
         else if (msg.arg1 == ResponseCode.ERR_IO_EXCEPTION)
         {
-            onError(Parameters.ID_SERVICE_IO_EXCEPTION);
+            onError(TTSParameters.ID_SERVICE_IO_EXCEPTION);
         }
         else
         {
@@ -280,11 +265,11 @@ public class LogicHandler extends BaseHandler
         endAll();
         switch (index)
         {
-            case Parameters.ID_SERVICE_IO_EXCEPTION:
-                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_IO_EXCEPTION, Parameters.ID_SERVICE_IO_EXCEPTION);
+            case TTSParameters.ID_SERVICE_IO_EXCEPTION:
+                ttsService(TTSParameters.ID_SERVICE_IO_EXCEPTION, TTSParameters.STRING_SERVICE_IO_EXCEPTION, "zh");
                 break;
             default:
-                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_UNKNOWN, Parameters.ID_SERVICE_UNKNOWN);
+                ttsService(TTSParameters.ID_SERVICE_UNKNOWN, TTSParameters.STRING_SERVICE_UNKNOWN, "zh");
                 break;
         }
     }
@@ -320,49 +305,6 @@ public class LogicHandler extends BaseHandler
         }
         
     }
-    /*
-    private void handleMessageSpotify(Message msg)
-    {
-        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        Logs.showTrace("msg.arg2: " + String.valueOf(msg.arg2) + " message:" + message);
-        if (msg.arg2 == SpotifyParameters.METHOD_INIT)
-        {
-            if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-            {
-                InitCheckBoard.setSpotifyInit(true);
-            }
-            else
-            {
-                InitCheckBoard.setSpotifyInit(false);
-                Logs.showError("ERROR message" + message.get("message"));
-            }
-            
-        }
-        else
-        {
-            if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-            {
-                
-                
-                if (message.get("message").equals("DONE"))
-                {
-                    //歌曲結束後
-                    
-                }
-            }
-            else
-            {
-                //異常例外處理
-                // mSpotifyHandler.pauseMusic();
-                mPocketSphinxHandler.stopListenAction();
-                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_SPOTIFY_UNAUTHORIZED, Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED);
-                
-                
-            }
-        }
-        
-    }*/
-    
     
     private void analysisTTSResponse(HashMap<String, String> message)
     {
@@ -374,45 +316,45 @@ public class LogicHandler extends BaseHandler
             {
                 switch (message.get("TextID"))
                 {
-                    case Parameters.ID_SERVICE_START_UP_GREETINGS:
+                    case TTSParameters.ID_SERVICE_START_UP_GREETINGS:
                         mVoiceRecognition.startListen();
                         
                         break;
                     
-                    case Parameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE:
+                    case TTSParameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE:
                         mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                         
                         break;
-                    case Parameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE:
+                    case TTSParameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE:
                         // XXXXX do friend mode
                         // link API
                         
                         break;
                     
-                    case Parameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE:
+                    case TTSParameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE:
                         // XXXXX do game mode
                         //
                         
                         break;
                     
-                    case Parameters.ID_SERVICE_FRIEND_RESPONSE:
+                    case TTSParameters.ID_SERVICE_FRIEND_RESPONSE:
                         
                         break;
                     
                     
-                    case Parameters.ID_SERVICE_MUSIC_BEGIN:
+                    case TTSParameters.ID_SERVICE_MUSIC_BEGIN:
                         
                         
                         break;
-                    case Parameters.ID_SERVICE_STORY_BEGIN:
+                    case TTSParameters.ID_SERVICE_STORY_BEGIN:
                         
                         mVoiceRecognition.startListen();
                         break;
-                    case Parameters.ID_SERVICE_TTS_BEGIN:
+                    case TTSParameters.ID_SERVICE_TTS_BEGIN:
                         mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                         
                         break;
-                    case Parameters.ID_SERVICE_UNKNOWN:
+                    case TTSParameters.ID_SERVICE_UNKNOWN:
                         if (getMode() == MODE_STORY)
                         {
                             mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
@@ -421,14 +363,14 @@ public class LogicHandler extends BaseHandler
                         //callback to service something ERROR
                         
                         break;
-                    case Parameters.ID_SERVICE_IO_EXCEPTION:
+                    case TTSParameters.ID_SERVICE_IO_EXCEPTION:
                         mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                         break;
-                    case Parameters.ID_SERVICE_INIT_SUCCESS:
+                    case TTSParameters.ID_SERVICE_INIT_SUCCESS:
                         Logs.showTrace("ID_SERVICE_INIT_SUCCESS");
                         mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                         break;
-                    case Parameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED:
+                    case TTSParameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED:
                         mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                     default:
                         break;
@@ -439,7 +381,7 @@ public class LogicHandler extends BaseHandler
             {
                 switch (message.get("TextID"))
                 {
-                    case Parameters.ID_SERVICE_START_UP_GREETINGS:
+                    case TTSParameters.ID_SERVICE_START_UP_GREETINGS:
                         
                         
                         break;
@@ -450,7 +392,6 @@ public class LogicHandler extends BaseHandler
         }
         else if (message.get("message").equals("init success"))
         {
-            //  InitCheckBoard.setTTSInit(true);
             TTSCache.setTTSHandlerInit(false);
             HashMap<String, String> ttsCache = TTSCache.getTTSCache();
             if (null != ttsCache)
@@ -486,21 +427,11 @@ public class LogicHandler extends BaseHandler
         mWebMediaPlayerHandler.setHandler(selfHandler);
         
         
-        //init spotify
-        /*mSpotifyHandler = new SpotifyHandler(mContext);
-        mSpotifyHandler.setHandler(selfHandler);
-        mSpotifyHandler.init();*/
-        
-        /* mInitCheckBoardHandler = new InitCheckBoard(mContext);
-        mInitCheckBoardHandler.setHandler(selfHandler);
-        mInitCheckBoardHandler.init();
-        */
-        
     }
     
     public void startUp()
     {
-        mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_STORY_BEGIN, Parameters.ID_SERVICE_STORY_BEGIN);
+        ttsService(TTSParameters.ID_SERVICE_STORY_BEGIN, TTSParameters.STRING_SERVICE_STORY_BEGIN, "zh");
         
     }
     
@@ -518,17 +449,17 @@ public class LogicHandler extends BaseHandler
     {
         switch (ttsID)
         {
-            case Parameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE:
+            case TTSParameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE:
                 mModeNow = MODE_STORY;
-                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_START_UP_GREETINGS_STORY_MODE, ttsID);
+                ttsService(ttsID, TTSParameters.STRING_SERVICE_START_UP_GREETINGS_STORY_MODE, "zh");
                 break;
-            case Parameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE:
+            case TTSParameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE:
                 mModeNow = MODE_GAME;
-                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_START_UP_GREETINGS_GAME_MODE, ttsID);
+                ttsService(ttsID, TTSParameters.STRING_SERVICE_START_UP_GREETINGS_GAME_MODE, "zh");
                 break;
-            case Parameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE:
+            case TTSParameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE:
                 mModeNow = MODE_FRIEND;
-                mTextToSpeechHandler.textToSpeech(Parameters.STRING_SERVICE_START_UP_GREETINGS_FRIEND_MODE, ttsID);
+                ttsService(ttsID, TTSParameters.STRING_SERVICE_START_UP_GREETINGS_FRIEND_MODE, "zh");
                 break;
             
             
@@ -552,13 +483,11 @@ public class LogicHandler extends BaseHandler
                     case SemanticWordCMPParameters.TYPE_RESPONSE_UNKNOWN:
                         //callback to mainActivity onERROR
                         
-                        
                         break;
                     case SemanticWordCMPParameters.TYPE_RESPONSE_LOCAL:
                         if (mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_HOST) &&
                                 mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_FILE))
                         {
-                            // String tmp = "https://smabuild.sytes.net/story/";
                             mWebMediaPlayerHandler.setHostAndFilePath(mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_HOST),
                                     mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_FILE));
                             mWebMediaPlayerHandler.startPlayMediaStream();
@@ -580,39 +509,9 @@ public class LogicHandler extends BaseHandler
                         if (mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_LANG) &&
                                 mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_TTS))
                         {
-                            Locale localeSet = null;
-                            switch (mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_TTS))
-                            {
-                                case "zh":
-                                    localeSet = Locale.TAIWAN;
-                                    break;
-                                case "en":
-                                    localeSet = Locale.US;
-                                    break;
-                                default:
-                                    localeSet = Locale.TAIWAN;
-                                    break;
-                            }
-                            if (!mTextToSpeechHandler.getLocale().toString().equals(localeSet.toString()))
-                            {
-                                Logs.showTrace("[MainActivity] OLD getLocale():" + mTextToSpeechHandler.getLocale().toString());
-                                mTextToSpeechHandler.setLocale(localeSet);
-                                Logs.showTrace("[MainActivity] NEW getLocale():" + mTextToSpeechHandler.getLocale().toString());
-                                TTSCache.setTTSHandlerInit(true);
-                                mTextToSpeechHandler.init();
-                            }
-                            
-                            if (TTSCache.getTTSHandlerInit())
-                            {
-                                TTSCache.setTTSCache(mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_TTS),
-                                        Parameters.ID_SERVICE_TTS_BEGIN);
-                            }
-                            else
-                            {
-                                mTextToSpeechHandler.textToSpeech(mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_TTS),
-                                        Parameters.ID_SERVICE_TTS_BEGIN);
-                            }
-                            
+                            ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN,
+                                    mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_TTS),
+                                    mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_LANG));
                         }
                         else
                         {
@@ -628,12 +527,52 @@ public class LogicHandler extends BaseHandler
         }
     }
     
+    public void ttsService(String textID, String textString, String languageString)
+    {
+        Locale localeSet = null;
+        switch (languageString)
+        {
+            case "zh":
+                localeSet = Locale.TAIWAN;
+                break;
+            case "en":
+                localeSet = Locale.US;
+                break;
+            default:
+                localeSet = Locale.TAIWAN;
+                break;
+        }
+        if (!mTextToSpeechHandler.getLocale().toString().equals(localeSet.toString()))
+        {
+            Logs.showTrace("[LogicHandler] OLD getLocale():" + mTextToSpeechHandler.getLocale().toString());
+            mTextToSpeechHandler.setLocale(localeSet);
+            Logs.showTrace("[LogicHandler] NEW getLocale():" + mTextToSpeechHandler.getLocale().toString());
+            
+            TTSCache.setTTSHandlerInit(true);
+            mTextToSpeechHandler.init();
+        }
+        
+        if (TTSCache.getTTSHandlerInit())
+        {
+            TTSCache.setTTSCache(textString, textID);
+        }
+        else
+        {
+            mTextToSpeechHandler.textToSpeech(textString, textID);
+        }
+        
+        
+    }
+    
     public void killAll()
     {
         endAll();
         if (null != mTextToSpeechHandler)
         {
+            Logs.showTrace("[LogicHandler] mTextToSpeechHandler shutdown Start");
             mTextToSpeechHandler.shutdown();
+            Logs.showTrace("[LogicHandler] mTextToSpeechHandler shutdown End");
+            
         }
     }
     
@@ -649,16 +588,9 @@ public class LogicHandler extends BaseHandler
         if (null != mTextToSpeechHandler)
         {
             mTextToSpeechHandler.stop();
-            //Logs.showTrace("[MainActivity] mTextToSpeechHandler shutdown Start");
-            // mTextToSpeechHandler.shutdown();
-            //Logs.showTrace("[MainActivity] mTextToSpeechHandler shutdown End");
+            
         }
         
-        /*
-        if (null != mSpotifyHandler)
-        {
-            mSpotifyHandler.closeSpotify();
-        }*/
         
         if (null != mWebMediaPlayerHandler)
         {
@@ -672,12 +604,5 @@ public class LogicHandler extends BaseHandler
         
     }
     
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        /*if (null != mSpotifyHandler)
-        {
-            mSpotifyHandler.onActivityResult(requestCode, resultCode, data);
-        }*/
-    }
     
 }

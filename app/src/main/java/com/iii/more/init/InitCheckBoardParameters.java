@@ -12,12 +12,17 @@ public class InitCheckBoardParameters
     public static final int CHECK_TIME = 1000;
     
     public static final int METHOD_READ_PEN = 1;
-    public static final int METHOD_DEVICE_SERVER = 2;
-    
+    public static final int METHOD_DEVICE_SOCKET_SERVER = 2;
+    public static final int METHOD_BLUETOOTH_DEVICE = 3;
+    public static final int METHOD_DEVICE_HTTP_SERVER = 4;
     
     public static final int STATE_READ_PEN_CONNECT = 1;
     public static final int STATE_READ_PEN_UNKNOWN = 0;
     public static final int STATE_READ_PEN_DISCONNECT = -1;
+    
+    public static final int STATE_DEVICE_CONNECT = 1;
+    public static final int STATE_DEVICE_UNKNOWN = 0;
+    public static final int STATE_DEVICE_DISCONNECT = -1;
     
     public static final int STATE_DEVICE_SERVER_INIT_SUCCESS = 1;
     public static final int STATE_DEVICE_SERVER_INIT_UNKNOWN = 0;

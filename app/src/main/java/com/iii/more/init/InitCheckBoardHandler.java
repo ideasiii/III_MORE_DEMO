@@ -32,6 +32,7 @@ public class InitCheckBoardHandler extends BaseHandler
     private int flag = 0;
     private int bleState = InitCheckBoardParameters.STATE_READ_PEN_UNKNOWN;
     private int deviceServerState = InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_UNKNOWN;
+    private int bluetoothDeviceConnectState = InitCheckBoardParameters.STATE_DEVICE_UNKNOWN;
     
     public void setBLEState(int bleState)
     {
@@ -43,6 +44,16 @@ public class InitCheckBoardHandler extends BaseHandler
         this.deviceServerState = deviceServerState;
     }
     
+    public void setBluetoothDeviceState(int bluetoothDeviceState)
+    {
+        this.bluetoothDeviceConnectState = bluetoothDeviceState;
+    }
+    
+    
+    public int getBluetoothDeviceState()
+    {
+        return bluetoothDeviceConnectState;
+    }
     
     public int getBLEState()
     {
@@ -70,7 +81,7 @@ public class InitCheckBoardHandler extends BaseHandler
                 callBackMessage(ResponseCode.ERR_SUCCESS, InitCheckBoardParameters.CLASS_INIT,
                         InitCheckBoardParameters.METHOD_INIT, message);
             }
-            else if(msg.what == ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER)
+            else if (msg.what == ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER)
             {
                 callBackMessage(ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER, InitCheckBoardParameters.CLASS_INIT,
                         InitCheckBoardParameters.METHOD_INIT, message);
@@ -124,20 +135,36 @@ public class InitCheckBoardHandler extends BaseHandler
                     
                     Thread tmp = new Thread(new InitCheckRunnable());
                     tmp.start();
-                    //init device Server
-                    HashMap<String, String> message = new HashMap<>();
+                    
+                    
+                    //init device Socket Server
+                  /*  HashMap<String, String> message = new HashMap<>();
                     message.put("message", "start to init Device Server");
                     callBackMessage(ResponseCode.ERR_SUCCESS, InitCheckBoardParameters.CLASS_INIT,
-                            InitCheckBoardParameters.METHOD_DEVICE_SERVER, message);
+                            InitCheckBoardParameters.METHOD_DEVICE_SOCKET_SERVER, message);
                     
                     
                     //connect read pen
                     HashMap<String, String> message2 = new HashMap<>();
                     message2.put("message", "start to init read pen");
                     callBackMessage(ResponseCode.ERR_SUCCESS, InitCheckBoardParameters.CLASS_INIT,
-                            InitCheckBoardParameters.METHOD_READ_PEN, message2);
+                            InitCheckBoardParameters.METHOD_READ_PEN, message2);*/
                     
-                    //connect server
+                    
+                    //connect to Bluetooth Device
+                    HashMap<String, String> message3 = new HashMap<>();
+                    message3.put("message", "start to init bluetooth device");
+                    callBackMessage(ResponseCode.ERR_SUCCESS, InitCheckBoardParameters.CLASS_INIT,
+                            InitCheckBoardParameters.METHOD_BLUETOOTH_DEVICE, message3);
+                    
+                    
+                    //connect to 2 floor Http Server
+                    HashMap<String, String> message4 = new HashMap<>();
+                    message4.put("message", "start to init http Server");
+                    callBackMessage(ResponseCode.ERR_SUCCESS, InitCheckBoardParameters.CLASS_INIT,
+                            InitCheckBoardParameters.METHOD_DEVICE_HTTP_SERVER, message4);
+                    
+                    
                     break;
                 case Parameters.MODE_NOT_CONNECT_DEVICE:
                     mSelfHandler.sendEmptyMessageDelayed(ResponseCode.ERR_SUCCESS, 2000);
@@ -168,22 +195,18 @@ public class InitCheckBoardHandler extends BaseHandler
                 while (true)
                 {
                     Logs.showTrace("[InitCheckBoard] check init again!");
-                    
-                    if (getBLEState() == InitCheckBoardParameters.STATE_READ_PEN_CONNECT &&
+                    Logs.showTrace("[InitCheckBoard] getBluetoothDeviceState():" + String.valueOf(getBluetoothDeviceState()));
+                    Logs.showTrace("[InitCheckBoard] getDeviceServerState():" + String.valueOf(getDeviceServerState()));
+                    if (getBluetoothDeviceState() == InitCheckBoardParameters.STATE_DEVICE_CONNECT &&
                             getDeviceServerState() == InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_SUCCESS)
                     {
                         mSelfHandler.sendEmptyMessage(ResponseCode.ERR_SUCCESS);
                         break;
                         
                     }
-                    else if (getBLEState() == InitCheckBoardParameters.STATE_READ_PEN_DISCONNECT)
+                    else if (getBluetoothDeviceState() == InitCheckBoardParameters.STATE_DEVICE_DISCONNECT)
                     {
                         mSelfHandler.sendEmptyMessage(ResponseCode.ERR_BLUETOOTH_DEVICE_NOT_FOUND);
-                        break;
-                    }
-                    else if (getDeviceServerState() == InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_FAIL)
-                    {
-                        mSelfHandler.sendEmptyMessage(ResponseCode.ERR_IO_EXCEPTION);
                         break;
                     }
                     
