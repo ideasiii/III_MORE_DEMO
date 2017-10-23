@@ -86,6 +86,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener
     
     public void pauseDisplaying(int seconds)
     {
+        Logs.showTrace("[DisplayHandler] pauseDisplaying in: " + String.valueOf(seconds));
         //停止Runnable
         killAll();
         
@@ -98,14 +99,40 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener
             mSaveDisplayQueue.clear();
         }
         
-        theLastDisplayElement.nextTime = seconds - theLastDisplayElement.timeDuring;
+        Logs.showTrace("[DisplayHandler] theLastDisplayElement.timeDuring: " +
+                String.valueOf(theLastDisplayElement.timeDuring));
+        
+        DisplayElement tmp = mDisplayQueue.poll();
+        theLastDisplayElement.nextTime = tmp.timeDuring - seconds;
+        
+        if (theLastDisplayElement.nextTime < -1)
+        {
+            theLastDisplayElement.nextTime = -1;
+        }
+        
+        Logs.showTrace("[DisplayHandler]####theLastDisplayElement#####");
+        theLastDisplayElement.print();
+        
         
         mSaveDisplayQueue.add(theLastDisplayElement);
+        mSaveDisplayQueue.add(tmp);
         
-        for (int i = 0; i < mDisplayQueue.size(); i++)
+        Logs.showTrace("[DisplayHandler] total mDisplayQueue Data size:" + String.valueOf(mDisplayQueue.size()));
+        while (true)
         {
-            mSaveDisplayQueue.add(mDisplayQueue.poll());
+            DisplayElement tmp2 = mDisplayQueue.poll();
+            if (null == tmp)
+            {
+                break;
+            }
+            else
+            {
+                mSaveDisplayQueue.add(tmp2);
+                tmp2.print();
+            }
         }
+        Logs.showTrace("[DisplayHandler] total mSaveDisplayQueue Data size:" + String.valueOf(mSaveDisplayQueue.size()));
+        
         
     }
     
@@ -275,8 +302,9 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener
             mDisplayQueue.add(tmp);
             
             //for debugging using
-            //tmp.print();
+            tmp.print();
         }
+        Logs.showTrace("[DisplayHandler] total Data size:" + String.valueOf(mDisplayQueue.size()));
         
         
     }

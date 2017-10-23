@@ -38,6 +38,10 @@ import static com.iii.more.logic.LogicParameters.MODE_UNKNOWN;
  * Created by joe on 2017/7/26.
  */
 
+/**
+ * //### is pending to write!!
+ **/
+
 public class LogicHandler extends BaseHandler
 {
     private JSONObject mActivityJson = null;
@@ -49,6 +53,22 @@ public class LogicHandler extends BaseHandler
     private TextToSpeechHandler mTextToSpeechHandler = null;
     
     private int mModeNow = MODE_UNKNOWN;
+    
+    
+    private boolean isPauseStoryMode = false;
+    private CacheStory mCacheStory = null;
+    
+    
+    public boolean getPauseStoryMode()
+    {
+        return isPauseStoryMode;
+    }
+    
+    public void setPauseStoryMode(boolean storyMode)
+    {
+        isPauseStoryMode = storyMode;
+    }
+    
     
     public int getMode()
     {
@@ -201,6 +221,34 @@ public class LogicHandler extends BaseHandler
                 case WebMediaPlayerParameters.STOP_PLAY:
                     break;
                 
+                case WebMediaPlayerParameters.PAUSE_PLAY:
+                    HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+                    String strStoryPauseSecond = message.get("message");
+                    
+                    int storyPauseSecond = 0;
+                    try
+                    {
+                        storyPauseSecond = Integer.valueOf(strStoryPauseSecond);
+                        Logs.showTrace("[LogicHandler] story pause Second: " + strStoryPauseSecond);
+                    }
+                    catch (Exception e)
+                    {
+                        Logs.showError("[LogicHandler]ERROR storyPauseSecond :" + e.toString());
+                    }
+                    
+                    
+                    //###save storyPauseSecond into logicHandler cache
+                    mCacheStory = new CacheStory(storyPauseSecond);
+                    //###set logicHandler cache is true
+                    setPauseStoryMode(true);
+                    //###callback to mainActivity to let display know what happened
+                    HashMap<String, String> message3 = new HashMap<>();
+                    message3.put("message", strStoryPauseSecond);
+                    callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC,
+                            LogicParameters.METHOD_STORY_PAUSE, message3);
+                    
+                    break;
+                
                 default:
                     break;
             }
@@ -246,7 +294,36 @@ public class LogicHandler extends BaseHandler
             if (message.get("message").equals("No match") || message.get("message").equals("No speech input"))
             {
                 //TTS again and listen again
-                onError(TTSParameters.ID_SERVICE_UNKNOWN);
+                if (getMode() != LogicParameters.MODE_STORY)
+                {
+                    onError(TTSParameters.ID_SERVICE_UNKNOWN);
+                }
+                else
+                {
+                    // ### wait 3 second to continue
+                    selfHandler.postDelayed(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            // ### resume story stream
+                            setPauseStoryMode(false);
+                            
+                            // ###callback MainActivity display streaming
+                            if (null != mCacheStory)
+                            {
+                                HashMap<String, String> message4 = new HashMap<String, String>();
+                                message4.put("message", String.valueOf(mCacheStory.pauseStorySecond));
+                                callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC,
+                                        LogicParameters.METHOD_STORY_RESUME, message4);
+                                
+                                resumeStoryStreaming();
+                            }
+                        }
+                    }, 3000);
+                    
+                }
+                
             }
             
         }
@@ -429,9 +506,17 @@ public class LogicHandler extends BaseHandler
         
     }
     
-    public void startUp()
+    public void startUpStory(String strTTS, String strID, String lang)
     {
-        ttsService(TTSParameters.ID_SERVICE_STORY_BEGIN, TTSParameters.STRING_SERVICE_STORY_BEGIN, "zh");
+        if (null != strTTS && null != strID && null != lang)
+        {
+            ttsService(strID, strTTS, lang);
+        }
+        else
+        {
+            ttsService(TTSParameters.ID_SERVICE_STORY_BEGIN, TTSParameters.STRING_SERVICE_STORY_BEGIN, "zh");
+        }
+        
         
     }
     
@@ -527,6 +612,25 @@ public class LogicHandler extends BaseHandler
         }
     }
     
+    public void resumeStoryStreaming()
+    {
+        Logs.showTrace("[LogicHandler] pauseStoryStreaming");
+        if (getMode() == LogicParameters.MODE_STORY && null != mWebMediaPlayerHandler)
+        {
+            mWebMediaPlayerHandler.resumePlayMediaStream();
+        }
+    }
+    
+    public void pauseStoryStreaming()
+    {
+        Logs.showTrace("[LogicHandler] pauseStoryStreaming");
+        if (getMode() == LogicParameters.MODE_STORY && null != mWebMediaPlayerHandler)
+        {
+            mWebMediaPlayerHandler.pausePlayMediaStream();
+        }
+        
+    }
+    
     public void ttsService(String textID, String textString, String languageString)
     {
         Locale localeSet = null;
@@ -601,6 +705,20 @@ public class LogicHandler extends BaseHandler
         {
             mVoiceRecognition.stopListen();
         }
+        
+    }
+    
+    private class CacheStory
+    {
+        
+        
+        public int pauseStorySecond = -1;
+        
+        public CacheStory(int pauseStorySecond)
+        {
+            this.pauseStorySecond = pauseStorySecond;
+        }
+        
         
     }
     

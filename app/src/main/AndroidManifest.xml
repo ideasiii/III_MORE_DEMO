@@ -3,29 +3,35 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="com.iii.more.main">
 
+    <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
 
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true"/>
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
+        tools:replace="android:label"
         >
         <activity
             android:name="com.iii.more.main.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-        >
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -33,33 +39,35 @@
             </intent-filter>
         </activity>
         <activity
-            android:exported="true"
             android:name="com.spotify.sdk.android.authentication.AuthCallbackActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:screenOrientation="portrait">
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
-                    android:scheme="@string/com_spotify_sdk_redirect_scheme"
-                    android:host="@string/com_spotify_sdk_redirect_host"/>
+                    android:host="@string/com_spotify_sdk_redirect_host"
+                    android:scheme="@string/com_spotify_sdk_redirect_scheme"/>
             </intent-filter>
         </activity>
 
+        <service android:name="com.edgecase.moduleservice.DetectorService"/>
         <!-- <activity
              android:launchMode="singleInstance"
              android:name="com.spotify.sdk.android.authentication.LoginActivity"
              android:theme="@android:style/Theme.Translucent.NoTitleBar">
          </activity>-->
         <activity
-            tools:replace="android:launchMode"
-            android:launchMode="standard"
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
+            android:launchMode="standard"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:screenOrientation="portrait">
+            tools:replace="android:launchMode">
         </activity>
 
     </application>

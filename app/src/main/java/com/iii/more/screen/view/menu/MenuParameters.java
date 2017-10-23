@@ -11,5 +11,7 @@ public class MenuParameters
     public static final int MENU_REVEAL_DURING = 1000;
     public static final int MENU_ITEM_DURING = 100;
     
+    public static final int portrait = 0;
+    public static final int landscape = 1;
     
 }

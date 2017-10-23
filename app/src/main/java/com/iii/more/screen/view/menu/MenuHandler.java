@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Build;
 import android.support.annotation.IdRes;
@@ -251,5 +252,21 @@ public class MenuHandler extends BaseHandler implements View.OnClickListener
             });
         }
         return reveal;
+    }
+    
+    
+    private int currentOrientation()
+    {
+        int orientation = mContext.getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT)
+        {
+            //code for portrait mode
+        }
+        else
+        {
+            //code for landscape mode
+        }
+        
+        return 0;
     }
 }

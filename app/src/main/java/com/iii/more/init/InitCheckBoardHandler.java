@@ -30,15 +30,14 @@ public class InitCheckBoardHandler extends BaseHandler
 {
     private ProgressDialog mProgressDialog = null;
     private int flag = 0;
-    private int bleState = InitCheckBoardParameters.STATE_READ_PEN_UNKNOWN;
-    private int deviceServerState = InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_UNKNOWN;
-    private int bluetoothDeviceConnectState = InitCheckBoardParameters.STATE_DEVICE_UNKNOWN;
+    private volatile int bleState = InitCheckBoardParameters.STATE_READ_PEN_UNKNOWN;
+    private volatile int deviceServerState = InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_UNKNOWN;
+    private volatile int bluetoothDeviceConnectState = InitCheckBoardParameters.STATE_DEVICE_UNKNOWN;
     
     public void setBLEState(int bleState)
     {
         this.bleState = bleState;
     }
-    
     public void setDeviceServerState(int deviceServerState)
     {
         this.deviceServerState = deviceServerState;
@@ -167,6 +166,12 @@ public class InitCheckBoardHandler extends BaseHandler
                     
                     break;
                 case Parameters.MODE_NOT_CONNECT_DEVICE:
+                    HashMap<String, String> message5 = new HashMap<>();
+                    
+                    message5.put("message", "start to init http Server");
+                    callBackMessage(ResponseCode.ERR_SUCCESS, InitCheckBoardParameters.CLASS_INIT,
+                            InitCheckBoardParameters.METHOD_DEVICE_HTTP_SERVER, message5);
+                    
                     mSelfHandler.sendEmptyMessageDelayed(ResponseCode.ERR_SUCCESS, 2000);
                     break;
                 

@@ -8,6 +8,7 @@ public abstract class InterruptLogicParameters
 {
     public static final int CLASS_INTERRUPT_LOGIC = 5468;
     public static final int METHOD_LOGIC_RESPONSE = 0;
+    public static final int METHOD_EMOTION_LOGIC_RESPONSE = 1;
     
     public static final String DEFAULT_LOGIC_BEHAVIOR_DATA = "";
     
@@ -43,6 +44,13 @@ public abstract class InterruptLogicParameters
     public static final String JSON_STRING_VALUE = "value";
     public static final String JSON_STRING_DESCRIPTION = "desc";
     
+    public static final String JSON_STRING_EMOTION_ID = "emotion_id";
+    public static final String JSON_STRING_EMOTION_MAPPING_IMAGE_NAME = "img_name";
+    public static final String JSON_STRING_EMOTION_NAME = "emotion_name";
+    public static final String JSON_STRING_ID = "id";
+    public static final String JSON_STRING_DATA_TYPE = "data_type";
+    
+    public static final float LOW_BOUND_EMOTION_VALUE = 0.1f;
     
     
     

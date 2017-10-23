@@ -1,2 +1,2 @@
-include ':app', ':ideassphinx', ':pocketsphinx', ':library'
+include ':app', ':ideassphinx', ':pocketsphinx', ':library', ':moduleservice'
 

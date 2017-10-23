@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/root_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:keepScreenOn="true"
+                android:orientation="horizontal"
+                android:weightSum="1">
+
+
+    <RelativeLayout
+        android:id="@+id/relativelayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            />
+
+        <TextView
+            android:id="@+id/result_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:textColor="@color/black"
+            android:visibility="gone"/>
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:textColor="@color/black"
+        android:visibility="visible"/>
+
+    <com.iii.more.screen.ClipRevealFrame
+        android:id="@+id/menu_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/tumblr_primary"
+        android:visibility="invisible"
+        >
+
+        <com.ogaclejapan.arclayout.ArcLayout
+            android:id="@id/arc_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:arc_axisRadius="@dimen/layout_child_offset_large"
+            app:arc_origin="center_horizontal"
+            app:arc_radius="@dimen/layout_radius_large"
+            >
+
+            <Button
+                android:id="@+id/story_btn"
+                style="@style/Item.Large"
+                android:background="@drawable/story"
+
+                />
+
+            <Button
+                android:id="@+id/friend_btn"
+                style="@style/Item.Large"
+                android:background="@drawable/friend"
+                />
+
+
+        </com.ogaclejapan.arclayout.ArcLayout>
+
+        <Button
+            android:id="@+id/play_btn"
+            style="@style/Item.Large"
+            android:layout_gravity="center"
+            android:background="@drawable/play"
+            />
+
+    </com.iii.more.screen.ClipRevealFrame>
+
+    <com.scalified.fab.ActionButton
+        android:id="@+id/fab_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+
+        />
+
+</RelativeLayout>

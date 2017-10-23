@@ -1,0 +1,35 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "26.0.1"
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        debug{
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    jcenter()
+    mavenLocal()
+    maven {
+        url "http://maven.affectiva.com"
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-annotations:26+'
+    compile('com.affectiva.android:affdexsdk:3.+')
+}

@@ -2,7 +2,9 @@ package com.iii.more.main;
 
 import android.Manifest;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
@@ -29,6 +31,8 @@ import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticDeviceID;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
+import com.iii.more.emotion.EmotionHandler;
+import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.http.server.DeviceHttpServerHandler;
 import com.iii.more.http.server.DeviceHttpServerParameters;
 import com.iii.more.init.InitCheckBoardHandler;
@@ -60,6 +64,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 import premission.settings.WriteSettingPermissionHandler;
 import premission.settings.WriteSettingPermissionParameters;
 import sdk.ideas.common.CtrlType;
@@ -67,6 +72,11 @@ import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.ctrl.bluetooth.BluetoothHandler;
 import sdk.ideas.tool.premisson.RuntimePermissionHandler;
+
+
+/**
+ * //### is pending to write!!
+ **/
 
 
 public class MainActivity extends AppCompatActivity
@@ -116,6 +126,10 @@ public class MainActivity extends AppCompatActivity
     //connect to bluetooth device
     private BluetoothHandler mBluetoothHandler = null;
     
+    //use camera to get personal emotion
+    private EmotionHandler mEmotionHandler = null;
+    
+    
     private Handler mHandler = new Handler()
     {
         @Override
@@ -134,6 +148,39 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         Logs.showTrace("[MainActivity] onCreate");
         
+        final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        
+        // This work only for android 4.4+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+        {
+            
+            getWindow().getDecorView().setSystemUiVisibility(flags);
+            
+            // Code below is to handle presses of Volume up or Volume down.
+            // Without this, after pressing volume buttons, the navigation bar will
+            // show up and won't hide
+            final View decorView = getWindow().getDecorView();
+            decorView
+                    .setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
+                    {
+                        
+                        @Override
+                        public void onSystemUiVisibilityChange(int visibility)
+                        {
+                            if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
+                            {
+                                decorView.setSystemUiVisibility(flags);
+                            }
+                        }
+                    });
+        }
+        
+        
         initInterruptLogic();
         
         mAlertDialogHandler = new AlertDialogHandler(this);
@@ -141,6 +188,23 @@ public class MainActivity extends AppCompatActivity
         mAlertDialogHandler.init();
         showMoreWelcomeLogo();
         
+    }
+    
+    @SuppressLint("NewApi")
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus)
+    {
+        super.onWindowFocusChanged(hasFocus);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && hasFocus)
+        {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
     }
     
     private void showMoreWelcomeLogo()
@@ -224,6 +288,7 @@ public class MainActivity extends AppCompatActivity
     
     public void init()
     {
+        Logs.showTrace("[MainActivity] start to init");
         setContentView(R.layout.main);
         mMenuHandler = new MenuHandler(this);
         mMenuHandler.setHandler(mHandler);
@@ -267,9 +332,14 @@ public class MainActivity extends AppCompatActivity
         mHttpAPIHandler = new HttpAPIHandler(this);
         mHttpAPIHandler.setHandler(mHandler);
         
-      
+        mEmotionHandler = new EmotionHandler(this);
+        mEmotionHandler.setHandler(mHandler);
+        mEmotionHandler.init();
         
-       
+        //### maybe need to modify this code
+        mEmotionHandler.start();
+        
+        
         
         /*
         mSensorHandler = new SensorHandler(this);
@@ -312,6 +382,12 @@ public class MainActivity extends AppCompatActivity
         if (null != mDeviceDMPHandler)
         {
             mDeviceDMPHandler.stopConnectedThread();
+        }
+        
+        //stop face emotion detect
+        if (null != mEmotionHandler)
+        {
+            mEmotionHandler.stop();
         }
         
         
@@ -407,56 +483,118 @@ public class MainActivity extends AppCompatActivity
                 handleMessageInterruptLogic(msg);
                 break;
             
+            case EmotionParameters.CLASS_EMOTION:
+                handleMessageEmotion(msg);
+            
             default:
                 break;
         }
     }
     
-    private void handleMessageInterruptLogic(Message msg)
+    private void handleMessageEmotion(Message msg)
     {
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        
-        switch (msg.arg2)
+        //### pending to write
+        if (null != mLogicHandler && mLogicHandler.getMode() == LogicParameters.MODE_GAME)
         {
-            case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
-                String trigger_result = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
-                if (null != mLogicHandler)
-                {
-                    switch (trigger_result)
-                    {
-                        case "握手":
-                            mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你好呀!今天有沒有乖乖啊!", "zh");
-                            break;
-                        case "拍手":
-                            mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你好棒棒!。我們一起拍手吧!", "zh");
-                            break;
-                        case "擠壓":
-                            mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "我的臉好痛喔，不可以壓我的臉喔。", "zh");
-                            break;
-                        case "拍頭":
-                            mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你 幹 嘛打我，打人是不對的喲!", "zh");
-                            break;
-                    }
-                }
-                
-                if (null != mDisplayHandler)
-                {
-                    try
-                    {
-                        mDisplayHandler.setDisplayJson(new JSONObject(message.get("display")));
-                        mDisplayHandler.startDisplay();
-                    }
-                    catch (JSONException e)
-                    {
-                        Logs.showError("[MainActivity] handleMessageInterruptLogic ERROR: " + e.toString());
-                    }
-                    
-                }
-                break;
-            
+            mInterruptLogicHandler.setEmotionEventData(message);
+            mInterruptLogicHandler.startEmotionEventDataAnalysis();
         }
         
         
+    }
+    
+    private void handleMessageInterruptLogic(Message msg)
+    {
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+        if (null != mLogicHandler)
+        {
+            switch (msg.arg2)
+            {
+                case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
+                    String trigger_result = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
+                    
+                    if (mLogicHandler.getMode() == LogicParameters.MODE_GAME)
+                    {
+                        switch (trigger_result)
+                        {
+                            case "握手":
+                                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你好呀!今天有沒有乖乖啊!", "zh");
+                                break;
+                            case "拍手":
+                                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你好棒棒!。我們一起拍手吧!", "zh");
+                                break;
+                            case "擠壓":
+                                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "我的臉好痛喔，不可以壓我的臉喔。", "zh");
+                                break;
+                            case "拍頭":
+                                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你 幹 嘛打我，打人是不對的喲!", "zh");
+                                break;
+                        }
+                        
+                        if (null != mDisplayHandler)
+                        {
+                            try
+                            {
+                                mDisplayHandler.setDisplayJson(new JSONObject(message.get("display")));
+                                mDisplayHandler.startDisplay();
+                            }
+                            catch (JSONException e)
+                            {
+                                Logs.showError("[MainActivity] handleMessageInterruptLogic ERROR: " + e.toString());
+                            }
+                            
+                        }
+                    }
+                    else if (mLogicHandler.getMode() == LogicParameters.MODE_STORY)
+                    {
+                        if (trigger_result.equals("握手") || trigger_result.equals("擠壓") || trigger_result.equals("拍頭"))
+                        {
+                            //### interrupt story stream and
+                            
+                            //### display stream set logicHandler to let it know need to
+                            
+                            //### pause and save stream location , display stream
+                            
+                            
+                            //### launch tts service to let user know is interrupting
+                            
+                            
+                        }
+                        
+                        
+                    }
+                    
+                    
+                    break;
+                case InterruptLogicParameters.METHOD_EMOTION_LOGIC_RESPONSE:
+                    if (mLogicHandler.getMode() == LogicParameters.MODE_GAME)
+                    {
+                        if (null != mDisplayHandler)
+                        {
+                            try
+                            {
+                                mDisplayHandler.setDisplayJson(new JSONObject(message.get("display")));
+                                mDisplayHandler.startDisplay();
+                            }
+                            catch (JSONException e)
+                            {
+                                Logs.showError("[MainActivity] handleMessageInterruptLogic ERROR: " + e.toString());
+                            }
+        
+                        }
+                        
+                        
+                        
+                        
+                    }
+                    
+                    break;
+                
+                
+            }
+            
+        }
     }
     
     private void handleMessageBluetoothDevice(Message msg)
@@ -501,8 +639,7 @@ public class MainActivity extends AppCompatActivity
                 
                 if (null != mLogicHandler)
                 {
-                    if (mLogicHandler.getMode() == LogicParameters.MODE_GAME ||
-                            mLogicHandler.getMode() == LogicParameters.MODE_UNKNOWN)
+                    if (mLogicHandler.getMode() == LogicParameters.MODE_GAME)
                     {
                         
                         if (handMadeCheckBluetoothRFIDData(message.get("message")) == false)
@@ -515,10 +652,20 @@ public class MainActivity extends AppCompatActivity
                         }
                         
                     }
-                    else if(mLogicHandler.getMode() == LogicParameters.MODE_STORY)
+                    else if (mLogicHandler.getMode() == LogicParameters.MODE_STORY)
                     {
-                       // mLogicHandler
-                        
+                        if (null != getRFIDData(message.get("message")))
+                        {
+                            String rfid = getRFIDData(message.get("message"));
+                            //### call back SWP to play story
+                            
+                            
+                        }
+                        else if (null != mInterruptLogicHandler)
+                        {
+                            mInterruptLogicHandler.setDeviceEventData(message.get("message"));
+                            mInterruptLogicHandler.startEventDataAnalysis();
+                        }
                         
                     }
                 }
@@ -529,6 +676,23 @@ public class MainActivity extends AppCompatActivity
         }
         
         
+    }
+    
+    private String getRFIDData(String inputData)
+    {
+        String rfidDataString = null;
+        
+        if (inputData.contains("RFID"))
+        {
+            Pattern patterns = Pattern.compile(InterruptLogicParameters.PATTERN_EVENT_RFID_DATA);
+            Matcher matcher = patterns.matcher(inputData);
+            if (matcher.find())
+            {
+                rfidDataString = matcher.group(1);
+            }
+        }
+        
+        return rfidDataString;
     }
     
     
@@ -594,8 +758,15 @@ public class MainActivity extends AppCompatActivity
                         JSONObject tmp = new JSONObject(message.get("message"));
                         if (tmp.has("rules"))
                         {
-                            JSONArray rules = tmp.getJSONArray("rules");
-                            mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(rules.toString());
+                            JSONObject rules = tmp.getJSONObject("rules");
+                            if (rules.has("action"))
+                            {
+                                mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(rules.getJSONArray("action").toString());
+                            }
+                            if (rules.has("emotion"))
+                            {
+                                mInterruptLogicHandler.setInterruptEmotionLogicBehaviorDataArray(rules.getJSONArray("emotion").toString());
+                            }
                         }
                     }
                     catch (JSONException e)
@@ -688,14 +859,20 @@ public class MainActivity extends AppCompatActivity
         switch (msg.arg2)
         {
             case DisplayParameters.METHOD_CLICK:
-                Logs.showTrace("[MainActivity] get OnClick!");
+                Logs.showTrace("[MainActivity] Screen get On Click!");
                 
                 switch (mLogicHandler.getMode())
                 {
                     case LogicParameters.MODE_STORY:
-                        mLogicHandler.endAll();
+                        
+                        
+                        //### pause story Streaming and call TTS to
+                        //### ask question
+                        mLogicHandler.pauseStoryStreaming();
                         mDisplayHandler.resetAllDisplayViews();
-                        mLogicHandler.startUp();
+                        mLogicHandler.startUpStory(null, null, null);
+                        
+                        
                         break;
                     case LogicParameters.MODE_FRIEND:
                         
@@ -837,6 +1014,31 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case LogicParameters.METHOD_SPHINX:
                     mDisplayHandler.resetAllDisplayViews();
+                    break;
+                
+                case LogicParameters.METHOD_STORY_PAUSE:
+                    //### let displayHandler pause stream
+                    try
+                    {
+                        Logs.showTrace("[MainActivity] METHOD_STORY_PAUSE: " + message.get("message"));
+                        int StoryPauseSecond = Integer.valueOf(message.get("message"));
+                        mDisplayHandler.pauseDisplaying(StoryPauseSecond);
+                    }
+                    catch (Exception e)
+                    {
+                        Logs.showError("[MainActivity] StoryPauseSecond ERROR"
+                                + e.toString());
+                    }
+                    
+                    
+                    break;
+                
+                case LogicParameters.METHOD_STORY_RESUME:
+                    //### get Story Pause Second  and let displayHandler know next second
+                    mDisplayHandler.resumeDisplaying();
+                    
+                    
+                    break;
                 
                 
                 default:
@@ -890,7 +1092,6 @@ public class MainActivity extends AppCompatActivity
         
         
         //launch service
-        //XXXXX
         
         
     }
@@ -1090,10 +1291,8 @@ public class MainActivity extends AppCompatActivity
             }
             Logs.showTrace("[MainActivity] END Permission Check");
             Logs.showTrace("[MainActivity] start to confirm Connect Device Server!");
-            //XXXXXX
             
             showAlertDialogConfirmConnectDeviceServer();
-            //init();
         }
         else
         {
@@ -1106,6 +1305,7 @@ public class MainActivity extends AppCompatActivity
     {
         ArrayList<String> permissions = new ArrayList<>();
         permissions.add(Manifest.permission.RECORD_AUDIO);
+        permissions.add(Manifest.permission.CAMERA);
         permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -1115,7 +1315,6 @@ public class MainActivity extends AppCompatActivity
     }
     
     
-    //from jugo server
     public void handleMessageSWCMP(Message msg)
     {
         if (msg.arg1 == ResponseCode.ERR_SUCCESS)
