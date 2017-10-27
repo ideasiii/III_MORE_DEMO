@@ -44,8 +44,6 @@ public class InterruptLogicHandler extends BaseHandler
         try
         {
             mInterruptLogicBehaviorDataArray = new JSONArray(InterruptLogicParameters.DEFAULT_LOGIC_BEHAVIOR_DATA);
-            
-            
         }
         catch (JSONException e)
         {
@@ -78,6 +76,12 @@ public class InterruptLogicHandler extends BaseHandler
                             jsonEmotionBrainElement.getString(InterruptLogicParameters.JSON_STRING_DATA_TYPE)));
                 }
             }
+            //debug using
+            for (int i = 0; i < mEmotionBrainArrayListData.size(); i++)
+            {
+                mEmotionBrainArrayListData.get(i).print();
+            }
+            
             
         }
         catch (JSONException e)
@@ -203,6 +207,8 @@ public class InterruptLogicHandler extends BaseHandler
             Logs.showTrace("[InterruptLogicHandler] MAX Emotion:");
             maxEmotion.print();
             
+            
+            
             if (maxEmotion.emotionValue > InterruptLogicParameters.LOW_BOUND_EMOTION_VALUE)
             {
                 String emotionMappingImageData = getEmotionMappingImageData(maxEmotion.emotionID);
@@ -212,6 +218,16 @@ public class InterruptLogicHandler extends BaseHandler
                         InterruptLogicParameters.METHOD_EMOTION_LOGIC_RESPONSE,
                         makeEmotionDisplayJson(maxEmotion.emotionID, emotionMappingImageData));
                 
+                
+            }
+            else
+            {
+                String emotionMappingImageData = getEmotionMappingImageData("NEUTRAL");
+                
+                
+                callBackMessage(ResponseCode.ERR_SUCCESS, InterruptLogicParameters.CLASS_INTERRUPT_LOGIC,
+                        InterruptLogicParameters.METHOD_EMOTION_LOGIC_RESPONSE,
+                        makeEmotionDisplayJson(maxEmotion.emotionID, emotionMappingImageData));
                 
             }
         }
@@ -531,6 +547,16 @@ public class InterruptLogicHandler extends BaseHandler
             this.dataType = dataType;
         }
         
+        public void print()
+        {
+            Logs.showTrace("***********************");
+            Logs.showTrace("[EmotionBrainElement] emotion_id: " + String.valueOf(emotionID));
+            Logs.showTrace("[EmotionBrainElement] img_name: " + emotionMappingImageName);
+            Logs.showTrace("[EmotionBrainElement] data_type: " + dataType);
+            Logs.showTrace("[EmotionBrainElement] id: " + String.valueOf(id));
+            Logs.showTrace("[EmotionBrainElement] emotion_name: " + emotionName);
+            Logs.showTrace("***********************");
+        }
         
     }
     

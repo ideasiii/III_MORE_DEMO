@@ -1,69 +1,61 @@
-package com.iii.more.stream;
+
+   package com.iii.more.stream;
 
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.util.SparseArray;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.concurrent.ThreadFactory;
 
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
-
-/**
- * Created by joe on 2017/4/17.
- */
-
-public class WebMediaPlayerHandler extends BaseHandler
-{
-    private MediaPlayer mMediaPlayer = null;
-    private String hostPath = "";
-    private String filePath = "";
-    private static final int DEFAULT_POSITION_TIME = 0;
-    private int saveCurrentPositionTime = DEFAULT_POSITION_TIME;
     
     
-    public WebMediaPlayerHandler(Context context)
+    
+    public class WebMediaPlayerHandler extends BaseHandler
     {
-        super(context);
-    }
-    
-    private int getCurrentPositionTime()
-    {
-        if (null != mMediaPlayer)
+        private MediaPlayer mMediaPlayer = null;
+        private String hostPath = "";
+        private String filePath = "";
+        private static final int DEFAULT_POSITION_TIME = 0;
+        private int saveCurrentPositionTime = DEFAULT_POSITION_TIME;
+        
+        
+        public WebMediaPlayerHandler(Context context)
         {
-            return mMediaPlayer.getCurrentPosition();
+            super(context);
         }
-        return -1;
-    }
-    
-    public boolean setHostAndFilePath(String hostPath, String filePath)
-    {
-        boolean anyError = false;
-        this.hostPath = hostPath;
-        try
+        
+        private int getCurrentPositionTime()
         {
-            this.filePath = URLEncoder.encode(filePath, "UTF-8");
+            if (null != mMediaPlayer)
+            {
+                return mMediaPlayer.getCurrentPosition();
+            }
+            return -1;
         }
-        catch (UnsupportedEncodingException e)
+        
+        public boolean setHostAndFilePath(String hostPath, String filePath)
         {
-            anyError = true;
-            Logs.showError("[WebMediaPlayerHandler] " + e.toString());
+            boolean anyError = false;
+            this.hostPath = hostPath;
+            try
+            {
+                this.filePath = URLEncoder.encode(filePath, "UTF-8");
+            }
+            catch (UnsupportedEncodingException e)
+            {
+                anyError = true;
+                Logs.showError("[WebMediaPlayerHandler] " + e.toString());
+            }
+            return anyError;
         }
-        return anyError;
-    }
-    
-    
-    public void startPlayMediaStream()
+        
+        public void startPlayMediaStream()
     {
         stopPlayMediaStream();
         mMediaPlayer = new MediaPlayer();

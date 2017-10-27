@@ -4,9 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.PointF;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.affectiva.android.affdex.sdk.Frame;
 import com.affectiva.android.affdex.sdk.detector.Face;
@@ -34,12 +32,13 @@ import com.edgecase.moduleservice.DetectorService;
 public class EmotionHandler extends BaseHandler implements OnDetectionListener
 {
     
-    private static final String TAG = "EmotionHandler";
     private ArrayDeque<HashMap<String, String>> emotionCallBackQueue = null;
     private Thread handleEmotionDataThread = null;
     private volatile boolean shutdownThread = false;
     DetectorService mDetectorService = null;
-    boolean mBound = false;
+    private boolean mBound = false;
+    private volatile HashMap<String, String> emotionVolatileHashMap = null;
+    private boolean isTest = true;
     
     
     public EmotionHandler(Context context)
@@ -250,10 +249,16 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
         faceHashMap.put(EmotionParameters.STRING_EMOTION_JOY, String.valueOf(face.emotions.getJoy()));
         faceHashMap.put(EmotionParameters.STRING_EMOTION_SADNESS, String.valueOf(face.emotions.getSadness()));
         faceHashMap.put(EmotionParameters.STRING_EMOTION_SURPRISE, String.valueOf(face.emotions.getSurprise()));
-        
         Logs.showTrace("[EmotionHandler] get face Emotion:" + faceHashMap);
         
-        pushBackQueue(faceHashMap);
+        if (isTest == true)
+        {
+            emotionVolatileHashMap = faceHashMap;
+        }
+        else
+        {
+            pushBackQueue(faceHashMap);
+        }
         
     }
     
@@ -278,21 +283,32 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
             {
                 try
                 {
-                    if (null != emotionCallBackQueue)
+                    if (isTest == false)
                     {
-                        ArrayList<HashMap<String, String>> emotionArrayListData = new ArrayList<>();
-                        for (int i = 0; i < pollCounts; i++)
+                        if (null != emotionCallBackQueue)
                         {
-                            if (emotionCallBackQueue.size() > 0)
+                            ArrayList<HashMap<String, String>> emotionArrayListData = new ArrayList<>();
+                            for (int i = 0; i < pollCounts; i++)
                             {
-                                emotionArrayListData.add(emotionCallBackQueue.poll());
+                                if (emotionCallBackQueue.size() > 0)
+                                {
+                                    emotionArrayListData.add(emotionCallBackQueue.poll());
+                                }
+                            }
+                            
+                            //### get last one to show this person emotion
+                            if (emotionArrayListData.size() > 0)
+                            {
+                                HashMap<String, String> message = emotionArrayListData.get(emotionArrayListData.size() - 1);
+                                callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION, EmotionParameters.METHOD_EMOTION_DETECT, message);
                             }
                         }
-                        
-                        //### get last one to show this person emotion
-                        if (emotionArrayListData.size() > 0)
+                    }
+                    else
+                    {
+                        if (null != emotionVolatileHashMap)
                         {
-                            HashMap<String, String> message = emotionArrayListData.get(emotionArrayListData.size() - 1);
+                            HashMap<String, String> message = new HashMap<>(emotionVolatileHashMap);
                             callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION, EmotionParameters.METHOD_EMOTION_DETECT, message);
                         }
                     }

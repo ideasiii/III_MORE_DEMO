@@ -1,6 +1,5 @@
 package com.iii.more.main;
 
-import android.Manifest;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -21,7 +20,6 @@ import com.iii.more.ai.HttpAPIHandler;
 import com.iii.more.ai.HttpAPIParameters;
 import com.iii.more.dmp.device.DeviceDMPHandler;
 import com.iii.more.dmp.device.DeviceDMPParameters;
-import com.iii.more.animate.AnimationHandler;
 
 
 import com.iii.more.bluetooth.ble.ReadPenBLEHandler;
@@ -59,19 +57,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-import premission.settings.WriteSettingPermissionHandler;
-import premission.settings.WriteSettingPermissionParameters;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.ctrl.bluetooth.BluetoothHandler;
-import sdk.ideas.tool.premisson.RuntimePermissionHandler;
 
 
 /**
@@ -82,10 +76,8 @@ import sdk.ideas.tool.premisson.RuntimePermissionHandler;
 public class MainActivity extends AppCompatActivity
 
 {
-    //permission check board
-    private WriteSettingPermissionHandler mWriteSettingPermissionHandler = null;
-    private RuntimePermissionHandler mRuntimePermissionHandler = null;
     private AlertDialogHandler mAlertDialogHandler = null;
+    
     
     //Jugo server connect
     private SemanticWordCMPHandler mSemanticWordCMPHandler = null;
@@ -146,6 +138,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
         Logs.showTrace("[MainActivity] onCreate");
         
         final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -186,8 +179,16 @@ public class MainActivity extends AppCompatActivity
         mAlertDialogHandler = new AlertDialogHandler(this);
         mAlertDialogHandler.setHandler(mHandler);
         mAlertDialogHandler.init();
-        showMoreWelcomeLogo();
+    
+        showAlertDialogConfirmConnectDeviceServer();
         
+    }
+    
+    
+    @Override
+    public void onBackPressed()
+    {
+        finish();
     }
     
     @SuppressLint("NewApi")
@@ -207,31 +208,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
     
-    private void showMoreWelcomeLogo()
-    {
-        setContentView(R.layout.welcome_layout);
-        AnimationHandler animationHandler = new AnimationHandler(this);
-        animationHandler.setView(findViewById(R.id.logo_image_view));
-        try
-        {
-            animationHandler.setAnimateJsonBehavior(new JSONObject("{\"type\":1,\"duration\":3000,\"repeat\":0, \"interpolate\":1}"));
-            animationHandler.startAnimate();
-            mHandler.sendEmptyMessageDelayed(Parameters.MESSAGE_END_WELCOME_LAYOUT, 3100);
-        }
-        catch (JSONException e)
-        {
-            Logs.showError("[MainActivity] " + e.toString());
-        }
-        
-    }
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        if (null != mWriteSettingPermissionHandler)
-        {
-            mWriteSettingPermissionHandler.onActivityResult(requestCode, resultCode, data);
-        }
         if (null != mBluetoothHandler)
         {
             mBluetoothHandler.onActivityResult(requestCode, resultCode, data);
@@ -353,13 +333,6 @@ public class MainActivity extends AppCompatActivity
     
     
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-            @NonNull String[] permissions, @NonNull int[] grantResults)
-    {
-        mRuntimePermissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-    
-    @Override
     protected void onDestroy()
     {
         Logs.showTrace("onDestroy");
@@ -424,10 +397,7 @@ public class MainActivity extends AppCompatActivity
         
         switch (msg.what)
         {
-            case Parameters.MESSAGE_END_WELCOME_LAYOUT:
-                //start to check permission
-                writeSettingPermissionCheck();
-                break;
+            
             
             case CMPParameters.CLASS_CMP_SEMANTIC_WORD:
                 handleMessageSWCMP(msg);
@@ -437,9 +407,6 @@ public class MainActivity extends AppCompatActivity
                 handleMessagePermission(msg);
                 break;
             
-            case WriteSettingPermissionParameters.CLASS_WRITE_SETTING:
-                handleMessageWriteSettingPermission(msg);
-                break;
             
             case AlertDialogParameters.CLASS_ALERT_DIALOG:
                 handleMessageAlertDialog(msg);
@@ -494,7 +461,6 @@ public class MainActivity extends AppCompatActivity
     private void handleMessageEmotion(Message msg)
     {
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        //### pending to write
         if (null != mLogicHandler && mLogicHandler.getMode() == LogicParameters.MODE_GAME)
         {
             mInterruptLogicHandler.setEmotionEventData(message);
@@ -556,8 +522,16 @@ public class MainActivity extends AppCompatActivity
                             
                             //### pause and save stream location , display stream
                             
-                            
                             //### launch tts service to let user know is interrupting
+                            /*mLogicHandler.pauseStoryStreaming();
+                            mHandler.postDelayed(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    mLogicHandler.startUpStory(null, null, null);
+                                }
+                            }, 500);*/
                             
                             
                         }
@@ -581,10 +555,8 @@ public class MainActivity extends AppCompatActivity
                             {
                                 Logs.showError("[MainActivity] handleMessageInterruptLogic ERROR: " + e.toString());
                             }
-        
+                            
                         }
-                        
-                        
                         
                         
                     }
@@ -1113,29 +1085,6 @@ public class MainActivity extends AppCompatActivity
     }
     
     
-    private void writeSettingPermissionCheck()
-    {
-        mWriteSettingPermissionHandler = new WriteSettingPermissionHandler(this);
-        mWriteSettingPermissionHandler.setHandler(mHandler);
-        if (!mWriteSettingPermissionHandler.check())
-        {
-            showAlertDialogWritingPermission();
-        }
-        else
-        {
-            runtimePermissionCheck();
-        }
-    }
-    
-    private void showAlertDialogWritingPermission()
-    {
-        
-        mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_WRITE_PERMISSION, getResources().getString(R.string.writesettingtitle),
-                getResources().getString(R.string.writesettingcontent), getResources().getString(R.string.positivebutton),
-                getResources().getString(R.string.negativebutton), false);
-        
-        mAlertDialogHandler.show();
-    }
     
     private void showAlertDialogDeviceID()
     {
@@ -1185,19 +1134,6 @@ public class MainActivity extends AppCompatActivity
         
     }
     
-    public void handleMessageWriteSettingPermission(Message msg)
-    {
-        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-        {
-            runtimePermissionCheck();
-        }
-        else
-        {
-            //close app
-            finish();
-        }
-        
-    }
     
     public void handleMessageAlertDialog(Message msg)
     {
@@ -1209,16 +1145,6 @@ public class MainActivity extends AppCompatActivity
             switch (message.get("id"))
             {
                 
-                case Parameters.ALERT_DIALOG_WRITE_PERMISSION:
-                    if (message.get("message").equals(AlertDialogParameters.ONCLICK_NEGATIVE_BUTTON))
-                    {
-                        finish();
-                    }
-                    else if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
-                    {
-                        mWriteSettingPermissionHandler.getPermission();
-                    }
-                    break;
                 case Parameters.ALERT_DIALOG_CONNECTING_DEVICE:
                     if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
                     {
@@ -1299,19 +1225,6 @@ public class MainActivity extends AppCompatActivity
             //if not permission, close app
             finish();
         }
-    }
-    
-    public void runtimePermissionCheck()
-    {
-        ArrayList<String> permissions = new ArrayList<>();
-        permissions.add(Manifest.permission.RECORD_AUDIO);
-        permissions.add(Manifest.permission.CAMERA);
-        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-        mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
-        mRuntimePermissionHandler.setHandler(mHandler);
-        mRuntimePermissionHandler.startRequestPermissions();
     }
     
     

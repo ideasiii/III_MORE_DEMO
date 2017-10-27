@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 import com.iii.more.init.InitCheckBoardParameters;
-import com.iii.more.main.Parameters;
 import com.iii.more.main.TTSParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
@@ -20,8 +19,6 @@ import java.util.Locale;
 
 import android.os.Handler;
 
-import iii.ideas.ideassphinx.pocketshinx.PocketSphinxHandler;
-import iii.ideas.ideassphinx.pocketshinx.PocketSphinxParameters;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
@@ -47,7 +44,6 @@ public class LogicHandler extends BaseHandler
     private JSONObject mActivityJson = null;
     
     
-    private PocketSphinxHandler mPocketSphinxHandler = null;
     private VoiceRecognition mVoiceRecognition = null;
     private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
     private TextToSpeechHandler mTextToSpeechHandler = null;
@@ -103,9 +99,7 @@ public class LogicHandler extends BaseHandler
             case WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER:
                 handleMessageWebMediaPlayer(msg);
                 break;
-            case PocketSphinxParameters.CLASS_POCKET_SPHINX:
-                handleMessageSphinx(msg);
-                break;
+          
             case CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER:
                 handleMessageTTS(msg);
                 break;
@@ -399,7 +393,6 @@ public class LogicHandler extends BaseHandler
                         break;
                     
                     case TTSParameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE:
-                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                         
                         break;
                     case TTSParameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE:
@@ -428,27 +421,19 @@ public class LogicHandler extends BaseHandler
                         mVoiceRecognition.startListen();
                         break;
                     case TTSParameters.ID_SERVICE_TTS_BEGIN:
-                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                         
                         break;
                     case TTSParameters.ID_SERVICE_UNKNOWN:
-                        if (getMode() == MODE_STORY)
-                        {
-                            mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
-                        }
                         
                         //callback to service something ERROR
                         
                         break;
                     case TTSParameters.ID_SERVICE_IO_EXCEPTION:
-                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                         break;
                     case TTSParameters.ID_SERVICE_INIT_SUCCESS:
                         Logs.showTrace("ID_SERVICE_INIT_SUCCESS");
-                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                         break;
                     case TTSParameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED:
-                        mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                     default:
                         break;
                     
@@ -485,12 +470,6 @@ public class LogicHandler extends BaseHandler
     
     public void init()
     {
-        mPocketSphinxHandler = new PocketSphinxHandler(mContext);
-        mPocketSphinxHandler.setHandler(selfHandler);
-        mPocketSphinxHandler.setKeyWord(Parameters.IDEAS_SPHINX_KEY_WORD);
-        PocketSphinxHandler.setSphinxEnable(false);
-        // mPocketSphinxHandler.setKeyWord("章魚");
-        // mPocketSphinxHandler.setLanguageLocation("zh-tw");
         
         mTextToSpeechHandler = new TextToSpeechHandler(mContext);
         mTextToSpeechHandler.setHandler(selfHandler);
@@ -577,7 +556,6 @@ public class LogicHandler extends BaseHandler
                                     mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_FILE));
                             mWebMediaPlayerHandler.startPlayMediaStream();
                             
-                            mPocketSphinxHandler.startListenAction();
                         }
                         else
                         {
@@ -683,11 +661,7 @@ public class LogicHandler extends BaseHandler
     public void endAll()
     {
         
-        if (null != mPocketSphinxHandler)
-        {
-            mPocketSphinxHandler.stopListenAction();
-            Logs.showTrace("PocketSphinxHandler is stopListenAction");
-        }
+      
         
         if (null != mTextToSpeechHandler)
         {

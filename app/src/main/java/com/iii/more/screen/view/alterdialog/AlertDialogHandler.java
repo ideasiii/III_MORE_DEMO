@@ -4,7 +4,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
+import android.text.method.LinkMovementMethod;
+import android.text.method.ScrollingMovementMethod;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.util.HashMap;
 
@@ -105,6 +108,21 @@ public class AlertDialogHandler extends BaseHandler
         }
     }
     
+    public void show(int contentSize)
+    {
+        try
+        {
+            setAlertDialogEvent(title, content, contentSize, mContext,
+                    positiveButtonString, positiveOnClickListener,
+                    negativeButtonString, negativeOnClickListener);
+        }
+        catch (Exception e)
+        {
+            Logs.showError("[AlertDialogHandler] something ERROR" + e.toString());
+            
+        }
+    }
+    
     
     private void setAlertDialogEvent(String title, String message, Context context,
             String positiveString, DialogInterface.OnClickListener positiveOnClickListener,
@@ -128,6 +146,40 @@ public class AlertDialogHandler extends BaseHandler
         {
             tmp.setView(editText);
         }
+        
+        tmp.show();
+        
+        
+    }
+    
+    private void setAlertDialogEvent(String title, String message, int contentSize, Context context,
+            String positiveString, DialogInterface.OnClickListener positiveOnClickListener,
+            String negativeString, DialogInterface.OnClickListener negativeOnClickListener)
+    {
+        AlertDialog.Builder tmp = new AlertDialog.Builder(context);
+        
+        tmp.setTitle(title);
+        
+        tmp.setCancelable(false);
+        
+        if (null != positiveString && positiveString.length() != 0)
+        {
+            tmp.setPositiveButton(positiveString, positiveOnClickListener);
+        }
+        if (null != negativeString && negativeButtonString.length() != 0)
+        {
+            tmp.setNegativeButton(negativeString, negativeOnClickListener);
+        }
+    
+    
+        final TextView myView = new TextView(context.getApplicationContext());
+        myView.setText(message);
+        myView.setTextSize(contentSize);
+        myView.setVerticalScrollBarEnabled(true);
+        myView.setMovementMethod(new LinkMovementMethod());
+        myView.setFocusable(false);
+        tmp.setView(myView);
+        
         
         tmp.show();
         

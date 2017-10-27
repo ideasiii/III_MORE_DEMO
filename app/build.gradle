@@ -7,8 +7,8 @@ android {
         applicationId "com.iii.more.main"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 5
-        versionName "1.4"
+        versionCode 6
+        versionName "1.5"
         multiDexEnabled true
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
@@ -41,15 +41,8 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile files('libs/premission.jar')
     compile files('libs/TTS.jar')
-    // This libraries handles music playback
-    compile 'com.spotify.sdk:spotify-player-24-noconnect-2.20b@aar'
-    // This library handles authentication and authorization
-    compile 'com.spotify.sdk:spotify-android-auth-1.0.0@aar'
-    //This lib is to get an song information which the music is playing
-    compile 'com.github.kaaes:spotify-web-api-android:0.4.1'
     compile files('libs/voice.jar')
     compile files('libs/module.jar')
-    compile project(':ideassphinx')
     compile project(':library')
     compile 'com.github.bumptech.glide:glide:3.8.0'
     compile 'com.android.support:support-annotations:26.0.0-alpha1'
@@ -58,6 +51,6 @@ dependencies {
     compile 'com.kaopiz:kprogresshud:1.1.0'
     compile files('libs/bluetooth.jar')
     compile project(':moduleservice')
-
-
+    compile files('libs/common.jar')
+    compile('de.psdev.licensesdialog:licensesdialog:1.8.3')
 }

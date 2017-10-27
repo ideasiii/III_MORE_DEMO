@@ -22,7 +22,7 @@ public abstract class Parameters
     
     public static final int MESSAGE_END_WELCOME_LAYOUT = 1232;
     
-    public static final String ALERT_DIALOG_WRITE_PERMISSION = "b173de1a-7666-4dfd-8f96-7e8bae023636";
+    
     public static final String ALERT_DIALOG_CONNECTING_DEVICE = "c4b008ba-8b2f-404e-9e44-dd0605486441";
     public static final String ALERT_DIALOG_CONNECTING_DEVICE_BLUETOOTH = "c4b008ba-8b2f-404e-9e44-dd0605486446";
     public static final String ALERT_DIALOG_ENTER_DEVICE_ID = "c4b008ba-8b2f-404e-9e44-dd0605486226";

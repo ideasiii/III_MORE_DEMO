@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>s xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <string name="app_name">More APP</string>
     <string name="writesettingtitle">調整視窗亮度權限要求</string>
     <string name="writesettingcontent">應有需要啟動APP省電模式，故需螢幕亮度調整</string>
-    <string name="positivebutton">賦予權限</string>
-    <string name="negativebutton">關閉APP</string>
+    <string name="writesettingpositivebutton">賦予權限</string>
+    <string name="writesettingnegativebutton">關閉APP</string>
+    <string name="licencestitle">原程式著作權利人的著作權聲明</string>
+
+    <string name="licencespositivebutton">同意
+    </string>
 
 
 </resources>

@@ -50,7 +50,7 @@ public abstract class InterruptLogicParameters
     public static final String JSON_STRING_ID = "id";
     public static final String JSON_STRING_DATA_TYPE = "data_type";
     
-    public static final float LOW_BOUND_EMOTION_VALUE = 0.1f;
+    public static final float LOW_BOUND_EMOTION_VALUE = 20.0f;
     
     
     

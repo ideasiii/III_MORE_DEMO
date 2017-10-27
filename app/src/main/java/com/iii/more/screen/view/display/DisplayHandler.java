@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -38,7 +39,7 @@ import sdk.ideas.common.ResponseCode;
  * Created by joe on 2017/7/11.
  */
 
-public class DisplayHandler extends BaseHandler implements View.OnClickListener
+public class DisplayHandler extends BaseHandler implements View.OnClickListener,View.OnTouchListener
 {
     private JSONArray mDisplayJsonArray = null;
     private AnimationHandler mAnimationHandler = null;
@@ -370,6 +371,12 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener
             
             
         }
+    }
+    
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent)
+    {
+        return false;
     }
     
     
