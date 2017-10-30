@@ -40,8 +40,10 @@ import sdk.ideas.tool.premisson.RuntimePermissionHandler;
  * Created by joe on 2017/10/27.
  */
 
-//this class handle welcome page,permissions and licenses.txt
-
+/*###
+this class handle welcome page,permissions , licenses.txt
+task composer API link init
+*/
 public class InitActivity extends AppCompatActivity
 {
     //permission check board
@@ -176,7 +178,7 @@ public class InitActivity extends AppCompatActivity
                 getContent(this, R.raw.licenses), getResources().getString(R.string.licencespositivebutton),
                 null, false);
         
-        mAlertDialogHandler.show(8);
+        mAlertDialogHandler.show();
     }
     
     protected String getContent(final Context context, final int contentResourceId)
@@ -190,7 +192,10 @@ public class InitActivity extends AppCompatActivity
                 reader = new BufferedReader(new InputStreamReader(inputStream));
                 return toString(reader);
             }
-            throw new IOException("Error opening license file.");
+            else
+            {
+                throw new IOException("Error opening license file.");
+            }
         }
         catch (final IOException e)
         {
@@ -315,8 +320,7 @@ public class InitActivity extends AppCompatActivity
                 }
             }
             Logs.showTrace("[InitActivity] END Permission Check");
-            Logs.showTrace("[InitActivity] start to confirm Connect Device Server!");
-            
+            Logs.showTrace("[InitActivity] start to show  Licences Permission!");
             
             //### show licenses.txt dialog to let user know this
             showAlertDialogLicencesPermission();

@@ -52,5 +52,4 @@ dependencies {
     compile files('libs/bluetooth.jar')
     compile project(':moduleservice')
     compile files('libs/common.jar')
-    compile('de.psdev.licensesdialog:licensesdialog:1.8.3')
 }
