@@ -33,6 +33,19 @@ public class ProgressDialog extends BaseHandler
                 .setBackgroundColor(Color.BLACK);
     }
     
+    public void init(String showData)
+    {
+        
+        mKProgressHUD = KProgressHUD.create(mContext)
+                .setStyle(com.kaopiz.kprogresshud.KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please Wait")
+                .setDetailsLabel(showData)
+                .setCancellable(false)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f)
+                .setBackgroundColor(Color.BLACK);
+    }
+    
     public void show()
     {
         if (null != mKProgressHUD && !mKProgressHUD.isShowing())

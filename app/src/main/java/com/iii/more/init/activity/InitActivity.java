@@ -3,6 +3,7 @@ package com.iii.more.init.activity;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -12,6 +13,10 @@ import android.os.Handler;
 
 
 import com.iii.more.animate.AnimationHandler;
+import com.iii.more.http.server.DeviceHttpServerHandler;
+import com.iii.more.http.server.DeviceHttpServerParameters;
+import com.iii.more.init.InitCheckBoardHandler;
+import com.iii.more.init.InitCheckBoardParameters;
 import com.iii.more.main.MainActivity;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
@@ -35,6 +40,8 @@ import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.tool.premisson.RuntimePermissionHandler;
 
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+
 
 /**
  * Created by joe on 2017/10/27.
@@ -42,7 +49,7 @@ import sdk.ideas.tool.premisson.RuntimePermissionHandler;
 
 /*###
 this class handle welcome page,permissions , licenses.txt
-task composer API link init
+http task composer API get and save in share preference
 */
 public class InitActivity extends AppCompatActivity
 {
@@ -51,6 +58,13 @@ public class InitActivity extends AppCompatActivity
     private RuntimePermissionHandler mRuntimePermissionHandler = null;
     private AlertDialogHandler mAlertDialogHandler = null;
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    
+    //2 floor device http server connect
+    private DeviceHttpServerHandler mDeviceHttpServerHandler = null;
+    
+    
+    //init handler
+    private InitCheckBoardHandler mInitCheckBoardHandler = null;
     
     private Handler mHandler = new Handler()
     {
@@ -80,10 +94,93 @@ public class InitActivity extends AppCompatActivity
             case AlertDialogParameters.CLASS_ALERT_DIALOG:
                 handleMessageAlertDialog(msg);
                 break;
+            case DeviceHttpServerParameters.CLASS_DEVICE_HTTP_SERVER:
+                handleMessageDeviceHttpServer(msg);
+                break;
+            
+            case InitCheckBoardParameters.CLASS_INIT:
+                handleMessageInitCheckBoard(msg);
+                break;
             
         }
         
     }
+    
+    private void handleMessageInitCheckBoard(Message msg)
+    {
+        Logs.showTrace("[MainActivity] handleMessageInitCheckBoard");
+        
+        
+        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+        {
+            switch (msg.arg2)
+            {
+                case InitCheckBoardParameters.METHOD_DEVICE_HTTP_SERVER:
+                    initDeviceHttpServer();
+                    break;
+                
+                case InitCheckBoardParameters.METHOD_INIT:
+                    //###
+                    // init finish
+                    // can call other activity to start
+                    //### no com.iii.more.oobe -> go to com.iii.more.oobe class
+                    if (checkOobe())
+                    {
+                    
+                    }
+                    else
+                    {
+                        startMainActivity();
+                    }
+                    
+                    break;
+                default:
+                    break;
+                
+            }
+            
+        }
+        else if (ResponseCode.ERR_IO_EXCEPTION == msg.arg1)
+        {
+            showAlertDialogConnectDeviceServerERROR(1);
+            
+        }
+        else if (ResponseCode.ERR_UNKNOWN == msg.arg1)
+        {
+            showAlertDialogConnectDeviceServerERROR(2);
+            
+        }
+        
+    }
+    
+    
+    private void handleMessageDeviceHttpServer(Message msg)
+    {
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+        switch (msg.arg2)
+        {
+            case DeviceHttpServerParameters.METHOD_HTTP_GET_RESPONSE:
+                if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+                {
+                    //### save in share preference
+                    SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString(Parameters.TASK_COMPOSER_DATA, message.get("message"));
+                    editor.apply();
+                    
+                    mInitCheckBoardHandler.setDeviceServerState(InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_SUCCESS);
+                }
+                else
+                {
+                    
+                    Logs.showTrace("[MainActivity] connect Server Error, use default logic behavior!");
+                    mInitCheckBoardHandler.setDeviceServerState(InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_SUCCESS);
+                    
+                }
+                break;
+        }
+    }
+    
     
     public void handleMessageWriteSettingPermission(Message msg)
     {
@@ -143,6 +240,40 @@ public class InitActivity extends AppCompatActivity
         }
         
     }
+    
+    private void showAlertDialogConnectDeviceServerERROR(int flag)
+    {
+        
+        if (flag == 1)
+        {
+            mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
+                    "與章魚裝置連線失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
+            mAlertDialogHandler.show();
+        }
+        else if (flag == 2)
+        {
+            mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
+                    "與章魚裝置連線不明失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
+            mAlertDialogHandler.show();
+        }
+        
+    }
+    
+    public void initDeviceHttpServer()
+    {
+        mDeviceHttpServerHandler = new DeviceHttpServerHandler(this);
+        mDeviceHttpServerHandler.setHandler(mHandler);
+        mDeviceHttpServerHandler.connectToServerByGet(DeviceHttpServerParameters.URL_DEFAULT_PARAM);
+    }
+    
+    public void initLoadingData()
+    {
+        mInitCheckBoardHandler = new InitCheckBoardHandler(this);
+        mInitCheckBoardHandler.setHandler(mHandler);
+        mInitCheckBoardHandler.init();
+        mInitCheckBoardHandler.startCheckInit();
+    }
+    
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -250,23 +381,21 @@ public class InitActivity extends AppCompatActivity
                         mWriteSettingPermissionHandler.getPermission();
                     }
                     break;
+                case Parameters.ALERT_DIALOG_CONNECTING_DEVICE:
+                    if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
+                    {
+                        finish();
+                    }
+                    
+                    break;
                 
                 case InitActivityParameters.ALERT_DIALOG_LICENCES_PERMISSION:
                     
                     if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
                     {
-                        //### no oobe -> go to oobe class
+                        // ### connect to task composer API get data
+                        initLoadingData();
                         
-                        
-                        //
-                        if (checkOobe())
-                        {
-                            
-                        }
-                        else
-                        {
-                            startMainActivity();
-                        }
                     }
                     
                     

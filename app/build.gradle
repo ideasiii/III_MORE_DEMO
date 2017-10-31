@@ -7,8 +7,8 @@ android {
         applicationId "com.iii.more.main"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 6
-        versionName "1.5"
+        versionCode 7
+        versionName "1.6"
         multiDexEnabled true
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"

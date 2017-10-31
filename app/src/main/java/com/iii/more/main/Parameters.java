@@ -6,6 +6,7 @@ package com.iii.more.main;
 
 public abstract class Parameters
 {
+    public static final String TASK_COMPOSER_DATA = "taskcomposerdata";
     
     public static final String CMP_HOST_IP = "175.98.119.121";
     public static final int CMP_HOST_PORT = 2310;
@@ -22,11 +23,10 @@ public abstract class Parameters
     
     public static final int MESSAGE_END_WELCOME_LAYOUT = 1232;
     
-    
-    public static final String ALERT_DIALOG_CONNECTING_DEVICE = "c4b008ba-8b2f-404e-9e44-dd0605486441";
-    public static final String ALERT_DIALOG_CONNECTING_DEVICE_BLUETOOTH = "c4b008ba-8b2f-404e-9e44-dd0605486446";
-    public static final String ALERT_DIALOG_ENTER_DEVICE_ID = "c4b008ba-8b2f-404e-9e44-dd0605486226";
-    public static final String ALERT_DIALOG_CONFIRM_CONNECT_DEVICE = "c4b008ca-8b2f-404e-9e44-dd0605482229";
+    public static final String  ALERT_DIALOG_CONNECTING_DEVICE = "c4b008ba-7b21-404e-9e44-dd3605489226";
+    public static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR = "c4b008ba-8b2f-404e-9e44-dd0605486446";
+    public static final String ALERT_DIALOG_ENTER_BLE_READ_PEN_ID = "c4b008ba-8b2f-404e-9e44-dd0605486226";
+    public static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN = "c4b008ca-8b2f-404e-9e44-dd0605482229";
     
     public static final int MODE_NOT_CONNECT_DEVICE = -1;
     public static final int MODE_CONNECT_DEVICE = 1;

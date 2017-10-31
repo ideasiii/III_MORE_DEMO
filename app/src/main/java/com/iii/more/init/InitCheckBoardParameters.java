@@ -13,7 +13,6 @@ public class InitCheckBoardParameters
     
     public static final int METHOD_READ_PEN = 1;
     public static final int METHOD_DEVICE_SOCKET_SERVER = 2;
-    public static final int METHOD_BLUETOOTH_DEVICE = 3;
     public static final int METHOD_DEVICE_HTTP_SERVER = 4;
     
     public static final int STATE_READ_PEN_CONNECT = 1;

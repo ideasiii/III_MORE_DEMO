@@ -47,6 +47,7 @@
             </intent-filter>
 
         </activity>
+        <activity android:name="com.iii.more.oobe.OobeActivity"/>
 
         <service android:name="com.edgecase.moduleservice.DetectorService"/>
 
