@@ -595,22 +595,7 @@ public class MainActivity extends AppCompatActivity
                         break;
                     
                     case LogicParameters.MODE_GAME:
-                        mLogicHandler.endAll();
-                        mLogicHandler.killAll();
                         
-                        mHandler.postDelayed(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                //###
-                                // new Zoo Activity Intent
-                                
-                                // startActivity(,new Intent());
-                                
-                                
-                            }
-                        }, 2000);
                         
                         break;
                     
@@ -752,6 +737,24 @@ public class MainActivity extends AppCompatActivity
             case R.id.play_btn:
                 Toast.makeText(this, "點選遊戲模式", Toast.LENGTH_SHORT).show();
                 mLogicHandler.startUp(TTSParameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE);
+               
+                mHandler.postDelayed(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        mLogicHandler.endAll();
+                        mLogicHandler.killAll();
+                        //###
+                        // new Zoo Activity Intent
+            
+                        // startActivity(,new Intent());
+            
+            
+                    }
+                }, 2000);
+                
+                
                 break;
             case R.id.story_btn:
                 Toast.makeText(this, "這點選故事模式", Toast.LENGTH_SHORT).show();
