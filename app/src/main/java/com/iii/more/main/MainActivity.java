@@ -28,6 +28,7 @@ import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 import com.iii.more.emotion.EmotionHandler;
 import com.iii.more.emotion.EmotionParameters;
+import com.iii.more.game.zoo.ZooActivity;
 import com.iii.more.interrupt.logic.InterruptLogicHandler;
 import com.iii.more.interrupt.logic.InterruptLogicParameters;
 import com.iii.more.logic.LogicHandler;
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity
     
     //AI Server connect
     private HttpAPIHandler mHttpAPIHandler = null;
+    
     
     //Analysis Activity Json
     private LogicHandler mLogicHandler = null;
@@ -737,7 +739,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.play_btn:
                 Toast.makeText(this, "點選遊戲模式", Toast.LENGTH_SHORT).show();
                 mLogicHandler.startUp(TTSParameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE);
-               
+                
                 mHandler.postDelayed(new Runnable()
                 {
                     @Override
@@ -747,10 +749,12 @@ public class MainActivity extends AppCompatActivity
                         mLogicHandler.killAll();
                         //###
                         // new Zoo Activity Intent
-            
+                        
                         // startActivity(,new Intent());
-            
-            
+                        Intent intent = new Intent();
+                        intent.setClass(MainActivity.this, ZooActivity.class);
+                        startActivity(intent);
+                        
                     }
                 }, 2000);
                 

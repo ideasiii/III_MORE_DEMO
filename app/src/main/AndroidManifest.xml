@@ -21,12 +21,12 @@
         android:required="true"/>
 
     <application
+        android:name="com.iii.more.main.MainApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         tools:replace="android:label"
-        android:name = "com.iii.more.main.MainApplication"
 
         >
         <activity
@@ -48,6 +48,7 @@
 
         </activity>
         <activity android:name="com.iii.more.oobe.OobeActivity"/>
+        <activity android:name="com.iii.more.game.zoo.ZooActivity"/>
 
         <service android:name="com.edgecase.moduleservice.DetectorService"/>
 
