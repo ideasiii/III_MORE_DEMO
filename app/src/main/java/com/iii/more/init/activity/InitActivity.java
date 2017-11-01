@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Handler;
 
-
 import com.iii.more.animate.AnimationHandler;
 import com.iii.more.http.server.DeviceHttpServerHandler;
 import com.iii.more.http.server.DeviceHttpServerParameters;
@@ -62,7 +61,6 @@ public class InitActivity extends AppCompatActivity
     //2 floor device http server connect
     private DeviceHttpServerHandler mDeviceHttpServerHandler = null;
     
-    
     //init handler
     private InitCheckBoardHandler mInitCheckBoardHandler = null;
     
@@ -97,13 +95,10 @@ public class InitActivity extends AppCompatActivity
             case DeviceHttpServerParameters.CLASS_DEVICE_HTTP_SERVER:
                 handleMessageDeviceHttpServer(msg);
                 break;
-            
             case InitCheckBoardParameters.CLASS_INIT:
                 handleMessageInitCheckBoard(msg);
                 break;
-            
         }
-        
     }
     
     private void handleMessageInitCheckBoard(Message msg)
@@ -132,25 +127,19 @@ public class InitActivity extends AppCompatActivity
                     {
                         startMainActivity();
                     }
-                    
                     break;
                 default:
                     break;
-                
             }
-            
         }
         else if (ResponseCode.ERR_IO_EXCEPTION == msg.arg1)
         {
             showAlertDialogConnectDeviceServerERROR(1);
-            
         }
         else if (ResponseCode.ERR_UNKNOWN == msg.arg1)
         {
             showAlertDialogConnectDeviceServerERROR(2);
-            
         }
-        
     }
     
     
@@ -193,7 +182,6 @@ public class InitActivity extends AppCompatActivity
             //close app
             finish();
         }
-        
     }
     
     private void writeSettingPermissionCheck()
@@ -219,8 +207,8 @@ public class InitActivity extends AppCompatActivity
         mAlertDialogHandler = new AlertDialogHandler(this);
         mAlertDialogHandler.setHandler(mHandler);
         mAlertDialogHandler.init();
-        showMoreWelcomeLogo();
         
+        showMoreWelcomeLogo();
     }
     
     private void showMoreWelcomeLogo()
@@ -238,12 +226,10 @@ public class InitActivity extends AppCompatActivity
         {
             Logs.showError("[InitActivity] " + e.toString());
         }
-        
     }
     
     private void showAlertDialogConnectDeviceServerERROR(int flag)
     {
-        
         if (flag == 1)
         {
             mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
@@ -256,7 +242,6 @@ public class InitActivity extends AppCompatActivity
                     "與章魚裝置連線不明失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
             mAlertDialogHandler.show();
         }
-        
     }
     
     public void initDeviceHttpServer()
@@ -282,8 +267,6 @@ public class InitActivity extends AppCompatActivity
         {
             mWriteSettingPermissionHandler.onActivityResult(requestCode, resultCode, data);
         }
-        
-        
     }
     
     @Override
@@ -295,7 +278,6 @@ public class InitActivity extends AppCompatActivity
     
     private void showAlertDialogWritingPermission()
     {
-        
         mAlertDialogHandler.setText(InitActivityParameters.ALERT_DIALOG_WRITE_PERMISSION, getResources().getString(R.string.writesettingtitle),
                 getResources().getString(R.string.writesettingcontent), getResources().getString(R.string.writesettingpositivebutton),
                 getResources().getString(R.string.writesettingnegativebutton), false);
@@ -350,7 +332,6 @@ public class InitActivity extends AppCompatActivity
     
     private String toString(final BufferedReader reader) throws IOException
     {
-        
         final StringBuilder builder = new StringBuilder();
         String line = null;
         while ((line = reader.readLine()) != null)
@@ -370,7 +351,6 @@ public class InitActivity extends AppCompatActivity
             Logs.showTrace("[InitActivity] id:" + message.get("id"));
             switch (message.get("id"))
             {
-                
                 case InitActivityParameters.ALERT_DIALOG_WRITE_PERMISSION:
                     if (message.get("message").equals(AlertDialogParameters.ONCLICK_NEGATIVE_BUTTON))
                     {
@@ -386,22 +366,15 @@ public class InitActivity extends AppCompatActivity
                     {
                         finish();
                     }
-                    
                     break;
-                
                 case InitActivityParameters.ALERT_DIALOG_LICENCES_PERMISSION:
                     
                     if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
                     {
                         // ### connect to task composer API get data
                         initLoadingData();
-                        
                     }
-                    
-                    
                     break;
-                
-                
             }
         }
     }
@@ -460,6 +433,5 @@ public class InitActivity extends AppCompatActivity
             finish();
         }
     }
-    
     
 }

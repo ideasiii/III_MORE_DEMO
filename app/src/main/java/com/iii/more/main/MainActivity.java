@@ -2,6 +2,7 @@ package com.iii.more.main;
 
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
@@ -15,11 +16,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.iii.more.ai.HttpAPIHandler;
 import com.iii.more.ai.HttpAPIParameters;
 import com.iii.more.dmp.device.DeviceDMPParameters;
-
 
 import com.iii.more.bluetooth.ble.ReadPenBLEHandler;
 import com.iii.more.bluetooth.ble.ReadPenBLEParameters;
@@ -86,7 +85,6 @@ public class MainActivity extends AppCompatActivity
     //Analysis Display Json
     private DisplayHandler mDisplayHandler = null;
     
-    
     private RelativeLayout mRelativeLayout = null;
     private TextView mTextView = null;
     private TextView mResultTextView = null;
@@ -96,11 +94,10 @@ public class MainActivity extends AppCompatActivity
     private MenuHandler mMenuHandler = null;
     private FloatingActionButtonHandler mFABHandler = null;
     
-    
     //BLE connect read pen
     private ReadPenBLEHandler mReadPenBLEHandler = null;
     
-    
+    //get device sensor data to stop now activity
     private InterruptLogicHandler mInterruptLogicHandler = null;
     
     //use camera to get personal emotion
@@ -160,12 +157,9 @@ public class MainActivity extends AppCompatActivity
         
         mProgressDialog = new ProgressDialog(this);
         
+        initAlertDialog();
+        
         initInterruptLogic();
-        
-        mAlertDialogHandler = new AlertDialogHandler(this);
-        mAlertDialogHandler.setHandler(mHandler);
-        mAlertDialogHandler.init();
-        
         
         showAlertDialogConfirmConnectBLEReadPen();
     }
@@ -194,6 +188,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
     
+    public void initAlertDialog()
+    {
+        mAlertDialogHandler = new AlertDialogHandler(this);
+        mAlertDialogHandler.setHandler(mHandler);
+        mAlertDialogHandler.init();
+    }
     
     public void initReadPen()
     {
@@ -250,7 +250,6 @@ public class MainActivity extends AppCompatActivity
         mMenuHandler.setHandler(mHandler);
         mMenuHandler.setIDs(R.id.root_layout, R.id.menu_layout, R.id.arc_layout, R.id.play_btn);
         
-        
         mFABHandler = new FloatingActionButtonHandler(this);
         mFABHandler.setHandler(mHandler);
         mFABHandler.setID(R.id.fab_btn);
@@ -258,11 +257,8 @@ public class MainActivity extends AppCompatActivity
         
         
         mTextView = (TextView) findViewById(R.id.textView);
-        
         mResultTextView = (TextView) findViewById(R.id.result_text);
-        
         mImageView = (ImageView) findViewById(R.id.imageView);
-        
         mRelativeLayout = (RelativeLayout) findViewById(R.id.relativelayout);
         
         CMPHandler.setIPAndPort(Parameters.CMP_HOST_IP, Parameters.CMP_HOST_PORT);
@@ -404,8 +400,6 @@ public class MainActivity extends AppCompatActivity
             mInterruptLogicHandler.setEmotionEventData(message);
             mInterruptLogicHandler.startEmotionEventDataAnalysis();
         }
-        
-        
     }
     
     private void handleMessageInterruptLogic(Message msg)
@@ -493,15 +487,10 @@ public class MainActivity extends AppCompatActivity
                             }
                             
                         }
-                        
-                        
                     }
                     
                     break;
-                
-                
             }
-            
         }
     }
     
@@ -592,24 +581,36 @@ public class MainActivity extends AppCompatActivity
                 {
                     case LogicParameters.MODE_STORY:
                         
-                        
                         //### pause story Streaming and call TTS to
                         //### ask question
                         mLogicHandler.pauseStoryStreaming();
                         mDisplayHandler.resetAllDisplayViews();
                         mLogicHandler.startUpStory(null, null, null);
-                        
-                        
                         break;
                     case LogicParameters.MODE_FRIEND:
                         
                         mLogicHandler.endAll();
                         mDisplayHandler.resetAllDisplayViews();
                         mLogicHandler.startUpFriend();
-                        
-                        
                         break;
+                    
                     case LogicParameters.MODE_GAME:
+                        mLogicHandler.endAll();
+                        mLogicHandler.killAll();
+                        
+                        mHandler.postDelayed(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                //###
+                                // new Zoo Activity Intent
+                                
+                                // startActivity(,new Intent());
+                                
+                                
+                            }
+                        }, 2000);
                         
                         break;
                     
@@ -709,7 +710,6 @@ public class MainActivity extends AppCompatActivity
                                 + e.toString());
                     }
                     
-                    
                     break;
                 
                 case LogicParameters.METHOD_STORY_RESUME:
@@ -777,7 +777,6 @@ public class MainActivity extends AppCompatActivity
     
     private void handleMessageFAB(Message msg)
     {
-        
         //hide button
         mFABHandler.hide();
         
@@ -798,7 +797,6 @@ public class MainActivity extends AppCompatActivity
                 "請輸入章魚點讀筆ID", "OK", "", true);
         mAlertDialogHandler.setEditText(Parameters.DEFAULT_DEVICE_ID);
         mAlertDialogHandler.show();
-        
     }
     
     private void showAlertDialogConfirmConnectBLEReadPen()
@@ -806,7 +804,6 @@ public class MainActivity extends AppCompatActivity
         mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN, "章魚點讀筆",
                 "是否要與章魚點讀筆連線", "是的", "不要", false);
         mAlertDialogHandler.show();
-        
     }
     
     private void showAlertDialogConnectBLEReadPenError()
@@ -815,7 +812,6 @@ public class MainActivity extends AppCompatActivity
                 "與裝置Bluetooth點讀筆連線失敗，請先確認智慧型裝置Bluetooth是否開啟或是章魚裝置Bluetooth是否開起，重新再試一次!"
                 , "是", "", false);
         mAlertDialogHandler.show();
-        
     }
     
     
@@ -863,12 +859,9 @@ public class MainActivity extends AppCompatActivity
                         init();
                     }
                     break;
-                
-                
             }
         }
     }
-    
     
     public void handleMessageSWCMP(Message msg)
     {
@@ -893,7 +886,6 @@ public class MainActivity extends AppCompatActivity
             //call logicHandler onERROR
             mLogicHandler.onError(TTSParameters.ID_SERVICE_UNKNOWN);
         }
-        
     }
     
     
@@ -943,8 +935,5 @@ public class MainActivity extends AppCompatActivity
             mLogicHandler.onError(TTSParameters.ID_SERVICE_IO_EXCEPTION);
             Logs.showError("[MainActivity] analysisSemanticWord Exception:" + e.toString());
         }
-        
     }
-    
-    
 }
