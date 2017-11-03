@@ -1,15 +1,18 @@
 package com.iii.more.init.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Handler;
+import android.view.View;
 
 import com.iii.more.animate.AnimationHandler;
 import com.iii.more.http.server.DeviceHttpServerHandler;
@@ -19,6 +22,7 @@ import com.iii.more.init.InitCheckBoardParameters;
 import com.iii.more.main.MainActivity;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
+import com.iii.more.oobe.OobeActivity;
 import com.iii.more.screen.view.alterdialog.AlertDialogHandler;
 import com.iii.more.screen.view.alterdialog.AlertDialogParameters;
 
@@ -121,7 +125,7 @@ public class InitActivity extends AppCompatActivity
                     //### no com.iii.more.oobe -> go to com.iii.more.oobe class
                     if (checkOobe())
                     {
-                    
+                        starOobeActivity();
                     }
                     else
                     {
@@ -142,6 +146,22 @@ public class InitActivity extends AppCompatActivity
         }
     }
     
+    @SuppressLint("NewApi")
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus)
+    {
+        super.onWindowFocusChanged(hasFocus);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && hasFocus)
+        {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+    }
     
     private void handleMessageDeviceHttpServer(Message msg)
     {
@@ -203,7 +223,36 @@ public class InitActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+    
+        // This work only for android 4.4+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+        {
         
+            getWindow().getDecorView().setSystemUiVisibility(flags);
+        
+            // Code below is to handle presses of Volume up or Volume down.
+            // Without this, after pressing volume buttons, the navigation bar will
+            // show up and won't hide
+            final View decorView = getWindow().getDecorView();
+            decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
+            {
+            
+                @Override
+                public void onSystemUiVisibilityChange(int visibility)
+                {
+                    if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
+                    {
+                        decorView.setSystemUiVisibility(flags);
+                    }
+                }
+            });
+        }
         mAlertDialogHandler = new AlertDialogHandler(this);
         mAlertDialogHandler.setHandler(mHandler);
         mAlertDialogHandler.init();
@@ -381,9 +430,33 @@ public class InitActivity extends AppCompatActivity
     
     private boolean checkOobe()
     {
-        return false;
+        if(InitActivityParameters.OOBE_DEBUG_ENABLE)
+        {
+            return true;
+        }
+        else
+        {
+            //###
+            //check share preference is exist child face or name
+            
+            
+            
+        }
+        
+        return true;
     }
     
+    private void starOobeActivity()
+    {
+        
+        Intent startOobe = new Intent(Intent.ACTION_MAIN);
+        startOobe.addCategory(Intent.CATEGORY_HOME);
+        startOobe.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startOobe.setClass(InitActivity.this, OobeActivity.class);
+        startActivity(startOobe);
+        finish();
+        
+    }
     
     private void startMainActivity()
     {

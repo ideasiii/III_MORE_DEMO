@@ -6,6 +6,11 @@ package com.iii.more.main;
 
 public abstract class Parameters
 {
+    public static final String ID_CHILD_NAME = "child_name";
+    public static final String ID_ROBOT_NAME = "edubot_name";
+    public static final String STRING_DEFAULT_ROBOT_NAME = "章魚寶";
+    
+    
     public static final String TASK_COMPOSER_DATA = "taskcomposerdata";
     
     public static final String CMP_HOST_IP = "175.98.119.121";

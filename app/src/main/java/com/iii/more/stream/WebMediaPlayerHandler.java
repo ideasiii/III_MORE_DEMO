@@ -1,9 +1,11 @@
 
-   package com.iii.more.stream;
+package com.iii.more.stream;
 
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.support.annotation.NonNull;
+import android.view.SurfaceHolder;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -13,52 +15,62 @@ import java.util.HashMap;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
+
+
+public class WebMediaPlayerHandler extends BaseHandler
+{
+    private MediaPlayer mMediaPlayer = null;
+    private String hostPath = "";
+    private String filePath = "";
+    private static final int DEFAULT_POSITION_TIME = 0;
+    private int saveCurrentPositionTime = DEFAULT_POSITION_TIME;
+    private SurfaceHolder mSurfaceHolder = null;
     
-    
-    
-    public class WebMediaPlayerHandler extends BaseHandler
+    public WebMediaPlayerHandler(Context context)
     {
-        private MediaPlayer mMediaPlayer = null;
-        private String hostPath = "";
-        private String filePath = "";
-        private static final int DEFAULT_POSITION_TIME = 0;
-        private int saveCurrentPositionTime = DEFAULT_POSITION_TIME;
-        
-        
-        public WebMediaPlayerHandler(Context context)
+        super(context);
+    }
+    
+    private int getCurrentPositionTime()
+    {
+        if (null != mMediaPlayer)
         {
-            super(context);
+            return mMediaPlayer.getCurrentPosition();
         }
-        
-        private int getCurrentPositionTime()
+        return -1;
+    }
+    
+    public boolean setHostAndFilePath(String hostPath, String filePath)
+    {
+        boolean anyError = false;
+        this.hostPath = hostPath;
+        try
         {
-            if (null != mMediaPlayer)
-            {
-                return mMediaPlayer.getCurrentPosition();
-            }
-            return -1;
+            this.filePath = URLEncoder.encode(filePath, "UTF-8");
         }
-        
-        public boolean setHostAndFilePath(String hostPath, String filePath)
+        catch (UnsupportedEncodingException e)
         {
-            boolean anyError = false;
-            this.hostPath = hostPath;
-            try
-            {
-                this.filePath = URLEncoder.encode(filePath, "UTF-8");
-            }
-            catch (UnsupportedEncodingException e)
-            {
-                anyError = true;
-                Logs.showError("[WebMediaPlayerHandler] " + e.toString());
-            }
-            return anyError;
+            anyError = true;
+            Logs.showError("[WebMediaPlayerHandler] " + e.toString());
         }
+        return anyError;
+    }
+    
+    public void setDisplay(@NonNull SurfaceHolder surfaceHolder)
+    {
+        mSurfaceHolder = mSurfaceHolder;
         
-        public void startPlayMediaStream()
+    }
+    
+    public void startPlayMediaStream()
     {
         stopPlayMediaStream();
         mMediaPlayer = new MediaPlayer();
+        
+        if (null != mSurfaceHolder)
+        {
+            mMediaPlayer.setDisplay(mSurfaceHolder);
+        }
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
         {

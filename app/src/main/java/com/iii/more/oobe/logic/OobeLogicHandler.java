@@ -3,6 +3,7 @@ package com.iii.more.oobe.logic;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.view.SurfaceHolder;
 
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
@@ -11,7 +12,6 @@ import com.iii.more.tts.TTSCache;
 import java.util.HashMap;
 import java.util.Locale;
 
-import com.iii.more.oobe.view.OobeTTSParameters;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
@@ -28,7 +28,17 @@ public class OobeLogicHandler extends BaseHandler
     private TextToSpeechHandler mTextToSpeechHandler = null;
     private VoiceRecognition mVoiceRecognitionHandler = null;
     private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
+    private int oobeState = 0;
     
+    public void setState(int state)
+    {
+        oobeState = state;
+    }
+    
+    public int getState()
+    {
+        return oobeState;
+    }
     
     private Handler mHandler = new Handler()
     {
@@ -54,6 +64,21 @@ public class OobeLogicHandler extends BaseHandler
         mVoiceRecognitionHandler = new VoiceRecognition(mContext);
         mVoiceRecognitionHandler.setHandler(mHandler);
         
+        mWebMediaPlayerHandler = new WebMediaPlayerHandler(mContext);
+        mWebMediaPlayerHandler.setHandler(mHandler);
+        
+    }
+    
+    public void setVideoSurfaceHolder(SurfaceHolder surfaceHolder)
+    {
+        if (null != mWebMediaPlayerHandler)
+        {
+            mWebMediaPlayerHandler.setDisplay(surfaceHolder);
+        }
+    }
+    public void sttLaunch()
+    {
+        mVoiceRecognitionHandler.startListen();
     }
     
     private void handleMessages(Message msg)
@@ -152,6 +177,7 @@ public class OobeLogicHandler extends BaseHandler
         {
             boolean textStatusDone = message.get("TextStatus").equals("DONE");
             boolean textStatusStart = message.get("TextStatus").equals("START");
+            
             if (textStatusDone)
             {
                 switch (message.get("TextID"))
@@ -160,10 +186,19 @@ public class OobeLogicHandler extends BaseHandler
                     
                     case OobeTTSParameters.ID_SERVICE_IO_EXCEPTION:
                         break;
+                    
                     default:
+                        HashMap<String, String> message2 = new HashMap<>();
+                        message2.put("TextID", message.get("TextID"));
+                        
+                        callBackMessage(ResponseCode.ERR_SUCCESS, OobeLogicParameters.CLASS_OOBE_LOGIC,
+                                OobeLogicParameters.METHOD_TTS, message2);
+                        
                         break;
                     
                 }
+                
+                
             }
             
         }
@@ -212,9 +247,12 @@ public class OobeLogicHandler extends BaseHandler
             {
                 //TTS again and listen again
                 
-                onError(OobeTTSParameters.ID_SERVICE_UNKNOWN);
-                
-                
+               // onError(OobeTTSParameters.ID_SERVICE_UNKNOWN);
+                HashMap<String, String> returnMessage = new HashMap<>();
+                returnMessage.put("message",message.get("message"));
+                callBackMessage(ResponseCode.ERR_SPEECH_ERRORMESSAGE, OobeLogicParameters.CLASS_OOBE_LOGIC, OobeLogicParameters.METHOD_VOICE, returnMessage);
+    
+    
             }
             
         }

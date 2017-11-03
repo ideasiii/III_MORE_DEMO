@@ -140,8 +140,7 @@ public class MainActivity extends AppCompatActivity
             // Without this, after pressing volume buttons, the navigation bar will
             // show up and won't hide
             final View decorView = getWindow().getDecorView();
-            decorView
-                    .setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
+            decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
                     {
                         
                         @Override
@@ -385,7 +384,6 @@ public class MainActivity extends AppCompatActivity
             
             case EmotionParameters.CLASS_EMOTION:
                 handleMessageEmotion(msg);
-            
             
             default:
                 break;
