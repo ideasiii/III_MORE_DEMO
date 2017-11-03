@@ -716,6 +716,17 @@ public class MainActivity extends AppCompatActivity
         }
     }
     
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        Logs.showTrace("[MainActivity] onStart");
+        if (null != mLogicHandler)
+        {
+            mLogicHandler.init();
+        }
+    }
+    
     private void handleMessageMenu(Message msg)
     {
         //hide menu
@@ -747,6 +758,8 @@ public class MainActivity extends AppCompatActivity
                     {
                         mLogicHandler.endAll();
                         mLogicHandler.killAll();
+                        mEmotionHandler.stop();
+                        
                         //###
                         // new Zoo Activity Intent
                         
