@@ -2,6 +2,7 @@ package com.iii.more.game.module;
 
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.SparseArray;
 
 import java.util.Locale;
@@ -14,6 +15,7 @@ import sdk.ideas.common.Logs;
 
 public class TtsHandler
 {
+    private final boolean[] bTtsValid = {false};
     private TextToSpeech tts;
     private Context theContext = null;
     private SparseArray<OnTTSStartedListener> listOnTTSStartedListener = null;
@@ -46,8 +48,6 @@ public class TtsHandler
     
     public boolean createTTS()
     {
-        final boolean[] bResult = {false};
-        
         if (tts == null && null != theContext)
         {
             tts = new TextToSpeech(theContext, new TextToSpeech.OnInitListener()
@@ -56,9 +56,10 @@ public class TtsHandler
                 public void onInit(int arg0)
                 {
                     // TTS 初始化成功
+                    bTtsValid[0] = false;
                     if (arg0 == TextToSpeech.SUCCESS)
                     {
-                        bResult[0] = true;
+                        bTtsValid[0] = true;
                         Logs.showTrace("[TtsHandler] createTTS success");
                         if (null != listOnTTSStartedListener)
                         {
@@ -72,14 +73,28 @@ public class TtsHandler
             }
             );
         }
-        return bResult[0];
+        return bTtsValid[0];
     }
     
     public void release()
     {
+        bTtsValid[0] = false;
         if (null != tts)
         {
             tts.shutdown();
+        }
+    }
+    
+    public boolean isValid()
+    {
+        return bTtsValid[0];
+    }
+    
+    public void SetOnUtteranceProgressListener(UtteranceProgressListener utteranceProgressListener)
+    {
+        if (null != tts && bTtsValid[0])
+        {
+            tts.setOnUtteranceProgressListener(utteranceProgressListener);
         }
     }
     
@@ -96,7 +111,7 @@ public class TtsHandler
         return false;
     }
     
-    public void speack(String strWord)
+    public void speack(String strWord, String strUtteranceld)
     {
         if (null == tts)
         {
@@ -104,8 +119,7 @@ public class TtsHandler
             return;
         }
         Logs.showTrace("TTS speack: " + strWord);
-        tts.speak(strWord, TextToSpeech.QUEUE_FLUSH, null, null);
+        tts.speak(strWord, TextToSpeech.QUEUE_FLUSH, null, strUtteranceld);
     }
-    
     
 }

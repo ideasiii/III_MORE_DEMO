@@ -3,6 +3,7 @@ package com.iii.more.game.module;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -22,6 +23,7 @@ public class RobotHead extends RelativeLayout
     
     TtsHandler ttsHandler = null;
     private ImageView imgFace = null;
+    private ImageView imgObject = null;
     private OnInitedListener onInitedListener = null;
     
     public static interface OnInitedListener
@@ -38,6 +40,14 @@ public class RobotHead extends RelativeLayout
     {
         super(context);
         init(context);
+    }
+    
+    public void SetOnUtteranceProgressListener(UtteranceProgressListener utteranceProgressListener)
+    {
+        if (null != ttsHandler && ttsHandler.isValid())
+        {
+            ttsHandler.SetOnUtteranceProgressListener(utteranceProgressListener);
+        }
     }
     
     public RobotHead(Context context, AttributeSet attrs)
@@ -79,6 +89,11 @@ public class RobotHead extends RelativeLayout
         
         addView(imgFace);
         
+        imgObject = new ImageView(context);
+        imgObject.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imgObject.setAdjustViewBounds(false);
+        
+        
         ttsHandler = new TtsHandler(context);
         ttsHandler.setOnTTSStartedListener(new TtsHandler.OnTTSStartedListener()
         {
@@ -110,8 +125,8 @@ public class RobotHead extends RelativeLayout
         imgFace.setImageResource(nResId);
     }
     
-    public void playTTS(String strWord)
+    public void playTTS(String strWord, String strUtteranceld)
     {
-        ttsHandler.speack(strWord);
+        ttsHandler.speack(strWord, strUtteranceld);
     }
 }
