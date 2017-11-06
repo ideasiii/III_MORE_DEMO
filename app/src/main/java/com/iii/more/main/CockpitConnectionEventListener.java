@@ -5,7 +5,7 @@ package com.iii.more.main;
  * CockpitService 本身使用 Handler 傳送事件至 MainApplication，
  * MainApplication 再將 Handler 的資料轉給 listener。
  */
-public interface CockpitEventListener
+public interface CockpitConnectionEventListener
 {
     /** 使用者允許裝置的使用時的回呼。注意此時尚未與目標建立連線 */
     void onPermissionGranted(Object sender);

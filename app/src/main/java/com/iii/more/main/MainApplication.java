@@ -11,6 +11,7 @@ import android.os.Message;
 import com.iii.more.cmp.semantic.SemanticDeviceID;
 import com.iii.more.cockpit.CockpitService;
 import com.iii.more.cockpit.InternetCockpitService;
+import com.iii.more.interrupt.logic.InterruptLogicHandler;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -31,19 +32,8 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 public class MainApplication extends Application
 {
     private CockpitService mCockpitService;
-    private List<CockpitEventListener> mCockpitEventListeners = new CopyOnWriteArrayList<>();
-
-    public void addCockpitEventListener(CockpitEventListener l)
-    {
-        Logs.showTrace("[MainApplication] addCockpitEventListener()");
-        mCockpitEventListeners.add(l);
-    }
-
-    public void removeCockpitEventListener(CockpitEventListener l)
-    {
-        Logs.showTrace("[MainApplication] removeCockpitEventListener()");
-        mCockpitEventListeners.remove(l);
-    }
+    private final List<CockpitConnectionEventListener> mCockpitConnectionEventListeners = new CopyOnWriteArrayList<>();
+    private final List<CockpitSensorEventListener> mCockpitSensorEventListeners = new CopyOnWriteArrayList<>();
 
     @Override
     public void onCreate()
@@ -69,8 +59,32 @@ public class MainApplication extends Application
         editor.apply();
     }
 
+    public void addCockpitConnectionEventListener(CockpitConnectionEventListener l)
+    {
+        Logs.showTrace("[MainApplication] addCockpitConnectionEventListener()");
+        mCockpitConnectionEventListeners.add(l);
+    }
+
+    public void removeCockpitConnectionEventListener(CockpitConnectionEventListener l)
+    {
+        Logs.showTrace("[MainApplication] removeCockpitConnectionEventListener()");
+        mCockpitConnectionEventListeners.remove(l);
+    }
+
+    public void addCockpitSensorEventListener(CockpitSensorEventListener l)
+    {
+        Logs.showTrace("[MainApplication] addCockpitSensorEventListener()");
+        mCockpitSensorEventListeners.add(l);
+    }
+
+    public void removeCockpitSensorEventListener(CockpitSensorEventListener l)
+    {
+        Logs.showTrace("[MainApplication] removeCockpitSensorEventListener()");
+        mCockpitSensorEventListeners.remove(l);
+    }
+
     // this was in Activity.onResume()
-    public void bootCockpitService()
+    private void bootCockpitService()
     {
         // TODO invoke with one of service.class you want
         CockpitService.startThenBindService(this, InternetCockpitService.class,
@@ -111,7 +125,7 @@ public class MainApplication extends Application
     };
 
     /** 處理來自 CockpitService 的事件 */
-    private Handler mCockpitServiceHandler = new Handler()
+    private final Handler mCockpitServiceHandler = new Handler()
     {
         @Override
         public void handleMessage(Message msg)
@@ -122,7 +136,7 @@ public class MainApplication extends Application
                     String data = (String) msg.obj;
                     Logs.showTrace("[MainApplication] mCockpitServiceHandler onData(), data=`" + data + "`");
 
-                    for (CockpitEventListener l : mCockpitEventListeners)
+                    for (CockpitConnectionEventListener l : mCockpitConnectionEventListeners)
                     {
                         l.onData(null, data);
                     }
@@ -130,7 +144,7 @@ public class MainApplication extends Application
                 case CockpitService.MSG_NO_DEVICE:
                     Logs.showTrace("[MainApplication] mCockpitServiceHandler onNoDevice()");
 
-                    for (CockpitEventListener l : mCockpitEventListeners)
+                    for (CockpitConnectionEventListener l : mCockpitConnectionEventListeners)
                     {
                         l.onNoDevice(null);
                     }
@@ -138,7 +152,7 @@ public class MainApplication extends Application
                 case CockpitService.MSG_READY:
                     Logs.showTrace("[MainApplication] mCockpitServiceHandler onReady()");
 
-                    for (CockpitEventListener l : mCockpitEventListeners)
+                    for (CockpitConnectionEventListener l : mCockpitConnectionEventListeners)
                     {
                         l.onReady(null);
                     }
@@ -148,7 +162,7 @@ public class MainApplication extends Application
                 case CockpitService.MSG_USB_DEVICE_NOT_WORKING:
                     Logs.showTrace("[MainApplication] mCockpitServiceHandler onProtocolNotSupported()");
 
-                    for (CockpitEventListener l : mCockpitEventListeners)
+                    for (CockpitConnectionEventListener l : mCockpitConnectionEventListeners)
                     {
                         l.onProtocolNotSupported(null);
                     }
@@ -156,7 +170,7 @@ public class MainApplication extends Application
                 case CockpitService.MSG_PERMISSION_GRANTED:
                     Logs.showTrace("[MainApplication] mCockpitServiceHandler onPermissionGranted()");
 
-                    for (CockpitEventListener l : mCockpitEventListeners)
+                    for (CockpitConnectionEventListener l : mCockpitConnectionEventListeners)
                     {
                         l.onPermissionGranted(null);
                     }
@@ -164,7 +178,7 @@ public class MainApplication extends Application
                 case CockpitService.MSG_PERMISSION_NOT_GRANTED:
                     Logs.showTrace("[MainApplication] mCockpitServiceHandler onPermissionNotGranted()");
 
-                    for (CockpitEventListener l : mCockpitEventListeners)
+                    for (CockpitConnectionEventListener l : mCockpitConnectionEventListeners)
                     {
                         l.onPermissionNotGranted(null);
                     }
@@ -172,7 +186,7 @@ public class MainApplication extends Application
                 case CockpitService.MSG_DISCONNECTED:
                     Logs.showTrace("[MainApplication] mCockpitServiceHandler onDisconnected()");
 
-                    for (CockpitEventListener l : mCockpitEventListeners)
+                    for (CockpitConnectionEventListener l : mCockpitConnectionEventListeners)
                     {
                         l.onDisconnected(null);
                     }
