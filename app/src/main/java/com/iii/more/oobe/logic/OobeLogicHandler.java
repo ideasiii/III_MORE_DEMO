@@ -76,6 +76,7 @@ public class OobeLogicHandler extends BaseHandler
             mWebMediaPlayerHandler.setDisplay(surfaceHolder);
         }
     }
+    
     public void sttLaunch()
     {
         mVoiceRecognitionHandler.startListen();
@@ -247,12 +248,12 @@ public class OobeLogicHandler extends BaseHandler
             {
                 //TTS again and listen again
                 
-               // onError(OobeTTSParameters.ID_SERVICE_UNKNOWN);
+                // onError(OobeTTSParameters.ID_SERVICE_UNKNOWN);
                 HashMap<String, String> returnMessage = new HashMap<>();
-                returnMessage.put("message",message.get("message"));
+                returnMessage.put("message", message.get("message"));
                 callBackMessage(ResponseCode.ERR_SPEECH_ERRORMESSAGE, OobeLogicParameters.CLASS_OOBE_LOGIC, OobeLogicParameters.METHOD_VOICE, returnMessage);
-    
-    
+                
+                
             }
             
         }
@@ -278,6 +279,12 @@ public class OobeLogicHandler extends BaseHandler
                 ttsService(OobeTTSParameters.ID_SERVICE_UNKNOWN, OobeTTSParameters.STRING_SERVICE_UNKNOWN, "zh");
                 break;
         }
+    }
+    
+    public void playStreaming(String serverURL, String streamFileName)
+    {
+        mWebMediaPlayerHandler.setHostAndFilePathNotEncode(serverURL,streamFileName);
+        mWebMediaPlayerHandler.startPlayMediaStream();
     }
     
     public void ttsService(String textID, String textString, String languageString)

@@ -86,15 +86,47 @@ public class OobeActivity extends AppCompatActivity
                                     break;
                                 case "SensorTag":
                                     // ### set a timer to get
-                                    //mStateData.get(mOobeLogicHandler.getState())
                                     
+                                    //forced to do next step
+                                    mHandler.postDelayed(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
+                                            doNext();
+                                        }
+                                    }, 1000);
                                     
                                     break;
                                 case "RFID":
                                     // ### set a timer to get
                                     
+                                    //forced to do next step
+                                    mHandler.postDelayed(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
+                                            doNext();
+                                        }
+                                    }, 1000);
                                     break;
-                                
+                                case "no":
+                                    
+                                    //forced to do next step
+                                    mHandler.postDelayed(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
+                                            doNext();
+                                        }
+                                    }, 1000);
+                                    
+                                    break;
                                 
                             }
                             
@@ -267,14 +299,28 @@ public class OobeActivity extends AppCompatActivity
                     String displayJson = mStateData.get(mOobeLogicHandler.getState()).getDisplayJsonString();
                     Logs.showTrace("[OobeActivity] doNext: tts:" + tts);
                     mOobeLogicHandler.ttsService(state, tts, "zh");
-                    try
+                    
+                    if (null != displayJson)
                     {
-                        mOobeDisplayHandler.setDisplayJson(new JSONObject(displayJson));
-                        mOobeDisplayHandler.startDisplay();
+                        try
+                        {
+                            mOobeDisplayHandler.setDisplayJson(new JSONObject(displayJson));
+                            mOobeDisplayHandler.startDisplay();
+                        }
+                        catch (JSONException e)
+                        {
+                            Logs.showTrace("[OobeActivity] doNext JSONException: " + e.toString());
+                        }
                     }
-                    catch (JSONException e)
+                    else
                     {
-                        Logs.showTrace("[OobeActivity] doNext JSONException: " + e.toString());
+                        mOobeDisplayHandler.setVideoViewVisibility(true);
+                        mOobeDisplayHandler.setImageViewVisibility(false);
+                        String movieFileName = mStateData.get(mOobeLogicHandler.getState()).movie;
+                        if (!movieFileName.isEmpty())
+                        {
+                            mOobeLogicHandler.playStreaming(OobeParameters.TEST_VIDEO_HOST_URL, movieFileName);
+                        }
                     }
                 }
                 

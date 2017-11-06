@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import com.iii.more.screen.view.display.DisplayHandler;
 
@@ -32,6 +33,24 @@ public class OobeDisplayHandler extends DisplayHandler implements SurfaceHolder.
         mSurfaceHolder.addCallback(this);
         
         return mSurfaceHolder;
+    }
+    
+    public void setVideoViewVisibility(boolean enable)
+    {
+        if (enable)
+        {
+            mSurfaceView.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            mSurfaceView.setVisibility(View.INVISIBLE);
+        }
+    }
+    
+    public void setImageViewVisibility(boolean enable)
+    {
+        
+        super.setImageViewState(enable);
     }
     
     

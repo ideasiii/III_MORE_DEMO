@@ -33,8 +33,7 @@
             android:adjustViewBounds="false"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
-            android:visibility="visible"
-            tools:src="@drawable/default_image"/>
+            android:visibility="visible"/>
 
 
     </RelativeLayout>

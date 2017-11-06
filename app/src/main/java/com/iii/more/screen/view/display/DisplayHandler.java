@@ -39,7 +39,7 @@ import sdk.ideas.common.ResponseCode;
  * Created by joe on 2017/7/11.
  */
 
-public class DisplayHandler extends BaseHandler implements View.OnClickListener,View.OnTouchListener
+public class DisplayHandler extends BaseHandler implements View.OnClickListener, View.OnTouchListener
 {
     private JSONArray mDisplayJsonArray = null;
     private AnimationHandler mAnimationHandler = null;
@@ -142,6 +142,25 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         mDisplayQueue = mSaveDisplayQueue.clone();
         startDisplay();
         
+    }
+    
+    protected void setImageViewState(boolean enable)
+    {
+        for (int key : mHashMapViews.keySet())
+        {
+            if (mHashMapViews.get(key) instanceof ImageView)
+            {
+                if (enable)
+                {
+                    mHashMapViews.get(key).setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    mHashMapViews.get(key).setVisibility(View.GONE);
+                }
+                break;
+            }
+        }
     }
     
     public void resetAllDisplayViews()

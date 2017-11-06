@@ -29,10 +29,11 @@ public class OobeLogicElement
         this.movie = movie;
         this.imageFile = imageFile;
     }
+    
     public int getRegret()
     {
         int regretReturn = regret;
-        regret --;
+        regret--;
         return regretReturn;
     }
     
@@ -79,7 +80,7 @@ public class OobeLogicElement
     public void print()
     {
         Logs.showTrace("[OobeLogicHandler] Element: state: " + String.valueOf(state) + " tts:" + tts
-                + " imgFile: " + imageFile);
+                + " imgFile: " + imageFile + " movie:" + movie);
         
     }
     

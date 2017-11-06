@@ -55,6 +55,14 @@ public class WebMediaPlayerHandler extends BaseHandler
         }
         return anyError;
     }
+    public boolean setHostAndFilePathNotEncode(String hostPath, String filePath)
+    {
+        boolean anyError = false;
+        this.hostPath = hostPath;
+        this.filePath = filePath;
+       
+        return anyError;
+    }
     
     public void setDisplay(@NonNull SurfaceHolder surfaceHolder)
     {

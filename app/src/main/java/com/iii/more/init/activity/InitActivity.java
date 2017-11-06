@@ -430,7 +430,7 @@ public class InitActivity extends AppCompatActivity
     
     private boolean checkOobe()
     {
-        if(InitActivityParameters.OOBE_DEBUG_ENABLE)
+        if(Parameters.OOBE_DEBUG_ENABLE)
         {
             return true;
         }
@@ -439,11 +439,10 @@ public class InitActivity extends AppCompatActivity
             //###
             //check share preference is exist child face or name
             
-            
+            return false;
             
         }
         
-        return true;
     }
     
     private void starOobeActivity()
