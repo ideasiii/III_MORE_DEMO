@@ -19,6 +19,8 @@ import com.iii.more.main.R;
 
 import android.os.Handler;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.LogRecord;
 
 import sdk.ideas.common.Logs;
@@ -29,7 +31,12 @@ import sdk.ideas.common.Logs;
 
 public class ZooActivity extends Activity
 {
+    private final int SCEN_INDEX_START = 0; // 等待動物園圖案的RFID
+    private final int SCEN_INDEX_ANIMAL_RFID = 1; // 取得動物園圖案的RFID
+    
     private RobotHead robotHead = null;
+    private int mnScenarizeIndex;
+    private Timer timer = null;
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -49,8 +56,7 @@ public class ZooActivity extends Activity
                 handler.sendMessage(msg);
             }
         });
-        
-        
+        timer = new Timer(true);
     }
     
     @Override
@@ -93,10 +99,37 @@ public class ZooActivity extends Activity
         super.onDestroy();
     }
     
-    public void startScenarize()
+    public void Scenarize(int nIndex)
     {
-        robotHead.playTTS("嗨! 你好 來玩遊戲吧,,,,請你先將動物園圖案的標章放在我前面的盤子上喔");
+        mnScenarizeIndex = nIndex;
+        switch (nIndex)
+        {
+            case SCEN_INDEX_START:
+                // 遊戲開始
+                robotHead.playTTS("嗨! 你好 來玩遊戲吧");
+                // 開始等動物園RFID
+                timer.schedule(new TimerZooRFID(), 3000, 0);
+                break;
+            case SCEN_INDEX_ANIMAL_RFID:
+                robotHead.setFace(R.drawable.octobo16);
+                robotHead.playTTS("哈囉，孩仔！今天我們一起去動物園玩！牽著我的手，出發囉！");
+                break;
+        }
+        
     }
+    
+    public class TimerZooRFID extends TimerTask
+    {
+        public void run()
+        {
+            if (SCEN_INDEX_ANIMAL_RFID > mnScenarizeIndex)
+            {
+                Scenarize(SCEN_INDEX_ANIMAL_RFID);
+            }
+        }
+    }
+    
+    ;
     
     @SuppressLint("HandlerLeak")
     private final Handler handler = new Handler()
@@ -107,7 +140,7 @@ public class ZooActivity extends Activity
             switch (msg.what)
             {
                 case MSG.MSG_INIT_TTS:
-                    startScenarize();
+                    Scenarize(SCEN_INDEX_START);
                     break;
             }
         }
