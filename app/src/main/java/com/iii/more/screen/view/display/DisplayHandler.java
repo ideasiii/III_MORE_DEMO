@@ -50,10 +50,12 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
     private ArrayDeque<DisplayElement> mSaveDisplayQueue = null;
     private DisplayElement theLastDisplayElement = null;
     
-    RequestListener mRequestListener = new RequestListener<String, GlideDrawable>()
+    private HashMap<String, Integer> imageHashMap = null;
+    
+    RequestListener mRequestListener = new RequestListener<Integer, GlideDrawable>()
     {
         @Override
-        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource)
+        public boolean onException(Exception e, Integer model, Target<GlideDrawable> target, boolean isFirstResource)
         {
             Logs.showError("[RequestListener] Exception: " + e.toString() + " Model: " + model + " isFirstResource: " + String.valueOf(isFirstResource));
             
@@ -62,7 +64,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         }
         
         @Override
-        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource)
+        public boolean onResourceReady(GlideDrawable resource, Integer model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource)
         {
             Logs.showTrace("[RequestListener] Model: " + model + " isFromMemoryCache: " + String.valueOf(isFromMemoryCache) + " isFirstResource: " + String.valueOf(isFirstResource));
             return false;
@@ -82,6 +84,57 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         mDisplayQueue = new ArrayDeque<>();
         mDisplayHandler = new Handler(Looper.getMainLooper());
         mDisplayRunnable = new DisplayRunnable();
+        
+        createMappingTable();
+        
+        
+    }
+    
+    private void createMappingTable()
+    {
+        imageHashMap = new HashMap<>();
+        imageHashMap.put("OCTOBO_Expressions-01.png", R.drawable.octobo01);
+        imageHashMap.put("OCTOBO_Expressions-02.png", R.drawable.octobo02);
+        imageHashMap.put("OCTOBO_Expressions-03.png", R.drawable.octobo03);
+        imageHashMap.put("OCTOBO_Expressions-04.png", R.drawable.octobo04);
+        imageHashMap.put("OCTOBO_Expressions-05.png", R.drawable.octobo05);
+        imageHashMap.put("OCTOBO_Expressions-06.png", R.drawable.octobo06);
+        imageHashMap.put("OCTOBO_Expressions-07.png", R.drawable.octobo07);
+        imageHashMap.put("OCTOBO_Expressions-08.png", R.drawable.octobo08);
+        imageHashMap.put("OCTOBO_Expressions-09.png", R.drawable.octobo09);
+        imageHashMap.put("OCTOBO_Expressions-10.png", R.drawable.octobo10);
+        imageHashMap.put("OCTOBO_Expressions-11.png", R.drawable.octobo11);
+        imageHashMap.put("OCTOBO_Expressions-12.png", R.drawable.octobo12);
+        imageHashMap.put("OCTOBO_Expressions-13.png", R.drawable.octobo13);
+        imageHashMap.put("OCTOBO_Expressions-14.png", R.drawable.octobo14);
+        imageHashMap.put("OCTOBO_Expressions-15.png", R.drawable.octobo15);
+        imageHashMap.put("OCTOBO_Expressions-16.png", R.drawable.octobo16);
+        imageHashMap.put("OCTOBO_Expressions-17.png", R.drawable.octobo17);
+        imageHashMap.put("OCTOBO_Expressions-18.png", R.drawable.octobo18);
+        imageHashMap.put("OCTOBO_Expressions-19.png", R.drawable.octobo19);
+        imageHashMap.put("OCTOBO_Expressions-20.png", R.drawable.octobo20);
+        imageHashMap.put("OCTOBO_Expressions-21.png", R.drawable.octobo21);
+        imageHashMap.put("OCTOBO_Expressions-22.png", R.drawable.octobo22);
+        imageHashMap.put("OCTOBO_Expressions-23.png", R.drawable.octobo23);
+        imageHashMap.put("OCTOBO_Expressions-24.png", R.drawable.octobo24);
+        imageHashMap.put("OCTOBO_Expressions-25.png", R.drawable.octobo25);
+        imageHashMap.put("OCTOBO_Expressions-26.png", R.drawable.octobo26);
+        imageHashMap.put("OCTOBO_Expressions-27.png", R.drawable.octobo27);
+        imageHashMap.put("OCTOBO_Expressions-28.png", R.drawable.octobo28);
+        imageHashMap.put("OCTOBO_Expressions-29.png", R.drawable.octobo29);
+        imageHashMap.put("OCTOBO_Expressions-30.png", R.drawable.octobo30);
+        imageHashMap.put("OCTOBO_Expressions-31.png", R.drawable.octobo31);
+        imageHashMap.put("OCTOBO_Expressions-32.png", R.drawable.octobo32);
+        imageHashMap.put("OCTOBO_Expressions-33.png", R.drawable.octobo33);
+        imageHashMap.put("OCTOBO_Expressions-34.png", R.drawable.octobo34);
+        imageHashMap.put("OCTOBO_Expressions-35.png", R.drawable.octobo35);
+        imageHashMap.put("OCTOBO_Expressions-36.png", R.drawable.octobo36);
+        imageHashMap.put("OCTOBO_Expressions-37.png", R.drawable.octobo37);
+        imageHashMap.put("OCTOBO_Expressions-38.png", R.drawable.octobo38);
+        imageHashMap.put("OCTOBO_Expressions-39.png", R.drawable.octobo39);
+        imageHashMap.put("OCTOBO_Expressions-40.png", R.drawable.octobo40);
+        
+        
     }
     
     
@@ -362,16 +415,36 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
                 
                 ViewHandler.setBackgroundColor(display.backgroundColor, mHashMapViews.get(DisplayParameters.RELATIVE_LAYOUT_ID));
                 
-                Glide.with(mContext)
-                        .load(display.imageURL)
-                        .listener(mRequestListener)
-                        .into(new GlideDrawableImageViewTarget(((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID))));
+                Integer drawableNum = covertImageURLToDrawable(display.imageURL);
+                if (drawableNum != 0)
+                {
+                    Glide.with(mContext)
+                            .load(drawableNum)
+                            //.load(display.imageURL)
+                            .listener(mRequestListener)
+                            .into(new GlideDrawableImageViewTarget(((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID))));
+                }
                 
                 
             }
             
             
         }
+    }
+    
+    private Integer covertImageURLToDrawable(String url)
+    {
+        for (String key : imageHashMap.keySet())
+        {
+            if (url.contains(key))
+            {
+                return imageHashMap.get(key);
+            }
+            
+        }
+        return 0;
+        
+        
     }
     
     @Override

@@ -18,7 +18,7 @@ public class OobeLogicElement
     public String response = "";
     public String movie = "";
     public int wait = 0;
-    public int regret = 1;
+    public int regret = 5;
     
     public OobeLogicElement(int state, int wait, String tts, String imageFile, String response, String movie)
     {
