@@ -46,8 +46,8 @@ public class SemanticWordCMPHandler extends CMPHandler
                 JSONObject tmp = new JSONObject();
                 try
                 {
-                    tmp.put("device_id", SemanticDeviceID.getDeiceID(mContext));
-                    Logs.showTrace("deviceID" + SemanticDeviceID.getDeiceID(mContext));
+                    tmp.put("device_id", SemanticDeviceID.getDeviceID(mContext));
+                    Logs.showTrace("deviceID" + SemanticDeviceID.getDeviceID(mContext));
                     tmp.put("id", id);
                     tmp.put("type", type);
                     tmp.put("total", 0);

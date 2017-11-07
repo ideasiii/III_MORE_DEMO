@@ -146,7 +146,7 @@ public class MainApplication extends Application
             if (mCockpitService instanceof InternetCockpitService)
             {
                 ((InternetCockpitService) mCockpitService)
-                        .setDeviceId(SemanticDeviceID.getDeiceID(getApplicationContext()));
+                        .setDeviceId(SemanticDeviceID.getDeviceID(getApplicationContext()));
             }
 
             mCockpitService.setHandler(mCockpitServiceHandler);

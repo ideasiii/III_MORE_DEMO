@@ -68,7 +68,8 @@ public abstract class CockpitService extends Service
     public abstract void connect();
 
     /**
-     * 設定 handler。應該只有 MainApplication 會使用此方法，其他物件應該使用 MainApplication.addCockpitEventListener()
+     * 設定 handler。應該只有 MainApplication 會使用此方法，
+     * 其他物件應該使用 MainApplication.setCockpitConnectionEventListener() 或 MainApplication.setCockpitSensorEventListener()
      * 向 MainApplication 註冊 CockpitEventListener 以監聽駕駛艙的事件。
      */
     public void setHandler(Handler mHandler)

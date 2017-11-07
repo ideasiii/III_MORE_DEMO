@@ -15,7 +15,7 @@ public class SemanticDeviceID
     private static final String SEMANTIC_USING = "Semantic_using";
     private static final String DEVICE_ID_KEY = "deviceIdKey";
     
-    public static String getDeiceID(Context mContext)
+    public static String getDeviceID(Context mContext)
     {
         String deviceID = getKey(mContext, DEVICE_ID_KEY);
         if (null == deviceID)
@@ -30,8 +30,7 @@ public class SemanticDeviceID
         }
         
     }
-    
-    
+
     private static void saveKey(Context mContext, String key, String deviceID)
     {
         SharedPreferences.Editor editor = mContext.getSharedPreferences(SEMANTIC_USING, Context.MODE_PRIVATE).edit();
@@ -45,6 +44,4 @@ public class SemanticDeviceID
         SharedPreferences prefs = mContext.getSharedPreferences(SEMANTIC_USING, Context.MODE_PRIVATE);
         return prefs.getString(key, null);
     }
-    
-    
 }
