@@ -11,7 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.VideoView;
 
 
 import com.iii.more.main.MainActivity;
@@ -21,7 +21,6 @@ import com.iii.more.main.R;
 import com.iii.more.oobe.logic.OobeLogicElement;
 import com.iii.more.oobe.logic.OobeLogicHandler;
 import com.iii.more.oobe.logic.OobeLogicParameters;
-import com.iii.more.oobe.logic.OobeTTSParameters;
 import com.iii.more.oobe.view.OobeDisplayHandler;
 import com.iii.more.oobe.view.OobeDisplayParameters;
 import com.iii.more.screen.view.display.DisplayParameters;
@@ -30,6 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -183,6 +183,11 @@ public class OobeActivity extends AppCompatActivity
                 
                 break;
             
+            case OobeDisplayParameters.METHOD_SURFACE_CREATE:
+                
+                mOobeLogicHandler.setVideoSurfaceHolder(mOobeDisplayHandler.getSurfaceHolder());
+                
+                break;
             
             default:
                 
@@ -292,7 +297,7 @@ public class OobeActivity extends AppCompatActivity
             @Override
             public void run()
             {
-                if (mOobeLogicHandler.getState() <= mStateData.size())
+                if (mOobeLogicHandler.getState() < mStateData.size())
                 {
                     String state = String.valueOf(mStateData.get(mOobeLogicHandler.getState()).state);
                     String tts = replaceScriptText(mStateData.get(mOobeLogicHandler.getState()).tts);
@@ -314,14 +319,25 @@ public class OobeActivity extends AppCompatActivity
                     }
                     else
                     {
-                        mOobeDisplayHandler.setVideoViewVisibility(true);
-                        mOobeDisplayHandler.setImageViewVisibility(false);
+                        
                         String movieFileName = mStateData.get(mOobeLogicHandler.getState()).movie;
                         if (!movieFileName.isEmpty())
                         {
-                            mOobeLogicHandler.playStreaming(OobeParameters.TEST_VIDEO_HOST_URL, movieFileName);
+                            final VideoView videoView =
+                                    (VideoView) findViewById(R.id.oobe_video_view);
+                            videoView.setVisibility(View.VISIBLE);
+                            videoView.setVideoPath(
+                                    OobeParameters.TEST_VIDEO_HOST_URL + movieFileName);
+                            
+                            videoView.start();
                         }
                     }
+                }
+                
+                else
+                {
+                    Logs.showTrace("[OobeActivity] end OobeActivity jump to mainActivity");
+                    startMainActivity();
                 }
                 
             }
@@ -343,11 +359,11 @@ public class OobeActivity extends AppCompatActivity
         
         mOobeDisplayHandler.setDisplayView(hashMapViews);
         mOobeDisplayHandler.init();
+        
         mOobeDisplayHandler.resetAllDisplayViews();
         
         mOobeLogicHandler = new OobeLogicHandler(this);
         mOobeLogicHandler.setHandler(mHandler);
-        mOobeLogicHandler.setVideoSurfaceHolder(mOobeDisplayHandler.setMediaDisplayView(R.id.oobe_video_surface_view));
         mOobeLogicHandler.init();
         
         mStateData = getLogicData(OobeParameters.LOGIC_OOBE);

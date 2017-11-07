@@ -8,8 +8,11 @@ import android.view.View;
 
 import com.iii.more.screen.view.display.DisplayHandler;
 
+import java.util.HashMap;
+
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.ResponseCode;
 
 /**
  * Created by joe on 2017/10/31.
@@ -26,12 +29,16 @@ public class OobeDisplayHandler extends DisplayHandler implements SurfaceHolder.
     }
     
     
-    public SurfaceHolder setMediaDisplayView(int id)
+    public void setMediaDisplayView(int id)
     {
         mSurfaceView = (SurfaceView) ((Activity) (mContext)).findViewById(id);
         mSurfaceHolder = mSurfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
         
+    }
+    
+    public SurfaceHolder getSurfaceHolder()
+    {
         return mSurfaceHolder;
     }
     
@@ -58,6 +65,12 @@ public class OobeDisplayHandler extends DisplayHandler implements SurfaceHolder.
     public void surfaceCreated(SurfaceHolder surfaceHolder)
     {
         Logs.showTrace("[OobeDisplayHandler] surfaceCreated");
+        HashMap<String, String> message = new HashMap<>();
+        message.put("message", "surfaceCreated");
+        mSurfaceHolder = surfaceHolder;
+        callBackMessage(ResponseCode.ERR_SUCCESS, OobeDisplayParameters.OOBE_DISPLAY_CLASS, OobeDisplayParameters.METHOD_SURFACE_CREATE, message);
+        
+        
     }
     
     @Override
