@@ -203,7 +203,9 @@ public class MainApplication extends Application
 
                             if (action.equals("tts"))
                             {
-                                mCockpitFilmMakingEventListener.onTTS(null, text);
+                                String language = j.getString("language");
+
+                                mCockpitFilmMakingEventListener.onTTS(null, text, language);
                             }
                             else if (action.equals("showFaceImage"))
                             {

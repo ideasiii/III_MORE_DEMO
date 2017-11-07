@@ -227,7 +227,8 @@ public class InternetCockpitService extends CockpitService
                 return;
             }
 
-            switch (commandType) {
+            switch (commandType)
+            {
                 case SERVER_MESSAGE_TYPE_COMMAND_TEXT:
                     String textCommandFromServer = stripTextFromCommand(json);
                     if (textCommandFromServer != null)
