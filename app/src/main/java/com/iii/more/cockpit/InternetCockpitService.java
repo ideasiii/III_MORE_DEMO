@@ -81,6 +81,9 @@ public class InternetCockpitService extends CockpitService
         private static final int SERVER_MESSAGE_TYPE_SET_DEVICE_ID = 0;
         private static final int SERVER_MESSAGE_TYPE_COMMAND_TEXT = 1;
 
+        // 拍片用，這種類型的指令將跳過 interrupt logic 判斷，直接影響 app 的視覺、聽覺輸出
+        private static final int SERVER_MESSAGE_TYPE_COMMAND_FILM_MAKING = 2;
+
         private static final String SERVER_MESSAGE_KEY_TYPE = "type";
         private static final String SERVER_MESSAGE_KEY_TEXT = "text";
 
@@ -211,15 +214,11 @@ public class InternetCockpitService extends CockpitService
                 // maybe not a registration response, continue trying
             }
 
+            int commandType;
             try
             {
-                int commandType = json.getInt(SERVER_MESSAGE_KEY_TYPE);
+                commandType = json.getInt(SERVER_MESSAGE_KEY_TYPE);
                 Log.d(LOG_TAG, "Server pushed a message with type " + commandType);
-
-                if (commandType != SERVER_MESSAGE_TYPE_COMMAND_TEXT)
-                {
-                    return;
-                }
             }
             catch (JSONException e)
             {
@@ -228,13 +227,25 @@ public class InternetCockpitService extends CockpitService
                 return;
             }
 
-            String textCommandFromServer = stripTextFromCommand(json);
-            if (textCommandFromServer == null)
-            {
-                return;
+            switch (commandType) {
+                case SERVER_MESSAGE_TYPE_COMMAND_TEXT:
+                    String textCommandFromServer = stripTextFromCommand(json);
+                    if (textCommandFromServer != null)
+                    {
+                        mHandler.obtainMessage(OtgCockpitService.MSG_DATA_IN, textCommandFromServer).sendToTarget();
+                    }
+                    break;
+                case SERVER_MESSAGE_TYPE_COMMAND_FILM_MAKING:
+                    JSONObject jsonCommandFromServer = stripJsonFromCommand(json);
+                    if (jsonCommandFromServer != null)
+                    {
+                        mHandler.obtainMessage(OtgCockpitService.MSG_FILM_MAKING, jsonCommandFromServer).sendToTarget();
+                    }
+                    break;
+                default:
+                    Log.w(LOG_TAG, "Got unknown type of command (" + commandType + ")");
             }
 
-            mHandler.obtainMessage(OtgCockpitService.MSG_DATA_IN, textCommandFromServer).sendToTarget();
         }
 
         private JSONObject getJsonObject(String src)
@@ -261,6 +272,30 @@ public class InternetCockpitService extends CockpitService
             {
                 Log.w(LOG_TAG, "Got malformed JSON (missing string field `text`)");
                 e.printStackTrace();
+                return null;
+            }
+        }
+
+        private JSONObject stripJsonFromCommand(JSONObject json)
+        {
+            String jsonString;
+            try
+            {
+                jsonString = json.getString(SERVER_MESSAGE_KEY_TEXT);
+            }
+            catch (JSONException e)
+            {
+                Log.w(LOG_TAG, SERVER_MESSAGE_KEY_TEXT + " does not exist in command from server `text`)");
+                return null;
+            }
+
+            try
+            {
+                return new JSONObject(jsonString);
+            }
+            catch (JSONException e)
+            {
+                Log.w(LOG_TAG, "String in `text` cannot be parsed to JSONObject");
                 return null;
             }
         }

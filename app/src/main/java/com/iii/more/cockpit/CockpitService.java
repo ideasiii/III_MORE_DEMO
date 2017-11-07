@@ -29,6 +29,9 @@ public abstract class CockpitService extends Service
     public static final int MSG_CDC_DRIVER_NOT_WORKING = 27;
     public static final int MSG_USB_DEVICE_NOT_WORKING = 28;
 
+    // 拍片用，這種類型的指令將跳過 interrupt logic 判斷，直接影響 app 的視覺、聽覺輸出
+    public static final int MSG_FILM_MAKING = 30;
+
     private static final String LOG_TAG = "CockpitService";
 
     protected IBinder mBinder = new CockpitBinder();
