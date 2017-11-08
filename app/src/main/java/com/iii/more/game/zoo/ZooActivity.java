@@ -309,13 +309,35 @@ public class ZooActivity extends Activity
                 break;
             case SCEN_INDEX_GAME_OVER:
                 strTTS = "再見囉";
-                robotHead.showObjectImg(true);
                 robotHead.setFace(R.drawable.octobo37, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(0.9f, 1.2f);
+                robotHead.setObjectImg(R.drawable.gameover, ImageView.ScaleType.FIT_XY);
                 if (mstrFavAnimal.contains("大象"))
                 {
                     robotHead.setObjectImg(R.drawable.elephone2, ImageView.ScaleType.FIT_XY);
                 }
+                if (mstrFavAnimal.contains("猩猩") || mstrFavAnimal.contains("星星"))
+                {
+                    robotHead.setObjectImg(R.drawable.kong, ImageView.ScaleType.FIT_XY);
+                }
+                if (mstrFavAnimal.contains("獅子"))
+                {
+                    robotHead.setObjectImg(R.drawable.lion, ImageView.ScaleType.FIT_XY);
+                }
+                if (mstrFavAnimal.contains("天鵝"))
+                {
+                    robotHead.setObjectImg(R.drawable.swan, ImageView.ScaleType.FIT_XY);
+                }
+                if (mstrFavAnimal.contains("台灣黑熊") || mstrFavAnimal.contains("熊") || mstrFavAnimal.contains("黑熊"))
+                {
+                    robotHead.setObjectImg(R.drawable.bear, ImageView.ScaleType.FIT_XY);
+                }
+                
+                if (mstrFavAnimal.contains("台灣獼猴") || mstrFavAnimal.contains("獼猴") || mstrFavAnimal.contains("猴子"))
+                {
+                    robotHead.setObjectImg(R.drawable.monkey, ImageView.ScaleType.FIT_XY);
+                }
+                robotHead.showObjectImg(true);
                 break;
             default:
                 return;
