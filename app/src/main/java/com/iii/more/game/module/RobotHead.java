@@ -157,9 +157,10 @@ public class RobotHead extends RelativeLayout
         imgFace.setScaleType(is);
     }
     
-    public void setObjectImg(int nResId)
+    public void setObjectImg(int nResId, ImageView.ScaleType is)
     {
         imgObject.setImageResource(nResId);
+        imgObject.setScaleType(is);
     }
     
     public void showObjectImg(boolean bShow)
