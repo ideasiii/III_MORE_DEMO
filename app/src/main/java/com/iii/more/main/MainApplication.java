@@ -175,7 +175,7 @@ public class MainApplication extends Application
 
         public MainHandler(MainApplication app)
         {
-            mApp = new WeakReference<MainApplication>(app);
+            mApp = new WeakReference<>(app);
         }
 
         @Override
@@ -233,6 +233,10 @@ public class MainApplication extends Application
                     case "拍頭":
                         mCockpitSensorEventListener.onPatHead(null);
                         break;
+                    case "RFID":
+                        // TODO remove or change this quick and dirty code
+                        String reading =  message.get("value");
+                        mCockpitSensorEventListener.onScannedRfid(null, reading);
                     default:
                         Logs.showTrace("[MainApplication] [InterruptLogicHandlerResultHandler] unknown trigger_result: " + trigger_result);
                 }

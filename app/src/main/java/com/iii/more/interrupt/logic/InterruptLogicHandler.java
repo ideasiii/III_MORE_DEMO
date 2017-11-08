@@ -302,6 +302,17 @@ public class InterruptLogicHandler extends BaseHandler
                         InterruptLogicParameters.METHOD_LOGIC_RESPONSE, makeDisplayJson(result));
                 
             }
+            else
+            {
+                // TODO remove or change this quick and dirty: return RFID reading
+                if (eventHashMapData.containsKey(InterruptLogicParameters.STRING_RFID))
+                {
+                    result = new HashMap<>();
+                    result.put(InterruptLogicParameters.JSON_STRING_DESCRIPTION, "RFID");
+                    result.put("value", eventHashMapData.get(InterruptLogicParameters.STRING_RFID));
+                }
+            }
+
         }
     }
     
@@ -458,56 +469,75 @@ public class InterruptLogicHandler extends BaseHandler
         return result;
     }
     
-    //f1[0],f2[0],C[0],D[0],H[255],FSR1[0],FSR2[0],X[0],Y[0],Z[0]
+    //{"model":1,"s_bright":6,"s_head":[1,0,0,0],"s_cheek":[0,0],"s_rfid":0000039183}
     private HashMap<String, String> convertToHashMapData(String data)
     {
         HashMap<String, String> hashMapData = new HashMap<>();
-        
-        if (data.contains(InterruptLogicParameters.STRING_RFID))
+
+        try
         {
-            Pattern patterns = Pattern.compile(InterruptLogicParameters.PATTERN_EVENT_RFID_DATA);
-            Matcher matcher = patterns.matcher(data);
-            if (matcher.find())
+            JSONObject json = new JSONObject(data);
+
+            if (json.has("s_hand"))
             {
-                hashMapData.put(InterruptLogicParameters.STRING_RFID, matcher.group(1));
+                JSONArray handReadings = json.getJSONArray("s_hand");
+                if (handReadings.length() >= 4)
+                {
+                    hashMapData.put(InterruptLogicParameters.STRING_F1, Integer.toString(handReadings.getInt(0)));
+                    hashMapData.put(InterruptLogicParameters.STRING_F2, Integer.toString(handReadings.getInt(1)));
+                    hashMapData.put(InterruptLogicParameters.STRING_C, Integer.toString(handReadings.getInt(2)));
+                    hashMapData.put(InterruptLogicParameters.STRING_D, Integer.toString(handReadings.getInt(3)));
+                }
+            }
+
+            if (json.has("s_cheek"))
+            {
+                JSONArray handReadings = json.getJSONArray("s_cheek");
+                if (handReadings.length() >= 2)
+                {
+                    hashMapData.put(InterruptLogicParameters.STRING_FSR1, Integer.toString(handReadings.getInt(0)));
+                    hashMapData.put(InterruptLogicParameters.STRING_FSR2, Integer.toString(handReadings.getInt(1)));
+                }
+            }
+
+            if (json.has("s_bright"))
+            {
+                int brightRead = json.getInt("s_bright");
+                hashMapData.put(InterruptLogicParameters.STRING_H, Integer.toString(brightRead));
+            }
+
+            if (json.has("s_rfid"))
+            {
+                int rfidRead = json.getInt("s_rfid");
+                int correctedRfidRead = correctRfidReading(rfidRead);
+
+                hashMapData.put(InterruptLogicParameters.STRING_RFID, Integer.toString(correctedRfidRead));
             }
         }
-        else
+        catch (JSONException e)
         {
-            try
-            {
-                Pattern patterns = Pattern.compile(InterruptLogicParameters.PATTERN_EVENT_DATA);
-                Matcher matcher = patterns.matcher(data);
-                HashMap<Integer, String> datas = new HashMap<>();
-                if (matcher.find())
-                {
-                    Logs.showTrace("[InterruptLogicHandler] matcher group!");
-                    for (int i = 1; i < matcher.groupCount(); i++)
-                    {
-                        datas.put(i, matcher.group(i));
-                        Logs.showTrace("[InterruptLogicHandler]matcher.group(" + String.valueOf(i) + "): " + matcher.group(i));
-                    }
-                }
-                hashMapData.put(InterruptLogicParameters.STRING_F1, datas.get(InterruptLogicParameters.INT_F1));
-                hashMapData.put(InterruptLogicParameters.STRING_F2, datas.get(InterruptLogicParameters.INT_F2));
-                hashMapData.put(InterruptLogicParameters.STRING_C, datas.get(InterruptLogicParameters.INT_C));
-                hashMapData.put(InterruptLogicParameters.STRING_D, datas.get(InterruptLogicParameters.INT_D));
-                hashMapData.put(InterruptLogicParameters.STRING_H, datas.get(InterruptLogicParameters.INT_H));
-                hashMapData.put(InterruptLogicParameters.STRING_FSR1, datas.get(InterruptLogicParameters.INT_FSR1));
-                hashMapData.put(InterruptLogicParameters.STRING_FSR2, datas.get(InterruptLogicParameters.INT_FSR2));
-                
-            }
-            catch (Exception e)
-            {
-                Logs.showError("[InterruptLogicHandler] data broken!");
-                hashMapData = null;
-            }
+            Logs.showError("[InterruptLogicHandler] data broken!");
+            e.printStackTrace();
+            return null;
         }
         
         return hashMapData;
     }
-    
-    
+
+    public static int correctRfidReading(int dec)
+    {
+        int oct = 0, i = 1;
+
+        while (dec != 0)
+        {
+            oct += (dec % 8) * i;
+            dec /= 8;
+            i *= 10;
+        }
+
+        return oct;
+    }
+
     private class EmotionElement
     {
         public String emotionID = null;
