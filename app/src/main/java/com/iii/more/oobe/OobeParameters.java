@@ -9,6 +9,16 @@ public abstract class OobeParameters
     public static final String TEST_VIDEO_HOST_URL = "https://smabuild.sytes.net/";
     public static final String TEST_VIDEO_FILE_URL = "edubot/video/abcfun/01.mp4";
     
+    public static final int METHOD_TIME_OUT = 0;
+    public static final int METHOD_SENSOR_DETECT = 1;
+    public static final int METHOD_RFID_DETECT = 2;
+    
+    public static final int RUNNABLE_HARDWARE_CHECK = 0;
+    
+    //  HardwareCheck
+    
+    public static final int CHECK_TIME = 1000;
+    
     public static final String LOGIC_OOBE = "{" +
             "\"stateArray\":[" +
             "{\"state\":0,\"tts\":\"你好！我是xx，你叫什麼名字呢？\",\"png\":\"OCTOBO_Expressions-14.png\",\"response\":\"STT\"}," +

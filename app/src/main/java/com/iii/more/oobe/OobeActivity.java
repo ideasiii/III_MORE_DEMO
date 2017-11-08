@@ -2,7 +2,6 @@ package com.iii.more.oobe;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Handler;
@@ -14,6 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.VideoView;
 
 
+import com.iii.more.main.CockpitSensorEventListener;
 import com.iii.more.main.MainActivity;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
@@ -22,14 +22,12 @@ import com.iii.more.oobe.logic.OobeLogicElement;
 import com.iii.more.oobe.logic.OobeLogicHandler;
 import com.iii.more.oobe.logic.OobeLogicParameters;
 import com.iii.more.oobe.view.OobeDisplayHandler;
-import com.iii.more.oobe.view.OobeDisplayParameters;
 import com.iii.more.screen.view.display.DisplayParameters;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -40,12 +38,19 @@ import sdk.ideas.common.ResponseCode;
  * Created by joe on 2017/10/27.
  */
 
-public class OobeActivity extends AppCompatActivity
+public class OobeActivity extends AppCompatActivity implements CockpitSensorEventListener
 {
     private OobeLogicHandler mOobeLogicHandler = null;
     private OobeDisplayHandler mOobeDisplayHandler = null;
     private ArrayList<OobeLogicElement> mStateData = null;
     private MainApplication mMainApplication = null;
+    
+    private volatile boolean sensorGet = false;
+    
+    private volatile String rfidString = "";
+    
+    private VideoView mVideoView = null;
+    
     
     private Handler mHandler = new Handler()
     {
@@ -70,7 +75,6 @@ public class OobeActivity extends AppCompatActivity
                 {
                     case OobeLogicParameters.METHOD_TTS:
                         
-                        
                         Logs.showTrace("[OobeActivity] METHOD_TTS message" + msg.obj);
                         String nextToDo = getResponseLogic(message.get("TextID"));
                         Logs.showTrace("[OobeActivity] METHOD_TTS nextToDo " + nextToDo);
@@ -82,13 +86,16 @@ public class OobeActivity extends AppCompatActivity
                                 case "STT":
                                     mOobeLogicHandler.sttLaunch();
                                     
-                                    
                                     break;
                                 case "SensorTag":
                                     // ### set a timer to get
                                     
+                                    Thread t = new Thread(new HardwareCheckRunnable(1,
+                                            mStateData.get(mOobeLogicHandler.getState()).wait));
+                                    t.start();
+                                    
                                     //forced to do next step
-                                    mHandler.postDelayed(new Runnable()
+                                    /*mHandler.postDelayed(new Runnable()
                                     {
                                         @Override
                                         public void run()
@@ -97,13 +104,16 @@ public class OobeActivity extends AppCompatActivity
                                             doNext();
                                         }
                                     }, 1000);
-                                    
+                                    */
                                     break;
                                 case "RFID":
                                     // ### set a timer to get
+                                    Thread t2 = new Thread(new HardwareCheckRunnable(2,
+                                            mStateData.get(mOobeLogicHandler.getState()).wait));
+                                    t2.start();
                                     
                                     //forced to do next step
-                                    mHandler.postDelayed(new Runnable()
+                                    /*mHandler.postDelayed(new Runnable()
                                     {
                                         @Override
                                         public void run()
@@ -111,7 +121,7 @@ public class OobeActivity extends AppCompatActivity
                                             mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
                                             doNext();
                                         }
-                                    }, 1000);
+                                    }, 1000);*/
                                     break;
                                 case "no":
                                     
@@ -139,13 +149,10 @@ public class OobeActivity extends AppCompatActivity
                             if (mOobeLogicHandler.getState() == 0)
                             {
                                 mMainApplication.setName(Parameters.ID_CHILD_NAME, message.get("message"));
-                                
-                                
                             }
                             else if (mOobeLogicHandler.getState() == 1)
                             {
                                 mMainApplication.setName(Parameters.ID_ROBOT_NAME, message.get("message"));
-                                
                             }
                             mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
                             doNext();
@@ -156,16 +163,17 @@ public class OobeActivity extends AppCompatActivity
                         {
                             if (mStateData.get(mOobeLogicHandler.getState()).getRegret() > 0)
                             {
-                                Logs.showTrace("[OobeActivity] speech regret once");
+                                Logs.showTrace("[OobeActivity] speech regret");
                                 doNext();
                             }
                             else
                             {
                                 //### jump to Normal mode
-                                Logs.showTrace("[OobeActivity] speech regret NOT --> go to normal mode");
+                                Logs.showTrace("[OobeActivity] Speech regret NOT --> Jump to normal mode");
+                                
+                                startMainActivity();
                             }
                         }
-                        
                         
                         break;
                     
@@ -183,9 +191,39 @@ public class OobeActivity extends AppCompatActivity
                 
                 break;
             
-            case OobeDisplayParameters.METHOD_SURFACE_CREATE:
-                
-                mOobeLogicHandler.setVideoSurfaceHolder(mOobeDisplayHandler.getSurfaceHolder());
+            case OobeParameters.RUNNABLE_HARDWARE_CHECK:
+                switch (msg.arg1)
+                {
+                    case OobeParameters.METHOD_TIME_OUT:
+                        
+                        if (mStateData.get(mOobeLogicHandler.getState()).getRegret() > 0)
+                        {
+                            Logs.showTrace("[OobeActivity] hardware check time out and regard once");
+                            doNext();
+                        }
+                        else
+                        {
+                            Logs.showTrace("[OobeActivity] hardware check time out!! Jump to Normal Mode");
+                            startMainActivity();
+                        }
+                        
+                        break;
+                    case OobeParameters.METHOD_SENSOR_DETECT:
+                        
+                        
+                        mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
+                        doNext();
+                        
+                        break;
+                    case OobeParameters.METHOD_RFID_DETECT:
+                        
+                        mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
+                        doNext();
+                        
+                        break;
+                    
+                    
+                }
                 
                 break;
             
@@ -199,10 +237,25 @@ public class OobeActivity extends AppCompatActivity
     @Override
     protected void onDestroy()
     {
-        mOobeLogicHandler.endAll();
-        mOobeLogicHandler.killAll();
+        Logs.showTrace("[OobeActivity] onDestroy");
+        if (null != mOobeLogicHandler)
+        {
+            mOobeLogicHandler.endAll();
+            mOobeLogicHandler.killAll();
+            mOobeLogicHandler = null;
+        }
         
-        mOobeDisplayHandler.killAll();
+        if (null != mOobeDisplayHandler)
+        {
+            mOobeDisplayHandler.killAll();
+            mOobeDisplayHandler = null;
+        }
+        if (null != mVideoView)
+        {
+            mVideoView.stopPlayback();
+            mVideoView = null;
+        }
+        
         super.onDestroy();
     }
     
@@ -212,6 +265,9 @@ public class OobeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.oobe);
         
+        // 註冊 Sensor 感應 From Application
+        MainApplication mAPP = (MainApplication) getApplication();
+        mAPP.setCockpitSensorEventListener(this);
         
         final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -221,28 +277,25 @@ public class OobeActivity extends AppCompatActivity
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         
         // This work only for android 4.4+
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+        
+        getWindow().getDecorView().setSystemUiVisibility(flags);
+        
+        // Code below is to handle presses of Volume up or Volume down.
+        // Without this, after pressing volume buttons, the navigation bar will
+        // show up and won't hide
+        final View decorView = getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
         {
             
-            getWindow().getDecorView().setSystemUiVisibility(flags);
-            
-            // Code below is to handle presses of Volume up or Volume down.
-            // Without this, after pressing volume buttons, the navigation bar will
-            // show up and won't hide
-            final View decorView = getWindow().getDecorView();
-            decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
+            @Override
+            public void onSystemUiVisibilityChange(int visibility)
             {
-                
-                @Override
-                public void onSystemUiVisibilityChange(int visibility)
+                if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
                 {
-                    if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
-                    {
-                        decorView.setSystemUiVisibility(flags);
-                    }
+                    decorView.setSystemUiVisibility(flags);
                 }
-            });
-        }
+            }
+        });
         init();
         
     }
@@ -323,13 +376,21 @@ public class OobeActivity extends AppCompatActivity
                         String movieFileName = mStateData.get(mOobeLogicHandler.getState()).movie;
                         if (!movieFileName.isEmpty())
                         {
-                            final VideoView videoView =
-                                    (VideoView) findViewById(R.id.oobe_video_view);
-                            videoView.setVisibility(View.VISIBLE);
-                            videoView.setVideoPath(
-                                    OobeParameters.TEST_VIDEO_HOST_URL + movieFileName);
-                            
-                            videoView.start();
+                            if (null != mVideoView)
+                            {
+                                try
+                                {
+                                    mVideoView.setVisibility(View.VISIBLE);
+                                    
+                                    mVideoView.setVideoPath(OobeParameters.TEST_VIDEO_HOST_URL + movieFileName);
+                                    
+                                    mVideoView.start();
+                                }
+                                catch (Exception e)
+                                {
+                                    Logs.showError("[OobeActivity] playing video ERROR" + e.toString());
+                                }
+                            }
                         }
                     }
                 }
@@ -369,6 +430,8 @@ public class OobeActivity extends AppCompatActivity
         mStateData = getLogicData(OobeParameters.LOGIC_OOBE);
         
         mMainApplication = (MainApplication) this.getApplication();
+        
+        mVideoView = (VideoView) findViewById(R.id.oobe_video_view);
     }
     
     
@@ -383,16 +446,13 @@ public class OobeActivity extends AppCompatActivity
     public void onWindowFocusChanged(boolean hasFocus)
     {
         super.onWindowFocusChanged(hasFocus);
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && hasFocus)
-        {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        }
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
     
     
@@ -475,6 +535,152 @@ public class OobeActivity extends AppCompatActivity
             
         }
         return null;
+    }
+    
+    
+    @Override
+    public void onShakeHands(Object sender)
+    {
+        Logs.showTrace("[OobeActivity] onShakeHands 握手");
+        
+        sensorGet = true;
+    }
+    
+    @Override
+    public void onClapHands(Object sender)
+    {
+        Logs.showTrace("[OobeActivity] onClapHands 拍手");
+        sensorGet = true;
+        
+    }
+    
+    @Override
+    public void onPinchCheeks(Object sender)
+    {
+        Logs.showTrace("[OobeActivity] onPinchCheeks 擠壓");
+        sensorGet = true;
+        
+    }
+    
+    @Override
+    public void onPatHead(Object sender)
+    {
+        Logs.showTrace("[OobeActivity] onPatHead 拍頭");
+        sensorGet = true;
+        
+    }
+    
+    @Override
+    public void onScannedRfid(Object sensor, String scannedResult)
+    {
+        Logs.showTrace("[OobeActivity] onScanned RFID : scannedResult: " + String.valueOf(scannedResult));
+        rfidString = scannedResult;
+        
+    }
+    
+    
+    private class HardwareCheckRunnable implements Runnable
+    {
+        private int TAG_SENSOR = 1;
+        private int TAG_RFID = 2;
+        private int sensorDetect = 0;
+        private int rfidDetect = 0;
+        private int countMax = 0;
+        private int i = 0;
+        
+        public HardwareCheckRunnable(int tag, int time)
+        {
+            if (TAG_RFID == tag)
+            {
+                rfidDetect = 1;
+            }
+            else if (TAG_SENSOR == tag)
+            {
+                sensorDetect = 1;
+            }
+            countMax = time / OobeParameters.CHECK_TIME;
+        }
+        
+        @Override
+        public void run()
+        {
+            try
+            {
+                while (true)
+                {
+                    i++;
+                    if (i >= countMax)
+                    {
+                        //###
+                        // can send message to let know no response
+                        Message msg = new Message();
+                        msg.what = OobeParameters.RUNNABLE_HARDWARE_CHECK;
+                        msg.arg1 = OobeParameters.METHOD_TIME_OUT;
+                        
+                        mHandler.sendMessage(msg);
+                        
+                        
+                        break;
+                    }
+                    else
+                    {
+                        Logs.showTrace("[HardwareCheckRunnable] check hardware again!");
+                        if (rfidDetect == 1)
+                        {
+                            if (rfidString.isEmpty())
+                            {
+                                Logs.showTrace("[HardwareCheckRunnable] no RFID data");
+                            }
+                            else
+                            {
+                                Logs.showTrace("[HardwareCheckRunnable] Get RFID String:" + rfidString);
+                                //###
+                                // can send message to let know have response
+                                Message msg = new Message();
+                                msg.what = OobeParameters.RUNNABLE_HARDWARE_CHECK;
+                                msg.arg1 = OobeParameters.METHOD_RFID_DETECT;
+                                msg.obj = rfidString;
+                                
+                                mHandler.sendMessage(msg);
+                                
+                                
+                                break;
+                            }
+                        }
+                        else if (sensorDetect == 1)
+                        {
+                            if (sensorGet)
+                            {
+                                //###
+                                // can send message to let know have response
+                                Logs.showTrace("[HardwareCheckRunnable] sensorDetect: true");
+                                
+                                Message msg = new Message();
+                                msg.what = OobeParameters.RUNNABLE_HARDWARE_CHECK;
+                                msg.arg1 = OobeParameters.METHOD_SENSOR_DETECT;
+                                
+                                mHandler.sendMessage(msg);
+                                break;
+                                
+                            }
+                            else
+                            {
+                                Logs.showTrace("[HardwareCheckRunnable] sensorDetect: false");
+                                
+                            }
+                            
+                            
+                        }
+                    }
+                    
+                    Thread.sleep(OobeParameters.CHECK_TIME);
+                }
+            }
+            catch (Exception e)
+            {
+                Logs.showError(e.toString());
+            }
+        }
     }
     
     

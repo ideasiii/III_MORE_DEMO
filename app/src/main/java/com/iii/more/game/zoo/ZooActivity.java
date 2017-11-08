@@ -61,7 +61,7 @@ public class ZooActivity extends Activity
         application = (MainApplication) getApplication();
         
         // 註冊 Sensor 感應 From Application
-        application.addCockpitSensorEventListener(cockpitSensorEventListener);
+        application.setCockpitSensorEventListener(cockpitSensorEventListener);
         
     }
     

@@ -65,7 +65,7 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
  **/
 
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements CockpitFilmMakingEventListener
 
 {
     //show progress dialog
@@ -143,18 +143,22 @@ public class MainActivity extends AppCompatActivity
             // show up and won't hide
             final View decorView = getWindow().getDecorView();
             decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
+            {
+                
+                @Override
+                public void onSystemUiVisibilityChange(int visibility)
+                {
+                    if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
                     {
-                        
-                        @Override
-                        public void onSystemUiVisibilityChange(int visibility)
-                        {
-                            if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
-                            {
-                                decorView.setSystemUiVisibility(flags);
-                            }
-                        }
-                    });
+                        decorView.setSystemUiVisibility(flags);
+                    }
+                }
+            });
         }
+        
+        MainApplication mMainApp = (MainApplication) this.getApplication();
+        mMainApp.setCockpitFilmMakingEventListener(this);
+        
         
         mProgressDialog = new ProgressDialog(this);
         
@@ -952,6 +956,61 @@ public class MainActivity extends AppCompatActivity
         {
             mLogicHandler.onError(TTSParameters.ID_SERVICE_IO_EXCEPTION);
             Logs.showError("[MainActivity] analysisSemanticWord Exception:" + e.toString());
+        }
+    }
+    
+    @Override
+    public void onTTS(Object sender, String text, String lang)
+    {
+        Logs.showTrace("[MainActivity] remote mode Get TTS: " + text);
+        if (null != mLogicHandler)
+        {
+            if (mLogicHandler.getMode() == LogicParameters.MODE_UNKNOWN)
+            {
+                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, text, "zh");
+            }
+        }
+    }
+    
+    @Override
+    public void onEmotionImage(Object sender, String imageFilename)
+    {
+        if (mLogicHandler.getMode() == LogicParameters.MODE_UNKNOWN)
+        {
+            JSONObject animate = new JSONObject();
+            try
+            {
+                animate.put("type", 2);
+                
+                animate.put("duration", 3000);
+                animate.put("repeat", 1);
+                animate.put("interpolate", 1);
+                
+                //create display json
+                JSONObject data = new JSONObject();
+                data.put("time", 0);
+                data.put("host", "https://smabuild.sytes.net/edubot/OCTOBO_Expressions/");
+                data.put("color", "#FFA0C9EC");
+                data.put("description", "快樂");
+                data.put("animation", animate);
+                data.put("text", new JSONObject());
+                data.put("file", imageFilename);
+                JSONArray show = new JSONArray();
+                show.put(data);
+                
+                JSONObject display = new JSONObject();
+                display.put("enable", 1);
+                display.put("show", show);
+                if (null != mDisplayHandler)
+                {
+                    mDisplayHandler.setDisplayJson(display);
+                    mDisplayHandler.startDisplay();
+                }
+            }
+            catch (JSONException e)
+            {
+                Logs.showError(e.toString());
+            }
         }
     }
 }
