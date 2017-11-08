@@ -53,7 +53,7 @@
         <service android:name="com.edgecase.moduleservice.DetectorService"/>
 
         <service android:name="com.iii.more.cockpit.OtgCockpitService"/>
-        <service android:name="com.iii.more.cockpit.InternetCockpitService"/>
+        <service android:name="com.iii.more.cockpit.internet.InternetCockpitService"/>
     </application>
 
 </manifest>

@@ -10,7 +10,7 @@ import android.os.Message;
 
 import com.iii.more.cmp.semantic.SemanticDeviceID;
 import com.iii.more.cockpit.CockpitService;
-import com.iii.more.cockpit.InternetCockpitService;
+import com.iii.more.cockpit.internet.InternetCockpitService;
 import com.iii.more.interrupt.logic.InterruptLogicHandler;
 import com.iii.more.interrupt.logic.InterruptLogicParameters;
 
@@ -53,7 +53,7 @@ public class MainApplication extends Application
         bootCockpitService();
         initInterruptLogic();
     }
-    
+
     /** 取得章魚 or 使用者的名字 */
     public String getName(String id)
     {
