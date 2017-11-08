@@ -60,6 +60,9 @@ public class TtsHandler
                     if (arg0 == TextToSpeech.SUCCESS)
                     {
                         bTtsValid[0] = true;
+                        tts.setPitch(1.2f);
+                        tts.setSpeechRate(0.8f);
+                        setPitch(1.2f, 0.8f);
                         Logs.showTrace("[TtsHandler] createTTS success");
                         if (null != listOnTTSStartedListener)
                         {
@@ -120,6 +123,12 @@ public class TtsHandler
         }
         Logs.showTrace("TTS speack: " + strWord);
         tts.speak(strWord, TextToSpeech.QUEUE_FLUSH, null, strUtteranceld);
+    }
+    
+    public void setPitch(float fpitch, float frate)
+    {
+        tts.setPitch(fpitch);
+        tts.setSpeechRate(frate);
     }
     
 }

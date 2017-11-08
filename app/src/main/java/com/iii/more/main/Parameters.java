@@ -32,7 +32,7 @@ public abstract class Parameters
     
     public static final int MESSAGE_END_WELCOME_LAYOUT = 1232;
     
-    public static final String  ALERT_DIALOG_CONNECTING_DEVICE = "c4b008ba-7b21-404e-9e44-dd3605489226";
+    public static final String ALERT_DIALOG_CONNECTING_DEVICE = "c4b008ba-7b21-404e-9e44-dd3605489226";
     public static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR = "c4b008ba-8b2f-404e-9e44-dd0605486446";
     public static final String ALERT_DIALOG_ENTER_BLE_READ_PEN_ID = "c4b008ba-8b2f-404e-9e44-dd0605486226";
     public static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN = "c4b008ca-8b2f-404e-9e44-dd0605482229";
@@ -51,9 +51,6 @@ public abstract class Parameters
     {
         return modeFlag;
     }
-    
-    
-    
     
     
 }
