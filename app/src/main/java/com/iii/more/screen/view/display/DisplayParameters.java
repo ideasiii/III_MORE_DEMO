@@ -23,6 +23,7 @@ public class DisplayParameters
     
     public static final int DEFAULT_BACKGROUND_COLOR = R.color.default_app_color;
     
+    
     public static final String STRING_JSON_KEY_TIME = "time";
     public static final String STRING_JSON_KEY_HOST = "host";
     public static final String STRING_JSON_KEY_FILE = "file";

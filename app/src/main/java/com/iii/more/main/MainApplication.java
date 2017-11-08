@@ -58,7 +58,7 @@ public class MainApplication extends Application
     public String getName(String id)
     {
         SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
-        return prefs.getString(id, null);
+        return prefs.getString(id, "");
     }
 
     /** 設定章魚 or 使用者的名字 */

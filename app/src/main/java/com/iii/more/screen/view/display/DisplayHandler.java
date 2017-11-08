@@ -471,7 +471,11 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
                 }
                 else
                 {
-                    
+                    if (mHashMapViews.get(DisplayParameters.RELATIVE_LAYOUT_ID) instanceof RelativeLayout)
+                    {
+                        ViewHandler.setBackgroundColor(mContext.getResources().getColor(R.color.starfish_background),
+                                mHashMapViews.get(DisplayParameters.RELATIVE_LAYOUT_ID));
+                    }
                     drawableNum = convertStarFishImageURLToDrawable(display.imageURL);
                 }
                 if (drawableNum != 0)
