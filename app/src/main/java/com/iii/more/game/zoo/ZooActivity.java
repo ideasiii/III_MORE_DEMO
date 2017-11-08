@@ -10,20 +10,24 @@ import android.support.annotation.Nullable;
 import com.iii.more.game.module.MSG;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.Utility;
+import com.iii.more.logic.LogicParameters;
 import com.iii.more.main.CockpitSensorEventListener;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
+import com.iii.more.main.TTSParameters;
 
 import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.ResponseCode;
 import sdk.ideas.tool.speech.voice.VoiceRecognition;
 
 /**
@@ -58,12 +62,14 @@ public class ZooActivity extends Activity
     private final int SCEN_INDEX_ANIMAL_KONG = 123;
     private final int SCEN_INDEX_FAV_ANIMAL = 124;
     private final int SCEN_INDEX_FAV_ANIMAL_SPEECH = 125;
+    private final int SCEN_INDEX_GAME_OVER = 999;
     
     MainApplication application = null;
     private RobotHead robotHead = null;
     private Timer timer = null;
     private int mnScenarizeIndex;
     private VoiceRecognition mVoiceRecognition = null;
+    private String mstrFavAnimal = "";
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -241,7 +247,7 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(0.7f, 0.8f);
                 break;
             case SCEN_INDEX_ANIMAL_LION:
-                strTTS = "啊!!啊，，是獅子";
+                strTTS = "啊 啊，是獅子";
                 robotHead.setObjectImg(R.drawable.lion, ImageView.ScaleType.FIT_XY);
                 robotHead.setPitch(2.5f, 0.8f);
                 break;
@@ -278,7 +284,7 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.5f, 1.6f);
                 break;
             case SCEN_INDEX_ANIMAL_ELEPHONE:
-                strTTS = "快看，，是大象，，大象最喜歡吃草跟樹葉喔!!";
+                strTTS = "快看，，是大象，，大象最喜歡吃草跟樹葉!!";
                 robotHead.setObjectImg(R.drawable.elephone2, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(true);
                 robotHead.setPitch(1.8f, 0.7f);
@@ -296,6 +302,16 @@ public class ZooActivity extends Activity
                 break;
             case SCEN_INDEX_FAV_ANIMAL_SPEECH:
                 mVoiceRecognition.startListen();
+                break;
+            case SCEN_INDEX_GAME_OVER:
+                strTTS = "再見囉";
+                robotHead.showObjectImg(true);
+                robotHead.setFace(R.drawable.octobo37, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setPitch(0.9f, 1.2f);
+                if (mstrFavAnimal.contains("大象"))
+                {
+                    robotHead.setObjectImg(R.drawable.elephone2, ImageView.ScaleType.FIT_XY);
+                }
                 break;
             default:
                 return;
@@ -493,8 +509,22 @@ public class ZooActivity extends Activity
         {
             Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) +
                     " From: " + String.valueOf(msg.arg2) + " Message: " + msg.obj);
-            mVoiceRecognition.stopListen();
-            
+            final HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+            if (msg.arg1 == ResponseCode.ERR_SUCCESS && msg.arg2 == ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER)
+            {
+                mVoiceRecognition.stopListen();
+                Logs.showTrace("[LogicHandler] Get voice Text: " + message.get("message"));
+                mstrFavAnimal = (String) message.get("message");
+            }
+            else if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+            {
+                //startListen first handle
+            }
+            else
+            {
+                Logs.showTrace("get ERROR message: " + message.get("message"));
+                mVoiceRecognition.stopListen();
+            }
         }
     };
 }
