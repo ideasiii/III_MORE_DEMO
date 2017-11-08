@@ -19,10 +19,12 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import sdk.ideas.common.Logs;
+import sdk.ideas.tool.speech.voice.VoiceRecognition;
 
 /**
  * Created by jugo on 2017/11/1.
@@ -53,11 +55,15 @@ public class ZooActivity extends Activity
     private final int SCEN_INDEX_EATED_HAMBERB = 120;
     private final int SCEN_INDEX_ZOO_DOOR2 = 121;
     private final int SCEN_INDEX_ANIMAL_ELEPHONE = 122;
+    private final int SCEN_INDEX_ANIMAL_KONG = 123;
+    private final int SCEN_INDEX_FAV_ANIMAL = 124;
+    private final int SCEN_INDEX_FAV_ANIMAL_SPEECH = 125;
     
     MainApplication application = null;
     private RobotHead robotHead = null;
     private Timer timer = null;
     private int mnScenarizeIndex;
+    private VoiceRecognition mVoiceRecognition = null;
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -108,6 +114,9 @@ public class ZooActivity extends Activity
         robotHead.start();
         robotHead.setObjectImg(R.drawable.busy, ImageView.ScaleType.CENTER_INSIDE);
         robotHead.showObjectImg(true);
+        mVoiceRecognition = new VoiceRecognition(this);
+        mVoiceRecognition.setHandler(handlerSpeech);
+        mVoiceRecognition.setLocale(Locale.TAIWAN);
     }
     
     @Override
@@ -115,6 +124,10 @@ public class ZooActivity extends Activity
     {
         Logs.showTrace("onStop");
         robotHead.stop();
+        if (null != mVoiceRecognition)
+        {
+            mVoiceRecognition.stopListen();
+        }
         super.onStop();
     }
     
@@ -265,10 +278,24 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.5f, 1.6f);
                 break;
             case SCEN_INDEX_ANIMAL_ELEPHONE:
-                strTTS = "哇，賽，快看，，是大象耶，，大象最喜歡吃，，草，，跟樹葉喔!!";
+                strTTS = "快看，，是大象，，大象最喜歡吃草跟樹葉喔!!";
                 robotHead.setObjectImg(R.drawable.elephone2, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(true);
                 robotHead.setPitch(1.8f, 0.7f);
+                break;
+            case SCEN_INDEX_ANIMAL_KONG:
+                strTTS = "哈哈，，是猩猩，，猩猩最喜歡吃香蕉喔!!";
+                robotHead.setObjectImg(R.drawable.kong, ImageView.ScaleType.FIT_XY);
+                robotHead.setPitch(0.9f, 1.5f);
+                break;
+            case SCEN_INDEX_FAV_ANIMAL:
+                strTTS = "今天，真好玩，請告訴我，你最喜歡什麼動物呢";
+                robotHead.showObjectImg(false);
+                robotHead.setFace(R.drawable.octobo31, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setPitch(0.8f, 1f);
+                break;
+            case SCEN_INDEX_FAV_ANIMAL_SPEECH:
+                mVoiceRecognition.startListen();
                 break;
             default:
                 return;
@@ -368,6 +395,17 @@ public class ZooActivity extends Activity
                     timer = new Timer(true);
                     timer.schedule(new ScenarizeTimer(SCEN_INDEX_ANIMAL_ELEPHONE), 1000);
                     break;
+                case SCEN_INDEX_ANIMAL_ELEPHONE:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_ANIMAL_KONG), 1000);
+                    break;
+                case SCEN_INDEX_ANIMAL_KONG:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_FAV_ANIMAL), 1000);
+                    break;
+                case SCEN_INDEX_FAV_ANIMAL:
+                    handler.sendEmptyMessage(SCEN_INDEX_FAV_ANIMAL_SPEECH);
+                    break;
             }
         }
         
@@ -445,6 +483,18 @@ public class ZooActivity extends Activity
         public void onScannedRfid(Object sensor, String scannedResult)
         {
             Logs.showTrace("onScannedRfid");
+        }
+    };
+    
+    private Handler handlerSpeech = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg)
+        {
+            Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) +
+                    " From: " + String.valueOf(msg.arg2) + " Message: " + msg.obj);
+            mVoiceRecognition.stopListen();
+            
         }
     };
 }
