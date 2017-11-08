@@ -1,8 +1,11 @@
 package com.iii.more.cockpit.internet;
 
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import com.iii.more.cockpit.CockpitService;
@@ -20,10 +23,14 @@ public class InternetCockpitService extends CockpitService
 {
     private static final String LOG_TAG = "InternetCockpitService";
 
+    private static final int EVENT_NEED_RECONNECT = 13248;
+
     private static boolean serviceConnected = false;
 
+    private InServiceEventHandler mInServiceEventHandler;
     private ServerConnection serverConnection = null;
     private String mDeviceId;
+
 
     @Override
     public void onCreate()
@@ -31,6 +38,7 @@ public class InternetCockpitService extends CockpitService
         super.onCreate();
         Log.d(LOG_TAG, "onCreate()");
 
+        mInServiceEventHandler = new InServiceEventHandler(this);
         serviceConnected = true;
     }
 
@@ -107,6 +115,12 @@ public class InternetCockpitService extends CockpitService
                     mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DISCONNECTED, 0).sendToTarget();
                     serverConnection.close();
                     serverConnection = null;
+
+                    if (serviceConnected)
+                    {
+                        Message delayMsg = mInServiceEventHandler.obtainMessage(EVENT_NEED_RECONNECT);
+                        mInServiceEventHandler.sendMessageDelayed(delayMsg, 1000);
+                    }
                 }
             }
 
@@ -145,4 +159,30 @@ public class InternetCockpitService extends CockpitService
 
         serverConnection.connect();
     }
+
+    private static class InServiceEventHandler extends Handler
+    {
+        private final WeakReference<InternetCockpitService> mWeakService;
+
+        public InServiceEventHandler(InternetCockpitService s)
+        {
+            mWeakService = new WeakReference<>(s);
+        }
+
+        @Override
+        public void handleMessage(Message msg)
+        {
+            InternetCockpitService service = mWeakService.get();
+            if (service == null)
+            {
+                return;
+            }
+
+            if (msg.what == EVENT_NEED_RECONNECT && service.serviceConnected)
+            {
+                Log.d(LOG_TAG, "Reconnecting to server");
+                service.connect();
+            }
+        }
+    };
 }
