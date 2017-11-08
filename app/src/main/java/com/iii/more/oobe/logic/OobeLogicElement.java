@@ -18,7 +18,7 @@ public class OobeLogicElement
     public String response = "";
     public String movie = "";
     public int wait = 0;
-    public int regret = 5;
+    private int regret = 2;
     
     public OobeLogicElement(int state, int wait, String tts, String imageFile, String response, String movie)
     {
@@ -32,9 +32,10 @@ public class OobeLogicElement
     
     public int getRegret()
     {
-        int regretReturn = regret;
+        Logs.showTrace("[OobeLogicElement]");
         regret--;
-        return regretReturn;
+        Logs.showTrace("[OobeLogicElement] now regret: " + String.valueOf(regret));
+        return regret;
     }
     
     public String getDisplayJsonString()

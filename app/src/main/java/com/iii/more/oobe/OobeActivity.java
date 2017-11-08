@@ -217,6 +217,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                         break;
                     case OobeParameters.METHOD_RFID_DETECT:
                         
+                        message.get("rfidCode");
                         mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
                         doNext();
                         
@@ -627,24 +628,30 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                         Logs.showTrace("[HardwareCheckRunnable] check hardware again!");
                         if (rfidDetect == 1)
                         {
-                            if (rfidString.isEmpty())
+                            if (null != rfidString)
                             {
-                                Logs.showTrace("[HardwareCheckRunnable] no RFID data");
-                            }
-                            else
-                            {
-                                Logs.showTrace("[HardwareCheckRunnable] Get RFID String:" + rfidString);
-                                //###
-                                // can send message to let know have response
-                                Message msg = new Message();
-                                msg.what = OobeParameters.RUNNABLE_HARDWARE_CHECK;
-                                msg.arg1 = OobeParameters.METHOD_RFID_DETECT;
-                                msg.obj = rfidString;
-                                
-                                mHandler.sendMessage(msg);
-                                
-                                
-                                break;
+                                if (rfidString.length() == 0)
+                                {
+                                    Logs.showTrace("[HardwareCheckRunnable] no RFID data");
+                                }
+                                else
+                                {
+                                    Logs.showTrace("[HardwareCheckRunnable] Get RFID String:" + rfidString);
+                                    //###
+                                    // can send message to let know have response
+                                    Message msg = new Message();
+                                    msg.what = OobeParameters.RUNNABLE_HARDWARE_CHECK;
+                                    msg.arg1 = OobeParameters.METHOD_RFID_DETECT;
+                                    
+                                    HashMap<String,String > message = new HashMap<>();
+                                    message.put("rfidCode",rfidString);
+                                    msg.obj = message;
+        
+                                    mHandler.sendMessage(msg);
+        
+        
+                                    break;
+                                }
                             }
                         }
                         else if (sensorDetect == 1)

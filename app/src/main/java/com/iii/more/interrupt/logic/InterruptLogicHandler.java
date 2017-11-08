@@ -208,7 +208,6 @@ public class InterruptLogicHandler extends BaseHandler
             maxEmotion.print();
             
             
-            
             if (maxEmotion.emotionValue > InterruptLogicParameters.LOW_BOUND_EMOTION_VALUE)
             {
                 String emotionMappingImageData = getEmotionMappingImageData(maxEmotion.emotionID);
@@ -309,14 +308,15 @@ public class InterruptLogicHandler extends BaseHandler
                 {
                     result = new HashMap<>();
                     result.put(InterruptLogicParameters.JSON_STRING_DESCRIPTION, "RFID");
+                    Logs.showTrace("[InterruptLogicHandler]RFID data@@: " + eventHashMapData.get(InterruptLogicParameters.STRING_RFID));
                     result.put("value", eventHashMapData.get(InterruptLogicParameters.STRING_RFID));
-
+                    
                     //callback
                     callBackMessage(ResponseCode.ERR_SUCCESS, InterruptLogicParameters.CLASS_INTERRUPT_LOGIC,
-                            InterruptLogicParameters.METHOD_LOGIC_RESPONSE, makeDisplayJson(result));
+                            InterruptLogicParameters.METHOD_LOGIC_RESPONSE, (result));
                 }
             }
-
+            
         }
     }
     
@@ -477,11 +477,11 @@ public class InterruptLogicHandler extends BaseHandler
     private HashMap<String, String> convertToHashMapData(String data)
     {
         HashMap<String, String> hashMapData = new HashMap<>();
-
+        
         try
         {
             JSONObject json = new JSONObject(data);
-
+            
             if (json.has("s_hand"))
             {
                 JSONArray handReadings = json.getJSONArray("s_hand");
@@ -493,7 +493,7 @@ public class InterruptLogicHandler extends BaseHandler
                     hashMapData.put(InterruptLogicParameters.STRING_D, Integer.toString(handReadings.getInt(3)));
                 }
             }
-
+            
             if (json.has("s_cheek"))
             {
                 JSONArray handReadings = json.getJSONArray("s_cheek");
@@ -503,18 +503,18 @@ public class InterruptLogicHandler extends BaseHandler
                     hashMapData.put(InterruptLogicParameters.STRING_FSR2, Integer.toString(handReadings.getInt(1)));
                 }
             }
-
+            
             if (json.has("s_bright"))
             {
                 int brightRead = json.getInt("s_bright");
                 hashMapData.put(InterruptLogicParameters.STRING_H, Integer.toString(brightRead));
             }
-
+            
             if (json.has("s_rfid"))
             {
                 int rfidRead = json.getInt("s_rfid");
                 int correctedRfidRead = correctRfidReading(rfidRead);
-
+                
                 hashMapData.put(InterruptLogicParameters.STRING_RFID, Integer.toString(correctedRfidRead));
             }
         }
@@ -527,21 +527,21 @@ public class InterruptLogicHandler extends BaseHandler
         
         return hashMapData;
     }
-
+    
     public static int correctRfidReading(int dec)
     {
         int oct = 0, i = 1;
-
+        
         while (dec != 0)
         {
             oct += (dec % 8) * i;
             dec /= 8;
             i *= 10;
         }
-
+        
         return oct;
     }
-
+    
     private class EmotionElement
     {
         public String emotionID = null;
