@@ -17,6 +17,7 @@ import com.iii.more.interrupt.logic.InterruptLogicParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import sdk.ideas.common.Logs;
@@ -42,6 +43,8 @@ public class MainApplication extends Application
     // this logic handler does not handle emotion logic
     private InterruptLogicHandler mInterruptLogicHandler = new InterruptLogicHandler(this);
 
+    private final MainHandler mMainHandler = new MainHandler(this);
+
     @Override
     public void onCreate()
     {
@@ -50,7 +53,7 @@ public class MainApplication extends Application
         bootCockpitService();
         initInterruptLogic();
     }
-
+    
     /** 取得章魚 or 使用者的名字 */
     public String getName(String id)
     {
@@ -129,7 +132,7 @@ public class MainApplication extends Application
             mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT);
         }
 
-        mInterruptLogicHandler.setHandler(mInterruptLogicHandlerResultHandler);
+        mInterruptLogicHandler.setHandler(mMainHandler);
         Logs.showTrace("[MainApplication] initInterruptLogic() done");
     }
 
@@ -149,7 +152,7 @@ public class MainApplication extends Application
                         .setDeviceId(SemanticDeviceID.getDeviceID(getApplicationContext()));
             }
 
-            mCockpitService.setHandler(mCockpitServiceHandler);
+            mCockpitService.setHandler(mMainHandler);
             mCockpitService.connect();
         }
 
@@ -166,157 +169,166 @@ public class MainApplication extends Application
         }
     };
 
-    /** 處理來自 CockpitService 的事件 */
-    private final Handler mCockpitServiceHandler = new Handler()
+    private static final class MainHandler extends Handler
     {
+        private final WeakReference<MainApplication> mApp;
+
+        public MainHandler(MainApplication app)
+        {
+            mApp = new WeakReference<MainApplication>(app);
+        }
+
         @Override
         public void handleMessage(Message msg)
         {
+            MainApplication app = mApp.get();
+            if (app == null)
+            {
+                Logs.showTrace("[MainApplication] [MainHandler] WeakReference is null");
+                return;
+            }
+
             switch (msg.what)
             {
-                case CockpitService.MSG_DATA_IN:
-                    String data = (String) msg.obj;
-                    Logs.showTrace("[MainApplication] [CockpitServiceHandler] onData(), data=`" + data + "`");
-
-                    if (mInterruptLogicHandler != null)
-                    {
-                        mInterruptLogicHandler.setDeviceEventData(data);
-                        mInterruptLogicHandler.startEventDataAnalysis();
-                    }
-
-                    /*for (CockpitConnectionEventListener l : mCockpitConnectionEventListeners)
-                    {
-                        l.onData(null, data);
-                    }*/
+                case CockpitService.MSG_WHAT:
+                    app.handleCockpitServiceMessage(msg);
                     break;
-                case CockpitService.MSG_FILM_MAKING:
-                    JSONObject j = (JSONObject) msg.obj;
-
-                    if (mCockpitFilmMakingEventListener != null)
-                    {
-                        try
-                        {
-                            String action = j.getString("action");
-                            String text = j.getString("text");
-                            Logs.showTrace("[MainApplication] [CockpitServiceHandler] onFilmMaking() " +
-                                    "action = `" + action + "`, text = `" + text + "`");
-
-                            if (action.equals("tts"))
-                            {
-                                String language = j.getString("language");
-
-                                mCockpitFilmMakingEventListener.onTTS(null, text, language);
-                            }
-                            else if (action.equals("showFaceImage"))
-                            {
-                                mCockpitFilmMakingEventListener.onEmotionImage(null, text);
-                            }
-                        }
-                        catch (JSONException e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
-                    break;
-                case CockpitService.MSG_NO_DEVICE:
-                    Logs.showTrace("[MainApplication] [CockpitServiceHandler] onNoDevice()");
-                    if (mCockpitConnectionEventListener != null)
-                    {
-                        mCockpitConnectionEventListener.onNoDevice(null);
-                    }
-                    break;
-                case CockpitService.MSG_READY:
-                    Logs.showTrace("[MainApplication] [CockpitServiceHandler] onReady()");
-                    if (mCockpitConnectionEventListener != null)
-                    {
-                        mCockpitConnectionEventListener.onReady(null);
-                    }
-                    break;
-                case CockpitService.MSG_PROTOCOL_NOT_SUPPORTED:
-                case CockpitService.MSG_CDC_DRIVER_NOT_WORKING:
-                case CockpitService.MSG_USB_DEVICE_NOT_WORKING:
-                    Logs.showTrace("[MainApplication] [CockpitServiceHandler] onProtocolNotSupported()");
-                    if (mCockpitConnectionEventListener != null)
-                    {
-                        mCockpitConnectionEventListener.onProtocolNotSupported(null);
-                    }
-                    break;
-                case CockpitService.MSG_PERMISSION_GRANTED:
-                    Logs.showTrace("[MainApplication] [CockpitServiceHandler] onPermissionGranted()");
-                    if (mCockpitConnectionEventListener != null)
-                    {
-                        mCockpitConnectionEventListener.onPermissionGranted(null);
-                    }
-                    break;
-                case CockpitService.MSG_PERMISSION_NOT_GRANTED:
-                    Logs.showTrace("[MainApplication] [CockpitServiceHandler] onPermissionNotGranted()");
-                    if (mCockpitConnectionEventListener != null)
-                    {
-                        mCockpitConnectionEventListener.onPermissionNotGranted(null);
-                    }
-                    break;
-                case CockpitService.MSG_DISCONNECTED:
-                    Logs.showTrace("[MainApplication] [CockpitServiceHandler] onDisconnected()");
-                    if (mCockpitConnectionEventListener != null)
-                    {
-                        mCockpitConnectionEventListener.onDisconnected(null);
-                    }
+                case InterruptLogicParameters.CLASS_INTERRUPT_LOGIC:
+                    app.handleInterruptLogicMessage(msg);
                     break;
                 default:
-                    Logs.showTrace("[MainApplication] [CockpitServiceHandler] unhandled msg.what: " + msg.what);
+                    Logs.showTrace("[MainApplication] [MainHandler] unhandled msg.what: " + msg.what);
             }
         }
     };
 
     /** 接收 InterruptLogicHandler 事件的 handler */
-    private final Handler mInterruptLogicHandlerResultHandler = new Handler()
+    private void handleInterruptLogicMessage(Message msg)
     {
-        @Override
-        public void handleMessage(Message msg)
+        if (mCockpitSensorEventListener == null)
         {
-            HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-
-            switch (msg.arg2)
-            {
-                case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
-                    String trigger_result = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
-                    Logs.showTrace("[MainApplication] [InterruptLogicHandlerResultHandler] " +
-                            "trigger_result = " + trigger_result);
-
-                    switch (trigger_result)
-                    {
-                        case "握手":
-                            if (mCockpitSensorEventListener != null)
-                            {
-                                mCockpitSensorEventListener.onShakeHands(null);
-                            }
-                            break;
-                        case "拍手":
-                            if (mCockpitSensorEventListener != null)
-                            {
-                                mCockpitSensorEventListener.onClapHands(null);
-                            }
-                            break;
-                        case "擠壓":
-                            if (mCockpitSensorEventListener != null)
-                            {
-                                mCockpitSensorEventListener.onPinchCheeks(null);
-                            }
-                            break;
-                        case "拍頭":
-                            if (mCockpitSensorEventListener != null)
-                            {
-                                mCockpitSensorEventListener.onPatHead(null);
-                            }
-                            break;
-                        default:
-                            Logs.showTrace("[MainApplication] [InterruptLogicHandlerResultHandler] unknown trigger_result: " + trigger_result);
-                    }
-                default:
-                    Logs.showTrace("[MainApplication] [InterruptLogicHandlerResultHandler] unknown msg.arg2: " + msg.arg2);
-            }
+            return;
         }
-    };
+
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+
+        switch (msg.arg2)
+        {
+            case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
+                String trigger_result = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
+                Logs.showTrace("[MainApplication] [InterruptLogicHandlerResultHandler] " +
+                        "trigger_result = " + trigger_result);
+
+                switch (trigger_result)
+                {
+                    case "握手":
+                        mCockpitSensorEventListener.onShakeHands(null);
+                        break;
+                    case "拍手":
+                        mCockpitSensorEventListener.onClapHands(null);
+                        break;
+                    case "擠壓":
+                        mCockpitSensorEventListener.onPinchCheeks(null);
+                        break;
+                    case "拍頭":
+                        mCockpitSensorEventListener.onPatHead(null);
+                        break;
+                    default:
+                        Logs.showTrace("[MainApplication] [InterruptLogicHandlerResultHandler] unknown trigger_result: " + trigger_result);
+                }
+                break;
+            default:
+                Logs.showTrace("[MainApplication] [InterruptLogicHandlerResultHandler] unknown msg.arg2: " + msg.arg2);
+        }
+    }
+
+    /** 處理來自 CockpitService 的事件 */
+    private void handleCockpitServiceMessage(Message msg) {
+        if (msg.arg1 == CockpitService.EVENT_DATA_TEXT)
+        {
+            // plain text from cockpit
+            String data = (String) msg.obj;
+            Logs.showTrace("[MainApplication] [CockpitServiceHandler] onData(), data=`" + data + "`");
+
+            if (mInterruptLogicHandler != null)
+            {
+                mInterruptLogicHandler.setDeviceEventData(data);
+                mInterruptLogicHandler.startEventDataAnalysis();
+            }
+
+            return;
+        }
+        else if (msg.arg1 == CockpitService.EVENT_DATA_FILM_MAKING)
+        {
+            // film making commands from cockpit
+            JSONObject j = (JSONObject) msg.obj;
+
+            if (mCockpitFilmMakingEventListener != null)
+            {
+                try
+                {
+                    String action = j.getString("action");
+                    String text = j.getString("text");
+                    Logs.showTrace("[MainApplication] [CockpitServiceHandler] onFilmMaking() " +
+                            "action = `" + action + "`, text = `" + text + "`");
+
+                    if (action.equals("tts"))
+                    {
+                        String language = j.getString("language");
+                        mCockpitFilmMakingEventListener.onTTS(null, text, language);
+                    }
+                    else if (action.equals("showFaceImage"))
+                    {
+                        mCockpitFilmMakingEventListener.onEmotionImage(null, text);
+                    }
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            return;
+        }
+
+        if (mCockpitConnectionEventListener == null)
+        {
+            return;
+        }
+
+        // connection events
+        switch (msg.arg1)
+        {
+            case CockpitService.EVENT_NO_DEVICE:
+                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onNoDevice()");
+                mCockpitConnectionEventListener.onNoDevice(null);
+                break;
+            case CockpitService.EVENT_READY:
+                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onReady()");
+                mCockpitConnectionEventListener.onReady(null);
+                break;
+            case CockpitService.EVENT_PROTOCOL_NOT_SUPPORTED:
+            case CockpitService.EVENT_CDC_DRIVER_NOT_WORKING:
+            case CockpitService.EVENT_USB_DEVICE_NOT_WORKING:
+                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onProtocolNotSupported()");
+                mCockpitConnectionEventListener.onProtocolNotSupported(null);
+                break;
+            case CockpitService.EVENT_PERMISSION_GRANTED:
+                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onPermissionGranted()");
+                mCockpitConnectionEventListener.onPermissionGranted(null);
+                break;
+            case CockpitService.EVENT_PERMISSION_NOT_GRANTED:
+                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onPermissionNotGranted()");
+                mCockpitConnectionEventListener.onPermissionNotGranted(null);
+                break;
+            case CockpitService.EVENT_DISCONNECTED:
+                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onDisconnected()");
+                mCockpitConnectionEventListener.onDisconnected(null);
+                break;
+            default:
+                Logs.showTrace("[MainApplication] [CockpitServiceHandler] unhandled msg.arg1: " + msg.arg1);
+        }
+    }
 
     private static final String INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT = "[{\"sensors\":[\"f1\",\"f2\",\"C\",\"D\"],\"trigger_rule\":1,\"action\":1,\"tag\":\"SHAKE_HANDS\",\"trigger\":\"OCTOBO_Expressions-35.png\",\"value\":\"1\",\"desc\":\"握手\"},{\"sensors\":[\"f1\",\"f2\",\"C\",\"D\"],\"trigger_rule\":2,\"action\":2,\"tag\":\"CLAP_HANDS\",\"trigger\":\"OCTOBO_Expressions-24.png\",\"value\":\"1\",\"desc\":\"拍手\"},{\"sensors\":[\"FSR1\",\"FSR2\"],\"trigger_rule\":2,\"action\":3,\"tag\":\"EXTRUSION\",\"trigger\":\"OCTOBO_Expressions-01.png\",\"value\":\"1\",\"desc\":\"擠壓\"},{\"sensors\":[\"X\",\"Y\",\"Z\"],\"trigger_rule\":1,\"action\":4,\"tag\":\"SHAKE\",\"trigger\":\"OCTOBO_Expressions-38.png\",\"value\":\"1\",\"desc\":\"搖晃\"},{\"sensors\":[\"H\"],\"trigger_rule\":1,\"action\":5,\"tag\":\"TURN_ON_THE_LIGHT\",\"trigger\":\"ON\",\"value\":\"1\",\"desc\":\"開燈\"},{\"sensors\":[\"FSR1\",\"FSR2\"],\"trigger_rule\":1,\"action\":6,\"tag\":\"PAT_HEAD\",\"trigger\":\"OCTOBO_Expressions-01.png\",\"value\":\"1\",\"desc\":\"拍頭\"}]";
 }

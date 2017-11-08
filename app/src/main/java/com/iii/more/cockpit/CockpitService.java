@@ -18,19 +18,22 @@ import java.util.Set;
  */
 public abstract class CockpitService extends Service
 {
+    // msg.what in Handler.onMessage()
+    public static final int MSG_WHAT = 2147483647;
+
     // Handler.handleMessage() 的 msg.what 可能的值
-    public static final int MSG_DATA_IN = 0;
-    public static final int MSG_NO_DEVICE = 1;
-    public static final int MSG_READY = 2;
-    public static final int MSG_PROTOCOL_NOT_SUPPORTED = 3;
-    public static final int MSG_PERMISSION_GRANTED = 4;
-    public static final int MSG_PERMISSION_NOT_GRANTED = 5;
-    public static final int MSG_DISCONNECTED = 6;
-    public static final int MSG_CDC_DRIVER_NOT_WORKING = 27;
-    public static final int MSG_USB_DEVICE_NOT_WORKING = 28;
+    public static final int EVENT_DATA_TEXT = 0;
+    public static final int EVENT_NO_DEVICE = 1;
+    public static final int EVENT_READY = 2;
+    public static final int EVENT_PROTOCOL_NOT_SUPPORTED = 3;
+    public static final int EVENT_PERMISSION_GRANTED = 4;
+    public static final int EVENT_PERMISSION_NOT_GRANTED = 5;
+    public static final int EVENT_DISCONNECTED = 6;
+    public static final int EVENT_CDC_DRIVER_NOT_WORKING = 27;
+    public static final int EVENT_USB_DEVICE_NOT_WORKING = 28;
 
     // 拍片用，這種類型的指令將跳過 interrupt logic 判斷，直接影響 app 的視覺、聽覺輸出
-    public static final int MSG_FILM_MAKING = 30;
+    public static final int EVENT_DATA_FILM_MAKING = 30;
 
     private static final String LOG_TAG = "CockpitService";
 

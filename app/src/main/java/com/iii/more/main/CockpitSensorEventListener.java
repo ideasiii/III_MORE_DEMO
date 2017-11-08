@@ -6,17 +6,17 @@ package com.iii.more.main;
 public interface CockpitSensorEventListener
 {
     /** 判定到握手事件時的回呼 */
-    void onShakeHands(Object sender);
+    void onShakeHands(Object arg);
 
     /** 判定到拍手事件時的回呼 */
-    void onClapHands(Object sender);
+    void onClapHands(Object arg);
 
     /** 判定到捏臉頰事件時的回呼 */
-    void onPinchCheeks(Object sender);
+    void onPinchCheeks(Object arg);
 
     /** 判定到拍頭事件時的回呼 */
-    void onPatHead(Object sender);
+    void onPatHead(Object arg);
 
     /** RFID 掃描到東西時的回呼 */
-    void onScannedRfid(Object sensor, String scannedResult);
+    void onScannedRfid(Object arg, String scannedResult);
 }

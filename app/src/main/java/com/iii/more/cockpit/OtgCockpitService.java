@@ -109,7 +109,7 @@ public class OtgCockpitService extends CockpitService
                 // There is no USB devices connected (but usb host were listed)
                 if (mHandler != null)
                 {
-                    mHandler.obtainMessage(MSG_NO_DEVICE, null).sendToTarget();
+                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_NO_DEVICE, 0).sendToTarget();
                 }
             }
         }
@@ -118,7 +118,7 @@ public class OtgCockpitService extends CockpitService
             // There is no USB devices connected.
             if (mHandler != null)
             {
-                mHandler.obtainMessage(MSG_NO_DEVICE, null).sendToTarget();
+                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_NO_DEVICE, 0).sendToTarget();
             }
         }
     }
@@ -165,7 +165,7 @@ public class OtgCockpitService extends CockpitService
             try
             {
                 String decoded = new String(data, RECEIVED_DATA_CHARSET_NAME);
-                mHandler.obtainMessage(MSG_DATA_IN, decoded).sendToTarget();
+                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_TEXT, 0, decoded).sendToTarget();
             }
             catch (UnsupportedEncodingException e)
             {
@@ -197,7 +197,7 @@ public class OtgCockpitService extends CockpitService
 
                     if (mHandler != null)
                     {
-                        mHandler.obtainMessage(MSG_PERMISSION_GRANTED, null).sendToTarget();
+                        mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_PERMISSION_GRANTED, 0).sendToTarget();
                     }
 
                     mUsbDeviceConnection = mUsbManager.openDevice(mUsbDevice);
@@ -210,7 +210,7 @@ public class OtgCockpitService extends CockpitService
 
                     if (mHandler != null)
                     {
-                        mHandler.obtainMessage(MSG_PERMISSION_NOT_GRANTED, null).sendToTarget();
+                        mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_PERMISSION_NOT_GRANTED, 0).sendToTarget();
                     }
                 }
             }
@@ -229,7 +229,7 @@ public class OtgCockpitService extends CockpitService
 
                 if (mHandler != null)
                 {
-                    mHandler.obtainMessage(MSG_DISCONNECTED, null).sendToTarget();
+                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DISCONNECTED, 0).sendToTarget();
                 }
 
                 mSerialPortConnected = false;
@@ -263,7 +263,7 @@ public class OtgCockpitService extends CockpitService
                     Log.i(LOG_TAG, "USB serial port is ready");
                     if (mHandler != null)
                     {
-                        mHandler.obtainMessage(MSG_READY, null).sendToTarget();
+                        mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_READY, 0).sendToTarget();
                     }
                 }
                 else
@@ -276,25 +276,25 @@ public class OtgCockpitService extends CockpitService
                     {
                         if (mHandler != null)
                         {
-                            mHandler.obtainMessage(MSG_CDC_DRIVER_NOT_WORKING, null).sendToTarget();
+                            mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_CDC_DRIVER_NOT_WORKING, 0).sendToTarget();
                         }
                     }
                     else
                     {
                         if (mHandler != null)
                         {
-                            mHandler.obtainMessage(MSG_USB_DEVICE_NOT_WORKING, null).sendToTarget();
+                            mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_USB_DEVICE_NOT_WORKING, 0).sendToTarget();
                         }
                     }
                 }
             }
             else
             {
-                Log.e(LOG_TAG, "USB OTG ability is not supported?");
+                Log.e(LOG_TAG, "USB OTG functionality is not supported on this device?");
 
                 if (mHandler != null)
                 {
-                    mHandler.obtainMessage(MSG_PROTOCOL_NOT_SUPPORTED, null).sendToTarget();
+                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_PROTOCOL_NOT_SUPPORTED, 0).sendToTarget();
                 }
             }
         }

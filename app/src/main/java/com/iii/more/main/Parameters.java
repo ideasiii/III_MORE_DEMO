@@ -21,7 +21,9 @@ public abstract class Parameters
     public static final String DEFAULT_DEVICE_ID = "module_01";
     public static final String DMP_HOST_IP = "203.66.168.239";
     public static final int DMP_HOST_PORT = 5377;
-    
+
+    public static final String INTERNET_COCKPIT_SERVER_ADDRESS = "ws://175.98.119.122:18080/controlled";
+
     // for HTC10 1e-10f;  //for sampo 1e-25f;
     public static final float MEDIA_PLAYED_SPHINX_THRESHOLD = 1e-13f;//1e-20f;//// for HTC10 1e-15f;
     public static final float DEFAULT_SPHINX_THRESHOLD = 1e-13f;//1e-20f;//1e-11f;
