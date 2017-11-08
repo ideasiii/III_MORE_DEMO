@@ -92,6 +92,10 @@ public class ZooActivity extends Activity
             @Override
             public void onDroped(View view)
             {
+                if (null != timer)
+                {
+                    timer.cancel();
+                }
                 handler.sendEmptyMessage(SCEN_INDEX_DROP_CUSTOM);
             }
         });
@@ -515,6 +519,7 @@ public class ZooActivity extends Activity
                 mVoiceRecognition.stopListen();
                 Logs.showTrace("[LogicHandler] Get voice Text: " + message.get("message"));
                 mstrFavAnimal = (String) message.get("message");
+                
             }
             else if (msg.arg1 == ResponseCode.ERR_SUCCESS)
             {
@@ -525,6 +530,7 @@ public class ZooActivity extends Activity
                 Logs.showTrace("get ERROR message: " + message.get("message"));
                 mVoiceRecognition.stopListen();
             }
+            handler.sendEmptyMessage(SCEN_INDEX_GAME_OVER);
         }
     };
 }
