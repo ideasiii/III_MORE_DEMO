@@ -34,6 +34,7 @@ public class RobotHead extends RelativeLayout
     private ImageView imgObject = null;
     private OnInitedListener onInitedListener = null;
     private OnDroppedListener onDroppedListener = null;
+    private boolean mbObjImgTouch = false;
     
     public static interface OnInitedListener
     {
@@ -123,7 +124,7 @@ public class RobotHead extends RelativeLayout
         imgObject.setBackgroundColor(Color.TRANSPARENT);
         addView(imgObject);
         showObjectImg(false);
-        imgObject.setOnTouchListener(ImgObjTouchListener);
+        // imgObject.setOnTouchListener(ImgObjTouchListener);
         
         ttsHandler = new TtsHandler(context);
         ttsHandler.setOnTTSStartedListener(new TtsHandler.OnTTSStartedListener()
@@ -200,6 +201,18 @@ public class RobotHead extends RelativeLayout
     public void setBackground(int nColor)
     {
         setBackgroundResource(nColor);
+    }
+    
+    public void setImgObjectTouch(boolean bEnable)
+    {
+        if (bEnable)
+        {
+            imgObject.setOnTouchListener(ImgObjTouchListener);
+        }
+        else
+        {
+            imgObject.setOnTouchListener(null);
+        }
     }
     
     private OnTouchListener ImgObjTouchListener = new OnTouchListener()

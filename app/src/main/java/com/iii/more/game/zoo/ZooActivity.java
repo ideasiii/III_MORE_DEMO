@@ -176,6 +176,7 @@ public class ZooActivity extends Activity
                 break;
             case SCEN_INDEX_BUS_INSIDE:     // 章魚寶眼睛螢幕畫面轉成公車內部
                 strTTS = strName + "，，請你幫忙讓大家都有座位坐";
+                robotHead.setImgObjectTouch(true);
                 robotHead.setFace(R.drawable.businsidebk, ImageView.ScaleType.FIT_XY);
                 robotHead.setObjectImg(R.drawable.elephone, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.showObjectImg(true);
@@ -183,6 +184,7 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.5f, 0.8f);
                 break;
             case SCEN_INDEX_DROP_CUSTOM:    // 孩子直接用手指在畫面上拉乘客到座位上，完成
+                robotHead.setImgObjectTouch(false);
                 strTTS = "好棒！!!我們出發囉！";
                 robotHead.setFace(R.drawable.busdropped, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(false);
@@ -193,7 +195,7 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(0.75f, 0.6f);
                 break;
             case SCEN_INDEX_DROP_CUSTOM_IDLE2:
-                strTTS = "啊啊 ，，來不及了，，站好喔!! 公車開動囉！";
+                strTTS = "啊啊 ，，來不及了，，公車開動囉！";
                 robotHead.setPitch(2f, 2f);
                 break;
             case SCEN_INDEX_BUS_DRIVE:      // 公車開始移動
@@ -221,9 +223,9 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.5f, 0.8f);
                 break;
             case SCEN_INDEX_ANIMAL_SWAN:
-                strTTS = "蛙蛙 好美喔，是天鵝";
+                strTTS = "哇! 好美喔，，是天鵝";
                 robotHead.setObjectImg(R.drawable.swan, ImageView.ScaleType.FIT_XY);
-                robotHead.setPitch(0.5f, 0.8f);
+                robotHead.setPitch(0.7f, 0.8f);
                 break;
             case SCEN_INDEX_ANIMAL_LION:
                 strTTS = "啊!!啊，，是獅子";
@@ -263,10 +265,10 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.5f, 1.6f);
                 break;
             case SCEN_INDEX_ANIMAL_ELEPHONE:
-                strTTS = "蛙，，快看，，是大象耶，，大象最喜歡吃，，草，，跟樹葉喔!!";
+                strTTS = "哇，賽，快看，，是大象耶，，大象最喜歡吃，，草，，跟樹葉喔!!";
                 robotHead.setObjectImg(R.drawable.elephone2, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(true);
-                robotHead.setPitch(2.5f, 0.7f);
+                robotHead.setPitch(1.8f, 0.7f);
                 break;
             default:
                 return;
