@@ -75,7 +75,7 @@ public class InternetCockpitService extends CockpitService
     {
         Log.d(LOG_TAG, "connect()");
 
-        if (serverConnection != null && serverConnection.isOpen())
+        if (serverConnection != null)
         {
             Log.d(LOG_TAG, "connect() already connected");
             return;
@@ -113,8 +113,11 @@ public class InternetCockpitService extends CockpitService
                 if (mHandler != null)
                 {
                     mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DISCONNECTED, 0).sendToTarget();
-                    serverConnection.close();
-                    serverConnection = null;
+                    if (serverConnection != null)
+                    {
+                        serverConnection.close();
+                        serverConnection = null;
+                    }
 
                     if (serviceConnected)
                     {
