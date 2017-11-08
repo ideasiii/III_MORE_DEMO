@@ -263,8 +263,8 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.5f, 1.6f);
                 break;
             case SCEN_INDEX_ANIMAL_ELEPHONE:
-                strTTS = "蛙，，快看，，是大象";
-                robotHead.setObjectImg(R.drawable.swan, ImageView.ScaleType.FIT_XY);
+                strTTS = "蛙，，快看，，是大象耶，，大象最喜歡吃，，草，，跟樹葉喔!!";
+                robotHead.setObjectImg(R.drawable.elephone2, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(true);
                 robotHead.setPitch(2.5f, 0.7f);
                 break;
