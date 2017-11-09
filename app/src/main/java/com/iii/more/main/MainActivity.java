@@ -972,7 +972,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     @Override
     public void onEmotionImage(Object sender, String imageFilename)
     {
-        if (mLogicHandler.getMode() == LogicParameters.MODE_UNKNOWN)
+        if (null != mLogicHandler && mLogicHandler.getMode() == LogicParameters.MODE_UNKNOWN)
         {
             JSONObject animate = new JSONObject();
             try
