@@ -309,7 +309,7 @@ public class InterruptLogicHandler extends BaseHandler
                     result = new HashMap<>();
                     result.put(InterruptLogicParameters.JSON_STRING_DESCRIPTION, "RFID");
                     Logs.showTrace("[InterruptLogicHandler]RFID data@@: " + eventHashMapData.get(InterruptLogicParameters.STRING_RFID));
-                    result.put("value", eventHashMapData.get(InterruptLogicParameters.STRING_RFID));
+                    result.put(InterruptLogicParameters.JSON_STRING_TAG, eventHashMapData.get(InterruptLogicParameters.STRING_RFID));
                     
                     //callback
                     callBackMessage(ResponseCode.ERR_SUCCESS, InterruptLogicParameters.CLASS_INTERRUPT_LOGIC,

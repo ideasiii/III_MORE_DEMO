@@ -235,7 +235,7 @@ public class MainApplication extends Application
                         break;
                     case "RFID":
                         // TODO remove or change this quick and dirty code
-                        String reading =  message.get("value");
+                        String reading =  message.get(InterruptLogicParameters.JSON_STRING_TAG);
                         mCockpitSensorEventListener.onScannedRfid(null, reading);
                     default:
                         Logs.showTrace("[MainApplication] [InterruptLogicHandlerResultHandler] unknown trigger_result: " + trigger_result);
