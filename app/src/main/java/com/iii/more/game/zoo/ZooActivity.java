@@ -103,7 +103,8 @@ public class ZooActivity extends Activity
         
         // 註冊 Sensor 感應 From Application
         application.setCockpitSensorEventListener(cockpitSensorEventListener);
-        
+        robotHead.setObjectImg(R.drawable.busy, ImageView.ScaleType.CENTER_INSIDE);
+        robotHead.showObjectImg(true);
     }
     
     @Override
@@ -122,8 +123,7 @@ public class ZooActivity extends Activity
         Logs.showTrace("onStart");
         super.onStart();
         robotHead.start();
-        robotHead.setObjectImg(R.drawable.busy, ImageView.ScaleType.CENTER_INSIDE);
-        robotHead.showObjectImg(true);
+        
         mVoiceRecognition = new VoiceRecognition(this);
         mVoiceRecognition.setHandler(handlerSpeech);
         mVoiceRecognition.setLocale(Locale.TAIWAN);
@@ -133,12 +133,17 @@ public class ZooActivity extends Activity
     protected void onStop()
     {
         Logs.showTrace("onStop");
+        if (null != timer)
+        {
+            timer.cancel();
+        }
         robotHead.stop();
         if (null != mVoiceRecognition)
         {
             mVoiceRecognition.stopListen();
         }
         super.onStop();
+        finish();
     }
     
     @Override
@@ -541,7 +546,7 @@ public class ZooActivity extends Activity
                 mVoiceRecognition.stopListen();
                 Logs.showTrace("[LogicHandler] Get voice Text: " + message.get("message"));
                 mstrFavAnimal = (String) message.get("message");
-                
+                handler.sendEmptyMessage(SCEN_INDEX_GAME_OVER);
             }
             else if (msg.arg1 == ResponseCode.ERR_SUCCESS)
             {
@@ -551,8 +556,8 @@ public class ZooActivity extends Activity
             {
                 Logs.showTrace("get ERROR message: " + message.get("message"));
                 mVoiceRecognition.stopListen();
+                handler.sendEmptyMessage(SCEN_INDEX_GAME_OVER);
             }
-            handler.sendEmptyMessage(SCEN_INDEX_GAME_OVER);
         }
     };
 }
