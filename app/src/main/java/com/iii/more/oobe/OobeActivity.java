@@ -319,24 +319,25 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
         String childName = mMainApplication.getName(Parameters.ID_CHILD_NAME);
         String robotName = mMainApplication.getName(Parameters.ID_ROBOT_NAME);
         
-        if (null != childName && null != robotName)
+        if (childName.length() != 0 && robotName.length() != 0)
         {
             newText = text.replace("oo", childName);
             newText = newText.replace("xx", robotName);
         }
         else
         {
-            if (null != childName)
+            if (childName.length() != 0)
             {
                 newText = text.replace("oo", childName);
             }
             
-            if (null != robotName)
+            if (robotName.length() != 0)
             {
                 newText = text.replace("xx", robotName);
             }
             else
             {
+                mMainApplication.setName(Parameters.ID_ROBOT_NAME, Parameters.STRING_DEFAULT_ROBOT_NAME);
                 newText = text.replace("xx", Parameters.STRING_DEFAULT_ROBOT_NAME);
             }
         }
@@ -351,55 +352,58 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
             @Override
             public void run()
             {
-                if (mOobeLogicHandler.getState() < mStateData.size())
+                if (null != mOobeLogicHandler)
                 {
-                    String state = String.valueOf(mStateData.get(mOobeLogicHandler.getState()).state);
-                    String tts = replaceScriptText(mStateData.get(mOobeLogicHandler.getState()).tts);
-                    String displayJson = mStateData.get(mOobeLogicHandler.getState()).getDisplayJsonString();
-                    Logs.showTrace("[OobeActivity] doNext: tts:" + tts);
-                    mOobeLogicHandler.ttsService(state, tts, "zh");
-                    
-                    if (null != displayJson)
+                    if (mOobeLogicHandler.getState() < mStateData.size())
                     {
-                        try
+                        String state = String.valueOf(mStateData.get(mOobeLogicHandler.getState()).state);
+                        String tts = replaceScriptText(mStateData.get(mOobeLogicHandler.getState()).tts);
+                        String displayJson = mStateData.get(mOobeLogicHandler.getState()).getDisplayJsonString();
+                        Logs.showTrace("[OobeActivity] doNext: tts:" + tts);
+                        mOobeLogicHandler.ttsService(state, tts, "zh");
+        
+                        if (null != displayJson)
                         {
-                            mOobeDisplayHandler.setDisplayJson(new JSONObject(displayJson));
-                            mOobeDisplayHandler.startDisplay();
-                        }
-                        catch (JSONException e)
-                        {
-                            Logs.showTrace("[OobeActivity] doNext JSONException: " + e.toString());
-                        }
-                    }
-                    else
-                    {
-                        
-                        String movieFileName = mStateData.get(mOobeLogicHandler.getState()).movie;
-                        if (!movieFileName.isEmpty())
-                        {
-                            if (null != mVideoView)
+                            try
                             {
-                                try
+                                mOobeDisplayHandler.setDisplayJson(new JSONObject(displayJson));
+                                mOobeDisplayHandler.startDisplay();
+                            }
+                            catch (JSONException e)
+                            {
+                                Logs.showTrace("[OobeActivity] doNext JSONException: " + e.toString());
+                            }
+                        }
+                        else
+                        {
+            
+                            String movieFileName = mStateData.get(mOobeLogicHandler.getState()).movie;
+                            if (!movieFileName.isEmpty())
+                            {
+                                if (null != mVideoView)
                                 {
-                                    mVideoView.setVisibility(View.VISIBLE);
-                                    
-                                    mVideoView.setVideoPath(OobeParameters.TEST_VIDEO_HOST_URL + movieFileName);
-                                    
-                                    mVideoView.start();
-                                }
-                                catch (Exception e)
-                                {
-                                    Logs.showError("[OobeActivity] playing video ERROR" + e.toString());
+                                    try
+                                    {
+                                        mVideoView.setVisibility(View.VISIBLE);
+                        
+                                        mVideoView.setVideoPath(OobeParameters.TEST_VIDEO_HOST_URL + movieFileName);
+                        
+                                        mVideoView.start();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Logs.showError("[OobeActivity] playing video ERROR" + e.toString());
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                
-                else
-                {
-                    Logs.showTrace("[OobeActivity] end OobeActivity jump to mainActivity");
-                    startMainActivity();
+    
+                    else
+                    {
+                        Logs.showTrace("[OobeActivity] end OobeActivity jump to mainActivity");
+                        startMainActivity();
+                    }
                 }
                 
             }
@@ -643,13 +647,13 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                     msg.what = OobeParameters.RUNNABLE_HARDWARE_CHECK;
                                     msg.arg1 = OobeParameters.METHOD_RFID_DETECT;
                                     
-                                    HashMap<String,String > message = new HashMap<>();
-                                    message.put("rfidCode",rfidString);
+                                    HashMap<String, String> message = new HashMap<>();
+                                    message.put("rfidCode", rfidString);
                                     msg.obj = message;
-        
+                                    
                                     mHandler.sendMessage(msg);
-        
-        
+                                    
+                                    
                                     break;
                                 }
                             }
