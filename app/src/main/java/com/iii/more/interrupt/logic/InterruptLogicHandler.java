@@ -285,7 +285,11 @@ public class InterruptLogicHandler extends BaseHandler
         {
             HashMap<String, String> eventHashMapData = convertToHashMapData(mEventData);
             Logs.showTrace("[InterruptLogicHandler] Get event HashMap: " + eventHashMapData);
-            
+
+            if (null == eventHashMapData)
+            {
+                return;
+            }
             
             HashMap<String, String> result = logicJudgement(eventHashMapData);
             if (null != result)
@@ -513,9 +517,9 @@ public class InterruptLogicHandler extends BaseHandler
             if (json.has("s_rfid"))
             {
                 int rfidRead = json.getInt("s_rfid");
-                int correctedRfidRead = correctRfidReading(rfidRead);
+                //int correctedRfidRead = correctRfidReading(rfidRead);
                 
-                hashMapData.put(InterruptLogicParameters.STRING_RFID, Integer.toString(correctedRfidRead));
+                hashMapData.put(InterruptLogicParameters.STRING_RFID, Integer.toString(rfidRead));
             }
         }
         catch (JSONException e)

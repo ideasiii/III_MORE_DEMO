@@ -55,9 +55,11 @@ public class OtgCockpitService extends CockpitService
     @Override
     public void onDestroy()
     {
+        Log.d(LOG_TAG, "onDestroy()");
+
         unregisterIntentReceiver();
-        super.onDestroy();
         serviceConnected = false;
+        super.onDestroy();
     }
 
     public static boolean isServiceConnected()
@@ -76,6 +78,8 @@ public class OtgCockpitService extends CockpitService
 
     private void findSerialPortDevice()
     {
+        Log.d(LOG_TAG, "findSerialPortDevice()");
+
         // This snippet will try to open the first encountered USB device connected, excluding usb root hubs
         HashMap<String, UsbDevice> usbDevices = mUsbManager.getDeviceList();
         if (!usbDevices.isEmpty())
@@ -89,6 +93,7 @@ public class OtgCockpitService extends CockpitService
 
                 if (deviceVID != 0x1d6b && (devicePID != 0x0001 || devicePID != 0x0002 || devicePID != 0x0003))
                 {
+                    Log.d(LOG_TAG, "found device");
                     requestUserPermission();
                     keep = false;
                 }
@@ -107,6 +112,8 @@ public class OtgCockpitService extends CockpitService
             if (!keep)
             {
                 // There is no USB devices connected (but usb host were listed)
+                Log.d(LOG_TAG, "no USB devices connected (but usb host were listed)");
+
                 if (mHandler != null)
                 {
                     mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_NO_DEVICE, 0).sendToTarget();
@@ -116,6 +123,8 @@ public class OtgCockpitService extends CockpitService
         else
         {
             // There is no USB devices connected.
+            Log.d(LOG_TAG, "no USB devices connected");
+
             if (mHandler != null)
             {
                 mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_NO_DEVICE, 0).sendToTarget();
@@ -125,6 +134,8 @@ public class OtgCockpitService extends CockpitService
 
     private void registerIntentReceiver()
     {
+        Log.d(LOG_TAG, "registerIntentReceiver()");
+
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_USB_PERMISSION_RESULT);
         filter.addAction(ACTION_SYSTEM_USB_DETACHED);
@@ -184,8 +195,12 @@ public class OtgCockpitService extends CockpitService
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            String intentAction = intent.getAction();
+            if (!serviceConnected)
+            {
+                return;
+            }
 
+            String intentAction = intent.getAction();
             if (intentAction.equals(ACTION_USB_PERMISSION_RESULT))
             {
                 Log.i(LOG_TAG, "USB permission event received");

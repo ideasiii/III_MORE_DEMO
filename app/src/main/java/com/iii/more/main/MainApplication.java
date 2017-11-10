@@ -96,7 +96,6 @@ public class MainApplication extends Application
     public void setCockpitFilmMakingEventListener(CockpitFilmMakingEventListener l)
     {
         Logs.showTrace("[MainApplication] setCockpitFilmMakingEventListener()");
-        
         mCockpitFilmMakingEventListener = l;
     }
     
@@ -134,8 +133,6 @@ public class MainApplication extends Application
         }
     }
     
-    
-    // this was in Activity.onResume()
     private void bootCockpitService()
     {
         // TODO invoke with one of service.class you want
@@ -279,7 +276,7 @@ public class MainApplication extends Application
         {
             case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
                 String trigger_result = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
-                Logs.showTrace("[MainApplication] [InterruptLogicHandlerResultHandler] " +
+                Logs.showTrace("[MainApplication] handleInterruptLogicMessage() " +
                         "trigger_result = " + trigger_result);
                 
                 switch (trigger_result)
@@ -301,11 +298,11 @@ public class MainApplication extends Application
                         String reading = message.get(InterruptLogicParameters.JSON_STRING_TAG);
                         mCockpitSensorEventListener.onScannedRfid(null, reading);
                     default:
-                        Logs.showTrace("[MainApplication] [InterruptLogicHandlerResultHandler] unknown trigger_result: " + trigger_result);
+                        Logs.showTrace("[MainApplication] handleInterruptLogicMessage() unknown trigger_result: " + trigger_result);
                 }
                 break;
             default:
-                Logs.showTrace("[MainApplication] [InterruptLogicHandlerResultHandler] unknown msg.arg2: " + msg.arg2);
+                Logs.showTrace("[MainApplication] handleInterruptLogicMessage() unknown msg.arg2: " + msg.arg2);
         }
     }
     
@@ -318,7 +315,7 @@ public class MainApplication extends Application
         {
             // plain text from cockpit
             String data = (String) msg.obj;
-            Logs.showTrace("[MainApplication] [CockpitServiceHandler] onData(), data=`" + data + "`");
+            Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onData(), data=`" + data + "`");
             
             if (mInterruptLogicHandler != null)
             {
@@ -339,8 +336,8 @@ public class MainApplication extends Application
                 {
                     String action = j.getString("action");
                     String text = j.getString("text");
-                    Logs.showTrace("[MainApplication] [CockpitServiceHandler] onFilmMaking() " +
-                            "action = `" + action + "`, text = `" + text + "`");
+                    Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
+                            "film making action = `" + action + "`, text = `" + text + "`");
                     
                     if (action.equals("tts"))
                     {
@@ -350,6 +347,11 @@ public class MainApplication extends Application
                     else if (action.equals("showFaceImage"))
                     {
                         mCockpitFilmMakingEventListener.onEmotionImage(null, text);
+                    }
+                    else
+                    {
+                        Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
+                                "film making unknown action = `" + action);
                     }
                 }
                 catch (JSONException e)
@@ -370,33 +372,33 @@ public class MainApplication extends Application
         switch (msg.arg1)
         {
             case CockpitService.EVENT_NO_DEVICE:
-                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onNoDevice()");
+                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onNoDevice()");
                 mCockpitConnectionEventListener.onNoDevice(null);
                 break;
             case CockpitService.EVENT_READY:
-                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onReady()");
+                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onReady()");
                 mCockpitConnectionEventListener.onReady(null);
                 break;
             case CockpitService.EVENT_PROTOCOL_NOT_SUPPORTED:
             case CockpitService.EVENT_CDC_DRIVER_NOT_WORKING:
             case CockpitService.EVENT_USB_DEVICE_NOT_WORKING:
-                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onProtocolNotSupported()");
+                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onProtocolNotSupported()");
                 mCockpitConnectionEventListener.onProtocolNotSupported(null);
                 break;
             case CockpitService.EVENT_PERMISSION_GRANTED:
-                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onPermissionGranted()");
+                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onPermissionGranted()");
                 mCockpitConnectionEventListener.onPermissionGranted(null);
                 break;
             case CockpitService.EVENT_PERMISSION_NOT_GRANTED:
-                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onPermissionNotGranted()");
+                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onPermissionNotGranted()");
                 mCockpitConnectionEventListener.onPermissionNotGranted(null);
                 break;
             case CockpitService.EVENT_DISCONNECTED:
-                Logs.showTrace("[MainApplication] [CockpitServiceHandler] onDisconnected()");
+                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onDisconnected()");
                 mCockpitConnectionEventListener.onDisconnected(null);
                 break;
             default:
-                Logs.showTrace("[MainApplication] [CockpitServiceHandler] unhandled msg.arg1: " + msg.arg1);
+                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() unhandled msg.arg1: " + msg.arg1);
         }
     }
     

@@ -23,7 +23,7 @@ public class InternetCockpitService extends CockpitService
 {
     private static final String LOG_TAG = "InternetCockpitService";
 
-    private static final int EVENT_NEED_RECONNECT = 13248;
+    private static final int INTERNAL_EVENT_NEED_RECONNECT = 13248;
 
     private static boolean serviceConnected = false;
 
@@ -121,7 +121,7 @@ public class InternetCockpitService extends CockpitService
 
                     if (serviceConnected)
                     {
-                        Message delayMsg = mInServiceEventHandler.obtainMessage(EVENT_NEED_RECONNECT);
+                        Message delayMsg = mInServiceEventHandler.obtainMessage(INTERNAL_EVENT_NEED_RECONNECT);
                         mInServiceEventHandler.sendMessageDelayed(delayMsg, 1000);
                     }
                 }
@@ -176,12 +176,12 @@ public class InternetCockpitService extends CockpitService
         public void handleMessage(Message msg)
         {
             InternetCockpitService service = mWeakService.get();
-            if (service == null)
+            if (service == null || !serviceConnected)
             {
                 return;
             }
 
-            if (msg.what == EVENT_NEED_RECONNECT && service.serviceConnected)
+            if (msg.what == INTERNAL_EVENT_NEED_RECONNECT && service.serviceConnected)
             {
                 Log.d(LOG_TAG, "Reconnecting to server");
                 service.connect();
