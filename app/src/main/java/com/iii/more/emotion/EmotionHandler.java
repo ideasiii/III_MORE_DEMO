@@ -78,23 +78,29 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
     
     public void start()
     {
-        shutdownThread = false;
-        handleEmotionDataThread.start();
-        
-        //###need to add ready code startService
-        Intent intent = new Intent(this.mContext, DetectorService.class);
-        boolean bRet = mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        if (shutdownThread == true)
+        {
+            shutdownThread = false;
+            handleEmotionDataThread.start();
+            
+            //###need to add ready code startService
+            Intent intent = new Intent(this.mContext, DetectorService.class);
+            boolean bRet = mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        }
     }
     
     public void stop()
     {
-        shutdownThread = true;
-        
-        //###need to add ready code stopService
-        if (mBound)
+        if (!shutdownThread)
         {
-            mContext.unbindService(mConnection);
-            mBound = false;
+            shutdownThread = true;
+            
+            //###need to add ready code stopService
+            if (mBound)
+            {
+                mContext.unbindService(mConnection);
+                mBound = false;
+            }
         }
     }
     
@@ -109,11 +115,12 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
     {
         if (bDetected)
         {
-            Logs.showTrace("onFaceDetected w Face");
+            Logs.showTrace("onFaceDetected have Face now detect emotion...");
         }
         else
         {
-            Logs.showTrace("onFaceDetected w/o Face");
+            Logs.showTrace("onFaceDetected no Face detect....");
+            emotionVolatileHashMap = null;
         }
     }
     
@@ -240,26 +247,30 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
         }
         
         //Some Emotions
-        HashMap<String, String> faceHashMap = new HashMap<>();
-        
-        faceHashMap.put(EmotionParameters.STRING_EMOTION_ANGER, String.valueOf(face.emotions.getAnger()));
-        faceHashMap.put(EmotionParameters.STRING_EMOTION_CONTEMPT, String.valueOf(face.emotions.getContempt()));
-        faceHashMap.put(EmotionParameters.STRING_EMOTION_DISGUST, String.valueOf(face.emotions.getDisgust()));
-        faceHashMap.put(EmotionParameters.STRING_EMOTION_FEAR, String.valueOf(face.emotions.getFear()));
-        faceHashMap.put(EmotionParameters.STRING_EMOTION_JOY, String.valueOf(face.emotions.getJoy()));
-        faceHashMap.put(EmotionParameters.STRING_EMOTION_SADNESS, String.valueOf(face.emotions.getSadness()));
-        faceHashMap.put(EmotionParameters.STRING_EMOTION_SURPRISE, String.valueOf(face.emotions.getSurprise()));
-        Logs.showTrace("[EmotionHandler] get face Emotion:" + faceHashMap);
-        
-        if (isTest == true)
+        if (null != face)
         {
-            emotionVolatileHashMap = faceHashMap;
+            HashMap<String, String> faceHashMap = new HashMap<>();
+            
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_ANGER, String.valueOf(face.emotions.getAnger()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_CONTEMPT, String.valueOf(face.emotions.getContempt()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_DISGUST, String.valueOf(face.emotions.getDisgust()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_FEAR, String.valueOf(face.emotions.getFear()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_JOY, String.valueOf(face.emotions.getJoy()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_SADNESS, String.valueOf(face.emotions.getSadness()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_SURPRISE, String.valueOf(face.emotions.getSurprise()));
+            faceHashMap.put(EmotionParameters.STRING_EXPRESSION_ATTENTION, String.valueOf(face.expressions.getAttention()));
+            
+            Logs.showTrace("[EmotionHandler] get face Emotion:" + faceHashMap);
+            
+            if (isTest == true)
+            {
+                emotionVolatileHashMap = faceHashMap;
+            }
+            else
+            {
+                pushBackQueue(faceHashMap);
+            }
         }
-        else
-        {
-            pushBackQueue(faceHashMap);
-        }
-        
     }
     
     

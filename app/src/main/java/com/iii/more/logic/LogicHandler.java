@@ -646,9 +646,8 @@ public class LogicHandler extends BaseHandler
         
     }
     
-    public void killAll()
+    public void killTextToSpeechHandler()
     {
-        endAll();
         if (null != mTextToSpeechHandler)
         {
             Logs.showTrace("[LogicHandler] mTextToSpeechHandler shutdown Start");

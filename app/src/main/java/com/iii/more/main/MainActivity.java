@@ -2,6 +2,7 @@ package com.iii.more.main;
 
 
 import android.annotation.SuppressLint;
+import android.app.Application;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -26,8 +27,6 @@ import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
-import com.iii.more.emotion.EmotionHandler;
-import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.game.zoo.ZooActivity;
 import com.iii.more.interrupt.logic.InterruptLogicHandler;
 import com.iii.more.interrupt.logic.InterruptLogicParameters;
@@ -65,7 +64,7 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
  **/
 
 
-public class MainActivity extends AppCompatActivity implements CockpitFilmMakingEventListener
+public class MainActivity extends AppCompatActivity implements CockpitFilmMakingEventListener, FaceEmotionEventListener
 
 {
     //show progress dialog
@@ -101,9 +100,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     
     //get device sensor data to stop now activity
     private InterruptLogicHandler mInterruptLogicHandler = null;
-    
-    //use camera to get personal emotion
-    private EmotionHandler mEmotionHandler = null;
     
     
     private Handler mHandler = new Handler()
@@ -166,7 +162,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         
         initInterruptLogic();
         
-        showAlertDialogConfirmConnectBLEReadPen();
+        //showAlertDialogConfirmConnectBLEReadPen();
+        init();
     }
     
     
@@ -286,12 +283,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         mHttpAPIHandler = new HttpAPIHandler(this);
         mHttpAPIHandler.setHandler(mHandler);
         
-        mEmotionHandler = new EmotionHandler(this);
-        mEmotionHandler.setHandler(mHandler);
-        mEmotionHandler.init();
-        
-        //### maybe need to modify this code
-        mEmotionHandler.start();
+        MainApplication mainApplication = (MainApplication) this.getApplication();
+        mainApplication.startFaceEmotion();
     }
     
     
@@ -306,20 +299,17 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         }
         if (null != mLogicHandler)
         {
-            mLogicHandler.killAll();
+            mLogicHandler.killTextToSpeechHandler();
         }
         
-        //stop face emotion detect
-        if (null != mEmotionHandler)
-        {
-            mEmotionHandler.stop();
-        }
         
         if (null != mReadPenBLEHandler)
         {
             mReadPenBLEHandler.disconnect();
         }
-        
+    
+        MainApplication mainApplication = (MainApplication) this.getApplication();
+        mainApplication.stopFaceEmotion();
         super.onDestroy();
     }
     
@@ -385,23 +375,12 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 handleMessageInterruptLogic(msg);
                 break;
             
-            case EmotionParameters.CLASS_EMOTION:
-                handleMessageEmotion(msg);
             
             default:
                 break;
         }
     }
     
-    private void handleMessageEmotion(Message msg)
-    {
-        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        if (null != mLogicHandler && mLogicHandler.getMode() == LogicParameters.MODE_GAME)
-        {
-            mInterruptLogicHandler.setEmotionEventData(message);
-            mInterruptLogicHandler.startEmotionEventDataAnalysis();
-        }
-    }
     
     private void handleMessageInterruptLogic(Message msg)
     {
@@ -724,6 +703,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         {
             mLogicHandler.init();
         }
+        MainApplication mainApplication = (MainApplication)getApplication();
+        mainApplication.setFaceEmotionEventListener(this);
     }
     
     private void handleMessageMenu(Message msg)
@@ -756,8 +737,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     public void run()
                     {
                         mLogicHandler.endAll();
-                        mLogicHandler.killAll();
-                        mEmotionHandler.stop();
+                        mLogicHandler.killTextToSpeechHandler();
                         
                         //###
                         // new Zoo Activity Intent
@@ -1009,5 +989,12 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 Logs.showError(e.toString());
             }
         }
+    }
+    
+    @Override
+    public void onFaceEmotionResult(HashMap<String, String> faceEmotionHashMap)
+    {
+        //get face emotion data
+        Logs.showTrace("[MainActivity] faceEmotionData" + faceEmotionHashMap);
     }
 }
