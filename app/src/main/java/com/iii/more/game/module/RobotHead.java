@@ -29,7 +29,7 @@ public class RobotHead extends RelativeLayout
 {
     public static final int INIT_TTS = 0;
     
-    TtsHandler ttsHandler = null;
+    private TtsHandler ttsHandler = null;
     private ImageView imgFace = null;
     private ImageView imgObject = null;
     private OnInitedListener onInitedListener = null;
