@@ -8,8 +8,10 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
@@ -37,6 +39,11 @@ public abstract class CockpitService extends Service
 
     private static final String LOG_TAG = "CockpitService";
 
+    // 是否在斷線時嘗試重新連線
+    protected volatile boolean mReconnectOnDisconnect = true;
+
+    protected InServiceEventHandler mInServiceEventHandler;
+
     protected IBinder mBinder = new CockpitBinder();
     protected Context mContext = this;
     protected Handler mHandler;
@@ -45,6 +52,8 @@ public abstract class CockpitService extends Service
     public void onCreate()
     {
         Log.d(LOG_TAG, "onCreate()");
+        mInServiceEventHandler = new InServiceEventHandler(this, LOG_TAG);
+
     }
 
     @Override
@@ -67,21 +76,34 @@ public abstract class CockpitService extends Service
         super.onDestroy();
     }
 
-    /** 開始嘗試與駕駛艙連結 */
+    /**
+     * 開始嘗試與駕駛艙連結
+     */
     public abstract void connect();
+
+    public abstract void disconnect();
+
+    public abstract boolean _instance_IsServiceSpawned();
 
     /**
      * 設定 handler。應該只有 MainApplication 會使用此方法，
      * 其他物件應該使用 MainApplication.setCockpitConnectionEventListener() 或 MainApplication.setCockpitSensorEventListener()
      * 向 MainApplication 註冊 CockpitEventListener 以監聽駕駛艙的事件。
      */
-    public void setHandler(Handler mHandler)
+    public void setHandler(Handler h)
     {
-        this.mHandler = mHandler;
+        mHandler = h;
     }
 
-    public class CockpitBinder extends Binder {
-        public CockpitService getService() {
+    public boolean isReconnectOnDisconnect()
+    {
+        return mReconnectOnDisconnect;
+    }
+
+    public class CockpitBinder extends Binder
+    {
+        public CockpitService getService()
+        {
             return CockpitService.this;
         }
     }
@@ -89,32 +111,33 @@ public abstract class CockpitService extends Service
     /**
      * Starts service (if not started yet) and then binds context to the service.
      */
-    public static void startThenBindService(Context context, Class<?> service, ServiceConnection serviceConnection, Bundle extras) {
+    public static void startThenBindService(Context context, Class<?> service, ServiceConnection serviceConnection, Bundle extras)
+    {
         java.lang.reflect.Method method;
-        boolean isServiceConnected;
+        boolean isServiceSpawned;
 
-        try {
-            method = service.getMethod("isServiceConnected");
+        try
+        {
+            method = service.getMethod("isServiceSpawned");
             Boolean ret = (Boolean) method.invoke(null);
-            isServiceConnected = ret;
+            isServiceSpawned = ret;
             Log.i(LOG_TAG, "startService(): " + service.getSimpleName()
-                    + ".isServiceConnected() = " + isServiceConnected);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            return;
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return;
-        } catch (InvocationTargetException e) {
+                    + ".isServiceSpawned() = " + isServiceSpawned);
+        }
+        catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
+        {
             e.printStackTrace();
             return;
         }
 
-        if (!isServiceConnected) {
+        if (!isServiceSpawned)
+        {
             Intent startService = new Intent(context, service);
-            if (extras != null && !extras.isEmpty()) {
+            if (extras != null && !extras.isEmpty())
+            {
                 Set<String> keys = extras.keySet();
-                for (String key : keys) {
+                for (String key : keys)
+                {
                     String extra = extras.getString(key);
                     startService.putExtra(key, extra);
                 }

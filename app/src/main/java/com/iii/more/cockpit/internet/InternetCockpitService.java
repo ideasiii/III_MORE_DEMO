@@ -9,7 +9,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.iii.more.cockpit.CockpitService;
-import com.iii.more.main.Parameters;
+import com.iii.more.cockpit.InServiceEventHandler;
 
 import org.json.JSONObject;
 
@@ -23,14 +23,12 @@ public class InternetCockpitService extends CockpitService
 {
     private static final String LOG_TAG = "InternetCockpitService";
 
-    private static final int INTERNAL_EVENT_NEED_RECONNECT = 13248;
 
-    private static boolean serviceConnected = false;
+    private static boolean serviceSpawned = false;
 
-    private InServiceEventHandler mInServiceEventHandler;
-    private ServerConnection serverConnection = null;
+    private ServerConnection mServerConnection;
+    private URI mUri;
     private String mDeviceId;
-
 
     @Override
     public void onCreate()
@@ -38,8 +36,7 @@ public class InternetCockpitService extends CockpitService
         super.onCreate();
         Log.d(LOG_TAG, "onCreate()");
 
-        mInServiceEventHandler = new InServiceEventHandler(this);
-        serviceConnected = true;
+        serviceSpawned = true;
     }
 
     @Override
@@ -47,22 +44,47 @@ public class InternetCockpitService extends CockpitService
     {
         Log.d(LOG_TAG, "onDestroy()");
 
-        if (serverConnection != null)
+        if (mServerConnection != null)
         {
-            serverConnection.close();
+            mServerConnection.close();
         }
 
-        serviceConnected = false;
+        serviceSpawned = false;
         super.onDestroy();
     }
 
-    public static boolean isServiceConnected()
+    public static boolean isServiceSpawned()
     {
-        return serviceConnected;
+        return serviceSpawned;
     }
 
-    public void setDeviceId(String id) {
-        if (serverConnection != null && serverConnection.isOpen()) {
+    @Override
+    public boolean _instance_IsServiceSpawned()
+    {
+        return serviceSpawned;
+    }
+
+    public void setServerAddress(String address)
+    {
+        try
+        {
+            mUri = new URI(address);
+        }
+        catch (URISyntaxException e)
+        {
+            e.printStackTrace();
+            if (mHandler != null)
+            {
+                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_PROTOCOL_NOT_SUPPORTED, 0).sendToTarget();
+            }
+        }
+    }
+
+    /** call before calling connect() */
+    public void setDeviceId(String id)
+    {
+        if (mServerConnection != null && mServerConnection.isOpen())
+        {
             Log.w(LOG_TAG, "Someone tried to set device ID after connected to server");
             return;
         }
@@ -75,116 +97,102 @@ public class InternetCockpitService extends CockpitService
     {
         Log.d(LOG_TAG, "connect()");
 
-        if (serverConnection != null)
+        if (mServerConnection != null)
         {
-            Log.d(LOG_TAG, "connect() already connected");
+            Log.d(LOG_TAG, "connect() mServerConnection != null");
             return;
         }
 
-        URI uri;
-        try
+        if (mUri == null)
         {
-            uri = new URI(Parameters.INTERNET_COCKPIT_SERVER_ADDRESS);
+            return;
         }
-        catch (URISyntaxException e)
+
+        mReconnectOnDisconnect = true;
+        mServerConnection = new ServerConnection(mUri, mDeviceId, mServerConnectionEventListener);
+        mServerConnection.connect();
+    }
+
+    @Override
+    public void disconnect()
+    {
+        Log.d(LOG_TAG, "disconnect()");
+
+        if (mServerConnection == null)
         {
-            e.printStackTrace();
+            Log.d(LOG_TAG, "disconnect() mServerConnection == null");
+            return;
+        }
+
+        mReconnectOnDisconnect = false;
+        mServerConnection.close();
+    }
+
+    private ServerConnection.EventListener mServerConnectionEventListener = new ServerConnection.EventListener()
+    {
+        @Override
+        public void onPermissionGranted()
+        {
+            if (mHandler != null)
+            {
+                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_PERMISSION_GRANTED, 0).sendToTarget();
+            }
+        }
+
+        @Override
+        public void onDisconnected()
+        {
+            if (mServerConnection != null)
+            {
+                mServerConnection.close();
+                mServerConnection = null;
+            }
+
+            if (serviceSpawned && mReconnectOnDisconnect)
+            {
+                Message delayMsg = mInServiceEventHandler.obtainMessage(InServiceEventHandler.IN_SERVICE_EVENT_NEED_RECONNECT);
+                mInServiceEventHandler.sendMessageDelayed(delayMsg, 1000);
+            }
+
+            if (mHandler != null)
+            {
+                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DISCONNECTED, 0).sendToTarget();
+            }
+        }
+
+        @Override
+        public void onReady()
+        {
+            if (mHandler != null)
+            {
+                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_READY, 0).sendToTarget();
+            }
+        }
+
+        @Override
+        public void onProtocolNotSupported()
+        {
             if (mHandler != null)
             {
                 mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_PROTOCOL_NOT_SUPPORTED, 0).sendToTarget();
             }
-            return;
-        }
-
-        serverConnection = new ServerConnection(uri, mDeviceId, new ServerConnection.EventListener()
-        {
-            @Override
-            public void onPermissionGranted()
-            {
-                if (mHandler != null)
-                {
-                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_PERMISSION_GRANTED, 0).sendToTarget();
-                }
-            }
-
-            @Override
-            public void onDisconnected()
-            {
-                if (mHandler != null)
-                {
-                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DISCONNECTED, 0).sendToTarget();
-                    if (serverConnection != null)
-                    {
-                        serverConnection.close();
-                        serverConnection = null;
-                    }
-
-                    if (serviceConnected)
-                    {
-                        Message delayMsg = mInServiceEventHandler.obtainMessage(INTERNAL_EVENT_NEED_RECONNECT);
-                        mInServiceEventHandler.sendMessageDelayed(delayMsg, 1000);
-                    }
-                }
-            }
-
-            @Override
-            public void onReady()
-            {
-                if (mHandler != null)
-                {
-                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_READY, 0).sendToTarget();
-                }
-            }
-
-            @Override
-            public void onProtocolNotSupported()
-            {
-            }
-
-            @Override
-            public void onDataText(String text)
-            {
-                if (mHandler != null)
-                {
-                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_TEXT, 0, text).sendToTarget();
-                }
-            }
-
-            @Override
-            public void onDataFilmMaking(JSONObject json)
-            {
-                if (mHandler != null)
-                {
-                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_FILM_MAKING, 0, json).sendToTarget();
-                }
-            }
-        });
-
-        serverConnection.connect();
-    }
-
-    private static class InServiceEventHandler extends Handler
-    {
-        private final WeakReference<InternetCockpitService> mWeakService;
-
-        public InServiceEventHandler(InternetCockpitService s)
-        {
-            mWeakService = new WeakReference<>(s);
         }
 
         @Override
-        public void handleMessage(Message msg)
+        public void onDataText(String text)
         {
-            InternetCockpitService service = mWeakService.get();
-            if (service == null || !serviceConnected)
+            if (mHandler != null)
             {
-                return;
+                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_TEXT, 0, text).sendToTarget();
             }
+        }
 
-            if (msg.what == INTERNAL_EVENT_NEED_RECONNECT && service.serviceConnected)
+        @Override
+        public void onDataFilmMaking(JSONObject json)
+        {
+            if (mHandler != null)
             {
-                Log.d(LOG_TAG, "Reconnecting to server");
-                service.connect();
+                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_FILM_MAKING, 0, json).sendToTarget();
             }
         }
     };

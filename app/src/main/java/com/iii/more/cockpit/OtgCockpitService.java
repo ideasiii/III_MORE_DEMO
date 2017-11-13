@@ -8,6 +8,8 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import com.felhr.usbserial.CDCSerialDevice;
@@ -15,6 +17,7 @@ import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,14 +28,14 @@ public class OtgCockpitService extends CockpitService
 {
     private static final String LOG_TAG = "OtgCockpitService";
 
-    private static final String ACTION_USB_PERMISSION_RESULT = "com.iii.OtgCockpitService._internal.USB_PERMISSION";
-    private static final String ACTION_SYSTEM_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
-    private static final String ACTION_SYSTEM_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
+    private static final String BROADCAST_ACTION_USB_PERMISSION_RESULT = "com.iii.OtgCockpitService._internal.USB_PERMISSION";
+    private static final String BROADCAST_ACTION_SYSTEM_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
+    private static final String BROADCAST_ACTION_SYSTEM_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
 
     private static final int BAUD_RATE = 9600;
     private static final String RECEIVED_DATA_CHARSET_NAME = "UTF-8";
 
-    private static boolean serviceConnected = false;
+    private static boolean serviceSpawned = false;
 
     private UsbManager mUsbManager;
     private UsbDevice mUsbDevice;
@@ -48,7 +51,7 @@ public class OtgCockpitService extends CockpitService
         super.onCreate();
 
         mSerialPortConnected = false;
-        serviceConnected = true;
+        serviceSpawned = true;
         mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
     }
 
@@ -58,13 +61,19 @@ public class OtgCockpitService extends CockpitService
         Log.d(LOG_TAG, "onDestroy()");
 
         unregisterIntentReceiver();
-        serviceConnected = false;
+        serviceSpawned = false;
         super.onDestroy();
     }
 
-    public static boolean isServiceConnected()
+    public static boolean isServiceSpawned()
     {
-        return serviceConnected;
+        return serviceSpawned;
+    }
+
+    @Override
+    public boolean _instance_IsServiceSpawned()
+    {
+        return serviceSpawned;
     }
 
     @Override
@@ -72,8 +81,27 @@ public class OtgCockpitService extends CockpitService
     {
         Log.d(LOG_TAG, "connect()");
 
-        registerIntentReceiver();
-        findSerialPortDevice();
+        if (!mSerialPortConnected)
+        {
+            registerIntentReceiver();
+            findSerialPortDevice();
+        }
+    }
+
+    @Override
+    public void disconnect()
+    {
+        Log.d(LOG_TAG, "disconnect()");
+
+        if (!mSerialPortConnected || mUsbSerialDevice == null)
+        {
+            Log.d(LOG_TAG, "!mSerialPortConnected || mUsbSerialDevice == null");
+            return;
+        }
+
+        mReconnectOnDisconnect = false;
+        mSerialPortConnected = false;
+        mUsbSerialDevice.close();
     }
 
     private void findSerialPortDevice()
@@ -137,9 +165,9 @@ public class OtgCockpitService extends CockpitService
         Log.d(LOG_TAG, "registerIntentReceiver()");
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_USB_PERMISSION_RESULT);
-        filter.addAction(ACTION_SYSTEM_USB_DETACHED);
-        filter.addAction(ACTION_SYSTEM_USB_ATTACHED);
+        filter.addAction(BROADCAST_ACTION_USB_PERMISSION_RESULT);
+        filter.addAction(BROADCAST_ACTION_SYSTEM_USB_DETACHED);
+        filter.addAction(BROADCAST_ACTION_SYSTEM_USB_ATTACHED);
 
         registerReceiver(mUsbEventReceiver, filter);
     }
@@ -154,7 +182,8 @@ public class OtgCockpitService extends CockpitService
      */
     private void requestUserPermission()
     {
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION_RESULT), 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
+                new Intent(BROADCAST_ACTION_USB_PERMISSION_RESULT), 0);
         mUsbManager.requestPermission(mUsbDevice, pendingIntent);
     }
 
@@ -195,13 +224,13 @@ public class OtgCockpitService extends CockpitService
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            if (!serviceConnected)
+            if (!serviceSpawned)
             {
                 return;
             }
 
             String intentAction = intent.getAction();
-            if (intentAction.equals(ACTION_USB_PERMISSION_RESULT))
+            if (intentAction.equals(BROADCAST_ACTION_USB_PERMISSION_RESULT))
             {
                 Log.i(LOG_TAG, "USB permission event received");
 
@@ -229,7 +258,7 @@ public class OtgCockpitService extends CockpitService
                     }
                 }
             }
-            else if (intentAction.equals(ACTION_SYSTEM_USB_ATTACHED))
+            else if (intentAction.equals(BROADCAST_ACTION_SYSTEM_USB_ATTACHED))
             {
                 Log.i(LOG_TAG, "Received 'USB is attached' event");
 
@@ -238,7 +267,7 @@ public class OtgCockpitService extends CockpitService
                     findSerialPortDevice(); // A USB mUsbDevice has been attached. Try to open it as a Serial port
                 }
             }
-            else if (intentAction.equals(ACTION_SYSTEM_USB_DETACHED))
+            else if (intentAction.equals(BROADCAST_ACTION_SYSTEM_USB_DETACHED))
             {
                 Log.i(LOG_TAG, "Received 'USB is detached' event");
 
@@ -249,6 +278,12 @@ public class OtgCockpitService extends CockpitService
 
                 mSerialPortConnected = false;
                 mUsbSerialDevice.close();
+
+                if (serviceSpawned && mReconnectOnDisconnect)
+                {
+                    Message delayMsg = mInServiceEventHandler.obtainMessage(InServiceEventHandler.IN_SERVICE_EVENT_NEED_RECONNECT);
+                    mInServiceEventHandler.sendMessageDelayed(delayMsg, 1000);
+                }
             }
         }
     };

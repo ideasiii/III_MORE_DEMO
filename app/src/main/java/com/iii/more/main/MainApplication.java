@@ -113,12 +113,12 @@ public class MainApplication extends Application
             mEmotionHandler.setHandler(mMainHandler);
             mEmotionHandler.init();
         }
+
         if (!isFaceEmotionStart)
         {
             mEmotionHandler.start();
             isFaceEmotionStart = true;
         }
-        
     }
     
     public void stopFaceEmotion()
@@ -142,6 +142,8 @@ public class MainApplication extends Application
     
     private void initInterruptLogic()
     {
+        String interruptLogicBehaviorDataArrayInput;
+
         try
         {
             SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
@@ -153,30 +155,29 @@ public class MainApplication extends Application
                 JSONObject rules = tmp.getJSONObject("rules");
                 if (rules.has("action"))
                 {
-                    Logs.showTrace("[MainApplication] Use interrupt logic behavior data array input from SharedPreferences");
-                    
-                    mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(rules.getJSONArray("action").toString());
+                    Logs.showError("[MainApplication] Use SharedPreferences for interrupt logic behavior");
+                    interruptLogicBehaviorDataArrayInput = rules.getJSONArray("action").toString();
                 }
                 else
                 {
-                    Logs.showError("[MainApplication] SharedPreferences does not have interrupt logic behavior data array, use fallback input");
-                    mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT);
+                    Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
+                    interruptLogicBehaviorDataArrayInput = INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
                 }
-                /*if (rules.has("emotion"))
-                {
-                    mInterruptLogicHandler.setInterruptEmotionLogicBehaviorDataArray(rules.getJSONArray("emotion").toString());
-                }*/
+            }
+            else
+            {
+                Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
+                interruptLogicBehaviorDataArrayInput = INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
             }
         }
         catch (JSONException e)
         {
-            Logs.showError("[MainApplication] cannot get interrupt logic behavior data array from SharedPreferences: " + e.toString());
-            Logs.showError("[MainApplication] use fallback input");
-            mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT);
+            Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
+            interruptLogicBehaviorDataArrayInput = INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
         }
-        
+
+        mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(interruptLogicBehaviorDataArrayInput);
         mInterruptLogicHandler.setHandler(mMainHandler);
-        Logs.showTrace("[MainApplication] initInterruptLogic() done");
     }
     
     /**
@@ -195,6 +196,8 @@ public class MainApplication extends Application
             {
                 ((InternetCockpitService) mCockpitService)
                         .setDeviceId(SemanticDeviceID.getDeviceID(getApplicationContext()));
+                ((InternetCockpitService) mCockpitService)
+                        .setServerAddress(Parameters.INTERNET_COCKPIT_SERVER_ADDRESS);
             }
             
             mCockpitService.setHandler(mMainHandler);
@@ -250,8 +253,6 @@ public class MainApplication extends Application
         }
     }
     
-    ;
-    
     private void handleMessageFaceEmotionMessage(Message msg)
     {
         if (null != mFaceEmotionEventListener)
@@ -265,7 +266,7 @@ public class MainApplication extends Application
      */
     private void handleInterruptLogicMessage(Message msg)
     {
-        if (mCockpitSensorEventListener == null)
+        if (null == mCockpitSensorEventListener)
         {
             return;
         }
@@ -317,7 +318,7 @@ public class MainApplication extends Application
             String data = (String) msg.obj;
             Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onData(), data=`" + data + "`");
             
-            if (mInterruptLogicHandler != null)
+            if (null != mInterruptLogicHandler)
             {
                 mInterruptLogicHandler.setDeviceEventData(data);
                 mInterruptLogicHandler.startEventDataAnalysis();
@@ -330,7 +331,7 @@ public class MainApplication extends Application
             // film making commands from cockpit
             JSONObject j = (JSONObject) msg.obj;
             
-            if (mCockpitFilmMakingEventListener != null)
+            if (null != mCockpitFilmMakingEventListener)
             {
                 try
                 {
@@ -363,7 +364,7 @@ public class MainApplication extends Application
             return;
         }
         
-        if (mCockpitConnectionEventListener == null)
+        if (null == mCockpitConnectionEventListener)
         {
             return;
         }
