@@ -136,7 +136,14 @@ public class MainApplication extends Application
         mTracker.setHandler(mMainHandler);
         mTracker.startTracker(Parameters.TRACKER_APP_ID);
     }
-
+    
+    public void sendToTracker(String key, String value)
+    {
+        HashMap<String, String> data = new HashMap<>();
+        data.put(key, value);
+        sendToTracker(data);
+    }
+    
     public void sendToTracker(HashMap<String,String> data)
     {
         mTracker.track(data);

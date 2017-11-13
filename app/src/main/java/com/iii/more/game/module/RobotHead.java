@@ -91,15 +91,15 @@ public class RobotHead extends RelativeLayout
     
     private void init(Context context)
     {
-        float fLeft, fTop, fRight, fBottom;
+        //float fLeft, fTop, fRight, fBottom;
         
         LayoutParams layoutParamsP = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         this.setLayoutParams(layoutParamsP);
         
-        fLeft = Utility.convertDpToPixel(-120, context);
-        fTop = Utility.convertDpToPixel(60, context);
-        fRight = Utility.convertDpToPixel(-120, context);
-        fBottom = Utility.convertDpToPixel(-60, context);
+        //fLeft = Utility.convertDpToPixel(-120, context);
+        //fTop = Utility.convertDpToPixel(60, context);
+        //fRight = Utility.convertDpToPixel(-120, context);
+        //fBottom = Utility.convertDpToPixel(-60, context);
         
         setBackgroundResource(R.color.default_app_color);
         imgFace = new ImageView(context);
@@ -109,8 +109,6 @@ public class RobotHead extends RelativeLayout
         // layoutParams.setMargins((int) fLeft, (int) fTop, (int) fRight, (int) fBottom);
         imgFace.setLayoutParams(layoutParams);
         imgFace.setImageResource(R.drawable.default_image);
-        //imgFace.setPadding(-50, 50, -50, -50);
-        addView(imgFace);
         imgFace.setOnDragListener(ImgFaceDragListener);
         showFaceImg(false);
         
@@ -118,13 +116,16 @@ public class RobotHead extends RelativeLayout
         imgObject.setTag("Object Image");
         imgObject.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imgObject.setAdjustViewBounds(true);
-        LayoutParams layoutParams1 = new LayoutParams((int) Utility.convertDpToPixel(300, context), (int) Utility.convertDpToPixel(300, context));
-        layoutParams1.addRule(RelativeLayout.CENTER_IN_PARENT);
+        LayoutParams layoutParams1 = new LayoutParams((int) Utility.convertDpToPixel(500, context), (int) Utility.convertDpToPixel(500, context));
+        layoutParams1.setMargins((int) 0, (int) 200, (int) 0, (int) 0);
+        layoutParams1.addRule(RelativeLayout.CENTER_HORIZONTAL);
         imgObject.setLayoutParams(layoutParams1);
         imgObject.setBackgroundColor(Color.TRANSPARENT);
-        addView(imgObject);
         showObjectImg(false);
-        // imgObject.setOnTouchListener(ImgObjTouchListener);
+        
+        addView(imgObject);
+        addView(imgFace);
+        
         
         ttsHandler = new TtsHandler(context);
         ttsHandler.setOnTTSStartedListener(new TtsHandler.OnTTSStartedListener()
@@ -272,4 +273,15 @@ public class RobotHead extends RelativeLayout
             return true;
         }
     };
+    
+    public void bringObjImgtoFront()
+    {
+        imgObject.bringToFront();
+    }
+    
+    public void bringFaceImgtoFront()
+    {
+        imgFace.bringToFront();
+    }
+    
 }

@@ -29,11 +29,12 @@
     <application
         android:name="com.iii.more.main.MainApplication"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:theme="@style/AppTheme"
         tools:replace="android:label"
-
         >
         <activity
             android:name="com.iii.more.main.MainActivity"
@@ -54,7 +55,10 @@
 
         </activity>
         <activity android:name="com.iii.more.oobe.OobeActivity"/>
-        <activity android:name="com.iii.more.game.zoo.ZooActivity"/>
+        <activity
+            android:name="com.iii.more.game.zoo.ZooActivity"
+            android:noHistory="true"
+            />
 
         <service android:name="com.edgecase.moduleservice.DetectorService"/>
 
