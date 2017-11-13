@@ -1,15 +1,9 @@
-package com.iii.more.cockpit.internet;
+package com.iii.more.cockpit;
 
-import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
-
-import com.iii.more.cockpit.CockpitService;
-import com.iii.more.cockpit.InServiceEventHandler;
 
 import org.json.JSONObject;
 
@@ -59,7 +53,7 @@ public class InternetCockpitService extends CockpitService
     }
 
     @Override
-    public boolean _instance_IsServiceSpawned()
+    boolean _instance_IsServiceSpawned()
     {
         return serviceSpawned;
     }
@@ -126,6 +120,7 @@ public class InternetCockpitService extends CockpitService
 
         mReconnectOnDisconnect = false;
         mServerConnection.close();
+        mServerConnection = null;
     }
 
     private ServerConnection.EventListener mServerConnectionEventListener = new ServerConnection.EventListener()
@@ -148,16 +143,12 @@ public class InternetCockpitService extends CockpitService
                 mServerConnection = null;
             }
 
-            if (serviceSpawned && mReconnectOnDisconnect)
-            {
-                Message delayMsg = mInServiceEventHandler.obtainMessage(InServiceEventHandler.IN_SERVICE_EVENT_NEED_RECONNECT);
-                mInServiceEventHandler.sendMessageDelayed(delayMsg, 1000);
-            }
-
             if (mHandler != null)
             {
                 mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DISCONNECTED, 0).sendToTarget();
             }
+
+            scheduleReconnect();
         }
 
         @Override

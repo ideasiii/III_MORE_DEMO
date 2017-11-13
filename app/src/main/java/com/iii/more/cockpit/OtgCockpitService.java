@@ -8,8 +8,6 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import com.felhr.usbserial.CDCSerialDevice;
@@ -17,7 +15,6 @@ import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,8 +44,8 @@ public class OtgCockpitService extends CockpitService
     @Override
     public void onCreate()
     {
-        Log.d(LOG_TAG, "onCreate()");
         super.onCreate();
+        Log.d(LOG_TAG, "onCreate()");
 
         mSerialPortConnected = false;
         serviceSpawned = true;
@@ -71,7 +68,7 @@ public class OtgCockpitService extends CockpitService
     }
 
     @Override
-    public boolean _instance_IsServiceSpawned()
+    boolean _instance_IsServiceSpawned()
     {
         return serviceSpawned;
     }
@@ -279,11 +276,7 @@ public class OtgCockpitService extends CockpitService
                 mSerialPortConnected = false;
                 mUsbSerialDevice.close();
 
-                if (serviceSpawned && mReconnectOnDisconnect)
-                {
-                    Message delayMsg = mInServiceEventHandler.obtainMessage(InServiceEventHandler.IN_SERVICE_EVENT_NEED_RECONNECT);
-                    mInServiceEventHandler.sendMessageDelayed(delayMsg, 1000);
-                }
+                scheduleReconnect();
             }
         }
     };

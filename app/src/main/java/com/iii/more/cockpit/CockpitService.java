@@ -4,14 +4,12 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
@@ -20,6 +18,8 @@ import java.util.Set;
  */
 public abstract class CockpitService extends Service
 {
+    private static final String LOG_TAG = "CockpitService";
+
     // msg.what in Handler.onMessage()
     public static final int MSG_WHAT = 2147483647;
 
@@ -37,14 +37,14 @@ public abstract class CockpitService extends Service
     // 拍片用，這種類型的指令將跳過 interrupt logic 判斷，直接影響 app 的視覺、聽覺輸出
     public static final int EVENT_DATA_FILM_MAKING = 30;
 
-    private static final String LOG_TAG = "CockpitService";
+    private static final int RECONNECT_EVENT_DELAY = 1000;
 
     // 是否在斷線時嘗試重新連線
     protected volatile boolean mReconnectOnDisconnect = true;
 
     protected InServiceEventHandler mInServiceEventHandler;
 
-    protected IBinder mBinder = new CockpitBinder();
+    protected IBinder mBinder = new Binder();
     protected Context mContext = this;
     protected Handler mHandler;
 
@@ -52,8 +52,8 @@ public abstract class CockpitService extends Service
     public void onCreate()
     {
         Log.d(LOG_TAG, "onCreate()");
-        mInServiceEventHandler = new InServiceEventHandler(this, LOG_TAG);
 
+        mInServiceEventHandler = new InServiceEventHandler(this, LOG_TAG);
     }
 
     @Override
@@ -81,9 +81,16 @@ public abstract class CockpitService extends Service
      */
     public abstract void connect();
 
+    /**
+     * 解除與駕駛艙的連結，且不嘗試重新連線。
+     * PS. 不呼叫此方法前，當連線成功後遭遇連線中斷時會「重複」嘗試重新連線。
+     */
     public abstract void disconnect();
 
-    public abstract boolean _instance_IsServiceSpawned();
+    /**
+     * same as isServiceSpawned(), only used by InServiceEventHandler
+     */
+    abstract boolean _instance_IsServiceSpawned();
 
     /**
      * 設定 handler。應該只有 MainApplication 會使用此方法，
@@ -100,7 +107,16 @@ public abstract class CockpitService extends Service
         return mReconnectOnDisconnect;
     }
 
-    public class CockpitBinder extends Binder
+    protected void scheduleReconnect()
+    {
+        if (_instance_IsServiceSpawned() && mReconnectOnDisconnect)
+        {
+            Message delayMsg = mInServiceEventHandler.obtainMessage(InServiceEventHandler.EVENT_NEED_RECONNECT);
+            mInServiceEventHandler.sendMessageDelayed(delayMsg, RECONNECT_EVENT_DELAY);
+        }
+    }
+
+    public class Binder extends android.os.Binder
     {
         public CockpitService getService()
         {

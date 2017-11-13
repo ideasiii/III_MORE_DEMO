@@ -1,4 +1,4 @@
-package com.iii.more.cockpit.internet;
+package com.iii.more.cockpit;
 
 import android.util.Log;
 
@@ -17,7 +17,7 @@ class ServerConnection extends WebSocketClient
 {
     private static final String LOG_TAG = "InternetCockpitClient";
 
-    private static final int PING_INTERVAL = 3000;
+    private static final int PING_INTERVAL = 30000;
 
     private static final int SERVER_MESSAGE_TYPE_SET_DEVICE_ID = 0;
     private static final int SERVER_MESSAGE_TYPE_COMMAND_TEXT = 1;

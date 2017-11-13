@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
  */
 public class InServiceEventHandler extends Handler
 {
-    public static final int IN_SERVICE_EVENT_NEED_RECONNECT = 13248;
+    public static final int EVENT_NEED_RECONNECT = 13248;
 
     private final WeakReference<CockpitService> mWeakService;
     private final String mLogTag;
@@ -31,7 +31,7 @@ public class InServiceEventHandler extends Handler
             return;
         }
 
-        if (msg.what == IN_SERVICE_EVENT_NEED_RECONNECT && service.isReconnectOnDisconnect())
+        if (msg.what == EVENT_NEED_RECONNECT && service.isReconnectOnDisconnect())
         {
             Log.d(mLogTag, "Reconnecting to server");
             service.connect();

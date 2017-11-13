@@ -10,7 +10,7 @@ import android.os.Message;
 
 import com.iii.more.cmp.semantic.SemanticDeviceID;
 import com.iii.more.cockpit.CockpitService;
-import com.iii.more.cockpit.internet.InternetCockpitService;
+import com.iii.more.cockpit.InternetCockpitService;
 import com.iii.more.emotion.EmotionHandler;
 import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.interrupt.logic.InterruptLogicHandler;
@@ -23,6 +23,8 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import sdk.ideas.common.Logs;
+import sdk.ideas.tracker.Tracker;
+import sdk.ideas.common.CtrlType;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
@@ -30,14 +32,11 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
  * Created by joe on 2017/10/30.
  */
 
-
-/*###
-     mean pending to write
-*/
-
 public class MainApplication extends Application
 {
     private CockpitService mCockpitService;
+    private Tracker mTracker = new Tracker(this);
+
     private CockpitConnectionEventListener mCockpitConnectionEventListener;
     private CockpitSensorEventListener mCockpitSensorEventListener;
     private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
@@ -45,13 +44,12 @@ public class MainApplication extends Application
     
     // this logic handler does not handle emotion logic
     private InterruptLogicHandler mInterruptLogicHandler = new InterruptLogicHandler(this);
-    
-    private final MainHandler mMainHandler = new MainHandler(this);
-    
+
     private EmotionHandler mEmotionHandler = null;
     private static boolean isFaceEmotionStart = false;
-    
-    
+
+    private final MainHandler mMainHandler = new MainHandler(this);
+
     @Override
     public void onCreate()
     {
@@ -132,14 +130,27 @@ public class MainApplication extends Application
             }
         }
     }
-    
+
+    public void startTracker()
+    {
+        mTracker.setHandler(mMainHandler);
+        mTracker.startTracker(Parameters.TRACKER_APP_ID);
+    }
+
+    public void sendToTracker(HashMap<String,String> data)
+    {
+        mTracker.track(data);
+    }
+
     private void bootCockpitService()
     {
-        // TODO invoke with one of service.class you want
         CockpitService.startThenBindService(this, InternetCockpitService.class,
                 mCockpitServiceConnection, null);
     }
-    
+
+    /**
+     * 初始化 InterruptLogicHandler 處理 sensor 邏輯的部分
+     */
     private void initInterruptLogic()
     {
         String interruptLogicBehaviorDataArrayInput;
@@ -149,26 +160,10 @@ public class MainApplication extends Application
             SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
             String message = prefs.getString(Parameters.TASK_COMPOSER_DATA, "non-json text");
             JSONObject tmp = new JSONObject(message);
-            
-            if (tmp.has("rules"))
-            {
-                JSONObject rules = tmp.getJSONObject("rules");
-                if (rules.has("action"))
-                {
-                    Logs.showError("[MainApplication] Use SharedPreferences for interrupt logic behavior");
-                    interruptLogicBehaviorDataArrayInput = rules.getJSONArray("action").toString();
-                }
-                else
-                {
-                    Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
-                    interruptLogicBehaviorDataArrayInput = INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
-                }
-            }
-            else
-            {
-                Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
-                interruptLogicBehaviorDataArrayInput = INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
-            }
+
+            JSONObject rules = tmp.getJSONObject("rules");
+            interruptLogicBehaviorDataArrayInput = rules.getJSONArray("action").toString();
+            Logs.showTrace("[MainApplication] Use SharedPreferences for interrupt logic behavior");
         }
         catch (JSONException e)
         {
@@ -190,7 +185,7 @@ public class MainApplication extends Application
         {
             Logs.showTrace("[MainApplication] onServiceConnected()");
             
-            mCockpitService = ((CockpitService.CockpitBinder) service).getService();
+            mCockpitService = ((CockpitService.Binder) service).getService();
             
             if (mCockpitService instanceof InternetCockpitService)
             {
@@ -246,6 +241,9 @@ public class MainApplication extends Application
                     break;
                 case EmotionParameters.CLASS_EMOTION:
                     app.handleMessageFaceEmotionMessage(msg);
+                    break;
+                case CtrlType.MSG_RESPONSE_TRACKER_HANDLER:
+                    app.handleTrackerMessage(msg);
                     break;
                 default:
                     Logs.showTrace("[MainApplication] [MainHandler] unhandled msg.what: " + msg.what);
@@ -306,7 +304,19 @@ public class MainApplication extends Application
                 Logs.showTrace("[MainApplication] handleInterruptLogicMessage() unknown msg.arg2: " + msg.arg2);
         }
     }
-    
+
+    private void handleTrackerMessage(Message msg)
+    {
+        Logs.showTrace("[MainApplication] handleTrackerMessage()");
+
+        int result = msg.arg1;
+        int from = msg.arg2;
+        HashMap<String, String > message = (HashMap<String, String>) msg.obj;
+
+        Logs.showTrace("[MainApplication] handleTrackerMessage() " +
+                "Result: " + result + " From: " + from + " Message: " + message);
+    }
+
     /**
      * 處理來自 CockpitService 的事件
      */

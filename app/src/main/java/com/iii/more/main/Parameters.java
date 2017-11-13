@@ -24,6 +24,8 @@ public abstract class Parameters
 
     public static final String INTERNET_COCKPIT_SERVER_ADDRESS = "ws://175.98.119.122:21098/controlled";
 
+    public static final String TRACKER_APP_ID = "1510555888386";
+
     // for HTC10 1e-10f;  //for sampo 1e-25f;
     public static final float MEDIA_PLAYED_SPHINX_THRESHOLD = 1e-13f;//1e-20f;//// for HTC10 1e-15f;
     public static final float DEFAULT_SPHINX_THRESHOLD = 1e-13f;//1e-20f;//1e-11f;

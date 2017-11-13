@@ -20,6 +20,7 @@ import com.iii.more.http.server.DeviceHttpServerParameters;
 import com.iii.more.init.InitCheckBoardHandler;
 import com.iii.more.init.InitCheckBoardParameters;
 import com.iii.more.main.MainActivity;
+import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
 import com.iii.more.oobe.OobeActivity;
@@ -422,6 +423,7 @@ public class InitActivity extends AppCompatActivity
                     {
                         // ### connect to task composer API get data
                         initLoadingData();
+                        ((MainApplication)getApplication()).startTracker();
                     }
                     break;
             }
@@ -475,6 +477,9 @@ public class InitActivity extends AppCompatActivity
         permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        permissions.add(Manifest.permission.READ_PHONE_STATE);
+        permissions.add(Manifest.permission.GET_ACCOUNTS);
         mRuntimePermissionHandler = new RuntimePermissionHandler(this, permissions);
         mRuntimePermissionHandler.setHandler(mHandler);
         mRuntimePermissionHandler.startRequestPermissions();

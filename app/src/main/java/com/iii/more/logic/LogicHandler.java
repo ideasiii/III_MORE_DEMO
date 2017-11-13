@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 import com.iii.more.init.InitCheckBoardParameters;
+import com.iii.more.main.MainApplication;
 import com.iii.more.main.TTSParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
