@@ -34,7 +34,7 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
     
     private ArrayDeque<HashMap<String, String>> emotionCallBackQueue = null;
     private Thread handleEmotionDataThread = null;
-    private volatile boolean shutdownThread = false;
+    private volatile boolean isCloseThread = true;
     DetectorService mDetectorService = null;
     private boolean mBound = false;
     private volatile HashMap<String, String> emotionVolatileHashMap = null;
@@ -78,11 +78,11 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
     
     public void start()
     {
-        if (shutdownThread == true)
+        if (isCloseThread == true)
         {
-            shutdownThread = false;
-            handleEmotionDataThread.start();
             
+            handleEmotionDataThread.start();
+            isCloseThread = false;
             //###need to add ready code startService
             Intent intent = new Intent(this.mContext, DetectorService.class);
             boolean bRet = mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -91,9 +91,9 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
     
     public void stop()
     {
-        if (!shutdownThread)
+        if (!isCloseThread)
         {
-            shutdownThread = true;
+            isCloseThread = true;
             
             //###need to add ready code stopService
             if (mBound)
@@ -113,14 +113,22 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
     @Override
     public void onFaceDetected(boolean bDetected)
     {
+        HashMap<String, String> message = new HashMap<>();
         if (bDetected)
         {
             Logs.showTrace("onFaceDetected have Face now detect emotion...");
+            
+            message.put("message", "detect face");
+            callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION, EmotionParameters.METHOD_FACE_DETECT, message);
+            
         }
         else
         {
             Logs.showTrace("onFaceDetected no Face detect....");
             emotionVolatileHashMap = null;
+            message.put("message", "detect no face");
+            callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION, EmotionParameters.METHOD_NO_FACE_DETECT, message);
+            
         }
     }
     
@@ -290,7 +298,7 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
         @Override
         public void run()
         {
-            while (!shutdownThread)
+            while (!isCloseThread)
             {
                 try
                 {

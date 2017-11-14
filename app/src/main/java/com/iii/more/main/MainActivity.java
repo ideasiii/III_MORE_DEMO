@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         {
             mReadPenBLEHandler.disconnect();
         }
-    
+        
         MainApplication mainApplication = (MainApplication) this.getApplication();
         mainApplication.stopFaceEmotion();
         super.onDestroy();
@@ -703,8 +703,9 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         {
             mLogicHandler.init();
         }
-        MainApplication mainApplication = (MainApplication)getApplication();
+        MainApplication mainApplication = (MainApplication) getApplication();
         mainApplication.setFaceEmotionEventListener(this);
+        mainApplication.startFaceEmotion();
     }
     
     private void handleMessageMenu(Message msg)
@@ -995,6 +996,12 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     public void onFaceEmotionResult(HashMap<String, String> faceEmotionHashMap)
     {
         //get face emotion data
-        Logs.showTrace("[MainActivity] faceEmotionData" + faceEmotionHashMap);
+        Logs.showTrace("[MainActivity] Face Emotion Data: " + faceEmotionHashMap);
+    }
+    
+    @Override
+    public void onFaceDetectResult(boolean isDetectFace)
+    {
+        Logs.showTrace("[MainActivity] Face Detect: " + String.valueOf(isDetectFace));
     }
 }

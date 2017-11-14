@@ -36,7 +36,7 @@ public class MainApplication extends Application
 {
     private CockpitService mCockpitService;
     private Tracker mTracker = new Tracker(this);
-
+    
     private CockpitConnectionEventListener mCockpitConnectionEventListener;
     private CockpitSensorEventListener mCockpitSensorEventListener;
     private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
@@ -44,12 +44,12 @@ public class MainApplication extends Application
     
     // this logic handler does not handle emotion logic
     private InterruptLogicHandler mInterruptLogicHandler = new InterruptLogicHandler(this);
-
+    
     private EmotionHandler mEmotionHandler = null;
     private static boolean isFaceEmotionStart = false;
-
+    
     private final MainHandler mMainHandler = new MainHandler(this);
-
+    
     @Override
     public void onCreate()
     {
@@ -111,7 +111,7 @@ public class MainApplication extends Application
             mEmotionHandler.setHandler(mMainHandler);
             mEmotionHandler.init();
         }
-
+        
         if (!isFaceEmotionStart)
         {
             mEmotionHandler.start();
@@ -130,7 +130,7 @@ public class MainApplication extends Application
             }
         }
     }
-
+    
     public void startTracker()
     {
         mTracker.setHandler(mMainHandler);
@@ -144,30 +144,30 @@ public class MainApplication extends Application
         sendToTracker(data);
     }
     
-    public void sendToTracker(HashMap<String,String> data)
+    public void sendToTracker(HashMap<String, String> data)
     {
         mTracker.track(data);
     }
-
+    
     private void bootCockpitService()
     {
         CockpitService.startThenBindService(this, InternetCockpitService.class,
                 mCockpitServiceConnection, null);
     }
-
+    
     /**
      * 初始化 InterruptLogicHandler 處理 sensor 邏輯的部分
      */
     private void initInterruptLogic()
     {
         String interruptLogicBehaviorDataArrayInput;
-
+        
         try
         {
             SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
             String message = prefs.getString(Parameters.TASK_COMPOSER_DATA, "non-json text");
             JSONObject tmp = new JSONObject(message);
-
+            
             JSONObject rules = tmp.getJSONObject("rules");
             interruptLogicBehaviorDataArrayInput = rules.getJSONArray("action").toString();
             Logs.showTrace("[MainApplication] Use SharedPreferences for interrupt logic behavior");
@@ -177,7 +177,7 @@ public class MainApplication extends Application
             Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
             interruptLogicBehaviorDataArrayInput = INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
         }
-
+        
         mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(interruptLogicBehaviorDataArrayInput);
         mInterruptLogicHandler.setHandler(mMainHandler);
     }
@@ -262,7 +262,18 @@ public class MainApplication extends Application
     {
         if (null != mFaceEmotionEventListener)
         {
-            mFaceEmotionEventListener.onFaceEmotionResult((HashMap<String, String>) msg.obj);
+            if (msg.arg2 == EmotionParameters.METHOD_EMOTION_DETECT)
+            {
+                mFaceEmotionEventListener.onFaceEmotionResult((HashMap<String, String>) msg.obj);
+            }
+            else if (msg.arg2 == EmotionParameters.METHOD_FACE_DETECT)
+            {
+                mFaceEmotionEventListener.onFaceDetectResult(true);
+            }
+            else if (msg.arg2 == EmotionParameters.METHOD_NO_FACE_DETECT)
+            {
+                mFaceEmotionEventListener.onFaceDetectResult(false);
+            }
         }
     }
     
@@ -311,19 +322,19 @@ public class MainApplication extends Application
                 Logs.showTrace("[MainApplication] handleInterruptLogicMessage() unknown msg.arg2: " + msg.arg2);
         }
     }
-
+    
     private void handleTrackerMessage(Message msg)
     {
         Logs.showTrace("[MainApplication] handleTrackerMessage()");
-
+        
         int result = msg.arg1;
         int from = msg.arg2;
-        HashMap<String, String > message = (HashMap<String, String>) msg.obj;
-
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+        
         Logs.showTrace("[MainApplication] handleTrackerMessage() " +
                 "Result: " + result + " From: " + from + " Message: " + message);
     }
-
+    
     /**
      * 處理來自 CockpitService 的事件
      */

@@ -9,5 +9,5 @@ import java.util.HashMap;
 public interface FaceEmotionEventListener
 {
     void onFaceEmotionResult(HashMap<String, String> faceEmotionHashMap);
-    
+    void onFaceDetectResult(boolean isDetectFace);
 }
