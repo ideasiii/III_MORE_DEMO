@@ -11,12 +11,10 @@ import android.support.annotation.Nullable;
 import com.iii.more.game.module.MSG;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.Utility;
-import com.iii.more.logic.LogicParameters;
 import com.iii.more.main.CockpitSensorEventListener;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
-import com.iii.more.main.TTSParameters;
 
 import android.os.Handler;
 import android.view.View;
