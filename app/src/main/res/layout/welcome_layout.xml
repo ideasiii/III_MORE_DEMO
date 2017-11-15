@@ -13,4 +13,11 @@
         style="@style/Item.Welcome"
         app:srcCompat="@drawable/more_logo"
         android:contentDescription=""/>
+
+    <TextView
+        android:id="@+id/apk_build_date_text_view"
+        android:layout_width="match_parent"
+        android:textAlignment="center"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
 </LinearLayout>

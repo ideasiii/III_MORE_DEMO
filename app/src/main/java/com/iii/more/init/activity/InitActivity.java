@@ -2,6 +2,7 @@ package com.iii.more.init.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,12 +14,14 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Handler;
 import android.view.View;
+import android.widget.TextView;
 
 import com.iii.more.animate.AnimationHandler;
 import com.iii.more.http.server.DeviceHttpServerHandler;
 import com.iii.more.http.server.DeviceHttpServerParameters;
 import com.iii.more.init.InitCheckBoardHandler;
 import com.iii.more.init.InitCheckBoardParameters;
+import com.iii.more.main.BuildConfig;
 import com.iii.more.main.MainActivity;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
@@ -34,6 +37,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -234,7 +238,7 @@ public class InitActivity extends AppCompatActivity
         // This work only for android 4.4+
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
         {
-        
+            setTaskDescriptionLabelToBuildDate();
             getWindow().getDecorView().setSystemUiVisibility(flags);
         
             // Code below is to handle presses of Volume up or Volume down.
@@ -264,6 +268,12 @@ public class InitActivity extends AppCompatActivity
     private void showMoreWelcomeLogo()
     {
         setContentView(R.layout.welcome_layout);
+
+        TextView apkBuildDateView = (TextView) findViewById(R.id.apk_build_date_text_view);
+        String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(BuildConfig.buildTime);
+        apkBuildDateView.setText("Build on " + formattedBuildDateText);
+
         AnimationHandler animationHandler = new AnimationHandler(this);
         animationHandler.setView(findViewById(R.id.logo_image_view));
         try
@@ -292,6 +302,15 @@ public class InitActivity extends AppCompatActivity
                     "與章魚裝置連線不明失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
             mAlertDialogHandler.show();
         }
+    }
+
+    private void setTaskDescriptionLabelToBuildDate()
+    {
+        String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(BuildConfig.buildTime);
+
+        ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(formattedBuildDateText);
+        setTaskDescription(taskDescription);
     }
     
     public void initDeviceHttpServer()

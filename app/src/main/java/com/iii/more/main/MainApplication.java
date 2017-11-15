@@ -221,17 +221,17 @@ public class MainApplication extends Application
     
     private static final class MainHandler extends Handler
     {
-        private final WeakReference<MainApplication> mApp;
+        private final WeakReference<MainApplication> mWeakSelf;
         
         public MainHandler(MainApplication app)
         {
-            mApp = new WeakReference<>(app);
+            mWeakSelf = new WeakReference<>(app);
         }
         
         @Override
         public void handleMessage(Message msg)
         {
-            MainApplication app = mApp.get();
+            MainApplication app = mWeakSelf.get();
             if (app == null)
             {
                 Logs.showTrace("[MainApplication] [MainHandler] WeakReference is null");
