@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Handler;
@@ -227,26 +228,27 @@ public class InitActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        createShortCut();
         final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-    
+        
         // This work only for android 4.4+
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
         {
             setTaskDescriptionLabelToBuildDate();
             getWindow().getDecorView().setSystemUiVisibility(flags);
-        
+            
             // Code below is to handle presses of Volume up or Volume down.
             // Without this, after pressing volume buttons, the navigation bar will
             // show up and won't hide
             final View decorView = getWindow().getDecorView();
             decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
             {
-            
+                
                 @Override
                 public void onSystemUiVisibilityChange(int visibility)
                 {
@@ -264,15 +266,26 @@ public class InitActivity extends AppCompatActivity
         showMoreWelcomeLogo();
     }
     
+    private void createShortCut()
+    {
+        Intent shortcutIntent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
+        shortcutIntent.putExtra("duplicate", false);
+        shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "More APP");
+        Parcelable icon = Intent.ShortcutIconResource.fromContext(getApplicationContext(), R.mipmap.ic_launcher);
+        shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
+        shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(getApplicationContext(), InitActivity.class));
+        sendBroadcast(shortcutIntent);
+    }
+    
     private void showMoreWelcomeLogo()
     {
         setContentView(R.layout.welcome_layout);
-
+        
         TextView apkBuildDateView = (TextView) findViewById(R.id.apk_build_date_text_view);
         String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(BuildConfig.buildTime);
         apkBuildDateView.setText("Built on " + formattedBuildDateText);
-
+        
         AnimationHandler animationHandler = new AnimationHandler(this);
         animationHandler.setView(findViewById(R.id.logo_image_view));
         try
@@ -302,16 +315,16 @@ public class InitActivity extends AppCompatActivity
             mAlertDialogHandler.show();
         }
     }
-
+    
     private void setTaskDescriptionLabelToBuildDate()
     {
         String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(BuildConfig.buildTime);
-
+        
         ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(formattedBuildDateText);
         setTaskDescription(taskDescription);
     }
-
+    
     public void initDeviceHttpServer()
     {
         mDeviceHttpServerHandler = new DeviceHttpServerHandler(this);
@@ -441,7 +454,7 @@ public class InitActivity extends AppCompatActivity
                     {
                         // ### connect to task composer API get data
                         initLoadingData();
-                        ((MainApplication)getApplication()).startTracker();
+                        ((MainApplication) getApplication()).startTracker();
                     }
                     break;
             }
@@ -450,7 +463,7 @@ public class InitActivity extends AppCompatActivity
     
     private boolean checkOobe()
     {
-        if(Parameters.OOBE_DEBUG_ENABLE)
+        if (Parameters.OOBE_DEBUG_ENABLE)
         {
             return true;
         }
