@@ -570,14 +570,17 @@ public class ZooActivity extends Activity
             switch (mnScenarizeIndex)
             {
                 case SCEN_INDEX_START:
+                    mnScenarizeIndex = -1;
                     timer.cancel();
                     handler.sendEmptyMessage(SCEN_INDEX_ANIMAL_RFID);
                     break;
                 case SCEN_INDEX_HOLD_HAND:
+                    mnScenarizeIndex = -1;
                     timer.cancel();
                     handler.sendEmptyMessage(SCEN_INDEX_TRAFFIC_BUS);
                     break;
                 case SCEN_INDEX_TRAFFIC_BUS:
+                    mnScenarizeIndex = -1;
                     timer.cancel();
                     handler.sendEmptyMessage(SCEN_INDEX_TRAFFIC_CARD);
                     break;
