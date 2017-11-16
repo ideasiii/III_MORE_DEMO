@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -417,40 +418,39 @@ public class InterruptLogicHandler extends BaseHandler
         HashMap<String, String> result = null;
         if (null != eventHashMapData && null != mLogicBrainArrayListData)
         {
-            
             //this loop is
             //mLogicBrainHashMapData maybe use array list to sort priority
             for (int i = 0; i < mLogicBrainArrayListData.size(); i++)
             {
                 LogicBrainElement judgeBrainElement = mLogicBrainArrayListData.get(i);
                 int count = 0;
-                
-                //debugging using
-                Logs.showTrace("[InterruptLogicHandler] now check actionPriority: " + String.valueOf(i + 1));
+
+                //Logs.showTrace("[InterruptLogicHandler] checking actionPriority: " + String.valueOf(i + 1));
                 
                 for (int j = 0; j < judgeBrainElement.sensors.size(); j++)
                 {
-                    //debugging using
-                    Logs.showTrace("[InterruptLogicHandler] now check sensor: " + judgeBrainElement.sensors.get(j));
-                    String strValue = eventHashMapData.get(judgeBrainElement.sensors.get(j));
+                    String sensorCheckTarget = judgeBrainElement.sensors.get(j);
+
+                    Logs.showTrace("[InterruptLogicHandler] checking sensor: " + sensorCheckTarget);
+
+                    String strValue = eventHashMapData.get(sensorCheckTarget);
                     if (null != strValue)
                     {
                         Double value = Double.valueOf(strValue);
                         
                         //debugging using
-                        Logs.showTrace("[InterruptLogicHandler] sensor: " + judgeBrainElement.sensors.get(j) + " get value: " + String.valueOf(value));
+                        //Logs.showTrace("[InterruptLogicHandler] sensor: " + sensorCheckTarget + " get value: " + String.valueOf(value));
                         
-                        //FSR1 & FSR2 沒有擠壓情況下會有時會大於 0 需補正 100.0
-                        if (judgeBrainElement.sensors.get(j).equals("FSR1") || judgeBrainElement.sensors.get(j).equals("FSR2"))
+                        //FSR1 & FSR2 (臉頰) 沒有擠壓情況下會有時會大於 0 ，需去雜訊
+                        if (sensorCheckTarget.equals("FSR1") || sensorCheckTarget.equals("FSR2"))
                         {
-                            if (value > 100.0)
+                            if (value > 30.0)
                             {
                                 count++;
                             }
-                            
                         }
                         //開燈補正　H需大於255
-                        else if (judgeBrainElement.sensors.get(j).equals("H"))
+                        else if (sensorCheckTarget.equals("H"))
                         {
                             if (value > 256.0)
                             {
@@ -473,11 +473,10 @@ public class InterruptLogicHandler extends BaseHandler
             }
         }
         
-        
         return result;
     }
     
-    //{"model":1,"s_bright":6,"s_head":[1,0,0,0],"s_cheek":[0,0],"s_rfid":0000039183}
+    //{"model":001,"s_bright":6,"s_head":[1,0,0,0],"s_cheek":[0,0],"s_rfid":0000039183}
     private HashMap<String, String> convertToHashMapData(String data)
     {
         HashMap<String, String> hashMapData = new HashMap<>();
