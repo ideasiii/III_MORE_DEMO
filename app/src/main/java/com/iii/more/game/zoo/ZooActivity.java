@@ -405,7 +405,7 @@ public class ZooActivity extends Activity
                 case SCEN_INDEX_START:
                     // 開始等動物園RFID
                     timer = new Timer(true);
-                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_ANIMAL_RFID), 2000);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_ANIMAL_RFID), 6000);
                     break;
                 case SCEN_INDEX_ANIMAL_RFID:
                     timer = new Timer(true);
@@ -413,11 +413,11 @@ public class ZooActivity extends Activity
                     break;
                 case SCEN_INDEX_HOLD_HAND: // 孩子挑選交通工具RFID
                     timer = new Timer(true);
-                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_TRAFFIC_BUS), 3000); // 假設選了公車
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_TRAFFIC_BUS), 6000); // 假設選了公車
                     break;
                 case SCEN_INDEX_TRAFFIC_BUS:
                     timer = new Timer(true);
-                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_TRAFFIC_CARD), 3000); // 孩子將悠遊卡RFID放上盤子
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_TRAFFIC_CARD), 6000); // 孩子將悠遊卡RFID放上盤子
                     break;
                 case SCEN_INDEX_TRAFFIC_MRT:
                     break;
@@ -566,7 +566,22 @@ public class ZooActivity extends Activity
         @Override
         public void onScannedRfid(Object sensor, String scannedResult)
         {
-            Logs.showTrace("onScannedRfid");
+            Logs.showTrace("onScannedRfid Result:" + scannedResult);
+            switch (mnScenarizeIndex)
+            {
+                case SCEN_INDEX_START:
+                    timer.cancel();
+                    handler.sendEmptyMessage(SCEN_INDEX_ANIMAL_RFID);
+                    break;
+                case SCEN_INDEX_HOLD_HAND:
+                    timer.cancel();
+                    handler.sendEmptyMessage(SCEN_INDEX_TRAFFIC_BUS);
+                    break;
+                case SCEN_INDEX_TRAFFIC_BUS:
+                    timer.cancel();
+                    handler.sendEmptyMessage(SCEN_INDEX_TRAFFIC_CARD);
+                    break;
+            }
         }
     };
     
