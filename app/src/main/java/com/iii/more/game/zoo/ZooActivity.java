@@ -229,7 +229,9 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.4f, 0.85f);
                 break;
             case SCEN_INDEX_DROP_CUSTOM_IDLE:
-                strTTS = "喂！!!喂!!! 快一點呀，，公車要開囉！";
+                // TODO hack, 移除語助詞
+                //strTTS = "喂！!!喂!!! 快一點呀，，公車要開囉！";
+                strTTS = "快一點呀，，公車要開囉！";
                 robotHead.setPitch(0.75f, 0.6f);
                 break;
             case SCEN_INDEX_DROP_CUSTOM_IDLE2:
@@ -247,7 +249,9 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(0.4f, 2f);
                 break;
             case SCEN_INDEX_ZOO_DOOR:       // 顯示出動物園的大門
-                strTTS = "噹噹噹噹，，到囉，，讓我們一起來參觀台灣動物區的動物喔";
+                // TODO hack, 移除語助詞
+                //strTTS = "噹噹噹噹，，到囉，，讓我們一起來參觀台灣動物區的動物喔";
+                strTTS = "到囉，，讓我們一起來參觀台灣動物區的動物喔";
                 nFace = R.drawable.zoodoor;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.showObjectImg(true);
@@ -255,24 +259,32 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.5f, 1.6f);
                 break;
             case SCEN_INDEX_ANIMAL_MONKEY:
-                strTTS = "哇! 台灣獼猴耶";
+                // TODO hack, 移除語助詞
+                //strTTS = "哇! 台灣獼猴耶";
+                strTTS = "台灣獼猴耶";
                 nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.monkey, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(1.2f, 1.6f);
                 break;
             case SCEN_INDEX_ANIMAL_BEAR:
-                strTTS = "吼! 快看，是台灣黑熊";
+                // TODO hack, 移除語助詞
+                // strTTS = "吼! 快看，是台灣黑熊";
+                strTTS = "快看，是台灣黑熊";
                 robotHead.setObjectImg(R.drawable.bear, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(1.5f, 0.8f);
                 break;
             case SCEN_INDEX_ANIMAL_SWAN:
-                strTTS = "哇! 好美喔，，是天鵝";
+                // TODO hack, 移除語助詞
+                //strTTS = "哇! 好美喔，，是天鵝";
+                strTTS = "好美喔，，是天鵝";
                 robotHead.setObjectImg(R.drawable.swan, ImageView.ScaleType.FIT_XY);
                 robotHead.setPitch(0.7f, 0.8f);
                 break;
             case SCEN_INDEX_ANIMAL_LION:
-                strTTS = "啊 啊，是獅子";
+                // TODO hack, 移除語助詞
+                //strTTS = "啊 啊，是獅子";
+                strTTS = "是獅子";
                 robotHead.setObjectImg(R.drawable.lion, ImageView.ScaleType.FIT_XY);
                 robotHead.setPitch(1.5f, 0.8f);
                 break;
@@ -431,7 +443,9 @@ public class ZooActivity extends Activity
                     break;
                 case SCEN_INDEX_BUS_INSIDE:     // 等待拉人去座位
                     timer = new Timer(true);
-                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_DROP_CUSTOM_IDLE), 3000);
+                    // TODO hack, extend delay
+                    //timer.schedule(new ScenarizeTimer(SCEN_INDEX_DROP_CUSTOM_IDLE), 3000);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_DROP_CUSTOM_IDLE), 6000);
                     break;
                 case SCEN_INDEX_DROP_CUSTOM_IDLE: // 等待拉人去座位 第二次
                     timer = new Timer(true);
@@ -475,7 +489,9 @@ public class ZooActivity extends Activity
                     break;
                 case SCEN_INDEX_EATED_HAMBERB:
                     timer = new Timer(true);
-                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_ZOO_DOOR2), 1000);
+                    // TODO hack, directly goto game over scene
+                    //timer.schedule(new ScenarizeTimer(SCEN_INDEX_ZOO_DOOR2), 1000);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_GAME_OVER), 1000);
                     break;
                 case SCEN_INDEX_ZOO_DOOR2:
                     timer = new Timer(true);
