@@ -2,14 +2,11 @@ package com.iii.more.main;
 
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,9 +24,9 @@ import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
+import com.iii.more.emotion.interrupt.FaceEmotionInterruptHandler;
+import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.game.zoo.ZooActivity;
-import com.iii.more.interrupt.logic.InterruptLogicHandler;
-import com.iii.more.interrupt.logic.InterruptLogicParameters;
 import com.iii.more.logic.LogicHandler;
 import com.iii.more.logic.LogicParameters;
 import com.iii.more.screen.view.display.DisplayHandler;
@@ -50,13 +47,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
-
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 
 /**
@@ -98,8 +91,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     //BLE connect read pen
     private ReadPenBLEHandler mReadPenBLEHandler = null;
     
-    //get device sensor data to stop now activity
-    private InterruptLogicHandler mInterruptLogicHandler = null;
+    //handle in story mode face emotion interrupt
+    private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = null;
     
     
     private Handler mHandler = new Handler()
@@ -127,30 +120,21 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        getWindow().getDecorView().setSystemUiVisibility(flags);
         
-        // This work only for android 4.4+
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+        final View decorView = getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
         {
             
-            getWindow().getDecorView().setSystemUiVisibility(flags);
-            
-            // Code below is to handle presses of Volume up or Volume down.
-            // Without this, after pressing volume buttons, the navigation bar will
-            // show up and won't hide
-            final View decorView = getWindow().getDecorView();
-            decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
+            @Override
+            public void onSystemUiVisibilityChange(int visibility)
             {
-                
-                @Override
-                public void onSystemUiVisibilityChange(int visibility)
+                if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
                 {
-                    if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
-                    {
-                        decorView.setSystemUiVisibility(flags);
-                    }
+                    decorView.setSystemUiVisibility(flags);
                 }
-            });
-        }
+            }
+        });
         
         MainApplication mMainApp = (MainApplication) this.getApplication();
         mMainApp.setCockpitFilmMakingEventListener(this);
@@ -159,8 +143,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         mProgressDialog = new ProgressDialog(this);
         
         initAlertDialog();
-        
-        initInterruptLogic();
         
         //showAlertDialogConfirmConnectBLEReadPen();
         init();
@@ -199,45 +181,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         mReadPenBLEHandler = new ReadPenBLEHandler(this);
         mReadPenBLEHandler.setHandler(mHandler);
         mReadPenBLEHandler.init();
-    }
-    
-    
-    public void initInterruptLogic()
-    {
-        mInterruptLogicHandler = new InterruptLogicHandler(this);
-        mInterruptLogicHandler.setHandler(mHandler);
-        Logs.showTrace("[MainActivity] initInterruptLogic success!");
-        
-        // ### interruptLogicHandler set data
-        
-        SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
-        String taskComposerString = prefs.getString(Parameters.TASK_COMPOSER_DATA, "null");
-        Logs.showTrace("[MainActivity] SharedPreferences data: " + taskComposerString);
-        
-        try
-        {
-            JSONObject tmp = new JSONObject(taskComposerString);
-            if (tmp.has("rules"))
-            {
-                JSONObject rules = tmp.getJSONObject("rules");
-                if (rules.has("action"))
-                {
-                    mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(rules.getJSONArray("action").toString());
-                }
-                if (rules.has("emotion"))
-                {
-                    mInterruptLogicHandler.setInterruptEmotionLogicBehaviorDataArray(rules.getJSONArray("emotion").toString());
-                }
-            }
-        }
-        catch (JSONException e)
-        {
-            Logs.showError("[MainActivity] handleMessageDeviceHttpServer: " + e.toString());
-            Logs.showError("[MainActivity] use DEFAULT_LOGIC_BEHAVIOR_DATA ");
-            mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(
-                    InterruptLogicParameters.DEFAULT_LOGIC_BEHAVIOR_DATA);
-        }
-        
     }
     
     
@@ -283,8 +226,10 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         mHttpAPIHandler = new HttpAPIHandler(this);
         mHttpAPIHandler.setHandler(mHandler);
         
-        MainApplication mainApplication = (MainApplication) this.getApplication();
-        mainApplication.startFaceEmotion();
+        mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
+        mFaceEmotionInterruptHandler.setHandler(mHandler);
+        JSONObject tmp = new JSONObject();
+        mFaceEmotionInterruptHandler.setFaceEmotionBehavior(tmp);
     }
     
     
@@ -371,125 +316,30 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             case HttpAPIParameters.CLASS_HTTP_API:
                 handleMessageHttpAPI(msg);
                 break;
-            case InterruptLogicParameters.CLASS_INTERRUPT_LOGIC:
-                handleMessageInterruptLogic(msg);
-                break;
             
+            case FaceEmotionInterruptParameters.CLASS_FACE_EMOTION_INTERRUPT:
+                handleMessageFaceEmotionInterrupt(msg);
+                break;
             
             default:
                 break;
         }
     }
     
-    
-    private void handleMessageInterruptLogic(Message msg)
+    private void handleMessageFaceEmotionInterrupt(Message msg)
     {
-        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        if (null != mLogicHandler)
+        switch (msg.arg2)
         {
-            switch (msg.arg2)
-            {
-                case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
-                    String trigger_result = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
-                    
-                    if (mLogicHandler.getMode() == LogicParameters.MODE_GAME)
-                    {
-                        switch (trigger_result)
-                        {
-                            case "握手":
-                                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你好呀!今天有沒有乖乖啊!", "zh");
-                                break;
-                            case "拍手":
-                                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你好棒棒!。我們一起拍手吧!", "zh");
-                                break;
-                            case "擠壓":
-                                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "我的臉好痛喔，不可以壓我的臉喔。", "zh");
-                                break;
-                            case "拍頭":
-                                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "你 幹 嘛打我，打人是不對的喲!", "zh");
-                                break;
-                        }
-                        
-                        if (null != mDisplayHandler)
-                        {
-                            try
-                            {
-                                mDisplayHandler.setDisplayJson(new JSONObject(message.get("display")));
-                                mDisplayHandler.startDisplay();
-                            }
-                            catch (JSONException e)
-                            {
-                                Logs.showError("[MainActivity] handleMessageInterruptLogic ERROR: " + e.toString());
-                            }
-                            
-                        }
-                    }
-                    else if (mLogicHandler.getMode() == LogicParameters.MODE_STORY)
-                    {
-                        if (trigger_result.equals("握手") || trigger_result.equals("擠壓") || trigger_result.equals("拍頭"))
-                        {
-                            //### interrupt story stream and
-                            
-                            //### display stream set logicHandler to let it know need to
-                            
-                            //### pause and save stream location , display stream
-                            
-                            //### launch tts service to let user know is interrupting
-                            /*mLogicHandler.pauseStoryStreaming();
-                            mHandler.postDelayed(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    mLogicHandler.startUpStory(null, null, null);
-                                }
-                            }, 500);*/
-                            
-                            
-                        }
-                    }
-                    
-                    
-                    break;
-                case InterruptLogicParameters.METHOD_EMOTION_LOGIC_RESPONSE:
-                    if (mLogicHandler.getMode() == LogicParameters.MODE_GAME)
-                    {
-                        if (null != mDisplayHandler)
-                        {
-                            try
-                            {
-                                mDisplayHandler.setDisplayJson(new JSONObject(message.get("display")));
-                                mDisplayHandler.startDisplay();
-                            }
-                            catch (JSONException e)
-                            {
-                                Logs.showError("[MainActivity] handleMessageInterruptLogic ERROR: " + e.toString());
-                            }
-                            
-                        }
-                    }
-                    
-                    break;
-            }
+            case FaceEmotionInterruptParameters.METHOD_EVENT:
+                
+                
+                break;
+            case FaceEmotionInterruptParameters.METHOD_RECORD:
+                
+                break;
+            
+            
         }
-    }
-    
-    
-    private String getRFIDData(String inputData)
-    {
-        String rfidDataString = null;
-        
-        if (inputData.contains("RFID"))
-        {
-            Pattern patterns = Pattern.compile(InterruptLogicParameters.PATTERN_EVENT_RFID_DATA);
-            Matcher matcher = patterns.matcher(inputData);
-            if (matcher.find())
-            {
-                rfidDataString = matcher.group(1);
-            }
-        }
-        
-        return rfidDataString;
     }
     
     
@@ -680,6 +530,17 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 case LogicParameters.METHOD_STORY_RESUME:
                     //### get Story Pause Second  and let displayHandler know next second
                     mDisplayHandler.resumeDisplaying();
+                    
+                    
+                    break;
+                
+                case LogicParameters.METHOD_TTS:
+                    if (message.get("ttsID").equals(TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE))
+                    {
+                        // ### call faceEmotionInterruptHandler to set record emotion on
+                        
+                        
+                    }
                     
                     
                     break;
@@ -997,6 +858,9 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     {
         //get face emotion data
         Logs.showTrace("[MainActivity] Face Emotion Data: " + faceEmotionHashMap);
+        
+        mFaceEmotionInterruptHandler.setFaceEventData(faceEmotionHashMap);
+    
     }
     
     @Override

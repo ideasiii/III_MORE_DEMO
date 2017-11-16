@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 
 import sdk.ideas.common.BaseHandler;
@@ -23,11 +25,14 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         super(context);
     }
     
-    public void setEventData(@NonNull HashMap<String, String> faceData)
+    public void setFaceEventData(@NonNull HashMap<String, String> faceEmotionHashData)
     {
     
     
+    }
     
+    public void setFaceEmotionBehavior(@NonNull JSONObject faceEmotionRule)
+    {
     
     }
     

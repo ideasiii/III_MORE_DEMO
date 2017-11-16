@@ -100,7 +100,7 @@ public class LogicHandler extends BaseHandler
             case WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER:
                 handleMessageWebMediaPlayer(msg);
                 break;
-          
+            
             case CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER:
                 handleMessageTTS(msg);
                 break;
@@ -434,7 +434,15 @@ public class LogicHandler extends BaseHandler
                     case TTSParameters.ID_SERVICE_INIT_SUCCESS:
                         Logs.showTrace("ID_SERVICE_INIT_SUCCESS");
                         break;
-                    case TTSParameters.ID_SERVICE_SPOTIFY_UNAUTHORIZED:
+                    case TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE:
+                        HashMap<String, String> data = new HashMap<>();
+                        
+                        data.put("ttsID", TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE);
+                        callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters.METHOD_TTS, data);
+                        
+                        
+                        break;
+                    
                     default:
                         break;
                     
@@ -661,7 +669,6 @@ public class LogicHandler extends BaseHandler
     public void endAll()
     {
         
-      
         
         if (null != mTextToSpeechHandler)
         {

@@ -11,6 +11,8 @@ public class LogicParameters
     public static final int METHOD_SPHINX = 1;
     public static final int METHOD_STORY_RESUME = 2;
     public static final int METHOD_STORY_PAUSE = 3;
+    public static final int METHOD_TTS = 4;
+    
     
     public static final int MODE_FRIEND = 3;
     public static final int MODE_STORY = 1;
