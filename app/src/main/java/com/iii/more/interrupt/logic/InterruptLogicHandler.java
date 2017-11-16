@@ -518,8 +518,10 @@ public class InterruptLogicHandler extends BaseHandler
             {
                 int rfidRead = json.getInt("s_rfid");
                 //int correctedRfidRead = correctRfidReading(rfidRead);
-                
-                hashMapData.put(InterruptLogicParameters.STRING_RFID, Integer.toString(rfidRead));
+                if (rfidRead != 0)
+                {
+                    hashMapData.put(InterruptLogicParameters.STRING_RFID, Integer.toString(rfidRead));
+                }
             }
         }
         catch (JSONException e)

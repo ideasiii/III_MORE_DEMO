@@ -11,6 +11,7 @@ import android.os.Message;
 import com.iii.more.cmp.semantic.SemanticDeviceID;
 import com.iii.more.cockpit.CockpitService;
 import com.iii.more.cockpit.InternetCockpitService;
+import com.iii.more.cockpit.OtgCockpitService;
 import com.iii.more.emotion.EmotionHandler;
 import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.interrupt.logic.InterruptLogicHandler;
@@ -35,6 +36,9 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 public class MainApplication extends Application
 {
     private CockpitService mCockpitService;
+    private InternetCockpitService mInternetCockpitService;
+    private OtgCockpitService mOtgCockpitService;
+
     private Tracker mTracker = new Tracker(this);
     
     private CockpitConnectionEventListener mCockpitConnectionEventListener;
@@ -49,7 +53,11 @@ public class MainApplication extends Application
     private static boolean isFaceEmotionStart = false;
     
     private final MainHandler mMainHandler = new MainHandler(this);
-    
+
+    public MainApplication()
+    {
+    }
+
     @Override
     public void onCreate()
     {
@@ -136,14 +144,7 @@ public class MainApplication extends Application
         mTracker.setHandler(mMainHandler);
         mTracker.startTracker(Parameters.TRACKER_APP_ID);
     }
-    
-    public void sendToTracker(String key, String value)
-    {
-        HashMap<String, String> data = new HashMap<>();
-        data.put(key, value);
-        sendToTracker(data);
-    }
-    
+
     public void sendToTracker(HashMap<String, String> data)
     {
         mTracker.track(data);
@@ -152,6 +153,8 @@ public class MainApplication extends Application
     private void bootCockpitService()
     {
         CockpitService.startThenBindService(this, InternetCockpitService.class,
+                mCockpitServiceConnection, null);
+        CockpitService.startThenBindService(this, OtgCockpitService.class,
                 mCockpitServiceConnection, null);
     }
     
@@ -196,10 +199,13 @@ public class MainApplication extends Application
             
             if (mCockpitService instanceof InternetCockpitService)
             {
-                ((InternetCockpitService) mCockpitService)
-                        .setDeviceId(SemanticDeviceID.getDeviceID(getApplicationContext()));
-                ((InternetCockpitService) mCockpitService)
-                        .setServerAddress(Parameters.INTERNET_COCKPIT_SERVER_ADDRESS);
+                mInternetCockpitService = (InternetCockpitService) mCockpitService;
+                mInternetCockpitService.setDeviceId(SemanticDeviceID.getDeviceID(getApplicationContext()));
+                mInternetCockpitService.setServerAddress(Parameters.INTERNET_COCKPIT_SERVER_ADDRESS);
+            }
+            else if (mCockpitService instanceof OtgCockpitService)
+            {
+                mOtgCockpitService = (OtgCockpitService) mCockpitService;
             }
             
             mCockpitService.setHandler(mMainHandler);
@@ -314,6 +320,7 @@ public class MainApplication extends Application
                         // TODO remove or change this quick and dirty code
                         String reading = message.get(InterruptLogicParameters.JSON_STRING_TAG);
                         mCockpitSensorEventListener.onScannedRfid(null, reading);
+                        break;
                     default:
                         Logs.showTrace("[MainApplication] handleInterruptLogicMessage() unknown trigger_result: " + trigger_result);
                 }

@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Handler;
 import android.view.View;
@@ -130,7 +129,7 @@ public class InitActivity extends AppCompatActivity
                     //### no com.iii.more.oobe -> go to com.iii.more.oobe class
                     if (checkOobe())
                     {
-                        starOobeActivity();
+                        startOobeActivity();
                     }
                     else
                     {
@@ -272,7 +271,7 @@ public class InitActivity extends AppCompatActivity
         TextView apkBuildDateView = (TextView) findViewById(R.id.apk_build_date_text_view);
         String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(BuildConfig.buildTime);
-        apkBuildDateView.setText("Build on " + formattedBuildDateText);
+        apkBuildDateView.setText("Built on " + formattedBuildDateText);
 
         AnimationHandler animationHandler = new AnimationHandler(this);
         animationHandler.setView(findViewById(R.id.logo_image_view));
@@ -312,7 +311,7 @@ public class InitActivity extends AppCompatActivity
         ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(formattedBuildDateText);
         setTaskDescription(taskDescription);
     }
-    
+
     public void initDeviceHttpServer()
     {
         mDeviceHttpServerHandler = new DeviceHttpServerHandler(this);
@@ -466,9 +465,8 @@ public class InitActivity extends AppCompatActivity
         
     }
     
-    private void starOobeActivity()
+    private void startOobeActivity()
     {
-        
         Intent startOobe = new Intent(Intent.ACTION_MAIN);
         startOobe.addCategory(Intent.CATEGORY_HOME);
         startOobe.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -518,7 +516,7 @@ public class InitActivity extends AppCompatActivity
                 }
             }
             Logs.showTrace("[InitActivity] END Permission Check");
-            Logs.showTrace("[InitActivity] start to show  Licences Permission!");
+            Logs.showTrace("[InitActivity] start to show Licences Permission!");
             
             //### show licenses.txt dialog to let user know this
             showAlertDialogLicencesPermission();
