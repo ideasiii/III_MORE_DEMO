@@ -264,6 +264,19 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         }
     }
     
+    public void setImageViewImageFromDrawable(int id)
+    {
+        for (int key : mHashMapViews.keySet())
+        {
+            if (mHashMapViews.get(key) instanceof ImageView)
+            {
+                ((ImageView) mHashMapViews.get(key)).setImageResource(id);
+                break;
+            }
+        }
+    }
+    
+    
     public void resetAllDisplayViews()
     {
         if (null != mDisplayHandler && null != mAnimationHandler && null != mHashMapViews)
