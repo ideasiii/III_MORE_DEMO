@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 
@@ -361,7 +362,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                         String displayJson = mStateData.get(mOobeLogicHandler.getState()).getDisplayJsonString();
                         Logs.showTrace("[OobeActivity] doNext: tts:" + tts);
                         mOobeLogicHandler.ttsService(state, tts, "zh");
-        
+                        
                         if (null != displayJson)
                         {
                             try
@@ -376,7 +377,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                         }
                         else
                         {
-            
+                            
                             String movieFileName = mStateData.get(mOobeLogicHandler.getState()).movie;
                             if (!movieFileName.isEmpty())
                             {
@@ -384,10 +385,11 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                 {
                                     try
                                     {
+                                        mOobeDisplayHandler.setImageViewImageFromDrawable(R.drawable.noeye);
                                         mVideoView.setVisibility(View.VISIBLE);
-                        
+                                        
                                         mVideoView.setVideoPath(OobeParameters.TEST_VIDEO_HOST_URL + movieFileName);
-                        
+                                        
                                         mVideoView.start();
                                     }
                                     catch (Exception e)
@@ -398,7 +400,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                             }
                         }
                     }
-    
+                    
                     else
                     {
                         Logs.showTrace("[OobeActivity] end OobeActivity jump to mainActivity");
@@ -463,12 +465,22 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
     
     private void startMainActivity()
     {
-        Intent startMain = new Intent(Intent.ACTION_MAIN);
-        startMain.addCategory(Intent.CATEGORY_HOME);
-        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startMain.setClass(OobeActivity.this, MainActivity.class);
-        startActivity(startMain);
-        finish();
+        Toast.makeText(this.getApplicationContext(), "即將結束OOBE模式，跳轉至一般模式", Toast.LENGTH_LONG).show();
+        
+        mHandler.postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Intent startMain = new Intent(Intent.ACTION_MAIN);
+                startMain.addCategory(Intent.CATEGORY_HOME);
+                startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startMain.setClass(OobeActivity.this, MainActivity.class);
+                startActivity(startMain);
+                finish();
+            }
+        }, 3000);
+        
     }
     
     private ArrayList<OobeLogicElement> getLogicData(String data)
