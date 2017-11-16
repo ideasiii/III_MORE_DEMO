@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
@@ -37,8 +34,8 @@ public class InterruptLogicHandler extends BaseHandler
     
     private ArrayList<LogicBrainElement> mLogicBrainArrayListData = null;
     private ArrayList<EmotionBrainElement> mEmotionBrainArrayListData = null;
-    
-    
+
+
     public InterruptLogicHandler(Context context)
     {
         super(context);
@@ -52,12 +49,12 @@ public class InterruptLogicHandler extends BaseHandler
         }
         mLogicBrainArrayListData = new ArrayList<>();
         mEmotionBrainArrayListData = new ArrayList<>();
-        
     }
     
     public void setInterruptEmotionLogicBehaviorDataArray(@NonNull String emotionLogicBehavior)
     {
         Logs.showTrace("[InterruptLogicHandler] set emotion logic behavior data: " + emotionLogicBehavior);
+
         try
         {
             mInterruptEmotionBehaviorDataArray = new JSONArray(emotionLogicBehavior);
@@ -77,23 +74,19 @@ public class InterruptLogicHandler extends BaseHandler
                             jsonEmotionBrainElement.getString(InterruptLogicParameters.JSON_STRING_DATA_TYPE)));
                 }
             }
+
             //debug using
             for (int i = 0; i < mEmotionBrainArrayListData.size(); i++)
             {
                 mEmotionBrainArrayListData.get(i).print();
             }
-            
-            
         }
         catch (JSONException e)
         {
             Logs.showError("[InterruptLogicHandler] data emotion parse ERROR: " + e.toString());
         }
-        
-        
     }
-    
-    
+
     public void setInterruptLogicBehaviorDataArray(@NonNull String logicBehavior)
     {
         Logs.showTrace("[InterruptLogicHandler] set logic behavior data: " + logicBehavior);
@@ -132,8 +125,8 @@ public class InterruptLogicHandler extends BaseHandler
                     {
                         Logs.showError("[InterruptLogicHandler] data parse ERROR: some data LOST");
                     }
-                    
                 }
+
                 //for debugging use
                 /*Logs.showTrace("[InterruptLogicHandler] unsorted mLogicBrainArrayListData####");
                 for (int i = 0; i < mLogicBrainArrayListData.size(); i++)
@@ -151,20 +144,18 @@ public class InterruptLogicHandler extends BaseHandler
                                 return o1.getActionPriority() - o2.getActionPriority();
                             }
                         });
+
                 //for debugging use
                 Logs.showTrace("[InterruptLogicHandler] sorted mLogicBrainArrayListData===");
                 for (int i = 0; i < mLogicBrainArrayListData.size(); i++)
                 {
                     mLogicBrainArrayListData.get(i).print();
                 }
-                
             }
             catch (JSONException e)
             {
                 Logs.showError("[InterruptLogicHandler] data Logic parse ERROR: " + e.toString());
             }
-            
-            
         }
         catch (JSONException e)
         {
@@ -176,7 +167,6 @@ public class InterruptLogicHandler extends BaseHandler
     {
         Logs.showTrace("[InterruptLogicHandler] emotion event data: " + emotionEventData);
         mEmotionHashMapData = emotionEventData;
-        
     }
     
     public void startEmotionEventDataAnalysis()
@@ -282,46 +272,48 @@ public class InterruptLogicHandler extends BaseHandler
     
     public void startEventDataAnalysis()
     {
-        if (null != mEventData && mEventData.length() > 0)
+        if (null == mEventData || mEventData.length() < 1)
         {
-            HashMap<String, String> eventHashMapData = convertToHashMapData(mEventData);
-            Logs.showTrace("[InterruptLogicHandler] Get event HashMap: " + eventHashMapData);
+            Logs.showTrace("[InterruptLogicHandler] startEventDataAnalysis() no mEventData");
+            return;
+        }
 
-            if (null == eventHashMapData)
+        HashMap<String, String> eventHashMapData = convertToHashMapData(mEventData);
+        if (null == eventHashMapData)
+        {
+            Logs.showTrace("[InterruptLogicHandler] startEventDataAnalysis() no eventHashMapData");
+            return;
+        }
+
+        Logs.showTrace("[InterruptLogicHandler] Get event HashMap: " + eventHashMapData);
+
+        HashMap<String, String> result = logicJudgement(eventHashMapData);
+        if (null != result)
+        {
+            Logs.showTrace("[InterruptLogicHandler] result TRIGGER_RESULT:" +
+                    result.get(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT));
+            Logs.showTrace("[InterruptLogicHandler] result DESCRIPTION:" +
+                    result.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION));
+
+            callBackMessage(ResponseCode.ERR_SUCCESS, InterruptLogicParameters.CLASS_INTERRUPT_LOGIC,
+                    InterruptLogicParameters.METHOD_LOGIC_RESPONSE, makeDisplayJson(result));
+        }
+        else if (eventHashMapData.containsKey(InterruptLogicParameters.STRING_RFID))
+        {
+            // TODO RFID is not written in trigger rules, check separately
+            String rfidValue = eventHashMapData.get(InterruptLogicParameters.STRING_RFID);
+            int rfidInteger = Integer.parseInt(rfidValue);
+
+            if (0 != rfidInteger)
             {
-                return;
-            }
-            
-            HashMap<String, String> result = logicJudgement(eventHashMapData);
-            if (null != result)
-            {
-                //debugging using
-                Logs.showTrace("[InterruptLogicHandler] result TRIGGER_RESULT:" +
-                        result.get(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT));
-                Logs.showTrace("[InterruptLogicHandler] result DESCRIPTION:" +
-                        result.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION));
-                
-                //callback
+                result = new HashMap<>();
+                result.put(InterruptLogicParameters.JSON_STRING_DESCRIPTION, "RFID");
+                Logs.showTrace("[InterruptLogicHandler] RFID data@@: " + rfidValue);
+                result.put(InterruptLogicParameters.JSON_STRING_TAG, rfidValue);
+
                 callBackMessage(ResponseCode.ERR_SUCCESS, InterruptLogicParameters.CLASS_INTERRUPT_LOGIC,
-                        InterruptLogicParameters.METHOD_LOGIC_RESPONSE, makeDisplayJson(result));
-                
+                        InterruptLogicParameters.METHOD_LOGIC_RESPONSE, result);
             }
-            else
-            {
-                // TODO remove or change this quick and dirty: return RFID reading
-                if (eventHashMapData.containsKey(InterruptLogicParameters.STRING_RFID))
-                {
-                    result = new HashMap<>();
-                    result.put(InterruptLogicParameters.JSON_STRING_DESCRIPTION, "RFID");
-                    Logs.showTrace("[InterruptLogicHandler]RFID data@@: " + eventHashMapData.get(InterruptLogicParameters.STRING_RFID));
-                    result.put(InterruptLogicParameters.JSON_STRING_TAG, eventHashMapData.get(InterruptLogicParameters.STRING_RFID));
-                    
-                    //callback
-                    callBackMessage(ResponseCode.ERR_SUCCESS, InterruptLogicParameters.CLASS_INTERRUPT_LOGIC,
-                            InterruptLogicParameters.METHOD_LOGIC_RESPONSE, (result));
-                }
-            }
-            
         }
     }
     
@@ -330,8 +322,7 @@ public class InterruptLogicHandler extends BaseHandler
         HashMap<String, String> message = new HashMap<>();
         message.put(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT, inputHashMap.get(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT));
         message.put(InterruptLogicParameters.JSON_STRING_DESCRIPTION, inputHashMap.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION));
-        
-        
+
         JSONObject animate = new JSONObject();
         try
         {
@@ -356,25 +347,20 @@ public class InterruptLogicHandler extends BaseHandler
             display.put("enable", 1);
             display.put("show", show);
             message.put("display", display.toString());
-            
-            
         }
         catch (JSONException e)
         {
             Logs.showError("[InterruptLogicHandler] makeDisplayJson ERROR" + e.toString());
         }
-        
-        
+
         return message;
     }
-    
-    
+
     private HashMap<String, String> makeEmotionDisplayJson(String emotionID, String emotionMappingImageID)
     {
         HashMap<String, String> message = new HashMap<>();
         message.put(InterruptLogicParameters.JSON_STRING_EMOTION_NAME, emotionID);
         message.put(InterruptLogicParameters.JSON_STRING_EMOTION_MAPPING_IMAGE_NAME, emotionMappingImageID);
-        
         
         JSONObject animate = new JSONObject();
         try
@@ -400,89 +386,67 @@ public class InterruptLogicHandler extends BaseHandler
             display.put("enable", 1);
             display.put("show", show);
             message.put("display", display.toString());
-            
-            
         }
         catch (JSONException e)
         {
             Logs.showError("[InterruptLogicHandler] makeEmotionDisplayJson ERROR" + e.toString());
         }
         
-        
         return message;
     }
-    
-    
+
     private HashMap<String, String> logicJudgement(HashMap<String, String> eventHashMapData)
     {
-        HashMap<String, String> result = null;
-        if (null != eventHashMapData && null != mLogicBrainArrayListData)
+        if (null == eventHashMapData || null == mLogicBrainArrayListData)
         {
-            //this loop is
-            //mLogicBrainHashMapData maybe use array list to sort priority
-            for (int i = 0; i < mLogicBrainArrayListData.size(); i++)
+            return null;
+        }
+
+        for (int i = 0; i < mLogicBrainArrayListData.size(); i++)
+        {
+            LogicBrainElement judgeBrainElement = mLogicBrainArrayListData.get(i);
+            int triggerCount = 0;
+
+            //Logs.showTrace("[InterruptLogicHandler] checking actionPriority: " + String.valueOf(i + 1));
+
+            for (int j = 0; j < judgeBrainElement.sensors.size(); j++)
             {
-                LogicBrainElement judgeBrainElement = mLogicBrainArrayListData.get(i);
-                int count = 0;
+                String targetSensorName = judgeBrainElement.sensors.get(j);
+                Logs.showTrace("[InterruptLogicHandler] checking sensor: " + targetSensorName);
 
-                //Logs.showTrace("[InterruptLogicHandler] checking actionPriority: " + String.valueOf(i + 1));
-                
-                for (int j = 0; j < judgeBrainElement.sensors.size(); j++)
+                String strValue = eventHashMapData.get(targetSensorName);
+                if (null != strValue)
                 {
-                    String sensorCheckTarget = judgeBrainElement.sensors.get(j);
+                    Double value = Double.valueOf(strValue);
+                    //Logs.showTrace("[InterruptLogicHandler] sensor: " + targetSensorName + " get value: " + String.valueOf(value));
 
-                    Logs.showTrace("[InterruptLogicHandler] checking sensor: " + sensorCheckTarget);
-
-                    String strValue = eventHashMapData.get(sensorCheckTarget);
-                    if (null != strValue)
+                    if (isSensorValueAboveTriggeringThreshold(targetSensorName, value))
                     {
-                        Double value = Double.valueOf(strValue);
-                        
-                        //debugging using
-                        //Logs.showTrace("[InterruptLogicHandler] sensor: " + sensorCheckTarget + " get value: " + String.valueOf(value));
-                        
-                        //FSR1 & FSR2 (臉頰) 沒有擠壓情況下會有時會大於 0 ，需去雜訊
-                        if (sensorCheckTarget.equals("FSR1") || sensorCheckTarget.equals("FSR2"))
-                        {
-                            if (value > 30.0)
-                            {
-                                count++;
-                            }
-                        }
-                        //開燈補正　H需大於255
-                        else if (sensorCheckTarget.equals("H"))
-                        {
-                            if (value > 256.0)
-                            {
-                                count++;
-                            }
-                        }
-                        else if (value > 0.0)
-                        {
-                            count++;
-                        }
+                        triggerCount++;
                     }
                 }
-                if (count == judgeBrainElement.triggerRule)
-                {
-                    result = new HashMap<>();
-                    result.put(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT, judgeBrainElement.triggerResult);
-                    result.put(InterruptLogicParameters.JSON_STRING_DESCRIPTION, judgeBrainElement.description);
-                    break;
-                }
+            }
+
+            if (triggerCount == judgeBrainElement.triggerRule)
+            {
+                // trigger rule matched
+                HashMap<String, String> result = new HashMap<>();
+                result.put(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT, judgeBrainElement.triggerResult);
+                result.put(InterruptLogicParameters.JSON_STRING_DESCRIPTION, judgeBrainElement.description);
+                return result;
             }
         }
-        
-        return result;
+
+        // no matched rules
+        return null;
     }
     
-    //{"model":001,"s_bright":6,"s_head":[1,0,0,0],"s_cheek":[0,0],"s_rfid":0000039183}
+    // data example: {"model":001,"s_bright":6,"s_head":[1,0,0,0],"s_cheek":[0,0],"s_rfid":0000039183}
     private HashMap<String, String> convertToHashMapData(String data)
     {
-        HashMap<String, String> hashMapData = new HashMap<>();
-        
         try
         {
+            HashMap<String, String> hashMapData = new HashMap<>();
             JSONObject json = new JSONObject(data);
             
             if (json.has("s_hand"))
@@ -499,29 +463,27 @@ public class InterruptLogicHandler extends BaseHandler
             
             if (json.has("s_cheek"))
             {
-                JSONArray handReadings = json.getJSONArray("s_cheek");
-                if (handReadings.length() >= 2)
+                JSONArray cheekReadings = json.getJSONArray("s_cheek");
+                if (cheekReadings.length() >= 2)
                 {
-                    hashMapData.put(InterruptLogicParameters.STRING_FSR1, Integer.toString(handReadings.getInt(0)));
-                    hashMapData.put(InterruptLogicParameters.STRING_FSR2, Integer.toString(handReadings.getInt(1)));
+                    hashMapData.put(InterruptLogicParameters.STRING_FSR1, Integer.toString(cheekReadings.getInt(0)));
+                    hashMapData.put(InterruptLogicParameters.STRING_FSR2, Integer.toString(cheekReadings.getInt(1)));
                 }
             }
             
             if (json.has("s_bright"))
             {
-                int brightRead = json.getInt("s_bright");
-                hashMapData.put(InterruptLogicParameters.STRING_H, Integer.toString(brightRead));
+                int brightReading = json.getInt("s_bright");
+                hashMapData.put(InterruptLogicParameters.STRING_H, Integer.toString(brightReading));
             }
             
             if (json.has("s_rfid"))
             {
                 int rfidRead = json.getInt("s_rfid");
-                //int correctedRfidRead = correctRfidReading(rfidRead);
-                if (rfidRead != 0)
-                {
-                    hashMapData.put(InterruptLogicParameters.STRING_RFID, Integer.toString(rfidRead));
-                }
+                hashMapData.put(InterruptLogicParameters.STRING_RFID, Integer.toString(rfidRead));
             }
+
+            return hashMapData;
         }
         catch (JSONException e)
         {
@@ -529,22 +491,23 @@ public class InterruptLogicHandler extends BaseHandler
             e.printStackTrace();
             return null;
         }
-        
-        return hashMapData;
     }
-    
-    public static int correctRfidReading(int dec)
+
+    private static boolean isSensorValueAboveTriggeringThreshold(String sensorName, double value)
     {
-        int oct = 0, i = 1;
-        
-        while (dec != 0)
+        //FSR1 & FSR2 (臉頰) 沒有擠壓情況下會有時會大於 0，需去雜訊
+        if (sensorName.equals("FSR1") || sensorName.equals("FSR2"))
         {
-            oct += (dec % 8) * i;
-            dec /= 8;
-            i *= 10;
+            return value >= InterruptLogicParameters.SENSOR_CHEEK_TRIGGER_THRESHOLD;
         }
-        
-        return oct;
+
+        //開燈補正　H需大於255
+        if (sensorName.equals("H"))
+        {
+            return value >= InterruptLogicParameters.SENSOR_AMBIENT_LIGHT_TRIGGER_THRESHOLD;
+        }
+
+        return value >= InterruptLogicParameters.SENSOR_GENERAL_TRIGGER_THRESHOLD;
     }
     
     private class EmotionElement
@@ -563,11 +526,8 @@ public class InterruptLogicHandler extends BaseHandler
             Logs.showTrace("[InterruptLogicHandler][EmotionElement] EmotionID: " + emotionID +
                     " value: " + String.valueOf(emotionValue));
         }
-        
-        
     }
-    
-    
+
     private class EmotionBrainElement
     {
         public int emotionID = -1;
@@ -596,10 +556,8 @@ public class InterruptLogicHandler extends BaseHandler
             Logs.showTrace("[EmotionBrainElement] emotion_name: " + emotionName);
             Logs.showTrace("***********************");
         }
-        
     }
-    
-    
+
     private class LogicBrainElement
     {
         public ArrayList<String> sensors = null;
@@ -639,8 +597,6 @@ public class InterruptLogicHandler extends BaseHandler
             Logs.showTrace("[LogicBrainElement] sensors: " + sensors);
             Logs.showTrace("***********************");
         }
-        
-        
     }
     
 }

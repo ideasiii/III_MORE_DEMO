@@ -51,9 +51,11 @@ public abstract class InterruptLogicParameters
     public static final String JSON_STRING_DATA_TYPE = "data_type";
     
     public static final float LOW_BOUND_EMOTION_VALUE = 20.0f;
-    
-    
-    
-    
-    
+
+    /** 臉頰的 sensor 判定為遭受按壓的最小閾值 */
+    public static final double SENSOR_CHEEK_TRIGGER_THRESHOLD = 30.0;
+    /** 光感判定為有開燈的最小閾值 */
+    public static final double SENSOR_AMBIENT_LIGHT_TRIGGER_THRESHOLD = 255.0;
+    /** 其他 sensor 判定為有動作的的最小閾值 */
+    public static final double SENSOR_GENERAL_TRIGGER_THRESHOLD = 0.9;
 }
