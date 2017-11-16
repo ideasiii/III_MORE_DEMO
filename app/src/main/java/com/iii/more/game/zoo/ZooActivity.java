@@ -300,13 +300,14 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.5f, 0.9f);
                 break;
             case SCEN_INDEX_EATED_HAMBERB:
-                strTTS = "嗯 好吃！";
+                strTTS = "嗯 好吃！,, 我們下次再來玩";
                 nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.hamburger2, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.setPitch(1.6f, 0.5f);
                 break;
             case SCEN_INDEX_ZOO_DOOR2:
+                finish();
                 strTTS = "讓我們一起再來參觀非洲動物區的動物喔";
                 nFace = R.drawable.zoodoor2;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
@@ -379,6 +380,7 @@ public class ZooActivity extends Activity
             default:
                 return;
         }
+        robotHead.setPitch(1.0f, 1.0f);
         robotHead.playTTS(strTTS, String.valueOf(nIndex));
         track.put("Scenarize", String.valueOf(nIndex));
         track.put("TTS", strTTS);
