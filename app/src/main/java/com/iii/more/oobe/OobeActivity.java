@@ -2,6 +2,7 @@ package com.iii.more.oobe;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Handler;
@@ -388,8 +389,12 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                         mOobeDisplayHandler.setImageViewImageFromDrawable(R.drawable.noeye);
                                         mVideoView.setVisibility(View.VISIBLE);
                                         
-                                        mVideoView.setVideoPath(OobeParameters.TEST_VIDEO_HOST_URL + movieFileName);
+                                        //mVideoView.setVideoPath(OobeParameters.TEST_VIDEO_HOST_URL + movieFileName);
+                                        Uri video = Uri.parse("android.resource://" + getPackageName() + "/"
+                                                + R.raw.obbe_movie);
                                         
+                                        mVideoView.setVideoURI(video);
+                                       
                                         mVideoView.start();
                                     }
                                     catch (Exception e)

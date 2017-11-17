@@ -28,7 +28,6 @@ public class FaceEmotionInterruptHandler extends BaseHandler
     public void setFaceEventData(@NonNull HashMap<String, String> faceEmotionHashData)
     {
     
-    
     }
     
     public void setFaceEmotionBehavior(@NonNull JSONObject faceEmotionRule)
