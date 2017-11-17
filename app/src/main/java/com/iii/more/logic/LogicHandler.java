@@ -480,17 +480,24 @@ public class LogicHandler extends BaseHandler
     public void init()
     {
         
-        mTextToSpeechHandler = new TextToSpeechHandler(mContext);
-        mTextToSpeechHandler.setHandler(selfHandler);
-        mTextToSpeechHandler.init();
+        if (null == mTextToSpeechHandler)
+        {
+            mTextToSpeechHandler = new TextToSpeechHandler(mContext);
+            mTextToSpeechHandler.setHandler(selfHandler);
+            mTextToSpeechHandler.init();
+        }
+        if (null == mVoiceRecognition)
+        {
+            mVoiceRecognition = new VoiceRecognition(mContext);
+            mVoiceRecognition.setHandler(selfHandler);
+            mVoiceRecognition.setLocale(Locale.TAIWAN);
+        }
         
-        mVoiceRecognition = new VoiceRecognition(mContext);
-        mVoiceRecognition.setHandler(selfHandler);
-        mVoiceRecognition.setLocale(Locale.TAIWAN);
-        
-        mWebMediaPlayerHandler = new WebMediaPlayerHandler(mContext);
-        mWebMediaPlayerHandler.setHandler(selfHandler);
-        
+        if (null == mWebMediaPlayerHandler)
+        {
+            mWebMediaPlayerHandler = new WebMediaPlayerHandler(mContext);
+            mWebMediaPlayerHandler.setHandler(selfHandler);
+        }
         
     }
     
@@ -662,7 +669,7 @@ public class LogicHandler extends BaseHandler
             Logs.showTrace("[LogicHandler] mTextToSpeechHandler shutdown Start");
             mTextToSpeechHandler.shutdown();
             Logs.showTrace("[LogicHandler] mTextToSpeechHandler shutdown End");
-            
+            mTextToSpeechHandler = null;
         }
     }
     

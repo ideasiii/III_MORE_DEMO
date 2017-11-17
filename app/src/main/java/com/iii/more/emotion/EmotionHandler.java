@@ -34,7 +34,7 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
     
     private ArrayDeque<HashMap<String, String>> emotionCallBackQueue = null;
     private Thread handleEmotionDataThread = null;
-    private volatile boolean isCloseThread = true;
+    private volatile boolean isCloseEmotionDataThread = true;
     DetectorService mDetectorService = null;
     private boolean mBound = false;
     private volatile HashMap<String, String> emotionVolatileHashMap = null;
@@ -81,37 +81,39 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
     public void init()
     {
         emotionCallBackQueue = new ArrayDeque<HashMap<String, String>>();
-        handleEmotionDataThread = new Thread(new ReadEmotionQueueRunnable(EmotionParameters.ONE_TIME_COUNT,
-                EmotionParameters.THREAD_SLEEP_TIME));
+        
         //###need to add ready code new constructor
         
     }
     
     public void start()
     {
-        if (isCloseThread == true)
+        if (isCloseEmotionDataThread == true)
         {
+            if (null != handleEmotionDataThread && handleEmotionDataThread.isAlive())
+            {
+                handleEmotionDataThread.interrupt();
+            }
             
-            try
-            {
-                handleEmotionDataThread.start();
-                isCloseThread = false;
-                //###need to add ready code startService
-                Intent intent = new Intent(this.mContext, DetectorService.class);
-                boolean bRet = mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-            }
-            catch (IllegalThreadStateException e)
-            {
-                Logs.showError("[EmotionHandler] ERROR while thread start");
-            }
+            isCloseEmotionDataThread = false;
+            
+            handleEmotionDataThread = new Thread(new ReadEmotionQueueRunnable(EmotionParameters.ONE_TIME_COUNT,
+                    EmotionParameters.THREAD_SLEEP_TIME));
+            handleEmotionDataThread.start();
+            
+            //###need to add ready code startService
+            Intent intent = new Intent(this.mContext, DetectorService.class);
+            boolean bRet = mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            
+            
         }
     }
     
     public void stop()
     {
-        if (!isCloseThread)
+        if (!isCloseEmotionDataThread)
         {
-            isCloseThread = true;
+            isCloseEmotionDataThread = true;
             
             //###need to add ready code stopService
             if (mBound)
@@ -164,112 +166,6 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
         {
             face = faces.get(i);
             break;
-            
-            /* get face id
-            int faceId = face.getId();
-            */
-            /*Appearance
-            Face.GLASSES glassesValue = face.appearance.getGlasses();
-            Face.GENDER genderValue = face.appearance.getGender();
-            Face.AGE ageValue = face.appearance.getAge();
-            Face.ETHNICITY ethnicityValue = face.appearance.getEthnicity();
-            
-            String textValue = "";
-            switch (glassesValue)
-            {
-                case NO:
-                    textValue = "no";
-                    break;
-                case YES:
-                    textValue = "yes";
-                    break;
-            }
-            switch (genderValue)
-            {
-                case UNKNOWN:
-                    textValue = textValue + " unknown";
-                    break;
-                case FEMALE:
-                    textValue = textValue + " female";
-                    break;
-                case MALE:
-                    textValue = textValue + " male";
-                    break;
-            }
-            switch (ageValue)
-            {
-                case AGE_UNKNOWN:
-                    textValue = textValue + " unknown";
-                    break;
-                case AGE_UNDER_18:
-                    textValue = textValue + " under 18";
-                    break;
-                case AGE_18_24:
-                    textValue = textValue + " 18-24";
-                    break;
-                case AGE_25_34:
-                    textValue = textValue + " 25-34";
-                    break;
-                case AGE_35_44:
-                    textValue = textValue + " 35-44";
-                    break;
-                case AGE_45_54:
-                    textValue = textValue + " 45-54";
-                    break;
-                case AGE_55_64:
-                    textValue = textValue + " 55-64";
-                    break;
-                case AGE_65_PLUS:
-                    textValue = textValue + " 65+";
-                    break;
-            }
-            switch (ethnicityValue)
-            {
-                case UNKNOWN:
-                    textValue = textValue + " unknown";
-                    break;
-                case CAUCASIAN:
-                    textValue = textValue + " caucasian";
-                    break;
-                case BLACK_AFRICAN:
-                    textValue = textValue + " black african";
-                    break;
-                case EAST_ASIAN:
-                    textValue = textValue + " east asian";
-                    break;
-                case SOUTH_ASIAN:
-                    textValue = textValue + " south asian";
-                    break;
-                case HISPANIC:
-                    textValue = textValue + " hispanic";
-                    break;
-            }
-             Log.d(TAG, textValue);
-            */
-            
-           
-            
-            /*Some Emoji
-            float smiley = face.emojis.getSmiley();
-            float laughing = face.emojis.getLaughing();
-            float wink = face.emojis.getWink();
-            */
-           
-            
-            /*Some Expressions
-            float smile = face.expressions.getSmile();
-            float brow_furrow = face.expressions.getBrowFurrow();
-            float brow_raise = face.expressions.getBrowRaise();
-            */
-            /*Measurements
-            float interocular_distance = face.measurements.getInterocularDistance();
-            float yaw = face.measurements.orientation.getYaw();
-            float roll = face.measurements.orientation.getRoll();
-            float pitch = face.measurements.orientation.getPitch();
-            */
-            /*Face feature points coordinates
-            PointF[] points = face.getFacePoints();
-            */
         }
         
         //Some Emotions
@@ -316,7 +212,7 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
         @Override
         public void run()
         {
-            while (!isCloseThread)
+            while (!isCloseEmotionDataThread)
             {
                 try
                 {
