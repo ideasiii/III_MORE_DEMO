@@ -20,7 +20,7 @@ public abstract class Parameters
     
     public static final String DEFAULT_DEVICE_ID = "module_01";
     
-    public static final String INTERNET_COCKPIT_SERVER_ADDRESS = "ws://smabuild.sytes.net:21098/controlled";
+    public static final String INTERNET_COCKPIT_SERVER_ADDRESS = "ws://smabuild.sytes.net:21098/slave";
     
     public static final String TRACKER_APP_ID = "1510555888386";
     
