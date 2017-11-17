@@ -414,7 +414,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                 }
                 
             }
-        }, 2000);
+        }, 1000);
     }
     
     public void init()

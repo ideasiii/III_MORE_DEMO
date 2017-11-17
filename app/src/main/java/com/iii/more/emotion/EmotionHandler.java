@@ -92,11 +92,18 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
         if (isCloseThread == true)
         {
             
-            handleEmotionDataThread.start();
-            isCloseThread = false;
-            //###need to add ready code startService
-            Intent intent = new Intent(this.mContext, DetectorService.class);
-            boolean bRet = mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            try
+            {
+                handleEmotionDataThread.start();
+                isCloseThread = false;
+                //###need to add ready code startService
+                Intent intent = new Intent(this.mContext, DetectorService.class);
+                boolean bRet = mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            }
+            catch (IllegalThreadStateException e)
+            {
+                Logs.showError("[EmotionHandler] ERROR while thread start");
+            }
         }
     }
     
