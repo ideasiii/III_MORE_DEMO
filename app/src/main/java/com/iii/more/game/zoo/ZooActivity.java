@@ -833,16 +833,28 @@ public class ZooActivity extends Activity
                 Logs.showTrace("onTouch down view tag: " + strTag);
                 if (0 == strTag.compareTo("BURGER"))
                 {
+                    if (null != timer)
+                    {
+                        timer.cancel();
+                    }
                     handler.sendEmptyMessage(SCEN_INDEX_EAT_HAMBERB);
                     return true;
                 }
                 if (0 == strTag.compareTo("DNUTE"))
                 {
+                    if (null != timer)
+                    {
+                        timer.cancel();
+                    }
                     handler.sendEmptyMessage(SCEN_INDEX_EAT_DNUTE);
                     return true;
                 }
                 if (0 == strTag.compareTo("ICECREAM"))
                 {
+                    if (null != timer)
+                    {
+                        timer.cancel();
+                    }
                     handler.sendEmptyMessage(SCEN_INDEX_EAT_ICECREAME);
                     return true;
                 }
