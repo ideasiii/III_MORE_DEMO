@@ -61,7 +61,8 @@ public class ZooActivity extends Activity
     private final int SCEN_INDEX_ANIMAL_KONG = 123;
     private final int SCEN_INDEX_FAV_ANIMAL = 124;
     private final int SCEN_INDEX_FAV_ANIMAL_SPEECH = 125;
-    private final int SCEN_INDEX_GAME_OVER = 999;
+    private final int SCEN_INDEX_GAME_OVER = 666;
+    private final int SCEN_INDEX_FINISH = 999;
     
     MainApplication application = null;
     private RobotHead robotHead = null;
@@ -321,7 +322,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_ZOO_DOOR2:
                 finish();
                 strTTS = "讓我們一起再來參觀非洲動物區的動物喔";
-                nFace = R.drawable.zoodoor2;
+                nFace = R.drawable.zoodoor;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.showObjectImg(false);
                 robotHead.showFaceImg(true);
@@ -389,6 +390,9 @@ public class ZooActivity extends Activity
                 }
                 robotHead.showObjectImg(true);
                 break;
+            case SCEN_INDEX_FINISH:
+                finish();
+                break;
             default:
                 return;
         }
@@ -419,7 +423,7 @@ public class ZooActivity extends Activity
                 case SCEN_INDEX_START:
                     // 開始等動物園RFID
                     timer = new Timer(true);
-                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_ANIMAL_RFID), 6000);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_ANIMAL_RFID), 2000);
                     break;
                 case SCEN_INDEX_ANIMAL_RFID:
                     timer = new Timer(true);
@@ -507,6 +511,10 @@ public class ZooActivity extends Activity
                     break;
                 case SCEN_INDEX_FAV_ANIMAL:
                     handler.sendEmptyMessage(SCEN_INDEX_FAV_ANIMAL_SPEECH);
+                    break;
+                case SCEN_INDEX_GAME_OVER:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_FINISH), 2000);
                     break;
             }
         }
