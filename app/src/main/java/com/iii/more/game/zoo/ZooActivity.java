@@ -382,7 +382,7 @@ public class ZooActivity extends Activity
                 break;
             case SCEN_INDEX_EAT_DNUTE:
                 robotHead.removeView(linearFood);
-                strTTS = "來甜甜圈囉！";
+                strTTS = "來吃甜甜圈囉！";
                 nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.donut, ImageView.ScaleType.CENTER_INSIDE);
@@ -395,12 +395,12 @@ public class ZooActivity extends Activity
                 strTTS = "嗯 好吃！,, 我們下次再來玩";
                 nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.icecream_non, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.setObjectImg(R.drawable.donut_non, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.setPitch(1.6f, 0.5f);
                 break;
             case SCEN_INDEX_EAT_ICECREAME:
                 robotHead.removeView(linearFood);
-                strTTS = "來冰淇淋囉！";
+                strTTS = "來吃冰淇淋囉！";
                 nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.icecream, ImageView.ScaleType.CENTER_INSIDE);
