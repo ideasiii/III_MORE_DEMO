@@ -17,16 +17,18 @@ class ServerConnection extends WebSocketClient
 {
     private static final String LOG_TAG = "InternetCockpitClient";
 
-    private static final int PING_INTERVAL = 30000;
+    private static final int PING_INTERVAL = 15000;
 
-    private static final int SERVER_MESSAGE_TYPE_SET_DEVICE_ID = 0;
-    private static final int SERVER_MESSAGE_TYPE_COMMAND_TEXT = 1;
+    private static final int SERVER_MESSAGE_ACTION_TYPE_SET_ID = 0;
+    private static final int SERVER_MESSAGE_ACTION_TYPE_PAPER = 1;
+
+    // 只是文字，這種類型的指令內的文字會被當作 OTG 裝置傳出的字串
+    private static final int SERVER_PAPER_TYPE_COMMAND_TEXT = 0;
 
     // 拍片用，這種類型的指令將跳過 interrupt logic 判斷，直接影響 app 的視覺、聽覺輸出
-    private static final int SERVER_MESSAGE_TYPE_COMMAND_FILM_MAKING = 2;
+    private static final int SERVER_PAPER_TYPE_COMMAND_FILM_MAKING = 1;
 
-    private static final String SERVER_MESSAGE_KEY_TYPE = "type";
-    private static final String SERVER_MESSAGE_KEY_TEXT = "text";
+    private static final int API_VERSION = 1;
 
     private final String mDeviceId;
     private final EventListener mEventListener;
@@ -51,7 +53,7 @@ class ServerConnection extends WebSocketClient
             mEventListener.onPermissionGranted();
         }
 
-        registerDeviceId(mDeviceId);
+        registerDeviceId();
     }
 
     @Override
@@ -86,13 +88,12 @@ class ServerConnection extends WebSocketClient
     /**
      * 向伺服器註冊我們的 device ID，伺服器之後就會推送相關的訊息過來
      */
-    private void registerDeviceId(String deviceId)
+    private void registerDeviceId()
     {
-        Log.d(LOG_TAG, "Registering device ID `" + deviceId + "`");
+        Log.d(LOG_TAG, "Registering with device ID `" + mDeviceId + "`");
 
-        String registerMessage = "{\"type\":"
-                + SERVER_MESSAGE_TYPE_SET_DEVICE_ID
-                + ",\"text\":\"" + deviceId + "\"}";
+        String registerMessage = "{\"action\":" + SERVER_MESSAGE_ACTION_TYPE_SET_ID
+                + ",\"body\":{\"id\":\"" + mDeviceId + "\",\"apiVersion\":" + API_VERSION + "}}";
         send(registerMessage);
     }
 
@@ -109,8 +110,33 @@ class ServerConnection extends WebSocketClient
 
         try
         {
-            boolean success = json.getBoolean("success");
-            if (success && !registered)
+            int action = json.getInt("action");
+            switch (action)
+            {
+                case SERVER_MESSAGE_ACTION_TYPE_SET_ID:
+                    handleSetIdResponse(json);
+                    break;
+                case SERVER_MESSAGE_ACTION_TYPE_PAPER:
+                    handlePaperPush(json);
+                    break;
+                default:
+                    Log.w(LOG_TAG, "Got unknown type of action (" + action + ")");
+            }
+        }
+        catch (JSONException e)
+        {
+            Log.w(LOG_TAG, "Server pushed malformed message: " + e.getMessage());
+        }
+    }
+
+    private void handleSetIdResponse(JSONObject root) throws JSONException
+    {
+        JSONObject actionBody = root.getJSONObject("body");
+        boolean success = actionBody.getBoolean("success");
+
+        if (success)
+        {
+            if (!registered)
             {
                 // registration of device ID OK, ready for receiving commands
                 registered = true;
@@ -125,66 +151,63 @@ class ServerConnection extends WebSocketClient
                     @Override
                     public void run()
                     {
-                        while(true)
+                        while (true)
                         {
                             try
                             {
                                 sendPing();
                                 Thread.sleep(PING_INTERVAL);
                             }
-                            catch(Exception e)
+                            catch (InterruptedException ie)
+                            {
+                                continue;
+                            }
+                            catch (Exception e)
                             {
                                 return;
                             }
                         }
-
                     }
                 }.start();
 
-
-                return;
+                Log.w(LOG_TAG, "Registration OK, message: " + actionBody.getString("message"));
+            }
+            else
+            {
+                Log.w(LOG_TAG, "Got duplicate registration response?");
             }
         }
-        catch (JSONException e)
+        else
         {
-            // maybe not a registration response, continue trying
+            Log.w(LOG_TAG, "Registration failed, reason: " + actionBody.getString("message"));
         }
+    }
 
-        int commandType;
-        try
-        {
-            commandType = json.getInt(SERVER_MESSAGE_KEY_TYPE);
-            Log.d(LOG_TAG, "Server pushed a message with type " + commandType);
-        }
-        catch (JSONException e)
-        {
-            Log.w(LOG_TAG, "Got malformed JSON (missing int field `type`)");
-            e.printStackTrace();
-            return;
-        }
+    private void handlePaperPush(JSONObject root) throws JSONException
+    {
+        JSONObject actionBody = root.getJSONObject("body");
+        int paperType = actionBody.getInt("paperType");
+        JSONObject paperBody = actionBody.getJSONObject("paperBody");
+        String text = paperBody.getString("text");
 
-        switch (commandType)
+        switch (paperType)
         {
-            case SERVER_MESSAGE_TYPE_COMMAND_TEXT:
-                String textCommandFromServer = stripTextFromCommand(json);
-                if (mEventListener != null && textCommandFromServer != null)
+            case SERVER_PAPER_TYPE_COMMAND_TEXT:
+                if (mEventListener != null && text != null)
                 {
-                    mEventListener.onDataText(textCommandFromServer);
+                    mEventListener.onDataText(text);
                 }
-
                 break;
-            case SERVER_MESSAGE_TYPE_COMMAND_FILM_MAKING:
-                JSONObject jsonCommandFromServer = stripJsonFromCommand(json);
-                if (mEventListener != null && jsonCommandFromServer != null)
+            case SERVER_PAPER_TYPE_COMMAND_FILM_MAKING:
+                JSONObject filmMakingJson = new JSONObject(text);
+                if (mEventListener != null && filmMakingJson != null)
                 {
-                    mEventListener.onDataFilmMaking(jsonCommandFromServer);
+                    mEventListener.onDataFilmMaking(filmMakingJson);
                 }
-
                 break;
             default:
-                Log.w(LOG_TAG, "Got unknown type of command (" + commandType + ")");
+                Log.w(LOG_TAG, "Got unknown paper type (" + paperType + ")");
         }
-
     }
 
     private JSONObject getJsonObject(String src)
@@ -197,44 +220,6 @@ class ServerConnection extends WebSocketClient
         {
             Log.w(LOG_TAG, "Got garbage from server, body = `" + src + "`");
             e.printStackTrace();
-            return null;
-        }
-    }
-
-    private String stripTextFromCommand(JSONObject json)
-    {
-        try
-        {
-            return json.getString(SERVER_MESSAGE_KEY_TEXT);
-        }
-        catch (JSONException e)
-        {
-            Log.w(LOG_TAG, "Got malformed JSON (missing string field `text`)");
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private JSONObject stripJsonFromCommand(JSONObject json)
-    {
-        String jsonString;
-        try
-        {
-            jsonString = json.getString(SERVER_MESSAGE_KEY_TEXT);
-        }
-        catch (JSONException e)
-        {
-            Log.w(LOG_TAG, SERVER_MESSAGE_KEY_TEXT + " does not exist in command from server `text`)");
-            return null;
-        }
-
-        try
-        {
-            return new JSONObject(jsonString);
-        }
-        catch (JSONException e)
-        {
-            Log.w(LOG_TAG, "String in `text` cannot be parsed to JSONObject");
             return null;
         }
     }

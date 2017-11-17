@@ -17,11 +17,10 @@ public class InternetCockpitService extends CockpitService
 {
     private static final String LOG_TAG = "InternetCockpitService";
 
-
     private static boolean serviceSpawned = false;
 
     private ServerConnection mServerConnection;
-    private URI mUri;
+    private URI mServerUri;
     private String mDeviceId;
 
     @Override
@@ -62,7 +61,7 @@ public class InternetCockpitService extends CockpitService
     {
         try
         {
-            mUri = new URI(address);
+            mServerUri = new URI(address);
         }
         catch (URISyntaxException e)
         {
@@ -74,7 +73,7 @@ public class InternetCockpitService extends CockpitService
         }
     }
 
-    /** call before calling connect() */
+    /** call this method before connect() */
     public void setDeviceId(String id)
     {
         if (mServerConnection != null && mServerConnection.isOpen())
@@ -97,13 +96,14 @@ public class InternetCockpitService extends CockpitService
             return;
         }
 
-        if (mUri == null)
+        if (mServerUri == null)
         {
+            Log.d(LOG_TAG, "connect() mServerUri == null");
             return;
         }
 
         mReconnectOnDisconnect = true;
-        mServerConnection = new ServerConnection(mUri, mDeviceId, mServerConnectionEventListener);
+        mServerConnection = new ServerConnection(mServerUri, mDeviceId, mServerConnectionEventListener);
         mServerConnection.connect();
     }
 
