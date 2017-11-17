@@ -17,8 +17,13 @@ import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
 
 import android.os.Handler;
+import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -61,6 +66,17 @@ public class ZooActivity extends Activity
     private final int SCEN_INDEX_ANIMAL_KONG = 123;
     private final int SCEN_INDEX_FAV_ANIMAL = 124;
     private final int SCEN_INDEX_FAV_ANIMAL_SPEECH = 125;
+    private final int SCEN_INDEX_BANANA = 126;
+    private final int SCEN_INDEX_BANANA_NON = 127;
+    private final int SCEN_INDEX_VEGETABLE = 128;
+    private final int SCEN_INDEX_VEGETABLE_NON = 129;
+    private final int SCEN_INDEX_LEMUR = 130;
+    private final int SCEN_INDEX_APPLE = 131;
+    private final int SCEN_INDEX_APPLE_NON = 132;
+    private final int SCEN_INDEX_EAT_DNUTE = 133;
+    private final int SCEN_INDEX_EAT_ICECREAME = 134;
+    private final int SCEN_INDEX_EATED_DNUTE = 135;
+    private final int SCEN_INDEX_EATED_ICECREAME = 136;
     private final int SCEN_INDEX_GAME_OVER = 666;
     private final int SCEN_INDEX_FINISH = 999;
     
@@ -70,6 +86,11 @@ public class ZooActivity extends Activity
     private int mnScenarizeIndex;
     private VoiceRecognition mVoiceRecognition = null;
     private String mstrFavAnimal = "";
+    private ImageView ivHambergur = null;
+    private ImageView ivIceCream = null;
+    private ImageView ivDonuts = null;
+    private LinearLayout linearFood = null;
+    
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -98,6 +119,7 @@ public class ZooActivity extends Activity
                     timer.cancel();
                 }
                 handler.sendEmptyMessage(SCEN_INDEX_DROP_CUSTOM);
+                Logs.showTrace("onDropped go SCEN_INDEX_DROP_CUSTOM");
             }
         });
         application = (MainApplication) getApplication();
@@ -106,6 +128,35 @@ public class ZooActivity extends Activity
         application.setCockpitSensorEventListener(cockpitSensorEventListener);
         robotHead.setObjectImg(R.drawable.busy, ImageView.ScaleType.CENTER_INSIDE);
         robotHead.showObjectImg(true);
+        
+        ivHambergur = new ImageView(this);
+        ivDonuts = new ImageView(this);
+        ivIceCream = new ImageView(this);
+        ivHambergur.setTag("BURGER");
+        ivDonuts.setTag("DNUTE");
+        ivIceCream.setTag("ICECREAM");
+        
+        ivHambergur.setImageResource(R.drawable.burger);
+        ivDonuts.setImageResource(R.drawable.donut);
+        ivIceCream.setImageResource(R.drawable.icecream);
+        
+        LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams((int) Utility.convertDpToPixel(250, this), (int) Utility.convertDpToPixel(250, this));
+        ivHambergur.setLayoutParams(layoutParams1);
+        ivDonuts.setLayoutParams(layoutParams1);
+        ivIceCream.setLayoutParams(layoutParams1);
+        
+        
+        linearFood = new LinearLayout(this);
+        linearFood.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+        linearFood.setOrientation(LinearLayout.VERTICAL);
+        linearFood.setGravity(Gravity.CENTER_HORIZONTAL);
+        linearFood.addView(ivHambergur);
+        linearFood.addView(ivDonuts);
+        linearFood.addView(ivIceCream);
+        
+        ivHambergur.setOnTouchListener(onTouchListener);
+        ivDonuts.setOnTouchListener(onTouchListener);
+        ivIceCream.setOnTouchListener(onTouchListener);
     }
     
     @Override
@@ -182,14 +233,18 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.5f, 1.5f);
                 break;
             case SCEN_INDEX_ANIMAL_RFID:
-                nFace = R.drawable.octobo16;
+                nFace = R.drawable.noeye;
                 strTTS = "哈囉，" + strName + "今天我們一起去動物園玩！牽著我的手，出發囉！";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.zoo_map, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.showObjectImg(true);
+                robotHead.bringObjImgtoFront();
                 robotHead.setPitch(1.3f, 0.9f);
                 break;
             case SCEN_INDEX_HOLD_HAND:
                 strTTS = "抓緊喔！今天，你想要坐什麼交通工具去呢？";
                 nFace = R.drawable.octobo13;
+                robotHead.bringFaceImgtoFront();
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(1.2f, 0.8f);
                 break;
@@ -230,8 +285,6 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.4f, 0.85f);
                 break;
             case SCEN_INDEX_DROP_CUSTOM_IDLE:
-                // TODO hack, 移除語助詞
-                //strTTS = "喂！!!喂!!! 快一點呀，，公車要開囉！";
                 strTTS = "快一點呀，，公車要開囉！";
                 robotHead.setPitch(0.75f, 0.6f);
                 break;
@@ -244,15 +297,14 @@ public class ZooActivity extends Activity
                 robotHead.bringFaceImgtoFront();
                 nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.bus, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.setObjectImg(R.drawable.busmoving, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.showObjectImg(true);
                 robotHead.showFaceImg(true);
                 robotHead.setPitch(0.4f, 2f);
                 break;
             case SCEN_INDEX_ZOO_DOOR:       // 顯示出動物園的大門
-                // TODO hack, 移除語助詞
-                //strTTS = "噹噹噹噹，，到囉，，讓我們一起來參觀台灣動物區的動物喔";
-                strTTS = "到囉，，讓我們一起來參觀台灣動物區的動物喔";
+                //strTTS = "到囉，，讓我們一起來參觀台灣動物區的動物";
+                strTTS = "到囉，，讓我們一起來參觀動物吧";
                 nFace = R.drawable.zoodoor;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.showObjectImg(true);
@@ -260,33 +312,39 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.5f, 1.6f);
                 break;
             case SCEN_INDEX_ANIMAL_MONKEY:
-                // TODO hack, 移除語助詞
-                //strTTS = "哇! 台灣獼猴耶";
-                strTTS = "台灣獼猴耶";
+                strTTS = "看，是猴子";
                 nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.monkey, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(1.2f, 1.6f);
                 break;
+            case SCEN_INDEX_BANANA:
+                strTTS = "猴子 最愛吃香蕉";
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.banana, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setPitch(1.2f, 1.6f);
+                break;
+            case SCEN_INDEX_BANANA_NON:
+                strTTS = "啊嗯";
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.banana_non, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setPitch(1.2f, 1.6f);
+                break;
             case SCEN_INDEX_ANIMAL_BEAR:
-                // TODO hack, 移除語助詞
-                // strTTS = "吼! 快看，是台灣黑熊";
                 strTTS = "快看，是台灣黑熊";
-                robotHead.setObjectImg(R.drawable.bear, ImageView.ScaleType.CENTER_CROP);
+                //    robotHead.setObjectImg(R.drawable.bear, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(1.5f, 0.8f);
                 break;
             case SCEN_INDEX_ANIMAL_SWAN:
-                // TODO hack, 移除語助詞
-                //strTTS = "哇! 好美喔，，是天鵝";
                 strTTS = "好美喔，，是天鵝";
-                robotHead.setObjectImg(R.drawable.swan, ImageView.ScaleType.FIT_XY);
+                //    robotHead.setObjectImg(R.drawable.swan, ImageView.ScaleType.FIT_XY);
                 robotHead.setPitch(0.7f, 0.8f);
                 break;
             case SCEN_INDEX_ANIMAL_LION:
-                // TODO hack, 移除語助詞
-                //strTTS = "啊 啊，是獅子";
                 strTTS = "是獅子";
-                robotHead.setObjectImg(R.drawable.lion, ImageView.ScaleType.FIT_XY);
+                //    robotHead.setObjectImg(R.drawable.lion, ImageView.ScaleType.FIT_XY);
                 robotHead.setPitch(1.5f, 0.8f);
                 break;
             case SCEN_INDEX_NOT_FEAR:
@@ -297,16 +355,19 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1f, 0.7f);
                 break;
             case SCEN_INDEX_FOOD_MENU:
-                strTTS = strName + "我們來吃東西休息一下吧！";
-                nFace = R.drawable.foodmenu;
+                strTTS = strName + "我們來吃東西休息一下吧！選你想吃得食物吧";
+                nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.FIT_XY);
+                robotHead.showObjectImg(false);
                 robotHead.setPitch(1.4f, 0.9f);
+                robotHead.addView(linearFood);
                 break;
             case SCEN_INDEX_EAT_HAMBERB:
+                robotHead.removeView(linearFood);
                 strTTS = "來吃漢堡囉！";
                 nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.hamburger1, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.setObjectImg(R.drawable.burger, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.showObjectImg(true);
                 robotHead.showFaceImg(true);
                 robotHead.bringObjImgtoFront();
@@ -316,7 +377,43 @@ public class ZooActivity extends Activity
                 strTTS = "嗯 好吃！,, 我們下次再來玩";
                 nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.hamburger2, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.setObjectImg(R.drawable.burger_non, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.setPitch(1.6f, 0.5f);
+                break;
+            case SCEN_INDEX_EAT_DNUTE:
+                robotHead.removeView(linearFood);
+                strTTS = "來甜甜圈囉！";
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.donut, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.showObjectImg(true);
+                robotHead.showFaceImg(true);
+                robotHead.bringObjImgtoFront();
+                robotHead.setPitch(1.5f, 0.9f);
+                break;
+            case SCEN_INDEX_EATED_DNUTE:
+                strTTS = "嗯 好吃！,, 我們下次再來玩";
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.icecream_non, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.setPitch(1.6f, 0.5f);
+                break;
+            case SCEN_INDEX_EAT_ICECREAME:
+                robotHead.removeView(linearFood);
+                strTTS = "來冰淇淋囉！";
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.icecream, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.showObjectImg(true);
+                robotHead.showFaceImg(true);
+                robotHead.bringObjImgtoFront();
+                robotHead.setPitch(1.5f, 0.9f);
+                break;
+            case SCEN_INDEX_EATED_ICECREAME:
+                strTTS = "嗯 好吃！,, 我們下次再來玩";
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.icecream_non, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.setPitch(1.6f, 0.5f);
                 break;
             case SCEN_INDEX_ZOO_DOOR2:
@@ -330,10 +427,50 @@ public class ZooActivity extends Activity
                 robotHead.setPitch(1.5f, 1.6f);
                 break;
             case SCEN_INDEX_ANIMAL_ELEPHONE:
-                strTTS = "快看，，是大象，，大象最喜歡吃草跟樹葉!!";
+                strTTS = "快看，，是大象";
                 nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.elephone2, ImageView.ScaleType.FIT_XY);
+                robotHead.showObjectImg(true);
+                robotHead.setPitch(1.8f, 0.7f);
+                break;
+            case SCEN_INDEX_VEGETABLE:
+                strTTS = "大象最喜歡吃草跟樹葉!!";
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.vegetable, ImageView.ScaleType.FIT_XY);
+                robotHead.showObjectImg(true);
+                robotHead.setPitch(1.8f, 0.7f);
+                break;
+            case SCEN_INDEX_VEGETABLE_NON:
+                strTTS = "啊嗯嗯嗯";
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.vegetable_non, ImageView.ScaleType.FIT_XY);
+                robotHead.showObjectImg(true);
+                robotHead.setPitch(1.8f, 0.7f);
+                break;
+            case SCEN_INDEX_LEMUR:
+                strTTS = "是狐猴";
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.lemur, ImageView.ScaleType.FIT_XY);
+                robotHead.showObjectImg(true);
+                robotHead.setPitch(1.8f, 0.7f);
+                break;
+            case SCEN_INDEX_APPLE:
+                strTTS = "蘋果是狐猴最愛吃的食物";
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.apple, ImageView.ScaleType.FIT_XY);
+                robotHead.showObjectImg(true);
+                robotHead.setPitch(1.8f, 0.7f);
+                break;
+            case SCEN_INDEX_APPLE_NON:
+                strTTS = "啊嗯";
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.apple_non, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(true);
                 robotHead.setPitch(1.8f, 0.7f);
                 break;
@@ -357,7 +494,7 @@ public class ZooActivity extends Activity
                 nFace = R.drawable.noeye;
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(0.9f, 1.2f);
-                robotHead.setObjectImg(R.drawable.gameover, ImageView.ScaleType.FIT_XY);
+                robotHead.setObjectImg(R.drawable.zoodoor, ImageView.ScaleType.FIT_XY);
                 
                 if (mstrFavAnimal.contains("大象"))
                 {
@@ -371,17 +508,17 @@ public class ZooActivity extends Activity
                 
                 if (mstrFavAnimal.contains("獅子"))
                 {
-                    robotHead.setObjectImg(R.drawable.lion, ImageView.ScaleType.CENTER_CROP);
+                    //      robotHead.setObjectImg(R.drawable.lion, ImageView.ScaleType.CENTER_CROP);
                 }
                 
                 if (mstrFavAnimal.contains("天鵝"))
                 {
-                    robotHead.setObjectImg(R.drawable.swan, ImageView.ScaleType.CENTER_CROP);
+                    //      robotHead.setObjectImg(R.drawable.swan, ImageView.ScaleType.CENTER_CROP);
                 }
                 
                 if (mstrFavAnimal.contains("台灣黑熊") || mstrFavAnimal.contains("熊") || mstrFavAnimal.contains("黑熊"))
                 {
-                    robotHead.setObjectImg(R.drawable.bear, ImageView.ScaleType.CENTER_CROP);
+                    //      robotHead.setObjectImg(R.drawable.bear, ImageView.ScaleType.CENTER_CROP);
                 }
                 
                 if (mstrFavAnimal.contains("台灣獼猴") || mstrFavAnimal.contains("獼猴") || mstrFavAnimal.contains("猴子"))
@@ -396,7 +533,7 @@ public class ZooActivity extends Activity
             default:
                 return;
         }
-        robotHead.setPitch(1.0f, 1.0f);
+        robotHead.setPitch(0.8f, 1.0f);
         robotHead.playTTS(strTTS, String.valueOf(nIndex));
         track.put("Scenarize", String.valueOf(nIndex));
         track.put("TTS", strTTS);
@@ -446,10 +583,10 @@ public class ZooActivity extends Activity
                     timer.schedule(new ScenarizeTimer(SCEN_INDEX_BUS_INSIDE), 1000);
                     break;
                 case SCEN_INDEX_BUS_INSIDE:     // 等待拉人去座位
-                    timer = new Timer(true);
+                    //timer = new Timer(true);
                     // TODO hack, extend delay
                     //timer.schedule(new ScenarizeTimer(SCEN_INDEX_DROP_CUSTOM_IDLE), 3000);
-                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_DROP_CUSTOM_IDLE), 6000);
+                    //timer.schedule(new ScenarizeTimer(SCEN_INDEX_DROP_CUSTOM_IDLE), 6000);
                     break;
                 case SCEN_INDEX_DROP_CUSTOM_IDLE: // 等待拉人去座位 第二次
                     timer = new Timer(true);
@@ -466,7 +603,15 @@ public class ZooActivity extends Activity
                     break;
                 case SCEN_INDEX_ANIMAL_MONKEY:
                     timer = new Timer(true);
-                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_ANIMAL_BEAR), 2000);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_BANANA), 2000);
+                    break;
+                case SCEN_INDEX_BANANA:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_BANANA_NON), 1000);
+                    break;
+                case SCEN_INDEX_BANANA_NON:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_ANIMAL_ELEPHONE), 2000);
                     break;
                 case SCEN_INDEX_ANIMAL_BEAR:
                     timer = new Timer(true);
@@ -485,7 +630,7 @@ public class ZooActivity extends Activity
                     break;
                 case SCEN_INDEX_FOOD_MENU:
                     timer = new Timer(true);
-                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_EAT_HAMBERB), 2000);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_EAT_HAMBERB), 6000);
                     break;
                 case SCEN_INDEX_EAT_HAMBERB:
                     timer = new Timer(true);
@@ -493,8 +638,22 @@ public class ZooActivity extends Activity
                     break;
                 case SCEN_INDEX_EATED_HAMBERB:
                     timer = new Timer(true);
-                    // TODO hack, directly goto game over scene
-                    //timer.schedule(new ScenarizeTimer(SCEN_INDEX_ZOO_DOOR2), 1000);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_GAME_OVER), 1000);
+                    break;
+                case SCEN_INDEX_EAT_DNUTE:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_EATED_DNUTE), 1000);
+                    break;
+                case SCEN_INDEX_EATED_DNUTE:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_GAME_OVER), 1000);
+                    break;
+                case SCEN_INDEX_EAT_ICECREAME:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_EATED_ICECREAME), 1000);
+                    break;
+                case SCEN_INDEX_EATED_ICECREAME:
+                    timer = new Timer(true);
                     timer.schedule(new ScenarizeTimer(SCEN_INDEX_GAME_OVER), 1000);
                     break;
                 case SCEN_INDEX_ZOO_DOOR2:
@@ -503,7 +662,27 @@ public class ZooActivity extends Activity
                     break;
                 case SCEN_INDEX_ANIMAL_ELEPHONE:
                     timer = new Timer(true);
-                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_ANIMAL_KONG), 1000);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_VEGETABLE), 1000);
+                    break;
+                case SCEN_INDEX_VEGETABLE:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_VEGETABLE_NON), 2000);
+                    break;
+                case SCEN_INDEX_VEGETABLE_NON:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_LEMUR), 1000);
+                    break;
+                case SCEN_INDEX_LEMUR:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_APPLE), 1000);
+                    break;
+                case SCEN_INDEX_APPLE:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_APPLE_NON), 2000);
+                    break;
+                case SCEN_INDEX_APPLE_NON:
+                    timer = new Timer(true);
+                    timer.schedule(new ScenarizeTimer(SCEN_INDEX_FOOD_MENU), 1000);
                     break;
                 case SCEN_INDEX_ANIMAL_KONG:
                     timer = new Timer(true);
@@ -641,4 +820,35 @@ public class ZooActivity extends Activity
             }
         }
     };
+    
+    private View.OnTouchListener onTouchListener = new View.OnTouchListener()
+    {
+        
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent)
+        {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
+            {
+                String strTag = (String) view.getTag();
+                Logs.showTrace("onTouch down view tag: " + strTag);
+                if (0 == strTag.compareTo("BURGER"))
+                {
+                    handler.sendEmptyMessage(SCEN_INDEX_EAT_HAMBERB);
+                    return true;
+                }
+                if (0 == strTag.compareTo("DNUTE"))
+                {
+                    handler.sendEmptyMessage(SCEN_INDEX_EAT_DNUTE);
+                    return true;
+                }
+                if (0 == strTag.compareTo("ICECREAM"))
+                {
+                    handler.sendEmptyMessage(SCEN_INDEX_EAT_ICECREAME);
+                    return true;
+                }
+            }
+            return false;
+        }
+    };
+    
 }
