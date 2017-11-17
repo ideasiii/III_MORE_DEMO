@@ -60,6 +60,11 @@ import sdk.ideas.common.ResponseCode;
 public class MainActivity extends AppCompatActivity implements CockpitFilmMakingEventListener, FaceEmotionEventListener
 
 {
+    
+    private static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR = "c4b008ba-8b2f-404e-9e44-dd0605486446";
+    private static final String ALERT_DIALOG_ENTER_BLE_READ_PEN_ID = "c4b008ba-8b2f-404e-9e44-dd0605486226";
+    private static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN = "c4b008ca-8b2f-404e-9e44-dd0605482229";
+    
     //show progress dialog
     private ProgressDialog mProgressDialog = null;
     
@@ -237,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     protected void onDestroy()
     {
         Logs.showTrace("onDestroy");
-    
+        
         MainApplication mainApplication = (MainApplication) this.getApplication();
         mainApplication.stopFaceEmotion();
         
@@ -256,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             mReadPenBLEHandler.disconnect();
         }
         
-       
+        
         super.onDestroy();
     }
     
@@ -656,7 +661,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     
     private void showAlertDialogEnterBLEReadPenID()
     {
-        mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_ENTER_BLE_READ_PEN_ID, "章魚點讀筆",
+        mAlertDialogHandler.setText(ALERT_DIALOG_ENTER_BLE_READ_PEN_ID, "章魚點讀筆",
                 "請輸入章魚點讀筆ID", "OK", "", true);
         mAlertDialogHandler.setEditText(Parameters.DEFAULT_DEVICE_ID);
         mAlertDialogHandler.show();
@@ -664,14 +669,14 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     
     private void showAlertDialogConfirmConnectBLEReadPen()
     {
-        mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN, "章魚點讀筆",
+        mAlertDialogHandler.setText(ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN, "章魚點讀筆",
                 "是否要與章魚點讀筆連線", "是的", "不要", false);
         mAlertDialogHandler.show();
     }
     
     private void showAlertDialogConnectBLEReadPenError()
     {
-        mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR, "章魚點讀筆",
+        mAlertDialogHandler.setText(ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR, "章魚點讀筆",
                 "與裝置Bluetooth點讀筆連線失敗，請先確認智慧型裝置Bluetooth是否開啟或是章魚裝置Bluetooth是否開起，重新再試一次!"
                 , "是", "", false);
         mAlertDialogHandler.show();
@@ -687,13 +692,13 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             Logs.showTrace("[MainActivity] id:" + message.get("id"));
             switch (message.get("id"))
             {
-                case Parameters.ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR:
+                case ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR:
                     if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
                     {
                         finish();
                     }
                     break;
-                case Parameters.ALERT_DIALOG_ENTER_BLE_READ_PEN_ID:
+                case ALERT_DIALOG_ENTER_BLE_READ_PEN_ID:
                     
                     if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
                     {
@@ -712,7 +717,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                         
                     }
                     break;
-                case Parameters.ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN:
+                case ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN:
                     if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
                     {
                         showAlertDialogEnterBLEReadPenID();
@@ -862,7 +867,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         Logs.showTrace("[MainActivity] Face Emotion Data: " + faceEmotionHashMap);
         
         mFaceEmotionInterruptHandler.setFaceEventData(faceEmotionHashMap);
-    
+        
     }
     
     @Override

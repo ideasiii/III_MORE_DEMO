@@ -88,7 +88,7 @@ public class InitActivity extends AppCompatActivity
     {
         switch (msg.what)
         {
-            case Parameters.MESSAGE_END_WELCOME_LAYOUT:
+            case InitActivityParameters.MESSAGE_END_WELCOME_LAYOUT:
                 //start to check permission
                 writeSettingPermissionCheck();
                 break;
@@ -292,7 +292,7 @@ public class InitActivity extends AppCompatActivity
         {
             animationHandler.setAnimateJsonBehavior(new JSONObject("{\"type\":1,\"duration\":3000,\"repeat\":0, \"interpolate\":1}"));
             animationHandler.startAnimate();
-            mHandler.sendEmptyMessageDelayed(Parameters.MESSAGE_END_WELCOME_LAYOUT, 3100);
+            mHandler.sendEmptyMessageDelayed(InitActivityParameters.MESSAGE_END_WELCOME_LAYOUT, 3100);
         }
         catch (JSONException e)
         {
@@ -304,13 +304,13 @@ public class InitActivity extends AppCompatActivity
     {
         if (flag == 1)
         {
-            mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
+            mAlertDialogHandler.setText(InitActivityParameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
                     "與章魚裝置連線失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
             mAlertDialogHandler.show();
         }
         else if (flag == 2)
         {
-            mAlertDialogHandler.setText(Parameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
+            mAlertDialogHandler.setText(InitActivityParameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
                     "與章魚裝置連線不明失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
             mAlertDialogHandler.show();
         }
@@ -442,7 +442,7 @@ public class InitActivity extends AppCompatActivity
                         mWriteSettingPermissionHandler.getPermission();
                     }
                     break;
-                case Parameters.ALERT_DIALOG_CONNECTING_DEVICE:
+                case InitActivityParameters.ALERT_DIALOG_CONNECTING_DEVICE:
                     if (message.get("message").equals(AlertDialogParameters.ONCLICK_POSITIVE_BUTTON))
                     {
                         finish();
