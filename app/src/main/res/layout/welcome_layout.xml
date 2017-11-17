@@ -7,6 +7,11 @@
               android:gravity="center"
               android:orientation="vertical"
               style="@style/Item.Welcome">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal" />
 
     <ImageView
         android:id="@+id/logo_image_view"
@@ -14,10 +19,19 @@
         app:srcCompat="@drawable/more_logo"
         android:contentDescription=""/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal" />
+
     <TextView
         android:id="@+id/apk_build_date_text_view"
         android:layout_width="match_parent"
-        android:textAlignment="center"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_marginBottom="5sp"
+        android:layout_marginRight="5sp"
+        android:text="Apk build date"
+        android:textAlignment="textEnd"
+        android:textColor="@color/fab_material_grey_500" />
 </LinearLayout>
