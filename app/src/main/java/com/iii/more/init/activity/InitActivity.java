@@ -471,8 +471,13 @@ public class InitActivity extends AppCompatActivity
         {
             //###
             //check share preference is exist child face or name
-            
+            MainApplication app = (MainApplication) this.getApplicationContext();
+            if (null == app.getName(Parameters.ID_CHILD_NAME) || app.getName(Parameters.ID_CHILD_NAME).equals(""))
+            {
+                return true;
+            }
             return false;
+            
             
         }
         
