@@ -43,7 +43,7 @@ public class RobotHead extends RelativeLayout
     
     public static interface OnDroppedListener
     {
-        public void onDroped(View view);
+        public void onDroped(View view, int nX, int nY);
     }
     
     public void setOnInitedListener(OnInitedListener listener)
@@ -165,6 +165,12 @@ public class RobotHead extends RelativeLayout
         imgObject.setScaleType(is);
     }
     
+    public void setObjectImgPosition(float fX, float fY)
+    {
+        imgObject.setX(fX);
+        imgObject.setY(fY);
+    }
+    
     public void showObjectImg(boolean bShow)
     {
         if (bShow)
@@ -243,12 +249,16 @@ public class RobotHead extends RelativeLayout
         }
     };
     
+    private static int mCurX = 0;
+    private static int mCurY = 0;
+    
     private OnDragListener ImgFaceDragListener = new OnDragListener()
     {
         @Override
         public boolean onDrag(View v, DragEvent event)
         {
             int action = event.getAction();
+            
             switch (event.getAction())
             {
                 case DragEvent.ACTION_DRAG_STARTED:
@@ -262,11 +272,17 @@ public class RobotHead extends RelativeLayout
                     Logs.showTrace("Dropped!!!!!!!!!!!!!");
                     if (null != onDroppedListener)
                     {
-                        onDroppedListener.onDroped(v);
+                        onDroppedListener.onDroped(v, mCurX, mCurY);
                     }
                     setBackgroundResource(R.color.default_app_color);
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
+                    break;
+                case DragEvent.ACTION_DRAG_LOCATION:
+                    mCurX = (int) event.getX();
+                    mCurY = (int) event.getY();
+                    Logs.showTrace("drop x = " + String.valueOf(mCurX));
+                    break;
                 default:
                     break;
             }

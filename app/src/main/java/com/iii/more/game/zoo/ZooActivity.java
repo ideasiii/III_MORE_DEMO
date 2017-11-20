@@ -2,6 +2,8 @@ package com.iii.more.game.zoo;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Message;
@@ -89,7 +91,9 @@ public class ZooActivity extends Activity
     private ImageView ivHambergur = null;
     private ImageView ivIceCream = null;
     private ImageView ivDonuts = null;
+    private ImageView ivMan = null;
     private LinearLayout linearFood = null;
+    private int mnDroppedX = 0;
     
     
     @Override
@@ -112,14 +116,15 @@ public class ZooActivity extends Activity
         robotHead.setOnDroppedListener(new RobotHead.OnDroppedListener()
         {
             @Override
-            public void onDroped(View view)
+            public void onDroped(View view, int nX, int nY)
             {
                 if (null != timer)
                 {
                     timer.cancel();
                 }
+                mnDroppedX = nX;
                 handler.sendEmptyMessage(SCEN_INDEX_DROP_CUSTOM);
-                Logs.showTrace("onDropped go SCEN_INDEX_DROP_CUSTOM");
+                Logs.showTrace("onDropped view: " + view.getTag() + "x: " + String.valueOf(mnDroppedX));
             }
         });
         application = (MainApplication) getApplication();
@@ -132,18 +137,28 @@ public class ZooActivity extends Activity
         ivHambergur = new ImageView(this);
         ivDonuts = new ImageView(this);
         ivIceCream = new ImageView(this);
+        ivMan = new ImageView(this);
+        
         ivHambergur.setTag("BURGER");
         ivDonuts.setTag("DNUTE");
         ivIceCream.setTag("ICECREAM");
+        ivMan.setTag("MAN");
         
         ivHambergur.setImageResource(R.drawable.burger);
         ivDonuts.setImageResource(R.drawable.donut);
         ivIceCream.setImageResource(R.drawable.icecream);
+        ivMan.setImageResource(R.drawable.man);
+        ivMan.setScaleType(ImageView.ScaleType.FIT_XY);
         
         LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams((int) Utility.convertDpToPixel(250, this), (int) Utility.convertDpToPixel(250, this));
         ivHambergur.setLayoutParams(layoutParams1);
         ivDonuts.setLayoutParams(layoutParams1);
         ivIceCream.setLayoutParams(layoutParams1);
+        
+        RelativeLayout.LayoutParams layoutParams2 = new RelativeLayout.LayoutParams(300, 650);
+        layoutParams2.setMargins(200, 700, 0, 0);
+        ivMan.setLayoutParams(layoutParams2);
+        ivMan.setOnTouchListener(dropTouchListener);
         
         
         linearFood = new LinearLayout(this);
@@ -157,6 +172,8 @@ public class ZooActivity extends Activity
         ivHambergur.setOnTouchListener(onTouchListener);
         ivDonuts.setOnTouchListener(onTouchListener);
         ivIceCream.setOnTouchListener(onTouchListener);
+        
+        
     }
     
     @Override
@@ -269,19 +286,29 @@ public class ZooActivity extends Activity
                 strTTS = strName + "，，請你幫忙讓大家都有座位坐";
                 robotHead.bringObjImgtoFront();
                 robotHead.setImgObjectTouch(true);
-                nFace = R.drawable.businsidebk;
-                robotHead.setFace(nFace, ImageView.ScaleType.FIT_XY);
-                robotHead.setObjectImg(R.drawable.elephone, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.showObjectImg(true);
+                nFace = R.drawable.businside;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.setObjectImg(R.drawable.man, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.showObjectImg(false);
                 robotHead.showFaceImg(true);
                 robotHead.setPitch(1.3f, 0.8f);
+                robotHead.addView(ivMan);
                 break;
             case SCEN_INDEX_DROP_CUSTOM:    // 孩子直接用手指在畫面上拉乘客到座位上，完成
                 robotHead.setImgObjectTouch(false);
                 strTTS = "好棒！!!我們出發囉！";
                 robotHead.showObjectImg(false);
-                nFace = R.drawable.busdropped;
-                robotHead.setFace(nFace, ImageView.ScaleType.FIT_XY);
+                Logs.showTrace("dropped X = " + String.valueOf(mnDroppedX));
+                if (550 < mnDroppedX)
+                {
+                    nFace = R.drawable.businside_right;
+                }
+                else
+                {
+                    nFace = R.drawable.businside_left;
+                }
+                
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.setPitch(1.4f, 0.85f);
                 break;
             case SCEN_INDEX_DROP_CUSTOM_IDLE:
@@ -533,7 +560,7 @@ public class ZooActivity extends Activity
             default:
                 return;
         }
-        robotHead.setPitch(0.8f, 1.0f);
+        robotHead.setPitch(0.95f, 1.0f);
         robotHead.playTTS(strTTS, String.valueOf(nIndex));
         track.put("Scenarize", String.valueOf(nIndex));
         track.put("TTS", strTTS);
@@ -863,4 +890,32 @@ public class ZooActivity extends Activity
         }
     };
     
+    private View.OnTouchListener dropTouchListener = new View.OnTouchListener()
+    {
+        
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent)
+        {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
+            {
+                ClipData.Item item = new ClipData.Item((CharSequence) view.getTag());
+                String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+                ClipData data = new ClipData(view.getTag().toString(), mimeTypes, item);
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                view.startDrag(data, shadowBuilder, view, 0);
+                view.setVisibility(View.INVISIBLE);
+                return true;
+            }
+            else if (motionEvent.getAction() == MotionEvent.ACTION_UP)
+            {
+                Logs.showTrace("ACTION_UP");
+                Logs.showTrace("onTouch UP view: " + view.getTag() + "x: " + String.valueOf(view.getX()));
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    };
 }
