@@ -30,6 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -46,27 +47,21 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
     private OobeDisplayHandler mOobeDisplayHandler = null;
     private ArrayList<OobeLogicElement> mStateData = null;
     private MainApplication mMainApplication = null;
-    
+    private InClassHandler mHandler = new InClassHandler(this);
+
     private volatile boolean sensorGet = false;
     
     private volatile String rfidString = "";
     
     private VideoView mVideoView = null;
-    
-    
-    private Handler mHandler = new Handler()
-    {
-        @Override
-        public void handleMessage(Message msg)
-        {
-            Logs.showTrace("[OobeActivity] Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) +
-                    " From: " + String.valueOf(msg.arg2) + " Message: " + msg.obj);
-            handleMessages(msg);
-        }
-    };
-    
+
     public void handleMessages(Message msg)
     {
+        if (null == mOobeLogicHandler)
+        {
+            return;
+        }
+
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
         switch (msg.what)
         {
@@ -236,11 +231,21 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
             
         }
     }
-    
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+
+        MainApplication mainApp = (MainApplication) getApplication();
+        mainApp.stopTTS();
+    }
+
     @Override
     protected void onDestroy()
     {
         Logs.showTrace("[OobeActivity] onDestroy");
+
         if (null != mOobeLogicHandler)
         {
             mOobeLogicHandler.endAll();
@@ -258,7 +263,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
             mVideoView.stopPlayback();
             mVideoView = null;
         }
-        
+
         super.onDestroy();
     }
     
@@ -330,7 +335,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
         {
             if (childName.length() != 0)
             {
-                newText = text.replace("oo", childName);
+                return text.replace("oo", childName);
             }
             
             if (robotName.length() != 0)
@@ -438,6 +443,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
         mOobeLogicHandler = new OobeLogicHandler(this);
         mOobeLogicHandler.setHandler(mHandler);
         mOobeLogicHandler.init();
+        mOobeLogicHandler.bindListenersToMainApplication();
         
         mStateData = getLogicData(OobeParameters.LOGIC_OOBE);
         
@@ -711,5 +717,27 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
         }
     }
     
-    
+    private static class InClassHandler extends Handler
+    {
+        private final WeakReference<OobeActivity> mWeakSelf;
+
+        public InClassHandler(OobeActivity a)
+        {
+            mWeakSelf = new WeakReference<OobeActivity>(a);
+        }
+
+        @Override
+        public void handleMessage(Message msg)
+        {
+            OobeActivity activity = mWeakSelf.get();
+
+            if (activity != null)
+            {
+                Logs.showTrace("[OobeActivity] Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) +
+                        " From: " + String.valueOf(msg.arg2) + " Message: " + msg.obj);
+                activity.handleMessages(msg);
+            }
+
+        }
+    };
 }

@@ -92,9 +92,23 @@ class ServerConnection extends WebSocketClient
     {
         Log.d(LOG_TAG, "Registering with device ID `" + mDeviceId + "`");
 
-        String registerMessage = "{\"action\":" + SERVER_MESSAGE_ACTION_TYPE_SET_ID
-                + ",\"body\":{\"id\":\"" + mDeviceId + "\",\"apiVersion\":" + API_VERSION + "}}";
-        send(registerMessage);
+        try
+        {
+            JSONObject jsonBody = new JSONObject();
+            jsonBody.put("id", mDeviceId);
+            jsonBody.put("apiVersion", API_VERSION);
+
+            JSONObject jsonRoot = new JSONObject();
+            jsonRoot.put("action", SERVER_MESSAGE_ACTION_TYPE_SET_ID);
+            jsonRoot.put("body", jsonBody);
+
+            String registerMessage = jsonRoot.toString();
+            send(registerMessage);
+        }
+        catch (JSONException e)
+        {
+            Log.d(LOG_TAG, "Cannot generate registration JSON: " + e.getMessage());
+        }
     }
 
     /**
@@ -170,7 +184,7 @@ class ServerConnection extends WebSocketClient
                     }
                 }.start();
 
-                Log.w(LOG_TAG, "Registration OK, message: " + actionBody.getString("message"));
+                Log.i(LOG_TAG, "Registration OK, message: " + actionBody.getString("message"));
             }
             else
             {

@@ -18,14 +18,17 @@ import com.iii.more.emotion.interrupt.FaceEmotionInterruptHandler;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.interrupt.logic.InterruptLogicHandler;
 import com.iii.more.interrupt.logic.InterruptLogicParameters;
+import com.iii.more.main.globaltts.TextToSpeechHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.Locale;
 
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.ResponseCode;
 import sdk.ideas.tracker.Tracker;
 import sdk.ideas.common.CtrlType;
 
@@ -37,40 +40,43 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 public class MainApplication extends Application
 {
+    private final InClassHandler mInClassHandler = new InClassHandler(this);
+
     private CockpitService mCockpitService;
     private InternetCockpitService mInternetCockpitService;
     private OtgCockpitService mOtgCockpitService;
-    
+
     private Tracker mTracker = new Tracker(this);
-    
+    private TextToSpeechHandler mTtsHandler = new TextToSpeechHandler(this);
+
     private CockpitConnectionEventListener mCockpitConnectionEventListener;
     private CockpitSensorEventListener mCockpitSensorEventListener;
     private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
     private FaceEmotionEventListener mFaceEmotionEventListener = null;
-    
+    private TTSEventListener mTtsEventListener;
+
     // this logic handler does not handle emotion logic
     private InterruptLogicHandler mInterruptLogicHandler = new InterruptLogicHandler(this);
-    
+
     private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
     private EmotionHandler mEmotionHandler = null;
     private static boolean isFaceEmotionStart = false;
-    
-    private final MainHandler mMainHandler = new MainHandler(this);
-    
+
     public MainApplication()
     {
     }
-    
+
     @Override
     public void onCreate()
     {
         super.onCreate();
-        
-        bootCockpitService();
+
+        initCockpitService();
         initInterruptLogic();
         initFaceEmotionInterrupt();
+        initTTS();
     }
-    
+
     /**
      * 取得章魚 or 使用者的名字
      */
@@ -79,7 +85,7 @@ public class MainApplication extends Application
         SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
         return prefs.getString(id, "");
     }
-    
+
     /**
      * 設定章魚 or 使用者的名字
      */
@@ -90,47 +96,53 @@ public class MainApplication extends Application
         editor.putString(id, name);
         editor.apply();
     }
-    
+
     public void setCockpitConnectionEventListener(CockpitConnectionEventListener l)
     {
         Logs.showTrace("[MainApplication] setCockpitConnectionEventListener()");
         mCockpitConnectionEventListener = l;
     }
-    
+
     public void setCockpitSensorEventListener(CockpitSensorEventListener l)
     {
         Logs.showTrace("[MainApplication] setCockpitSensorEventListener()");
         mCockpitSensorEventListener = l;
     }
-    
+
     public void setCockpitFilmMakingEventListener(CockpitFilmMakingEventListener l)
     {
         Logs.showTrace("[MainApplication] setCockpitFilmMakingEventListener()");
         mCockpitFilmMakingEventListener = l;
     }
-    
+
     public void setFaceEmotionEventListener(FaceEmotionEventListener l)
     {
         Logs.showTrace("[MainApplication] setEmotionEventListener()");
         mFaceEmotionEventListener = l;
     }
-    
+
+    public void setTTSEventListener(TTSEventListener l)
+    {
+        Logs.showTrace("[MainApplication] setTTSEventListener()");
+        mTtsEventListener = l;
+    }
+
     public void startFaceEmotion()
     {
         if (null == mEmotionHandler)
         {
             mEmotionHandler = new EmotionHandler(this);
-            mEmotionHandler.setHandler(mMainHandler);
+            mEmotionHandler.setHandler(mInClassHandler);
             mEmotionHandler.init();
         }
-        
+
         if (!isFaceEmotionStart)
         {
             mEmotionHandler.start();
             isFaceEmotionStart = true;
         }
     }
-    
+
     public void stopFaceEmotion()
     {
         if (null != mEmotionHandler)
@@ -142,29 +154,66 @@ public class MainApplication extends Application
             }
         }
     }
-    
+
     public void startTracker()
     {
-        mTracker.setHandler(mMainHandler);
+        mTracker.setHandler(mInClassHandler);
         mTracker.startTracker(Parameters.TRACKER_APP_ID);
     }
-    
+
     public void sendToTracker(HashMap<String, String> data)
     {
         mTracker.track(data);
     }
-    
-    private void bootCockpitService()
+
+    /** 初始化 TTS 服務 */
+    public void initTTS()
+    {
+        mTtsHandler.setHandler(mInClassHandler);
+        mTtsHandler.init();
+    }
+
+    /** 設定 TTS pitch & speech rate */
+    public void setTTSPitch(float fpitch, float frate)
+    {
+        mTtsHandler.setPitch(fpitch, frate);
+    }
+
+    /** 設定 TTS 的輸出語言 */
+    public void setTTSLanguage(Locale language)
+    {
+        mTtsHandler.setLocale(language);
+    }
+
+    /** 取得 TTS 的輸出語言 */
+    public Locale getTTSLanguage()
+    {
+        return mTtsHandler.getLocale();
+    }
+
+    /** 將 text 轉為語音輸出 */
+    public void playTTS(String text, String textId)
+    {
+        Logs.showTrace("[MainApplication] playTTS()");
+        mTtsHandler.textToSpeech(text, textId);
+    }
+
+    /** 停止正在進行的 TTS */
+    public void stopTTS()
+    {
+        Logs.showTrace("[MainApplication] stopTTS()");
+        mTtsHandler.stop();
+    }
+
+    private void initCockpitService()
     {
         CockpitService.startThenBindService(this, InternetCockpitService.class,
                 mCockpitServiceConnection, null);
         CockpitService.startThenBindService(this, OtgCockpitService.class,
                 mCockpitServiceConnection, null);
     }
-    
-    /**
-     * 初始化 FaceEmotionInterruptHandler 處理 face emotion 邏輯的部分
-     */
+
+    /** 初始化 FaceEmotionInterruptHandler 處理 face emotion 邏輯的部分 */
     private void initFaceEmotionInterrupt()
     {
         String interruptEmotionBehaviorDataArrayInput = "";
@@ -173,7 +222,7 @@ public class MainApplication extends Application
             SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
             String message = prefs.getString(Parameters.TASK_COMPOSER_DATA, "non-json text");
             JSONObject tmp = new JSONObject(message);
-        
+
             JSONObject rules = tmp.getJSONObject("rules");
             interruptEmotionBehaviorDataArrayInput = rules.getJSONArray("emotion").toString();
             Logs.showTrace("[MainApplication] Use SharedPreferences for interrupt logic behavior");
@@ -181,25 +230,23 @@ public class MainApplication extends Application
         catch (JSONException e)
         {
             Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
-            interruptEmotionBehaviorDataArrayInput = INTERRUPT_EMOTION_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
+            interruptEmotionBehaviorDataArrayInput = Parameters.INTERRUPT_EMOTION_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
         }
         mFaceEmotionInterruptHandler.setInterruptEmotionLogicBehaviorDataArray(interruptEmotionBehaviorDataArrayInput);
-        mFaceEmotionInterruptHandler.setHandler(mMainHandler);
+        mFaceEmotionInterruptHandler.setHandler(mInClassHandler);
     }
-    
-    /**
-     * 初始化 InterruptLogicHandler 處理 sensor 邏輯的部分
-     */
+
+    /** 初始化 InterruptLogicHandler 處理 sensor 邏輯的部分 */
     private void initInterruptLogic()
     {
         String interruptLogicBehaviorDataArrayInput;
-        
+
         try
         {
             SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
             String message = prefs.getString(Parameters.TASK_COMPOSER_DATA, "non-json text");
             JSONObject tmp = new JSONObject(message);
-            
+
             JSONObject rules = tmp.getJSONObject("rules");
             interruptLogicBehaviorDataArrayInput = rules.getJSONArray("action").toString();
             Logs.showTrace("[MainApplication] Use SharedPreferences for interrupt logic behavior");
@@ -207,25 +254,23 @@ public class MainApplication extends Application
         catch (JSONException e)
         {
             Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
-            interruptLogicBehaviorDataArrayInput = INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
+            interruptLogicBehaviorDataArrayInput = Parameters.INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
         }
-        
+
         mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(interruptLogicBehaviorDataArrayInput);
-        mInterruptLogicHandler.setHandler(mMainHandler);
+        mInterruptLogicHandler.setHandler(mInClassHandler);
     }
-    
-    /**
-     * CockpitService 的 ServiceConnection
-     */
+
+    /** CockpitService 的 ServiceConnection */
     private final ServiceConnection mCockpitServiceConnection = new ServiceConnection()
     {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service)
         {
             Logs.showTrace("[MainApplication] onServiceConnected()");
-            
+
             mCockpitService = ((CockpitService.Binder) service).getService();
-            
+
             if (mCockpitService instanceof InternetCockpitService)
             {
                 mInternetCockpitService = (InternetCockpitService) mCockpitService;
@@ -236,16 +281,28 @@ public class MainApplication extends Application
             {
                 mOtgCockpitService = (OtgCockpitService) mCockpitService;
             }
-            
-            mCockpitService.setHandler(mMainHandler);
+
+            mCockpitService.setHandler(mInClassHandler);
             mCockpitService.connect();
         }
-        
+
         @Override
         public void onServiceDisconnected(ComponentName name)
         {
             Logs.showTrace("[MainApplication] onServiceDisconnected()");
-            
+
+            if (mCockpitService instanceof InternetCockpitService)
+            {
+                mInternetCockpitService.setHandler(null);
+                mInternetCockpitService = null;
+            }
+            else if (mCockpitService instanceof OtgCockpitService)
+            {
+                mOtgCockpitService.setHandler(null);
+                mOtgCockpitService = null;
+            }
+
+
             if (mCockpitService != null)
             {
                 mCockpitService.setHandler(null);
@@ -253,26 +310,26 @@ public class MainApplication extends Application
             }
         }
     };
-    
-    private static final class MainHandler extends Handler
+
+    private static final class InClassHandler extends Handler
     {
         private final WeakReference<MainApplication> mWeakSelf;
-        
-        public MainHandler(MainApplication app)
+
+        private InClassHandler(MainApplication app)
         {
             mWeakSelf = new WeakReference<>(app);
         }
-        
+
         @Override
         public void handleMessage(Message msg)
         {
             MainApplication app = mWeakSelf.get();
             if (app == null)
             {
-                Logs.showTrace("[MainApplication] [MainHandler] WeakReference is null");
+                Logs.showTrace("[MainApplication] [InClassHandler] WeakReference is null");
                 return;
             }
-            
+
             switch (msg.what)
             {
                 case CockpitService.MSG_WHAT:
@@ -288,25 +345,28 @@ public class MainApplication extends Application
                     app.handleTrackerMessage(msg);
                     break;
                 case FaceEmotionInterruptParameters.CLASS_FACE_EMOTION_INTERRUPT:
-                    
+
+                    break;
+                case CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER:
+                    app.handleTTSMessage(msg);
                     break;
                 default:
-                    Logs.showTrace("[MainApplication] [MainHandler] unhandled msg.what: " + msg.what);
+                    Logs.showTrace("[MainApplication] [InClassHandler] unhandled msg.what: " + msg.what);
             }
         }
     }
-    
+
     //
     //### pending to write
     private void handleMessageFaceEmotionInterruptMessage(Message msg)
     {
         if (null != mFaceEmotionEventListener)
         {
-        
-        
+
+
         }
     }
-    
+
     private void handleMessageFaceEmotionMessage(Message msg)
     {
         if (null != mFaceEmotionEventListener)
@@ -315,29 +375,27 @@ public class MainApplication extends Application
             {
                 mFaceEmotionInterruptHandler.setEmotionEventData((HashMap<String, String>) msg.obj);
             }
-            
+
         }
     }
-    
-    /**
-     * 接收 InterruptLogicHandler 事件的 handler
-     */
+
+    /** 處理來自 InterruptLogicHandler 的事件 */
     private void handleInterruptLogicMessage(Message msg)
     {
         if (null == mCockpitSensorEventListener)
         {
             return;
         }
-        
+
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        
+
         switch (msg.arg2)
         {
             case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
                 String trigger_result = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
                 Logs.showTrace("[MainApplication] handleInterruptLogicMessage() " +
                         "trigger_result = " + trigger_result);
-                
+
                 switch (trigger_result)
                 {
                     case "握手":
@@ -365,22 +423,21 @@ public class MainApplication extends Application
                 Logs.showTrace("[MainApplication] handleInterruptLogicMessage() unknown msg.arg2: " + msg.arg2);
         }
     }
-    
+
+    /** 處理來自 Tracker 的事件 */
     private void handleTrackerMessage(Message msg)
     {
         Logs.showTrace("[MainApplication] handleTrackerMessage()");
-        
+
         int result = msg.arg1;
         int from = msg.arg2;
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        
+
         Logs.showTrace("[MainApplication] handleTrackerMessage() " +
                 "Result: " + result + " From: " + from + " Message: " + message);
     }
-    
-    /**
-     * 處理來自 CockpitService 的事件
-     */
+
+    /** 處理來自 CockpitService 的事件 */
     private void handleCockpitServiceMessage(Message msg)
     {
         if (msg.arg1 == CockpitService.EVENT_DATA_TEXT)
@@ -388,20 +445,20 @@ public class MainApplication extends Application
             // plain text from cockpit
             String data = (String) msg.obj;
             Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onData(), data=`" + data + "`");
-            
+
             if (null != mInterruptLogicHandler)
             {
                 mInterruptLogicHandler.setDeviceEventData(data);
                 mInterruptLogicHandler.startEventDataAnalysis();
             }
-            
+
             return;
         }
         else if (msg.arg1 == CockpitService.EVENT_DATA_FILM_MAKING)
         {
             // film making commands from cockpit
             JSONObject j = (JSONObject) msg.obj;
-            
+
             if (null != mCockpitFilmMakingEventListener)
             {
                 try
@@ -410,7 +467,7 @@ public class MainApplication extends Application
                     String text = j.getString("text");
                     Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
                             "film making action = `" + action + "`, text = `" + text + "`");
-                    
+
                     if (action.equals("tts"))
                     {
                         String language = j.getString("language");
@@ -431,15 +488,15 @@ public class MainApplication extends Application
                     e.printStackTrace();
                 }
             }
-            
+
             return;
         }
-        
+
         if (null == mCockpitConnectionEventListener)
         {
             return;
         }
-        
+
         // connection events
         switch (msg.arg1)
         {
@@ -473,7 +530,75 @@ public class MainApplication extends Application
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() unhandled msg.arg1: " + msg.arg1);
         }
     }
-    
-    private static final String INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT = "[{\"sensors\":[\"f1\",\"f2\",\"C\",\"D\"],\"trigger_rule\":1,\"action\":1,\"tag\":\"SHAKE_HANDS\",\"trigger\":\"OCTOBO_Expressions-35.png\",\"value\":\"1\",\"desc\":\"握手\"},{\"sensors\":[\"f1\",\"f2\",\"C\",\"D\"],\"trigger_rule\":2,\"action\":2,\"tag\":\"CLAP_HANDS\",\"trigger\":\"OCTOBO_Expressions-24.png\",\"value\":\"1\",\"desc\":\"拍手\"},{\"sensors\":[\"FSR1\",\"FSR2\"],\"trigger_rule\":2,\"action\":3,\"tag\":\"EXTRUSION\",\"trigger\":\"OCTOBO_Expressions-01.png\",\"value\":\"1\",\"desc\":\"擠壓\"},{\"sensors\":[\"X\",\"Y\",\"Z\"],\"trigger_rule\":1,\"action\":4,\"tag\":\"SHAKE\",\"trigger\":\"OCTOBO_Expressions-38.png\",\"value\":\"1\",\"desc\":\"搖晃\"},{\"sensors\":[\"H\"],\"trigger_rule\":1,\"action\":5,\"tag\":\"TURN_ON_THE_LIGHT\",\"trigger\":\"ON\",\"value\":\"1\",\"desc\":\"開燈\"},{\"sensors\":[\"FSR1\",\"FSR2\"],\"trigger_rule\":1,\"action\":6,\"tag\":\"PAT_HEAD\",\"trigger\":\"OCTOBO_Expressions-01.png\",\"value\":\"1\",\"desc\":\"拍頭\"}]";
-    private static final String INTERRUPT_EMOTION_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT = "[{trigger_value: \"60\",priority: 3,emotion_name: \"ANGER\",emotion_id: 1,trigger_time: 1,img_name: \"OCTOBO_Expressions-08.png\",contents: [{tts: \"你看起來好生氣，發生什麼事了？\",id: 1,pitch: \"1.0\",speed: \"1.0\"},{tts: \"我想你一定很生氣。我幫你把生氣的事情吹走，呼~好了，現在不要生氣了！我們繼續來玩吧！\",id: 2,pitch: \"1.0\",speed: \"1.0\"}],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 1},{trigger_value: \"60\",priority: 7,emotion_name: \"DISGUST\",emotion_id: 2,trigger_time: 1,img_name: \"OCTOBO_Expressions-04.png\",contents: [ ],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 2},{trigger_value: \"60\",priority: 4,emotion_name: \"FEAR\",emotion_id: 3,trigger_time: 1,img_name: \"OCTOBO_Expressions-28.png\",contents: [ ],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 3},{trigger_value: \"60\",priority: 2,emotion_name: \"JOY\",emotion_id: 4,trigger_time: 1,img_name: \"OCTOBO_Expressions-31.png\",contents: [{tts: \"你笑得好開心喔！什麼事情這麼好笑？\",id: 1,pitch: \"1.0\",speed: \"1.0\"},{tts: \"那現在我們繼續來玩吧！\",id: 2,pitch: \"1.0\",speed: \"1.0\"}],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 4},{trigger_value: \"60\",priority: 5,emotion_name: \"SADNESS\",emotion_id: 5,trigger_time: 1,img_name: \"OCTOBO_Expressions-05.png\",contents: [{tts: \"你看起來好難過，怎麼了？你還好嗎？\",id: 1,pitch: \"1.0\",speed: \"1.0\"},{tts: \"我想你一定很傷心，我想給你一個擁抱，來，抱一下！\",id: 2,pitch: \"1.0\",speed: \"1.0\"}],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 5},{trigger_value: \"60\",priority: 6,emotion_name: \"SURPRISE\",emotion_id: 6,trigger_time: 1,img_name: \"OCTOBO_Expressions-21.png\",contents: [{tts: \"咦，怎麼了？\",id: 1,pitch: \"1.0\",speed: \"1.0\"},{tts: \"呼！我剛剛嚇了一跳呢！好了，現在沒事了，我們繼續來玩吧！\",id: 2,pitch: \"1.0\",speed: \"1.0\"}],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 6},{trigger_value: \"60\",priority: 8,emotion_name: \"CONTEMPT\",emotion_id: 7,trigger_time: 1,img_name: \"OCTOBO_Expressions-38.png\",contents: [ ],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 7},{trigger_value: \"-1\",priority: 1,emotion_name: \"ATTENTION\",emotion_id: 10,trigger_time: 3,img_name: \"OCTOBO_Expressions-16.png\",contents: [ ],emotion_type: \"EXPRESSION\",data_type: \"OCTOBO\",id: 8}]";
+
+    /** 處理來自 TextToSpeechHandler 的事件 */
+    private void handleTTSMessage(Message msg)
+    {
+        switch (msg.arg1)
+        {
+            case ResponseCode.ERR_SUCCESS:
+                analysisTTSResponse((HashMap<String, String>) msg.obj);
+                break;
+            case ResponseCode.ERR_NOT_INIT:
+                Logs.showError("TTS service method called before initialization");
+                break;
+            case ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION:
+                //deal with not found Google TTS Exception
+                //mTtsHandler.downloadTTS();
+
+                //deal with ACCESSIBILITY page can not open Exception
+                //Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                //startActivityForResult(intent, 0);
+                if (null != mTtsEventListener)
+                {
+                    String message = ((HashMap<String, String>) msg.obj).get("message");
+                    mTtsEventListener.onInitFailed(msg.arg1, message);
+                }
+                break;
+            case ResponseCode.ERR_UNKNOWN:
+                Logs.showError("[MainApplication] handleTTSMessage() unknown error occured");
+                if (null != mTtsEventListener)
+                {
+                    String message = ((HashMap<String, String>) msg.obj).get("message");
+                    mTtsEventListener.onInitFailed(msg.arg1, message);
+                }
+                break;
+            default:
+                Logs.showError("[MainApplication] handleTTSMessage() unknown msg.arg2: " + msg.arg2);
+        }
+
+    }
+
+    /** 處理來自 TextToSpeechHandler 的事件 */
+    private void analysisTTSResponse(HashMap<String, String> message)
+    {
+        if (message.containsKey("TextID") && message.containsKey("TextStatus"))
+        {
+            String utteranceId = message.get("TextID");
+            boolean textStatusDone = message.get("TextStatus").equals("DONE");
+            boolean textStatusStart = message.get("TextStatus").equals("START");
+
+            if (textStatusDone)
+            {
+                if (null != mTtsEventListener)
+                {
+                    mTtsEventListener.onUtteranceDone(utteranceId);
+                }
+            }
+            else if (textStatusStart)
+            {
+                if (null != mTtsEventListener)
+                {
+                    mTtsEventListener.onUtteranceStart(utteranceId);
+                }
+            }
+        }
+        else if (message.get("message").equals("init success"))
+        {
+            if (null != mTtsEventListener)
+            {
+                mTtsEventListener.onInitSuccess();
+            }
+        }
+    }
 }
