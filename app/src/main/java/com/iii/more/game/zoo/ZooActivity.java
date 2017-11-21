@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 
 import com.iii.more.game.module.MSG;
 import com.iii.more.game.module.RobotHead;
+import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
 import com.iii.more.main.CockpitSensorEventListener;
 import com.iii.more.main.MainApplication;
@@ -82,8 +83,9 @@ public class ZooActivity extends Activity
     private final int SCEN_INDEX_GAME_OVER = 666;
     private final int SCEN_INDEX_FINISH = 999;
     
-    MainApplication application = null;
+    private MainApplication application = null;
     private RobotHead robotHead = null;
+    private TrackerHandler trackerHandler = null;
     private Timer timer = null;
     private int mnScenarizeIndex;
     private VoiceRecognition mVoiceRecognition = null;
@@ -173,7 +175,10 @@ public class ZooActivity extends Activity
         ivDonuts.setOnTouchListener(onTouchListener);
         ivIceCream.setOnTouchListener(onTouchListener);
         
-        
+        trackerHandler = new TrackerHandler(this);
+        trackerHandler.setSource("0");
+        trackerHandler.setActivity("game");
+        trackerHandler.setDescription("Edubot Zoo Game");
     }
     
     @Override
@@ -234,6 +239,7 @@ public class ZooActivity extends Activity
         mnScenarizeIndex = nIndex;
         String strTTS = "";
         String strName = application.getName(Parameters.ID_CHILD_NAME);
+        String strFaceImg = "";
         HashMap<String, String> track = new HashMap<String, String>();
         int nFace = 0;
         
@@ -245,12 +251,14 @@ public class ZooActivity extends Activity
                 robotHead.showObjectImg(false);
                 // 遊戲開始
                 nFace = R.drawable.octobo16;
+                strFaceImg = "octobo16.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 strTTS = "嗨! 你好 來玩遊戲吧";
                 robotHead.setPitch(1.5f, 1.5f);
                 break;
             case SCEN_INDEX_ANIMAL_RFID:
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 strTTS = "哈囉，" + strName + "今天我們一起去動物園玩！牽著我的手，出發囉！";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.zoo_map, ImageView.ScaleType.CENTER_INSIDE);
@@ -261,6 +269,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_HOLD_HAND:
                 strTTS = "抓緊喔！今天，你想要坐什麼交通工具去呢？";
                 nFace = R.drawable.octobo13;
+                strFaceImg = "octobo13.png";
                 robotHead.bringFaceImgtoFront();
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(1.2f, 0.8f);
@@ -268,6 +277,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_TRAFFIC_BUS: // 孩子選擇搭公車
                 strTTS = "請刷悠遊卡";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.bus, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.showObjectImg(true);
@@ -287,6 +297,7 @@ public class ZooActivity extends Activity
                 robotHead.bringObjImgtoFront();
                 robotHead.setImgObjectTouch(true);
                 nFace = R.drawable.businside;
+                strFaceImg = "businside.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.setObjectImg(R.drawable.man, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.showObjectImg(false);
@@ -302,10 +313,12 @@ public class ZooActivity extends Activity
                 if (550 < mnDroppedX)
                 {
                     nFace = R.drawable.businside_right;
+                    strFaceImg = "businside_right.png";
                 }
                 else
                 {
                     nFace = R.drawable.businside_left;
+                    strFaceImg = "businside_left.png";
                 }
                 
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_INSIDE);
@@ -323,6 +336,7 @@ public class ZooActivity extends Activity
                 strTTS = "噗噗噗噗噗噗噗噗噗噗";
                 robotHead.bringFaceImgtoFront();
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.busmoving, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.showObjectImg(true);
@@ -333,6 +347,7 @@ public class ZooActivity extends Activity
                 //strTTS = "到囉，，讓我們一起來參觀台灣動物區的動物";
                 strTTS = "到囉，，讓我們一起來參觀動物吧";
                 nFace = R.drawable.zoodoor;
+                strFaceImg = "zoodoor.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.showObjectImg(true);
                 robotHead.showFaceImg(true);
@@ -341,6 +356,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_ANIMAL_MONKEY:
                 strTTS = "看，是猴子";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.monkey, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(1.2f, 1.6f);
@@ -348,6 +364,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_BANANA:
                 strTTS = "猴子 最愛吃香蕉";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.banana, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(1.2f, 1.6f);
@@ -355,6 +372,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_BANANA_NON:
                 strTTS = "啊嗯";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.banana_non, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(1.2f, 1.6f);
@@ -377,6 +395,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_NOT_FEAR:
                 strTTS = strName + "，不要怕，我陪你";
                 nFace = R.drawable.octobo21;
+                strFaceImg = "octobo21.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.showObjectImg(false);
                 robotHead.setPitch(1f, 0.7f);
@@ -384,6 +403,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_FOOD_MENU:
                 strTTS = strName + "我們來吃東西休息一下吧！選你想吃得食物吧";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(false);
                 robotHead.setPitch(1.4f, 0.9f);
@@ -393,6 +413,7 @@ public class ZooActivity extends Activity
                 robotHead.removeView(linearFood);
                 strTTS = "來吃漢堡囉！";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.burger, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.showObjectImg(true);
@@ -403,6 +424,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_EATED_HAMBERB:
                 strTTS = "嗯 好吃！,, 我們下次再來玩";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.burger_non, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.setPitch(1.6f, 0.5f);
@@ -411,6 +433,7 @@ public class ZooActivity extends Activity
                 robotHead.removeView(linearFood);
                 strTTS = "來吃甜甜圈囉！";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.donut, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.showObjectImg(true);
@@ -421,6 +444,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_EATED_DNUTE:
                 strTTS = "嗯 好吃！,, 我們下次再來玩";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.donut_non, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.setPitch(1.6f, 0.5f);
@@ -429,6 +453,7 @@ public class ZooActivity extends Activity
                 robotHead.removeView(linearFood);
                 strTTS = "來吃冰淇淋囉！";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.icecream, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.showObjectImg(true);
@@ -439,6 +464,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_EATED_ICECREAME:
                 strTTS = "嗯 好吃！,, 我們下次再來玩";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.icecream_non, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.setPitch(1.6f, 0.5f);
@@ -447,6 +473,7 @@ public class ZooActivity extends Activity
                 finish();
                 strTTS = "讓我們一起再來參觀非洲動物區的動物喔";
                 nFace = R.drawable.zoodoor;
+                strFaceImg = "zoodoor.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.showObjectImg(false);
                 robotHead.showFaceImg(true);
@@ -456,6 +483,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_ANIMAL_ELEPHONE:
                 strTTS = "快看，，是大象";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.elephone2, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(true);
@@ -464,6 +492,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_VEGETABLE:
                 strTTS = "大象最喜歡吃草跟樹葉!!";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.vegetable, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(true);
@@ -472,6 +501,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_VEGETABLE_NON:
                 strTTS = "啊嗯嗯嗯";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.vegetable_non, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(true);
@@ -480,6 +510,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_LEMUR:
                 strTTS = "是狐猴";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.lemur, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(true);
@@ -488,6 +519,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_APPLE:
                 strTTS = "蘋果是狐猴最愛吃的食物";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.apple, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(true);
@@ -496,6 +528,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_APPLE_NON:
                 strTTS = "啊嗯";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setObjectImg(R.drawable.apple_non, ImageView.ScaleType.FIT_XY);
                 robotHead.showObjectImg(true);
@@ -510,6 +543,7 @@ public class ZooActivity extends Activity
                 strTTS = "今天，真好玩，請告訴我，你最喜歡什麼動物呢";
                 robotHead.showObjectImg(false);
                 nFace = R.drawable.octobo31;
+                strFaceImg = "octobo31.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(0.8f, 1f);
                 break;
@@ -519,6 +553,7 @@ public class ZooActivity extends Activity
             case SCEN_INDEX_GAME_OVER:
                 strTTS = "再見囉";
                 nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
                 robotHead.setPitch(0.9f, 1.2f);
                 robotHead.setObjectImg(R.drawable.zoodoor, ImageView.ScaleType.FIT_XY);
@@ -562,6 +597,8 @@ public class ZooActivity extends Activity
         }
         robotHead.setPitch(0.95f, 1.0f);
         robotHead.playTTS(strTTS, String.valueOf(nIndex));
+        trackerHandler.setRobotFace(strFaceImg);
+        
         track.put("Scenarize", String.valueOf(nIndex));
         track.put("TTS", strTTS);
         track.put("Face", String.valueOf(nFace));

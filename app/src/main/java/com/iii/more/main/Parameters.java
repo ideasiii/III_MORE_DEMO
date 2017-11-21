@@ -6,7 +6,7 @@ package com.iii.more.main;
 
 public abstract class Parameters
 {
-    public static final boolean OOBE_DEBUG_ENABLE = false;
+    public static final boolean OOBE_DEBUG_ENABLE = true;
     
     public static final String ID_CHILD_NAME = "child_name";
     public static final String ID_ROBOT_NAME = "edubot_name";
@@ -23,7 +23,6 @@ public abstract class Parameters
     public static final String INTERNET_COCKPIT_SERVER_ADDRESS = "ws://smabuild.sytes.net:21098/slave";
     
     public static final String TRACKER_APP_ID = "1510555888386";
-    
     
     
 }
