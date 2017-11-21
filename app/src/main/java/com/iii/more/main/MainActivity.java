@@ -96,8 +96,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     //BLE connect read pen
     private ReadPenBLEHandler mReadPenBLEHandler = null;
     
-    //handle in story mode face emotion interrupt
-    private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = null;
+  
     
     
     private Handler mHandler = new Handler()
@@ -231,10 +230,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         mHttpAPIHandler = new HttpAPIHandler(this);
         mHttpAPIHandler.setHandler(mHandler);
         
-        mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
-        mFaceEmotionInterruptHandler.setHandler(mHandler);
-        JSONObject tmp = new JSONObject();
-        mFaceEmotionInterruptHandler.setFaceEmotionBehavior(tmp);
+        
     }
     
     
@@ -243,7 +239,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     {
         Logs.showTrace("onDestroy");
         
-     
         
         if (null != mDisplayHandler)
         {
@@ -862,14 +857,11 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         }
     }
     
+    
     @Override
-    public void onFaceEmotionResult(HashMap<String, String> faceEmotionHashMap)
+    public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String, String> tts, HashMap<String, String> image, Object extendData)
     {
-        //get face emotion data
-        Logs.showTrace("[MainActivity] Face Emotion Data: " + faceEmotionHashMap);
-        
-        mFaceEmotionInterruptHandler.setFaceEventData(faceEmotionHashMap);
-        
+    
     }
     
     @Override

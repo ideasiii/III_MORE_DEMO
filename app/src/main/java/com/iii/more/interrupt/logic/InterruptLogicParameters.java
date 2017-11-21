@@ -44,11 +44,7 @@ public abstract class InterruptLogicParameters
     public static final String JSON_STRING_VALUE = "value";
     public static final String JSON_STRING_DESCRIPTION = "desc";
     
-    public static final String JSON_STRING_EMOTION_ID = "emotion_id";
-    public static final String JSON_STRING_EMOTION_MAPPING_IMAGE_NAME = "img_name";
-    public static final String JSON_STRING_EMOTION_NAME = "emotion_name";
-    public static final String JSON_STRING_ID = "id";
-    public static final String JSON_STRING_DATA_TYPE = "data_type";
+   
     
     public static final float LOW_BOUND_EMOTION_VALUE = 20.0f;
 

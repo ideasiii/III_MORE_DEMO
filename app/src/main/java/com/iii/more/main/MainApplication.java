@@ -14,6 +14,8 @@ import com.iii.more.cockpit.InternetCockpitService;
 import com.iii.more.cockpit.OtgCockpitService;
 import com.iii.more.emotion.EmotionHandler;
 import com.iii.more.emotion.EmotionParameters;
+import com.iii.more.emotion.interrupt.FaceEmotionInterruptHandler;
+import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.interrupt.logic.InterruptLogicHandler;
 import com.iii.more.interrupt.logic.InterruptLogicParameters;
 
@@ -38,7 +40,7 @@ public class MainApplication extends Application
     private CockpitService mCockpitService;
     private InternetCockpitService mInternetCockpitService;
     private OtgCockpitService mOtgCockpitService;
-
+    
     private Tracker mTracker = new Tracker(this);
     
     private CockpitConnectionEventListener mCockpitConnectionEventListener;
@@ -49,15 +51,16 @@ public class MainApplication extends Application
     // this logic handler does not handle emotion logic
     private InterruptLogicHandler mInterruptLogicHandler = new InterruptLogicHandler(this);
     
+    private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
     private EmotionHandler mEmotionHandler = null;
     private static boolean isFaceEmotionStart = false;
     
     private final MainHandler mMainHandler = new MainHandler(this);
-
+    
     public MainApplication()
     {
     }
-
+    
     @Override
     public void onCreate()
     {
@@ -65,6 +68,7 @@ public class MainApplication extends Application
         
         bootCockpitService();
         initInterruptLogic();
+        initFaceEmotionInterrupt();
     }
     
     /**
@@ -144,7 +148,7 @@ public class MainApplication extends Application
         mTracker.setHandler(mMainHandler);
         mTracker.startTracker(Parameters.TRACKER_APP_ID);
     }
-
+    
     public void sendToTracker(HashMap<String, String> data)
     {
         mTracker.track(data);
@@ -156,6 +160,31 @@ public class MainApplication extends Application
                 mCockpitServiceConnection, null);
         CockpitService.startThenBindService(this, OtgCockpitService.class,
                 mCockpitServiceConnection, null);
+    }
+    
+    /**
+     * 初始化 FaceEmotionInterruptHandler 處理 face emotion 邏輯的部分
+     */
+    private void initFaceEmotionInterrupt()
+    {
+        String interruptEmotionBehaviorDataArrayInput = "";
+        try
+        {
+            SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
+            String message = prefs.getString(Parameters.TASK_COMPOSER_DATA, "non-json text");
+            JSONObject tmp = new JSONObject(message);
+        
+            JSONObject rules = tmp.getJSONObject("rules");
+            interruptEmotionBehaviorDataArrayInput = rules.getJSONArray("emotion").toString();
+            Logs.showTrace("[MainApplication] Use SharedPreferences for interrupt logic behavior");
+        }
+        catch (JSONException e)
+        {
+            Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
+            interruptEmotionBehaviorDataArrayInput = INTERRUPT_EMOTION_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
+        }
+        mFaceEmotionInterruptHandler.setInterruptEmotionLogicBehaviorDataArray(interruptEmotionBehaviorDataArrayInput);
+        mFaceEmotionInterruptHandler.setHandler(mMainHandler);
     }
     
     /**
@@ -258,9 +287,23 @@ public class MainApplication extends Application
                 case CtrlType.MSG_RESPONSE_TRACKER_HANDLER:
                     app.handleTrackerMessage(msg);
                     break;
+                case FaceEmotionInterruptParameters.CLASS_FACE_EMOTION_INTERRUPT:
+                    
+                    break;
                 default:
                     Logs.showTrace("[MainApplication] [MainHandler] unhandled msg.what: " + msg.what);
             }
+        }
+    }
+    
+    //
+    //### pending to write
+    private void handleMessageFaceEmotionInterruptMessage(Message msg)
+    {
+        if (null != mFaceEmotionEventListener)
+        {
+        
+        
         }
     }
     
@@ -270,16 +313,9 @@ public class MainApplication extends Application
         {
             if (msg.arg2 == EmotionParameters.METHOD_EMOTION_DETECT)
             {
-                mFaceEmotionEventListener.onFaceEmotionResult((HashMap<String, String>) msg.obj);
+                mFaceEmotionInterruptHandler.setEmotionEventData((HashMap<String, String>) msg.obj);
             }
-            else if (msg.arg2 == EmotionParameters.METHOD_FACE_DETECT)
-            {
-                mFaceEmotionEventListener.onFaceDetectResult(true);
-            }
-            else if (msg.arg2 == EmotionParameters.METHOD_NO_FACE_DETECT)
-            {
-                mFaceEmotionEventListener.onFaceDetectResult(false);
-            }
+            
         }
     }
     
@@ -439,4 +475,5 @@ public class MainApplication extends Application
     }
     
     private static final String INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT = "[{\"sensors\":[\"f1\",\"f2\",\"C\",\"D\"],\"trigger_rule\":1,\"action\":1,\"tag\":\"SHAKE_HANDS\",\"trigger\":\"OCTOBO_Expressions-35.png\",\"value\":\"1\",\"desc\":\"握手\"},{\"sensors\":[\"f1\",\"f2\",\"C\",\"D\"],\"trigger_rule\":2,\"action\":2,\"tag\":\"CLAP_HANDS\",\"trigger\":\"OCTOBO_Expressions-24.png\",\"value\":\"1\",\"desc\":\"拍手\"},{\"sensors\":[\"FSR1\",\"FSR2\"],\"trigger_rule\":2,\"action\":3,\"tag\":\"EXTRUSION\",\"trigger\":\"OCTOBO_Expressions-01.png\",\"value\":\"1\",\"desc\":\"擠壓\"},{\"sensors\":[\"X\",\"Y\",\"Z\"],\"trigger_rule\":1,\"action\":4,\"tag\":\"SHAKE\",\"trigger\":\"OCTOBO_Expressions-38.png\",\"value\":\"1\",\"desc\":\"搖晃\"},{\"sensors\":[\"H\"],\"trigger_rule\":1,\"action\":5,\"tag\":\"TURN_ON_THE_LIGHT\",\"trigger\":\"ON\",\"value\":\"1\",\"desc\":\"開燈\"},{\"sensors\":[\"FSR1\",\"FSR2\"],\"trigger_rule\":1,\"action\":6,\"tag\":\"PAT_HEAD\",\"trigger\":\"OCTOBO_Expressions-01.png\",\"value\":\"1\",\"desc\":\"拍頭\"}]";
+    private static final String INTERRUPT_EMOTION_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT = "[{trigger_value: \"60\",priority: 3,emotion_name: \"ANGER\",emotion_id: 1,trigger_time: 1,img_name: \"OCTOBO_Expressions-08.png\",contents: [{tts: \"你看起來好生氣，發生什麼事了？\",id: 1,pitch: \"1.0\",speed: \"1.0\"},{tts: \"我想你一定很生氣。我幫你把生氣的事情吹走，呼~好了，現在不要生氣了！我們繼續來玩吧！\",id: 2,pitch: \"1.0\",speed: \"1.0\"}],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 1},{trigger_value: \"60\",priority: 7,emotion_name: \"DISGUST\",emotion_id: 2,trigger_time: 1,img_name: \"OCTOBO_Expressions-04.png\",contents: [ ],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 2},{trigger_value: \"60\",priority: 4,emotion_name: \"FEAR\",emotion_id: 3,trigger_time: 1,img_name: \"OCTOBO_Expressions-28.png\",contents: [ ],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 3},{trigger_value: \"60\",priority: 2,emotion_name: \"JOY\",emotion_id: 4,trigger_time: 1,img_name: \"OCTOBO_Expressions-31.png\",contents: [{tts: \"你笑得好開心喔！什麼事情這麼好笑？\",id: 1,pitch: \"1.0\",speed: \"1.0\"},{tts: \"那現在我們繼續來玩吧！\",id: 2,pitch: \"1.0\",speed: \"1.0\"}],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 4},{trigger_value: \"60\",priority: 5,emotion_name: \"SADNESS\",emotion_id: 5,trigger_time: 1,img_name: \"OCTOBO_Expressions-05.png\",contents: [{tts: \"你看起來好難過，怎麼了？你還好嗎？\",id: 1,pitch: \"1.0\",speed: \"1.0\"},{tts: \"我想你一定很傷心，我想給你一個擁抱，來，抱一下！\",id: 2,pitch: \"1.0\",speed: \"1.0\"}],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 5},{trigger_value: \"60\",priority: 6,emotion_name: \"SURPRISE\",emotion_id: 6,trigger_time: 1,img_name: \"OCTOBO_Expressions-21.png\",contents: [{tts: \"咦，怎麼了？\",id: 1,pitch: \"1.0\",speed: \"1.0\"},{tts: \"呼！我剛剛嚇了一跳呢！好了，現在沒事了，我們繼續來玩吧！\",id: 2,pitch: \"1.0\",speed: \"1.0\"}],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 6},{trigger_value: \"60\",priority: 8,emotion_name: \"CONTEMPT\",emotion_id: 7,trigger_time: 1,img_name: \"OCTOBO_Expressions-38.png\",contents: [ ],emotion_type: \"EMOTION\",data_type: \"OCTOBO\",id: 7},{trigger_value: \"-1\",priority: 1,emotion_name: \"ATTENTION\",emotion_id: 10,trigger_time: 3,img_name: \"OCTOBO_Expressions-16.png\",contents: [ ],emotion_type: \"EXPRESSION\",data_type: \"OCTOBO\",id: 8}]";
 }
