@@ -35,7 +35,7 @@ import sdk.ideas.common.CtrlType;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 /**
- * Created by joe on 2017/10/30.
+ * Created by joe on 2017/10/30
  */
 
 public class MainApplication extends Application
