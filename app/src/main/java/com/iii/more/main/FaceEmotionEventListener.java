@@ -8,8 +8,8 @@ import java.util.HashMap;
 
 public interface FaceEmotionEventListener
 {
-    void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String, String> tts,
-            HashMap<String, String> image, Object extendData);
+    void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String, String> ttsEmotionData,
+            HashMap<String, String> imageEmotionData, Object extendData);
     
     void onFaceDetectResult(boolean isDetectFace);
 }

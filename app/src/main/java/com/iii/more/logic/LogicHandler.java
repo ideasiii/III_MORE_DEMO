@@ -422,8 +422,11 @@ public class LogicHandler extends BaseHandler
                         mVoiceRecognition.startListen();
                         break;
                     case TTSParameters.ID_SERVICE_TTS_BEGIN:
-                        
-                        break;
+                       /* HashMap<String, String> data2 = new HashMap<>();
+    
+                        data2.put("ttsID", TTSParameters.ID_SERVICE_TTS_BEGIN);
+                        callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters.METHOD_TTS, data2);
+                     */   break;
                     case TTSParameters.ID_SERVICE_UNKNOWN:
                         
                         //callback to service something ERROR

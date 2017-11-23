@@ -48,20 +48,20 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
     private ArrayList<OobeLogicElement> mStateData = null;
     private MainApplication mMainApplication = null;
     private InClassHandler mHandler = new InClassHandler(this);
-
+    
     private volatile boolean sensorGet = false;
     
     private volatile String rfidString = "";
     
     private VideoView mVideoView = null;
-
+    
     public void handleMessages(Message msg)
     {
         if (null == mOobeLogicHandler)
         {
             return;
         }
-
+        
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
         switch (msg.what)
         {
@@ -87,8 +87,8 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                 case "SensorTag":
                                     // ### set a timer to get
                                     
-                                    Thread t = new Thread(new HardwareCheckRunnable(1,
-                                            mStateData.get(mOobeLogicHandler.getState()).wait));
+                                    Thread t = new Thread(new HardwareCheckRunnable(1, mStateData.get
+                                            (mOobeLogicHandler.getState()).wait));
                                     t.start();
                                     
                                     //forced to do next step
@@ -97,7 +97,8 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                         @Override
                                         public void run()
                                         {
-                                            mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
+                                            mOobeLogicHandler.setState
+                                            (mOobeLogicHandler.getState() + 1);
                                             doNext();
                                         }
                                     }, 1000);
@@ -105,8 +106,8 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                     break;
                                 case "RFID":
                                     // ### set a timer to get
-                                    Thread t2 = new Thread(new HardwareCheckRunnable(2,
-                                            mStateData.get(mOobeLogicHandler.getState()).wait));
+                                    Thread t2 = new Thread(new HardwareCheckRunnable(2, mStateData.get
+                                            (mOobeLogicHandler.getState()).wait));
                                     t2.start();
                                     
                                     //forced to do next step
@@ -115,7 +116,8 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                         @Override
                                         public void run()
                                         {
-                                            mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
+                                            mOobeLogicHandler.setState
+                                            (mOobeLogicHandler.getState() + 1);
                                             doNext();
                                         }
                                     }, 1000);*/
@@ -166,7 +168,8 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                             else
                             {
                                 //### jump to Normal mode
-                                Logs.showTrace("[OobeActivity] Speech regret NOT --> Jump to normal mode");
+                                Logs.showTrace("[OobeActivity] Speech regret " + "NOT --> Jump to normal " +
+                                        "mode");
                                 
                                 startMainActivity();
                             }
@@ -195,12 +198,13 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                         
                         if (mStateData.get(mOobeLogicHandler.getState()).getRegret() > 0)
                         {
-                            Logs.showTrace("[OobeActivity] hardware check time out and regard once");
+                            Logs.showTrace("[OobeActivity] hardware check " + "time out and regard once");
                             doNext();
                         }
                         else
                         {
-                            Logs.showTrace("[OobeActivity] hardware check time out!! Jump to Normal Mode");
+                            Logs.showTrace("[OobeActivity] hardware check " + "time out!! Jump to Normal " +
+                                    "Mode");
                             startMainActivity();
                         }
                         
@@ -231,21 +235,21 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
             
         }
     }
-
+    
     @Override
     protected void onStop()
     {
         super.onStop();
-
+        
         MainApplication mainApp = (MainApplication) getApplication();
         mainApp.stopTTS();
     }
-
+    
     @Override
     protected void onDestroy()
     {
         Logs.showTrace("[OobeActivity] onDestroy");
-
+        
         if (null != mOobeLogicHandler)
         {
             mOobeLogicHandler.endAll();
@@ -263,7 +267,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
             mVideoView.stopPlayback();
             mVideoView = null;
         }
-
+        
         super.onDestroy();
     }
     
@@ -277,12 +281,9 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
         MainApplication mAPP = (MainApplication) getApplication();
         mAPP.setCockpitSensorEventListener(this);
         
-        final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View
+                .SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         
         // This work only for android 4.4+
         
@@ -365,7 +366,8 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                     {
                         String state = String.valueOf(mStateData.get(mOobeLogicHandler.getState()).state);
                         String tts = replaceScriptText(mStateData.get(mOobeLogicHandler.getState()).tts);
-                        String displayJson = mStateData.get(mOobeLogicHandler.getState()).getDisplayJsonString();
+                        String displayJson = mStateData.get(mOobeLogicHandler.getState())
+                                .getDisplayJsonString();
                         Logs.showTrace("[OobeActivity] doNext: tts:" + tts);
                         mOobeLogicHandler.ttsService(state, tts, "zh");
                         
@@ -378,7 +380,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                             }
                             catch (JSONException e)
                             {
-                                Logs.showTrace("[OobeActivity] doNext JSONException: " + e.toString());
+                                Logs.showTrace("[OobeActivity] doNext " + "JSONException: " + e.toString());
                             }
                         }
                         else
@@ -394,17 +396,21 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                         mOobeDisplayHandler.setImageViewImageFromDrawable(R.drawable.noeye);
                                         mVideoView.setVisibility(View.VISIBLE);
                                         
-                                        //mVideoView.setVideoPath(OobeParameters.TEST_VIDEO_HOST_URL + movieFileName);
-                                        Uri video = Uri.parse("android.resource://" + getPackageName() + "/"
-                                                + R.raw.obbe_movie);
+                                        //mVideoView.setVideoPath
+                                        // (OobeParameters
+                                        // .TEST_VIDEO_HOST_URL +
+                                        // movieFileName);
+                                        Uri video = Uri.parse("android" + ".resource://" + getPackageName()
+                                                + "/" + R.raw.obbe_movie);
                                         
                                         mVideoView.setVideoURI(video);
-                                       
+                                        
                                         mVideoView.start();
                                     }
                                     catch (Exception e)
                                     {
-                                        Logs.showError("[OobeActivity] playing video ERROR" + e.toString());
+                                        Logs.showError("[OobeActivity] " + "playing video ERROR" + e
+                                                .toString());
                                     }
                                 }
                             }
@@ -413,7 +419,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                     
                     else
                     {
-                        Logs.showTrace("[OobeActivity] end OobeActivity jump to mainActivity");
+                        Logs.showTrace("[OobeActivity] end OobeActivity jump " + "to mainActivity");
                         startMainActivity();
                     }
                 }
@@ -464,13 +470,10 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
     public void onWindowFocusChanged(boolean hasFocus)
     {
         super.onWindowFocusChanged(hasFocus);
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View
+                .SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View
+                .SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View
+                .SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
     
     
@@ -554,7 +557,8 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
         Logs.showTrace("[oobeActivity] getResponseLogic textID: " + textID);
         for (int i = 0; i < mStateData.size(); i++)
         {
-            Logs.showTrace("[oobeActivity] getResponseLogic mStateData.get(i).state : " + String.valueOf(mStateData.get(i).state));
+            Logs.showTrace("[oobeActivity] getResponseLogic mStateData.get(i)" + ".state : " + String
+                    .valueOf(mStateData.get(i).state));
             if (String.valueOf(mStateData.get(i).state).equals(textID))
             {
                 Logs.showTrace("[oobeActivity] response: " + mStateData.get(i).response);
@@ -652,20 +656,22 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                     }
                     else
                     {
-                        Logs.showTrace("[HardwareCheckRunnable] check hardware again!");
+                        Logs.showTrace("[HardwareCheckRunnable] check " + "hardware again!");
                         if (rfidDetect == 1)
                         {
                             if (null != rfidString)
                             {
                                 if (rfidString.length() == 0)
                                 {
-                                    Logs.showTrace("[HardwareCheckRunnable] no RFID data");
+                                    Logs.showTrace("[HardwareCheckRunnable] " + "no RFID data");
                                 }
                                 else
                                 {
-                                    Logs.showTrace("[HardwareCheckRunnable] Get RFID String:" + rfidString);
+                                    Logs.showTrace("[HardwareCheckRunnable] " + "Get RFID String:" +
+                                            rfidString);
                                     //###
-                                    // can send message to let know have response
+                                    // can send message to let know have
+                                    // response
                                     Message msg = new Message();
                                     msg.what = OobeParameters.RUNNABLE_HARDWARE_CHECK;
                                     msg.arg1 = OobeParameters.METHOD_RFID_DETECT;
@@ -687,7 +693,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                             {
                                 //###
                                 // can send message to let know have response
-                                Logs.showTrace("[HardwareCheckRunnable] sensorDetect: true");
+                                Logs.showTrace("[HardwareCheckRunnable] " + "sensorDetect: true");
                                 
                                 Message msg = new Message();
                                 msg.what = OobeParameters.RUNNABLE_HARDWARE_CHECK;
@@ -699,7 +705,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                             }
                             else
                             {
-                                Logs.showTrace("[HardwareCheckRunnable] sensorDetect: false");
+                                Logs.showTrace("[HardwareCheckRunnable] " + "sensorDetect: false");
                                 
                             }
                             
@@ -720,24 +726,27 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
     private static class InClassHandler extends Handler
     {
         private final WeakReference<OobeActivity> mWeakSelf;
-
+        
         public InClassHandler(OobeActivity a)
         {
             mWeakSelf = new WeakReference<OobeActivity>(a);
         }
-
+        
         @Override
         public void handleMessage(Message msg)
         {
             OobeActivity activity = mWeakSelf.get();
-
+            
             if (activity != null)
             {
-                Logs.showTrace("[OobeActivity] Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) +
-                        " From: " + String.valueOf(msg.arg2) + " Message: " + msg.obj);
+                Logs.showTrace("[OobeActivity] Result: " + String.valueOf(msg.arg1) + " What:" + String
+                        .valueOf(msg.what) + " " + "From: " + String.valueOf(msg.arg2) + " Message: " + msg
+                        .obj);
                 activity.handleMessages(msg);
             }
-
+            
         }
-    };
+    }
+    
+    ;
 }

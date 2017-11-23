@@ -209,7 +209,6 @@ public class OobeLogicHandler extends BaseHandler
         }
 
         MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
-        mainApp.playTTS(textString, textID);
         Locale currentTtsLocale = mainApp.getTTSLanguage();
 
         if (!currentTtsLocale.toString().equals(localeSet.toString()))

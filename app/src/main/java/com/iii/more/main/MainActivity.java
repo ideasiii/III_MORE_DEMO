@@ -3,7 +3,6 @@ package com.iii.more.main;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
@@ -24,7 +23,6 @@ import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
-import com.iii.more.emotion.interrupt.FaceEmotionInterruptHandler;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.game.zoo.ZooActivity;
 import com.iii.more.logic.LogicHandler;
@@ -57,13 +55,16 @@ import sdk.ideas.common.ResponseCode;
  **/
 
 
-public class MainActivity extends AppCompatActivity implements CockpitFilmMakingEventListener, FaceEmotionEventListener
+public class MainActivity extends AppCompatActivity implements CockpitFilmMakingEventListener,
+        FaceEmotionEventListener
 
 {
     
-    private static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR = "c4b008ba-8b2f-404e-9e44-dd0605486446";
+    private static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR =
+            "c4b008ba-8b2f-404e-9e44-dd0605486446";
     private static final String ALERT_DIALOG_ENTER_BLE_READ_PEN_ID = "c4b008ba-8b2f-404e-9e44-dd0605486226";
-    private static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN = "c4b008ca-8b2f-404e-9e44-dd0605482229";
+    private static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN =
+            "c4b008ca-8b2f-404e-9e44-dd0605482229";
     
     //show progress dialog
     private ProgressDialog mProgressDialog = null;
@@ -84,11 +85,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     //Analysis Display Json
     private DisplayHandler mDisplayHandler = null;
     
-    private RelativeLayout mRelativeLayout = null;
-    private TextView mTextView = null;
-    private TextView mResultTextView = null;
-    private ImageView mImageView = null;
-    
     //layout handler
     private MenuHandler mMenuHandler = null;
     private FloatingActionButtonHandler mFABHandler = null;
@@ -96,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     //BLE connect read pen
     private ReadPenBLEHandler mReadPenBLEHandler = null;
     
-  
+    private boolean isBlockFaceEmotionListener = false;
     
     
     private Handler mHandler = new Handler()
@@ -104,8 +100,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         @Override
         public void handleMessage(Message msg)
         {
-            Logs.showTrace("[MainActivity] Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) +
-                    " From: " + String.valueOf(msg.arg2) + " Message: " + msg.obj);
+            Logs.showTrace("[MainActivity] Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf
+                    (msg.what) + " From: " + String.valueOf(msg.arg2) + " Message: " + msg.obj);
             handleMessages(msg);
         }
     };
@@ -118,12 +114,9 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         setContentView(R.layout.main);
         Logs.showTrace("[MainActivity] onCreate");
         
-        final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View
+                .SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         getWindow().getDecorView().setSystemUiVisibility(flags);
         
         final View decorView = getWindow().getDecorView();
@@ -164,13 +157,10 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     public void onWindowFocusChanged(boolean hasFocus)
     {
         super.onWindowFocusChanged(hasFocus);
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View
+                .SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View
+                .SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View
+                .SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
     
     public void initAlertDialog()
@@ -199,13 +189,14 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         mFABHandler = new FloatingActionButtonHandler(this);
         mFABHandler.setHandler(mHandler);
         mFABHandler.setID(R.id.fab_btn);
-        mFABHandler.init(R.drawable.start_image, 50.0f, ActionButton.Animations.SCALE_UP, ActionButton.Animations.SCALE_DOWN);
+        mFABHandler.init(R.drawable.start_image, 50.0f, ActionButton.Animations.SCALE_UP, ActionButton
+                .Animations.SCALE_DOWN);
         
         
-        mTextView = (TextView) findViewById(R.id.textView);
-        mResultTextView = (TextView) findViewById(R.id.result_text);
-        mImageView = (ImageView) findViewById(R.id.imageView);
-        mRelativeLayout = (RelativeLayout) findViewById(R.id.relativelayout);
+        TextView mTextView = (TextView) findViewById(R.id.textView);
+        TextView mResultTextView = (TextView) findViewById(R.id.result_text);
+        ImageView mImageView = (ImageView) findViewById(R.id.imageView);
+        RelativeLayout mRelativeLayout = (RelativeLayout) findViewById(R.id.relativelayout);
         
         CMPHandler.setIPAndPort(Parameters.CMP_HOST_IP, Parameters.CMP_HOST_PORT);
         mSemanticWordCMPHandler = new SemanticWordCMPHandler(this);
@@ -320,28 +311,9 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 handleMessageHttpAPI(msg);
                 break;
             
-            case FaceEmotionInterruptParameters.CLASS_FACE_EMOTION_INTERRUPT:
-                handleMessageFaceEmotionInterrupt(msg);
-                break;
             
             default:
                 break;
-        }
-    }
-    
-    private void handleMessageFaceEmotionInterrupt(Message msg)
-    {
-        switch (msg.arg2)
-        {
-            case FaceEmotionInterruptParameters.METHOD_EVENT:
-                
-                
-                break;
-            case FaceEmotionInterruptParameters.METHOD_RECORD:
-                
-                break;
-            
-            
         }
     }
     
@@ -380,8 +352,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     mDisplayHandler.startDisplay();
                 }
                 
-                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN,
-                        "This  is  an  Apple !", "en");
+                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "This  is  an  Apple !", "en");
                 
             }
             catch (JSONException e)
@@ -494,8 +465,9 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                         case LogicParameters.MODE_STORY:
                             Logs.showTrace("[MainActivity] Send Story Message to Jugo Server");
                             
-                            mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters.getWordID(),
-                                    SemanticWordCMPParameters.TYPE_REQUEST_STORY, message.get("message"));
+                            mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters
+                                    .getWordID(), SemanticWordCMPParameters.TYPE_REQUEST_STORY, message.get
+                                    ("message"));
                             break;
                         case LogicParameters.MODE_GAME:
                             
@@ -524,8 +496,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     }
                     catch (Exception e)
                     {
-                        Logs.showError("[MainActivity] StoryPauseSecond ERROR"
-                                + e.toString());
+                        Logs.showError("[MainActivity] StoryPauseSecond ERROR" + e.toString());
                     }
                     
                     break;
@@ -538,11 +509,19 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     break;
                 
                 case LogicParameters.METHOD_TTS:
-                    if (message.get("ttsID").equals(TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE))
+                    if (message.get("ttsID").equals(TTSParameters
+                            .ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE))
                     {
                         // ### call faceEmotionInterruptHandler to set record emotion on
+                        Logs.showTrace("#################set false############");
+                        isBlockFaceEmotionListener = false;
                         
+                        mLogicHandler.resumeStoryStreaming();
                         
+                    }
+                    else if (message.get("ttsID").equals(TTSParameters.ID_SERVICE_TTS_BEGIN))
+                    {
+                    
                     }
                     
                     
@@ -658,24 +637,23 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     
     private void showAlertDialogEnterBLEReadPenID()
     {
-        mAlertDialogHandler.setText(ALERT_DIALOG_ENTER_BLE_READ_PEN_ID, "章魚點讀筆",
-                "請輸入章魚點讀筆ID", "OK", "", true);
+        mAlertDialogHandler.setText(ALERT_DIALOG_ENTER_BLE_READ_PEN_ID, "章魚點讀筆", "請輸入章魚點讀筆ID", "OK", "",
+                true);
         mAlertDialogHandler.setEditText(Parameters.DEFAULT_DEVICE_ID);
         mAlertDialogHandler.show();
     }
     
     private void showAlertDialogConfirmConnectBLEReadPen()
     {
-        mAlertDialogHandler.setText(ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN, "章魚點讀筆",
-                "是否要與章魚點讀筆連線", "是的", "不要", false);
+        mAlertDialogHandler.setText(ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN, "章魚點讀筆", "是否要與章魚點讀筆連線",
+                "是的", "不要", false);
         mAlertDialogHandler.show();
     }
     
     private void showAlertDialogConnectBLEReadPenError()
     {
         mAlertDialogHandler.setText(ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR, "章魚點讀筆",
-                "與裝置Bluetooth點讀筆連線失敗，請先確認智慧型裝置Bluetooth是否開啟或是章魚裝置Bluetooth是否開起，重新再試一次!"
-                , "是", "", false);
+                "與裝置Bluetooth點讀筆連線失敗，請先確認智慧型裝置Bluetooth是否開啟或是章魚裝置Bluetooth是否開起，重新再試一次!", "是", "", false);
         mAlertDialogHandler.show();
     }
     
@@ -762,7 +740,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             
             if (responseData.has("display"))
             {
-                Logs.showTrace("[MainActivity] display Data:" + responseData.getJSONObject("display").toString());
+                Logs.showTrace("[MainActivity] display Data:" + responseData.getJSONObject("display")
+                        .toString());
                 if (responseData.getJSONObject("display").length() != 0)
                 {
                     mDisplayHandler.resetAllDisplayViews();
@@ -777,7 +756,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             
             if (responseData.has("activity"))
             {
-                Logs.showTrace("[MainActivity] activity Data:" + responseData.getJSONObject("activity").toString());
+                Logs.showTrace("[MainActivity] activity Data:" + responseData.getJSONObject("activity")
+                        .toString());
                 if (responseData.getJSONObject("activity").length() != 0)
                 {
                     mLogicHandler.setActivityJson(responseData.getJSONObject("activity"));
@@ -859,9 +839,84 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     
     
     @Override
-    public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String, String> tts, HashMap<String, String> image, Object extendData)
+    public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String, String> tts,
+            HashMap<String, String> image, Object extendData)
     {
+        Logs.showTrace("[MainActivity] faceEmotionData: " + faceEmotionData);
+        if (null != tts)
+        {
+            Logs.showTrace("[MainActivity] ttsEmotionData: " + tts);
+        }
+        if (!isBlockFaceEmotionListener)
+        {
+            /*
+            if (mLogicHandler.getMode() == LogicParameters.MODE_STORY)
+            {
+                
+                if (null != mLogicHandler)
+                {
+                    
+                    //pause story
+                    mLogicHandler.pauseStoryStreaming();
+                    
+                    if (null != tts)
+                    {
+                        isBlockFaceEmotionListener = true;
+                        Logs.showTrace("[MainActivity] tts" + tts.get(FaceEmotionInterruptParameters
+                                .STRING_TTS_TEXT));
+                        mLogicHandler.ttsService(TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE,
+                                tts.get(FaceEmotionInterruptParameters.STRING_TTS_TEXT), "zh");
+                        
+                        
+                    }
+                }
+                if (null != image)
+                {
+                    showDisplayImage(image.get("IMG_FILE_NAME"));
+                }
+                
+            }*/
+        }
+    }
     
+    
+    private void showDisplayImage(String imageFilename)
+    {
+        JSONObject animate = new JSONObject();
+        try
+        {
+            animate.put("type", 5);
+            
+            animate.put("duration", 1000);
+            animate.put("repeat", 1);
+            animate.put("interpolate", 1);
+            
+            //create display json
+            JSONObject data = new JSONObject();
+            data.put("time", 0);
+            data.put("host", "https://smabuild.sytes.net/edubot/OCTOBO_Expressions/");
+            data.put("color", "#FFA0C9EC");
+            data.put("description", "快樂");
+            data.put("animation", animate);
+            data.put("text", new JSONObject());
+            data.put("file", imageFilename);
+            JSONArray show = new JSONArray();
+            show.put(data);
+            
+            JSONObject display = new JSONObject();
+            display.put("enable", 1);
+            display.put("show", show);
+            if (null != mDisplayHandler)
+            {
+                mDisplayHandler.setDisplayJson(display);
+                mDisplayHandler.startDisplay();
+            }
+        }
+        catch (JSONException e)
+        {
+            Logs.showError(e.toString());
+        }
+        
     }
     
     @Override

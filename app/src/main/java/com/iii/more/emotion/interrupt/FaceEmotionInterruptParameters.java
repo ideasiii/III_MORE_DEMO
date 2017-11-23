@@ -23,5 +23,13 @@ public abstract class FaceEmotionInterruptParameters
     public static final String JSON_STRING_EMOTION_TYPE = "emotion_type";
     public static final String JSON_STRING_PRIORITY = "priority";
     
+    public static final String STRING_IMG_FILE_NAME = "IMG_FILE_NAME";
+    public static final String STRING_TTS_TEXT = "TTS_TEXT";
+    public static final String STRING_TTS_PITCH = "TTS_PITCH";
+    public static final String STRING_TTS_SPEED = "TTS_SPEED";
+    
+    public static final String STRING_NATURAL = "NATURAL";
+    public static final int INT_NATURAL_RULE = 999;
+    
     
 }

@@ -26,16 +26,5 @@ public class OobeDisplayHandler extends DisplayHandler
         super(context);
     }
     
-    
-   
-    
-    public void setImageViewVisibility(boolean enable)
-    {
-        
-        super.setImageViewState(enable);
-    }
-    
-   
-    
  
 }

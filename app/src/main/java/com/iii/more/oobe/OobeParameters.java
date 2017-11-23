@@ -6,9 +6,6 @@ package com.iii.more.oobe;
 
 public abstract class OobeParameters
 {
-    public static final String TEST_VIDEO_HOST_URL = "https://smabuild.sytes.net/";
-    public static final String TEST_VIDEO_FILE_URL = "edubot/video/abcfun/01.mp4";
-    
     public static final int METHOD_TIME_OUT = 0;
     public static final int METHOD_SENSOR_DETECT = 1;
     public static final int METHOD_RFID_DETECT = 2;
