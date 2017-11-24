@@ -424,36 +424,34 @@ public class MainApplication extends Application
     
     private void handleMessageFaceEmotionMessage(Message msg)
     {
-        HashMap<String, String> emotionHashMap = (HashMap<String, String>) msg.obj;
-        Logs.showTrace("[MainApplication] emotionHashMap:" + emotionHashMap);
         
-        try
+        if (msg.arg2 == EmotionParameters.METHOD_EMOTION_DETECT)
         {
-            if (!emotionHashMap.get(EmotionParameters.STRING_EXPRESSION_ATTENTION).equals("-1"))
+            HashMap<String, String> emotionHashMap = (HashMap<String, String>) msg.obj;
+            try
             {
-                HashMap<String, String> trackFaceEmotionData = new HashMap<>();
-                trackFaceEmotionData.put("Source", "1");
-                trackFaceEmotionData.put("Description", "data from face emotion recognition SDK");
-                JSONObject emotionJsonObj = new JSONObject(emotionHashMap);
-                trackFaceEmotionData.put("Value", emotionJsonObj.toString());
-                
-                //debug using
-                Logs.showTrace("[MainApplication] send tracker Data: " + trackFaceEmotionData);
-                //sendToTracker(trackFaceEmotionData);
+                if (!emotionHashMap.get(EmotionParameters.STRING_EXPRESSION_ATTENTION).equals("-1"))
+                {
+                    HashMap<String, String> trackFaceEmotionData = new HashMap<>();
+                    trackFaceEmotionData.put("Source", "1");
+                    trackFaceEmotionData.put("Description", "data from face emotion recognition SDK");
+                    JSONObject emotionJsonObj = new JSONObject(emotionHashMap);
+                    trackFaceEmotionData.put("Value", emotionJsonObj.toString());
+                    
+                    //debug using
+                    //Logs.showTrace("[MainApplication] send tracker Data: " + trackFaceEmotionData);
+                    sendToTracker(trackFaceEmotionData);
+                }
             }
-        }
-        catch (Exception e)
-        {
-            Logs.showError("[MainApplication] send tracker while ERROR:" + e.toString());
+            catch (Exception e)
+            {
+                Logs.showError("[MainApplication] send tracker while ERROR:" + e.toString());
+            }
         }
         
         if (null != mFaceEmotionEventListener)
         {
-            if (msg.arg2 == EmotionParameters.METHOD_EMOTION_DETECT)
-            {
-                mFaceEmotionInterruptHandler.setEmotionEventData((HashMap<String, String>) msg.obj);
-            }
-            
+            mFaceEmotionInterruptHandler.setEmotionEventData((HashMap<String, String>) msg.obj);
         }
     }
     
