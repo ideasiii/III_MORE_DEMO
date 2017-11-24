@@ -81,9 +81,9 @@ public class ZooActivity extends Activity
     public static TrackerHandler trackerHandler = null;
     private int mnScenarizeIndex;
     private VoiceRecognition mVoiceRecognition = null;
-    private ImageView ivHambergur = null;
-    private ImageView ivIceCream = null;
-    private ImageView ivDonuts = null;
+    public ImageView ivHambergur = null;
+    public ImageView ivIceCream = null;
+    public ImageView ivDonuts = null;
     private ImageView ivMan = null;
     private LinearLayout linearFood = null;
     private int mnDroppedX = 0;
