@@ -8,7 +8,13 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * 與伺服器連線的 WebSocket client
@@ -19,7 +25,7 @@ class ServerConnection extends WebSocketClient
 
     private static final int PING_INTERVAL = 15000;
 
-    private static final int SERVER_MESSAGE_ACTION_TYPE_SET_ID = 0;
+    private static final int SERVER_MESSAGE_ACTION_TYPE_SIGN_IN = 0;
     private static final int SERVER_MESSAGE_ACTION_TYPE_PAPER = 1;
 
     // 只是文字，這種類型的指令內的文字會被當作 OTG 裝置傳出的字串
@@ -40,6 +46,33 @@ class ServerConnection extends WebSocketClient
 
         mDeviceId = deviceId;
         mEventListener = l;
+    }
+
+    @Override
+    public void connect()
+    {
+        if (uri != null && uri.getScheme().equals("wss"))
+        {
+            Log.d(LOG_TAG, "connect() URI scheme is wss, performing additional setup");
+            try
+            {
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, null, null);
+                SSLSocketFactory factory = sslContext.getSocketFactory();
+                setSocket(factory.createSocket());
+            }
+            catch (NoSuchAlgorithmException | KeyManagementException | IOException e)
+            {
+                e.printStackTrace();
+                if (mEventListener != null)
+                {
+                    mEventListener.onProtocolNotSupported();
+                }
+                return;
+            }
+        }
+
+        super.connect();
     }
 
     @Override
@@ -99,7 +132,7 @@ class ServerConnection extends WebSocketClient
             jsonBody.put("apiVersion", API_VERSION);
 
             JSONObject jsonRoot = new JSONObject();
-            jsonRoot.put("action", SERVER_MESSAGE_ACTION_TYPE_SET_ID);
+            jsonRoot.put("action", SERVER_MESSAGE_ACTION_TYPE_SIGN_IN);
             jsonRoot.put("body", jsonBody);
 
             String registerMessage = jsonRoot.toString();
@@ -127,7 +160,7 @@ class ServerConnection extends WebSocketClient
             int action = json.getInt("action");
             switch (action)
             {
-                case SERVER_MESSAGE_ACTION_TYPE_SET_ID:
+                case SERVER_MESSAGE_ACTION_TYPE_SIGN_IN:
                     handleSetIdResponse(json);
                     break;
                 case SERVER_MESSAGE_ACTION_TYPE_PAPER:
