@@ -251,9 +251,11 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
     
     public void resumeDisplaying()
     {
-        mDisplayQueue = mSaveDisplayQueue.clone();
-        startDisplay();
-        
+        if (null != mSaveDisplayQueue)
+        {
+            mDisplayQueue = mSaveDisplayQueue.clone();
+            startDisplay();
+        }
     }
     
     protected void setImageViewState(boolean enable)

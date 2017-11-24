@@ -538,6 +538,9 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         MainApplication mainApplication = (MainApplication) getApplication();
         mainApplication.setFaceEmotionEventListener(this);
         mainApplication.startFaceEmotion();
+        
+        mainApplication.setTTSPitch(1.0f, 1.0f);
+        
     }
     
     private void handleMessageMenu(Message msg)
@@ -826,8 +829,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     
     
     @Override
-    public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String, String> ttsHashMap,
-            HashMap<String, String> imageHashMap, Object extendData)
+    public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String, String>
+            ttsHashMap, HashMap<String, String> imageHashMap, Object extendData)
     {
         Logs.showTrace("[MainActivity] faceEmotionData: " + faceEmotionData);
         if (null != ttsHashMap)
