@@ -18,7 +18,6 @@ import com.iii.more.emotion.interrupt.FaceEmotionInterruptHandler;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.interrupt.logic.InterruptLogicHandler;
 import com.iii.more.interrupt.logic.InterruptLogicParameters;
-import com.iii.more.main.globaltts.TextToSpeechHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +30,7 @@ import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.tracker.Tracker;
 import sdk.ideas.common.CtrlType;
+import sdk.ideas.tool.speech.tts.TextToSpeechHandler;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
@@ -41,42 +41,42 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 public class MainApplication extends Application
 {
     private final InClassHandler mInClassHandler = new InClassHandler(this);
-    
+
     private CockpitService mCockpitService;
     private InternetCockpitService mInternetCockpitService;
     private OtgCockpitService mOtgCockpitService;
-    
+
     private Tracker mTracker = new Tracker(this);
     private TextToSpeechHandler mTtsHandler = new TextToSpeechHandler(this);
-    
+
     private CockpitConnectionEventListener mCockpitConnectionEventListener;
     private CockpitSensorEventListener mCockpitSensorEventListener;
     private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
     private FaceEmotionEventListener mFaceEmotionEventListener = null;
     private TTSEventListener mTtsEventListener;
-    
+
     // this logic handler does not handle emotion logic
     private InterruptLogicHandler mInterruptLogicHandler = new InterruptLogicHandler(this);
-    
+
     private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
     private EmotionHandler mEmotionHandler = null;
     private static boolean isFaceEmotionStart = false;
-    
+
     public MainApplication()
     {
     }
-    
+
     @Override
     public void onCreate()
     {
         super.onCreate();
-        
+
         initCockpitService();
         initInterruptLogic();
         initFaceEmotionInterrupt();
         initTTS();
     }
-    
+
     /**
      * 取得章魚 or 使用者的名字
      */
@@ -85,7 +85,7 @@ public class MainApplication extends Application
         SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
         return prefs.getString(id, "");
     }
-    
+
     /**
      * 設定章魚 or 使用者的名字
      */
@@ -96,37 +96,37 @@ public class MainApplication extends Application
         editor.putString(id, name);
         editor.apply();
     }
-    
+
     public void setCockpitConnectionEventListener(CockpitConnectionEventListener l)
     {
         Logs.showTrace("[MainApplication] setCockpitConnectionEventListener()");
         mCockpitConnectionEventListener = l;
     }
-    
+
     public void setCockpitSensorEventListener(CockpitSensorEventListener l)
     {
         Logs.showTrace("[MainApplication] setCockpitSensorEventListener()");
         mCockpitSensorEventListener = l;
     }
-    
+
     public void setCockpitFilmMakingEventListener(CockpitFilmMakingEventListener l)
     {
         Logs.showTrace("[MainApplication] setCockpitFilmMakingEventListener()");
         mCockpitFilmMakingEventListener = l;
     }
-    
+
     public void setFaceEmotionEventListener(FaceEmotionEventListener l)
     {
         Logs.showTrace("[MainApplication] setEmotionEventListener()");
         mFaceEmotionEventListener = l;
     }
-    
+
     public void setTTSEventListener(TTSEventListener l)
     {
         Logs.showTrace("[MainApplication] setTTSEventListener()");
         mTtsEventListener = l;
     }
-    
+
     public void startFaceEmotion()
     {
         if (null == mEmotionHandler)
@@ -135,14 +135,14 @@ public class MainApplication extends Application
             mEmotionHandler.setHandler(mInClassHandler);
             mEmotionHandler.init();
         }
-        
+
         if (!isFaceEmotionStart)
         {
             mEmotionHandler.start();
             isFaceEmotionStart = true;
         }
     }
-    
+
     public void stopFaceEmotion()
     {
         if (null != mEmotionHandler)
@@ -154,18 +154,18 @@ public class MainApplication extends Application
             }
         }
     }
-    
+
     public void startTracker()
     {
         mTracker.setHandler(mInClassHandler);
         mTracker.startTracker(Parameters.TRACKER_APP_ID);
     }
-    
+
     public void sendToTracker(HashMap<String, String> data)
     {
         mTracker.track(data);
     }
-    
+
     /**
      * 初始化 TTS 服務
      */
@@ -174,15 +174,16 @@ public class MainApplication extends Application
         mTtsHandler.setHandler(mInClassHandler);
         mTtsHandler.init();
     }
-    
+
     /**
      * 設定 TTS pitch & speech rate
      */
     public void setTTSPitch(float fpitch, float frate)
     {
-        mTtsHandler.setPitch(fpitch, frate);
+        mTtsHandler.setPitch(fpitch);
+        mTtsHandler.setSpeechRate(frate);
     }
-    
+
     /**
      * 設定 TTS 的輸出語言
      */
@@ -190,7 +191,7 @@ public class MainApplication extends Application
     {
         mTtsHandler.setLocale(language);
     }
-    
+
     /**
      * 取得 TTS 的輸出語言
      */
@@ -198,7 +199,7 @@ public class MainApplication extends Application
     {
         return mTtsHandler.getLocale();
     }
-    
+
     /**
      * 將 text 轉為語音輸出
      */
@@ -207,7 +208,7 @@ public class MainApplication extends Application
         Logs.showTrace("[MainApplication] playTTS()");
         mTtsHandler.textToSpeech(text, textId);
     }
-    
+
     /**
      * 停止正在進行的 TTS
      */
@@ -216,7 +217,7 @@ public class MainApplication extends Application
         Logs.showTrace("[MainApplication] stopTTS()");
         mTtsHandler.stop();
     }
-    
+
     private void initCockpitService()
     {
         CockpitService.startThenBindService(this, InternetCockpitService.class,
@@ -224,7 +225,7 @@ public class MainApplication extends Application
         CockpitService.startThenBindService(this, OtgCockpitService.class,
                 mCockpitServiceConnection, null);
     }
-    
+
     /**
      * 初始化 FaceEmotionInterruptHandler 處理 face emotion 邏輯的部分
      */
@@ -236,7 +237,7 @@ public class MainApplication extends Application
             SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
             String message = prefs.getString(Parameters.TASK_COMPOSER_DATA, "non-json text");
             JSONObject tmp = new JSONObject(message);
-            
+
             JSONObject rules = tmp.getJSONObject("rules");
             interruptEmotionBehaviorDataArrayInput = rules.getJSONArray("emotion").toString();
             Logs.showTrace("[MainApplication] Use SharedPreferences for interrupt logic behavior");
@@ -249,20 +250,20 @@ public class MainApplication extends Application
         mFaceEmotionInterruptHandler.setInterruptEmotionLogicBehaviorDataArray(interruptEmotionBehaviorDataArrayInput);
         mFaceEmotionInterruptHandler.setHandler(mInClassHandler);
     }
-    
+
     /**
      * 初始化 InterruptLogicHandler 處理 sensor 邏輯的部分
      */
     private void initInterruptLogic()
     {
         String interruptLogicBehaviorDataArrayInput;
-        
+
         try
         {
             SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
             String message = prefs.getString(Parameters.TASK_COMPOSER_DATA, "non-json text");
             JSONObject tmp = new JSONObject(message);
-            
+
             JSONObject rules = tmp.getJSONObject("rules");
             interruptLogicBehaviorDataArrayInput = rules.getJSONArray("action").toString();
             Logs.showTrace("[MainApplication] Use SharedPreferences for interrupt logic behavior");
@@ -272,11 +273,11 @@ public class MainApplication extends Application
             Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
             interruptLogicBehaviorDataArrayInput = Parameters.INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
         }
-        
+
         mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(interruptLogicBehaviorDataArrayInput);
         mInterruptLogicHandler.setHandler(mInClassHandler);
     }
-    
+
     /**
      * CockpitService 的 ServiceConnection
      */
@@ -286,9 +287,9 @@ public class MainApplication extends Application
         public void onServiceConnected(ComponentName name, IBinder service)
         {
             Logs.showTrace("[MainApplication] onServiceConnected()");
-            
+
             mCockpitService = ((CockpitService.Binder) service).getService();
-            
+
             if (mCockpitService instanceof InternetCockpitService)
             {
                 mInternetCockpitService = (InternetCockpitService) mCockpitService;
@@ -299,16 +300,16 @@ public class MainApplication extends Application
             {
                 mOtgCockpitService = (OtgCockpitService) mCockpitService;
             }
-            
+
             mCockpitService.setHandler(mInClassHandler);
             mCockpitService.connect();
         }
-        
+
         @Override
         public void onServiceDisconnected(ComponentName name)
         {
             Logs.showTrace("[MainApplication] onServiceDisconnected()");
-            
+
             if (mCockpitService instanceof InternetCockpitService)
             {
                 mInternetCockpitService.setHandler(null);
@@ -319,8 +320,8 @@ public class MainApplication extends Application
                 mOtgCockpitService.setHandler(null);
                 mOtgCockpitService = null;
             }
-            
-            
+
+
             if (mCockpitService != null)
             {
                 mCockpitService.setHandler(null);
@@ -328,16 +329,16 @@ public class MainApplication extends Application
             }
         }
     };
-    
+
     private static final class InClassHandler extends Handler
     {
         private final WeakReference<MainApplication> mWeakSelf;
-        
+
         private InClassHandler(MainApplication app)
         {
             mWeakSelf = new WeakReference<>(app);
         }
-        
+
         @Override
         public void handleMessage(Message msg)
         {
@@ -347,7 +348,7 @@ public class MainApplication extends Application
                 Logs.showTrace("[MainApplication] [InClassHandler] WeakReference is null");
                 return;
             }
-            
+
             switch (msg.what)
             {
                 case CockpitService.MSG_WHAT:
@@ -373,15 +374,15 @@ public class MainApplication extends Application
             }
         }
     }
-    
+
     //
     //### pending to write
     private void handleMessageFaceEmotionInterruptMessage(Message msg)
     {
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        
-        Logs.showTrace("[MainApplication] FaceEmotionInterruptMessage: "+message);
-        
+
+        Logs.showTrace("[MainApplication] FaceEmotionInterruptMessage: " + message);
+
         if (null != mFaceEmotionEventListener)
         {
             HashMap<String, String> ttsHashMap = null;
@@ -398,7 +399,7 @@ public class MainApplication extends Application
                 message.remove(FaceEmotionInterruptParameters.STRING_TTS_TEXT);
                 message.remove(FaceEmotionInterruptParameters.STRING_TTS_PITCH);
                 message.remove(FaceEmotionInterruptParameters.STRING_TTS_SPEED);
-                
+
                 Logs.showTrace("[MainApplication] tts: " + ttsHashMap.get(FaceEmotionInterruptParameters.STRING_TTS_TEXT));
             }
             if (message.containsKey(FaceEmotionInterruptParameters.STRING_IMG_FILE_NAME))
@@ -409,10 +410,10 @@ public class MainApplication extends Application
                 message.remove(FaceEmotionInterruptParameters.STRING_IMG_FILE_NAME);
             }
             mFaceEmotionEventListener.onFaceEmotionResult(message, ttsHashMap, imgHashMap, null);
-            
+
         }
     }
-    
+
     private void handleMessageFaceEmotionMessage(Message msg)
     {
         if (null != mFaceEmotionEventListener)
@@ -421,10 +422,10 @@ public class MainApplication extends Application
             {
                 mFaceEmotionInterruptHandler.setEmotionEventData((HashMap<String, String>) msg.obj);
             }
-            
+
         }
     }
-    
+
     /**
      * 處理來自 InterruptLogicHandler 的事件
      */
@@ -434,16 +435,16 @@ public class MainApplication extends Application
         {
             return;
         }
-        
+
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        
+
         switch (msg.arg2)
         {
             case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
                 String trigger_result = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
                 Logs.showTrace("[MainApplication] handleInterruptLogicMessage() " +
                         "trigger_result = " + trigger_result);
-                
+
                 switch (trigger_result)
                 {
                     case "握手":
@@ -471,22 +472,22 @@ public class MainApplication extends Application
                 Logs.showTrace("[MainApplication] handleInterruptLogicMessage() unknown msg.arg2: " + msg.arg2);
         }
     }
-    
+
     /**
      * 處理來自 Tracker 的事件
      */
     private void handleTrackerMessage(Message msg)
     {
         Logs.showTrace("[MainApplication] handleTrackerMessage()");
-        
+
         int result = msg.arg1;
         int from = msg.arg2;
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        
+
         Logs.showTrace("[MainApplication] handleTrackerMessage() " +
                 "Result: " + result + " From: " + from + " Message: " + message);
     }
-    
+
     /**
      * 處理來自 CockpitService 的事件
      */
@@ -497,20 +498,20 @@ public class MainApplication extends Application
             // plain text from cockpit
             String data = (String) msg.obj;
             Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onData(), data=`" + data + "`");
-            
+
             if (null != mInterruptLogicHandler)
             {
                 mInterruptLogicHandler.setDeviceEventData(data);
                 mInterruptLogicHandler.startEventDataAnalysis();
             }
-            
+
             return;
         }
         else if (msg.arg1 == CockpitService.EVENT_DATA_FILM_MAKING)
         {
             // film making commands from cockpit
             JSONObject j = (JSONObject) msg.obj;
-            
+
             if (null != mCockpitFilmMakingEventListener)
             {
                 try
@@ -519,7 +520,7 @@ public class MainApplication extends Application
                     String text = j.getString("text");
                     Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
                             "film making action = `" + action + "`, text = `" + text + "`");
-                    
+
                     if (action.equals("tts"))
                     {
                         String language = j.getString("language");
@@ -540,15 +541,15 @@ public class MainApplication extends Application
                     e.printStackTrace();
                 }
             }
-            
+
             return;
         }
-        
+
         if (null == mCockpitConnectionEventListener)
         {
             return;
         }
-        
+
         // connection events
         switch (msg.arg1)
         {
@@ -582,7 +583,7 @@ public class MainApplication extends Application
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() unhandled msg.arg1: " + msg.arg1);
         }
     }
-    
+
     /**
      * 處理來自 TextToSpeechHandler 的事件
      */
@@ -599,7 +600,7 @@ public class MainApplication extends Application
             case ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION:
                 //deal with not found Google TTS Exception
                 //mTtsHandler.downloadTTS();
-                
+
                 //deal with ACCESSIBILITY page can not open Exception
                 //Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
                 //startActivityForResult(intent, 0);
@@ -620,9 +621,9 @@ public class MainApplication extends Application
             default:
                 Logs.showError("[MainApplication] handleTTSMessage() unknown msg.arg2: " + msg.arg2);
         }
-        
+
     }
-    
+
     /**
      * 處理來自 TextToSpeechHandler 的事件
      */
@@ -633,7 +634,7 @@ public class MainApplication extends Application
             String utteranceId = message.get("TextID");
             boolean textStatusDone = message.get("TextStatus").equals("DONE");
             boolean textStatusStart = message.get("TextStatus").equals("START");
-            
+
             if (textStatusDone)
             {
                 if (null != mTtsEventListener)
