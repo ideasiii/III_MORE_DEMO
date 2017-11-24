@@ -540,6 +540,9 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         Logs.showTrace("");
         MainApplication mainApplication = (MainApplication) getApplication();
         mainApplication.setFaceEmotionEventListener(this);
+        
+        mainApplication.stopFaceEmotion();
+        
         mainApplication.startFaceEmotion();
         
         mainApplication.setTTSPitch(1.0f, 1.0f);
