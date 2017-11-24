@@ -462,7 +462,7 @@ public class LogicHandler extends BaseHandler
             mVoiceRecognition.stopListen();
         }
         
-        stopTTS();
+        //stopTTS();
         
     }
     
@@ -474,7 +474,7 @@ public class LogicHandler extends BaseHandler
         mainApp.setTTSEventListener(mTTSEventListener);
     }
     
-    private void stopTTS()
+    public void stopTTS()
     {
         MainApplication app = (MainApplication) mContext.getApplicationContext();
         app.stopTTS();
