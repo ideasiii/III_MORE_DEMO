@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 import com.iii.more.init.InitCheckBoardParameters;
 import com.iii.more.main.MainApplication;
+import com.iii.more.main.TTSEventListener;
 import com.iii.more.main.TTSParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
@@ -47,7 +48,6 @@ public class LogicHandler extends BaseHandler
     
     private VoiceRecognition mVoiceRecognition = null;
     private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
-    private TextToSpeechHandler mTextToSpeechHandler = null;
     
     private int mModeNow = MODE_UNKNOWN;
     
@@ -84,8 +84,9 @@ public class LogicHandler extends BaseHandler
         @Override
         public void handleMessage(Message msg)
         {
-            Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) +
-                    " From: " + String.valueOf(msg.arg2) + " Message: " + msg.obj);
+            Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) + " " +
+                    "" + "" + "" + "" + "" + "" + "" + "" + "" + "From: " + String.valueOf(msg.arg2) + " "
+                    + "Message: " + msg.obj);
             handleMessages(msg);
         }
     };
@@ -100,102 +101,15 @@ public class LogicHandler extends BaseHandler
             case WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER:
                 handleMessageWebMediaPlayer(msg);
                 break;
-            
-            case CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER:
-                handleMessageTTS(msg);
-                break;
             case CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER:
                 handleMessageVoiceRecognition(msg);
                 break;
-            case InitCheckBoardParameters.CLASS_INIT:
-                handleMessageInitCheckBoard(msg);
-                break;
+            
             default:
                 break;
         }
     }
     
-    private void handleMessageInitCheckBoard(Message msg)
-    {
-        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-        {
-            Logs.showTrace("[MainActivity] InitCheckBoard INIT SUCCESSFUL!");
-            mTextToSpeechHandler.textToSpeech(TTSParameters.STRING_SERVICE_INIT_SUCCESS, TTSParameters.ID_SERVICE_INIT_SUCCESS);
-        }
-        else
-        {
-            if (msg.arg1 == ResponseCode.ERR_NOT_INIT)
-            {
-                HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-                switch (message.get("message"))
-                {
-                    case "Spotify not init":
-                        
-                        break;
-                    case "TTS not init":
-                        
-                        break;
-                    
-                }
-            }
-            
-            
-        }
-    }
-    
-    private void handleMessageSphinx(Message msg)
-    {
-        if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-        {
-            //stop all service
-            
-            if (null != mWebMediaPlayerHandler)
-            {
-                mWebMediaPlayerHandler.stopPlayMediaStream();
-            }
-            
-            //start to TTS Service
-            if (!mTextToSpeechHandler.getLocale().toString().equals(Locale.TAIWAN.toString()))
-            {
-                mTextToSpeechHandler.setLocale(Locale.TAIWAN);
-                TTSCache.setTTSHandlerInit(true);
-                mTextToSpeechHandler.init();
-            }
-            
-            
-            if (mModeNow == MODE_STORY)
-            {
-                if (TTSCache.getTTSHandlerInit())
-                {
-                    TTSCache.setTTSCache(TTSParameters.STRING_SERVICE_STORY_BEGIN, TTSParameters.ID_SERVICE_STORY_BEGIN);
-                }
-                else
-                {
-                    mTextToSpeechHandler.textToSpeech(TTSParameters.STRING_SERVICE_STORY_BEGIN, TTSParameters.ID_SERVICE_STORY_BEGIN);
-                }
-            }
-            else
-            {
-                Logs.showError("[LogicHandler] Not support other mode yet!!");
-            }
-            
-            // callback to mainActivity to display view reset
-            HashMap<String, String> message = new HashMap<>();
-            message.put("message", "get startup");
-            
-            
-            callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters.METHOD_SPHINX, message);
-            // mDisplayHandler.resetAllDisplayViews();
-            // mDisplayHandler.resetDisplayData();
-            
-        }
-        else
-        {
-            //異常例外處理
-            Logs.showError("ERROR Message:" + msg.obj);
-        }
-        
-    }
     
     private void handleMessageWebMediaPlayer(Message msg)
     {
@@ -239,8 +153,8 @@ public class LogicHandler extends BaseHandler
                     //###callback to mainActivity to let display know what happened
                     HashMap<String, String> message3 = new HashMap<>();
                     message3.put("message", strStoryPauseSecond);
-                    callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC,
-                            LogicParameters.METHOD_STORY_PAUSE, message3);
+                    callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters
+                            .METHOD_STORY_PAUSE, message3);
                     
                     break;
                 
@@ -260,7 +174,8 @@ public class LogicHandler extends BaseHandler
     private void handleMessageVoiceRecognition(Message msg)
     {
         final HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        if (msg.arg1 == ResponseCode.ERR_SUCCESS && msg.arg2 == ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER)
+        if (msg.arg1 == ResponseCode.ERR_SUCCESS && msg.arg2 == ResponseCode
+                .METHOD_RETURN_TEXT_VOICE_RECOGNIZER)
         {
             mVoiceRecognition.stopListen();
             
@@ -271,7 +186,8 @@ public class LogicHandler extends BaseHandler
                 //callback mainActivity
                 HashMap<String, String> returnMessage = new HashMap<>();
                 returnMessage.put("message", message.get("message"));
-                callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters.METHOD_VOICE, returnMessage);
+                callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters
+                        .METHOD_VOICE, returnMessage);
                 
                 
             }
@@ -338,7 +254,8 @@ public class LogicHandler extends BaseHandler
         switch (index)
         {
             case TTSParameters.ID_SERVICE_IO_EXCEPTION:
-                ttsService(TTSParameters.ID_SERVICE_IO_EXCEPTION, TTSParameters.STRING_SERVICE_IO_EXCEPTION, "zh");
+                ttsService(TTSParameters.ID_SERVICE_IO_EXCEPTION, TTSParameters
+                        .STRING_SERVICE_IO_EXCEPTION, "zh");
                 break;
             default:
                 ttsService(TTSParameters.ID_SERVICE_UNKNOWN, TTSParameters.STRING_SERVICE_UNKNOWN, "zh");
@@ -346,134 +263,6 @@ public class LogicHandler extends BaseHandler
         }
     }
     
-    private void handleMessageTTS(Message msg)
-    {
-        switch (msg.arg1)
-        {
-            case ResponseCode.ERR_SUCCESS:
-                analysisTTSResponse((HashMap<String, String>) msg.obj);
-                
-                
-                break;
-            case ResponseCode.ERR_NOT_INIT:
-                // InitCheckBoard.setTTSInit(false);
-                Logs.showError("TTS not init success");
-                break;
-            case ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION:
-                //InitCheckBoard.setTTSInit(false);
-                //deal with not found Google TTS Exception
-                mTextToSpeechHandler.downloadTTS();
-                
-                //deal with ACCESSIBILITY page can not open Exception
-                //Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                //startActivityForResult(intent, 0);
-                
-                break;
-            case ResponseCode.ERR_UNKNOWN:
-                //  InitCheckBoard.setTTSInit(false);
-                break;
-            default:
-                break;
-        }
-        
-    }
-    
-    private void analysisTTSResponse(HashMap<String, String> message)
-    {
-        if (message.containsKey("TextID") && message.containsKey("TextStatus"))
-        {
-            boolean textStatusDone = message.get("TextStatus").equals("DONE");
-            boolean textStatusStart = message.get("TextStatus").equals("START");
-            if (textStatusDone)
-            {
-                switch (message.get("TextID"))
-                {
-                    case TTSParameters.ID_SERVICE_START_UP_GREETINGS:
-                        mVoiceRecognition.startListen();
-                        
-                        break;
-                    
-                    case TTSParameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE:
-                        
-                        break;
-                    case TTSParameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE:
-                        // XXXXX do friend mode
-                        // link API
-                        
-                        break;
-                    
-                    case TTSParameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE:
-                        // XXXXX do game mode
-                        //
-                        
-                        break;
-                    
-                    case TTSParameters.ID_SERVICE_FRIEND_RESPONSE:
-                        
-                        break;
-                    
-                    
-                    case TTSParameters.ID_SERVICE_MUSIC_BEGIN:
-                        
-                        
-                        break;
-                    case TTSParameters.ID_SERVICE_STORY_BEGIN:
-                        
-                        mVoiceRecognition.startListen();
-                        break;
-                    case TTSParameters.ID_SERVICE_TTS_BEGIN:
-                       /* HashMap<String, String> data2 = new HashMap<>();
-    
-                        data2.put("ttsID", TTSParameters.ID_SERVICE_TTS_BEGIN);
-                        callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters.METHOD_TTS, data2);
-                     */   break;
-                    case TTSParameters.ID_SERVICE_UNKNOWN:
-                        
-                        //callback to service something ERROR
-                        
-                        break;
-                    case TTSParameters.ID_SERVICE_IO_EXCEPTION:
-                        break;
-                    case TTSParameters.ID_SERVICE_INIT_SUCCESS:
-                        Logs.showTrace("ID_SERVICE_INIT_SUCCESS");
-                        break;
-                    case TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE:
-                        HashMap<String, String> data = new HashMap<>();
-                        
-                        data.put("ttsID", TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE);
-                        callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters.METHOD_TTS, data);
-                        
-                        
-                        break;
-                    
-                    default:
-                        break;
-                    
-                }
-            }
-            if (textStatusStart)
-            {
-                switch (message.get("TextID"))
-                {
-                    case TTSParameters.ID_SERVICE_START_UP_GREETINGS:
-                        
-                        
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-        else if (message.get("message").equals("init success"))
-        {
-            TTSCache.setTTSHandlerInit(false);
-            HashMap<String, String> ttsCache = TTSCache.getTTSCache();
-            if (null != ttsCache)
-            {
-                mTextToSpeechHandler.textToSpeech(ttsCache.get("tts"), ttsCache.get("param"));
-            }
-        }
-    }
     
     public LogicHandler(Context context)
     {
@@ -482,27 +271,21 @@ public class LogicHandler extends BaseHandler
     
     public void init()
     {
-        
-        if (null == mTextToSpeechHandler)
-        {
-            mTextToSpeechHandler = new TextToSpeechHandler(mContext);
-            mTextToSpeechHandler.setHandler(selfHandler);
-            mTextToSpeechHandler.init();
-        }
         if (null == mVoiceRecognition)
         {
             mVoiceRecognition = new VoiceRecognition(mContext);
             mVoiceRecognition.setHandler(selfHandler);
             mVoiceRecognition.setLocale(Locale.TAIWAN);
         }
-        
         if (null == mWebMediaPlayerHandler)
         {
             mWebMediaPlayerHandler = new WebMediaPlayerHandler(mContext);
             mWebMediaPlayerHandler.setHandler(selfHandler);
         }
+        bindTTSListenersToMainApplication();
         
     }
+    
     
     public void startUpStory(String strTTS, String strID, String lang)
     {
@@ -515,7 +298,6 @@ public class LogicHandler extends BaseHandler
             ttsService(TTSParameters.ID_SERVICE_STORY_BEGIN, TTSParameters.STRING_SERVICE_STORY_BEGIN, "zh");
         }
         
-        
     }
     
     public void startUpFriend()
@@ -523,10 +305,6 @@ public class LogicHandler extends BaseHandler
         mVoiceRecognition.startListen();
     }
     
-    public void ttsService(String ttsID, String ttsString)
-    {
-        mTextToSpeechHandler.textToSpeech(ttsString, ttsID);
-    }
     
     public void startUp(String ttsID)
     {
@@ -571,8 +349,9 @@ public class LogicHandler extends BaseHandler
                         if (mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_HOST) &&
                                 mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_FILE))
                         {
-                            mWebMediaPlayerHandler.setHostAndFilePath(mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_HOST),
-                                    mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_FILE));
+                            mWebMediaPlayerHandler.setHostAndFilePath(mActivityJson.getString
+                                    (SemanticWordCMPParameters.STRING_JSON_KEY_HOST), mActivityJson
+                                    .getString(SemanticWordCMPParameters.STRING_JSON_KEY_FILE));
                             mWebMediaPlayerHandler.startPlayMediaStream();
                             
                         }
@@ -591,9 +370,9 @@ public class LogicHandler extends BaseHandler
                         if (mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_LANG) &&
                                 mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_TTS))
                         {
-                            ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN,
-                                    mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_TTS),
-                                    mActivityJson.getString(SemanticWordCMPParameters.STRING_JSON_KEY_LANG));
+                            ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, mActivityJson.getString
+                                    (SemanticWordCMPParameters.STRING_JSON_KEY_TTS), mActivityJson
+                                    .getString(SemanticWordCMPParameters.STRING_JSON_KEY_LANG));
                         }
                         else
                         {
@@ -643,14 +422,18 @@ public class LogicHandler extends BaseHandler
                 localeSet = Locale.TAIWAN;
                 break;
         }
-        if (!mTextToSpeechHandler.getLocale().toString().equals(localeSet.toString()))
+        
+        MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
+        Locale currentTtsLocale = mainApp.getTTSLanguage();
+        
+        if (!currentTtsLocale.toString().equals(localeSet.toString()))
         {
-            Logs.showTrace("[LogicHandler] OLD getLocale():" + mTextToSpeechHandler.getLocale().toString());
-            mTextToSpeechHandler.setLocale(localeSet);
-            Logs.showTrace("[LogicHandler] NEW getLocale():" + mTextToSpeechHandler.getLocale().toString());
+            Logs.showTrace("[OobeLogicHandler] OLD getLocale():" + currentTtsLocale.toString());
+            mainApp.setTTSLanguage(localeSet);
+            Logs.showTrace("[OobeLogicHandler] NEW getLocale():" + currentTtsLocale.toString());
             
             TTSCache.setTTSHandlerInit(true);
-            mTextToSpeechHandler.init();
+            mainApp.initTTS();
         }
         
         if (TTSCache.getTTSHandlerInit())
@@ -659,32 +442,14 @@ public class LogicHandler extends BaseHandler
         }
         else
         {
-            mTextToSpeechHandler.textToSpeech(textString, textID);
+            mainApp.playTTS(textString, textID);
         }
-        
         
     }
     
-    public void killTextToSpeechHandler()
-    {
-        if (null != mTextToSpeechHandler)
-        {
-            Logs.showTrace("[LogicHandler] mTextToSpeechHandler shutdown Start");
-            mTextToSpeechHandler.shutdown();
-            Logs.showTrace("[LogicHandler] mTextToSpeechHandler shutdown End");
-            mTextToSpeechHandler = null;
-        }
-    }
     
     public void endAll()
     {
-        
-        
-        if (null != mTextToSpeechHandler)
-        {
-            mTextToSpeechHandler.stop();
-            
-        }
         
         
         if (null != mWebMediaPlayerHandler)
@@ -697,12 +462,33 @@ public class LogicHandler extends BaseHandler
             mVoiceRecognition.stopListen();
         }
         
+        stopTTS();
+        
+    }
+    
+    // this should be call in onResume() to override existing listeners in MainApplication
+    public void bindTTSListenersToMainApplication()
+    {
+        
+        MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
+        mainApp.setTTSEventListener(mTTSEventListener);
+    }
+    
+    private void stopTTS()
+    {
+        MainApplication app = (MainApplication) mContext.getApplicationContext();
+        app.stopTTS();
+    }
+    
+    private void unBindTTSListenersToMainApplication()
+    {
+        MainApplication app = (MainApplication) mContext.getApplicationContext();
+        app.stopTTS();
+        app.setTTSEventListener(null);
     }
     
     private class CacheStory
     {
-        
-        
         public int pauseStorySecond = -1;
         
         public CacheStory(int pauseStorySecond)
@@ -712,6 +498,109 @@ public class LogicHandler extends BaseHandler
         
         
     }
+    
+    private TTSEventListener mTTSEventListener = new TTSEventListener()
+    {
+        @Override
+        public void onInitSuccess()
+        {
+            Logs.showTrace("[OobeLogicHandler] TTS onInitSuccess() is not handled");
+            
+            TTSCache.setTTSHandlerInit(false);
+            HashMap<String, String> ttsCache = TTSCache.getTTSCache();
+            if (null != ttsCache)
+            {
+                MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
+                mainApp.playTTS(ttsCache.get("tts"), ttsCache.get("param"));
+            }
+        }
+        
+        @Override
+        public void onInitFailed(int status, String message)
+        {
+            Logs.showError("TTS not init success");
+        }
+        
+        @Override
+        public void onUtteranceStart(String utteranceId)
+        {
+            Logs.showTrace("[LogicHandler] TTS onUtteranceStart()");
+        }
+        
+        @Override
+        public void onUtteranceDone(String utteranceId)
+        {
+            Logs.showTrace("[LogicHandler] TTS onUtteranceDone()  ");
+            
+            switch (utteranceId)
+            {
+                case TTSParameters.ID_SERVICE_START_UP_GREETINGS:
+                    mVoiceRecognition.startListen();
+                    
+                    break;
+                
+                case TTSParameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE:
+                    
+                    break;
+                case TTSParameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE:
+                    // XXXXX do friend mode
+                    // link API
+                    
+                    break;
+                
+                case TTSParameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE:
+                    // XXXXX do game mode
+                    //
+                    
+                    break;
+                
+                case TTSParameters.ID_SERVICE_FRIEND_RESPONSE:
+                    
+                    break;
+                
+                
+                case TTSParameters.ID_SERVICE_MUSIC_BEGIN:
+                    
+                    
+                    break;
+                case TTSParameters.ID_SERVICE_STORY_BEGIN:
+                    
+                    mVoiceRecognition.startListen();
+                    break;
+                case TTSParameters.ID_SERVICE_TTS_BEGIN:
+                       /* HashMap<String, String> data2 = new HashMap<>();
+    
+                        data2.put("ttsID", TTSParameters.ID_SERVICE_TTS_BEGIN);
+                        callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC,
+                        LogicParameters.METHOD_TTS, data2);
+                     */
+                    break;
+                case TTSParameters.ID_SERVICE_UNKNOWN:
+                    
+                    //callback to service something ERROR
+                    
+                    break;
+                case TTSParameters.ID_SERVICE_IO_EXCEPTION:
+                    break;
+                case TTSParameters.ID_SERVICE_INIT_SUCCESS:
+                    Logs.showTrace("ID_SERVICE_INIT_SUCCESS");
+                    break;
+                case TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE:
+                    HashMap<String, String> data = new HashMap<>();
+                    
+                    data.put("ttsID", TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE);
+                    callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters
+                            .METHOD_TTS, data);
+                    
+                    
+                    break;
+                
+                default:
+                    break;
+                
+            }
+        }
+    };
     
     
 }

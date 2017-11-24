@@ -31,5 +31,7 @@ public abstract class FaceEmotionInterruptParameters
     public static final String STRING_NATURAL = "NATURAL";
     public static final int INT_NATURAL_RULE = 999;
     
+    public  static final boolean isDebugging = true;
+    
     
 }

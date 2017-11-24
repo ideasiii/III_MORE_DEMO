@@ -57,9 +57,7 @@ import sdk.ideas.common.ResponseCode;
 
 public class MainActivity extends AppCompatActivity implements CockpitFilmMakingEventListener,
         FaceEmotionEventListener
-
 {
-    
     private static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR =
             "c4b008ba-8b2f-404e-9e44-dd0605486446";
     private static final String ALERT_DIALOG_ENTER_BLE_READ_PEN_ID = "c4b008ba-8b2f-404e-9e44-dd0605486226";
@@ -92,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     //BLE connect read pen
     private ReadPenBLEHandler mReadPenBLEHandler = null;
     
-    private boolean isBlockFaceEmotionListener = false;
+    private volatile boolean isBlockFaceEmotionListener = false;
     
     
     private Handler mHandler = new Handler()
@@ -216,7 +214,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         
         mLogicHandler = new LogicHandler(this);
         mLogicHandler.setHandler(mHandler);
-        mLogicHandler.init();
+        //mLogicHandler.init();
+        
         
         mHttpAPIHandler = new HttpAPIHandler(this);
         mHttpAPIHandler.setHandler(mHandler);
@@ -228,24 +227,16 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     @Override
     protected void onDestroy()
     {
-        Logs.showTrace("onDestroy");
-        
-        
+        Logs.showTrace("[MainActivity] onDestroy");
         if (null != mDisplayHandler)
         {
             mDisplayHandler.killAll();
         }
-        if (null != mLogicHandler)
-        {
-            mLogicHandler.killTextToSpeechHandler();
-        }
-        
         
         if (null != mReadPenBLEHandler)
         {
             mReadPenBLEHandler.disconnect();
         }
-        
         
         super.onDestroy();
     }
@@ -254,10 +245,13 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     @Override
     protected void onStop()
     {
-        Logs.showTrace("onStop");
+        Logs.showTrace("[MainActivity] onStop");
         MainApplication mainApplication = (MainApplication) this.getApplication();
         mainApplication.stopFaceEmotion();
-        endAll();
+        if (null != mLogicHandler)
+        {
+            mLogicHandler.endAll();
+        }
         
         super.onStop();
     }
@@ -265,16 +259,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     @Override
     protected void onPause()
     {
-        Logs.showTrace("onPause");
+        Logs.showTrace("[MainActivity] onPause");
         super.onPause();
-    }
-    
-    public void endAll()
-    {
-        if (null != mLogicHandler)
-        {
-            mLogicHandler.endAll();
-        }
     }
     
     public void handleMessages(Message msg)
@@ -363,14 +349,13 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         }
         return false;
         
-        
     }
     
     
     private void handleMessageHttpAPI(Message msg)
     {
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        mLogicHandler.ttsService(TTSParameters.ID_SERVICE_FRIEND_RESPONSE, message.get("message"));
+        mLogicHandler.ttsService(TTSParameters.ID_SERVICE_FRIEND_RESPONSE, message.get("message"), "zh");
     }
     
     
@@ -482,9 +467,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                             break;
                     }
                     break;
-                case LogicParameters.METHOD_SPHINX:
-                    mDisplayHandler.resetAllDisplayViews();
-                    break;
                 
                 case LogicParameters.METHOD_STORY_PAUSE:
                     //### let displayHandler pause stream
@@ -496,7 +478,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     }
                     catch (Exception e)
                     {
-                        Logs.showError("[MainActivity] StoryPauseSecond ERROR" + e.toString());
+                        Logs.showError("[MainActivity] StoryPauseSecond ERROR: " + e.toString());
+                        e.printStackTrace();
                     }
                     
                     break;
@@ -513,15 +496,20 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                             .ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE))
                     {
                         // ### call faceEmotionInterruptHandler to set record emotion on
-                        Logs.showTrace("#################set false############");
-                        isBlockFaceEmotionListener = false;
+                        mHandler.postDelayed(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                mLogicHandler.resumeStoryStreaming();
+                                mDisplayHandler.resumeDisplaying();
+                                Logs.showTrace("#################set isBlockFaceEmotionListener " +
+                                        "false############");
+                                isBlockFaceEmotionListener = false;
+                            }
+                        }, 3000);
                         
-                        mLogicHandler.resumeStoryStreaming();
                         
-                    }
-                    else if (message.get("ttsID").equals(TTSParameters.ID_SERVICE_TTS_BEGIN))
-                    {
-                    
                     }
                     
                     
@@ -582,7 +570,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     public void run()
                     {
                         mLogicHandler.endAll();
-                        mLogicHandler.killTextToSpeechHandler();
                         
                         //###
                         // new Zoo Activity Intent
@@ -839,43 +826,46 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     
     
     @Override
-    public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String, String> tts,
-            HashMap<String, String> image, Object extendData)
+    public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String, String> ttsHashMap,
+            HashMap<String, String> imageHashMap, Object extendData)
     {
         Logs.showTrace("[MainActivity] faceEmotionData: " + faceEmotionData);
-        if (null != tts)
+        if (null != ttsHashMap)
         {
-            Logs.showTrace("[MainActivity] ttsEmotionData: " + tts);
+            Logs.showTrace("[MainActivity] ttsEmotionData: " + ttsHashMap);
         }
         if (!isBlockFaceEmotionListener)
         {
-            /*
+            
             if (mLogicHandler.getMode() == LogicParameters.MODE_STORY)
             {
                 
                 if (null != mLogicHandler)
                 {
                     
-                    //pause story
-                    mLogicHandler.pauseStoryStreaming();
-                    
-                    if (null != tts)
+                    if (null != ttsHashMap)
                     {
                         isBlockFaceEmotionListener = true;
-                        Logs.showTrace("[MainActivity] tts" + tts.get(FaceEmotionInterruptParameters
+                        
+                        //pause story
+                        mLogicHandler.pauseStoryStreaming();
+                        
+                        
+                        Logs.showTrace("[MainActivity] tts" + ttsHashMap.get(FaceEmotionInterruptParameters
                                 .STRING_TTS_TEXT));
                         mLogicHandler.ttsService(TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE,
-                                tts.get(FaceEmotionInterruptParameters.STRING_TTS_TEXT), "zh");
+                                ttsHashMap.get(FaceEmotionInterruptParameters.STRING_TTS_TEXT), "zh");
                         
                         
                     }
                 }
-                if (null != image)
+                if (null != imageHashMap)
                 {
-                    showDisplayImage(image.get("IMG_FILE_NAME"));
+                    mDisplayHandler.setImageViewImageFromDrawable(mDisplayHandler.getDrawableFromFileName
+                            (imageHashMap.get("IMG_FILE_NAME")));
                 }
                 
-            }*/
+            }
         }
     }
     

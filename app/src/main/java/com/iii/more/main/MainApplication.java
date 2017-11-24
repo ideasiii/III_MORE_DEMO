@@ -124,6 +124,11 @@ public class MainApplication extends Application
     public void setTTSEventListener(TTSEventListener l)
     {
         Logs.showTrace("[MainApplication] setTTSEventListener()");
+        for (StackTraceElement ste: Thread.currentThread().getStackTrace())
+        {
+            System.out.println(ste);
+        }
+        
         mTtsEventListener = l;
     }
 
