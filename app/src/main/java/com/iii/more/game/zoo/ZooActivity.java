@@ -187,7 +187,7 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
     {
         Logs.showTrace("onStart");
         super.onStart();
-        
+        application.setFaceEmotionEventListener(this);
         mVoiceRecognition = new VoiceRecognition(this);
         mVoiceRecognition.setHandler(handlerSpeech);
         mVoiceRecognition.setLocale(Locale.TAIWAN);
