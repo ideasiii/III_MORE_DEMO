@@ -37,6 +37,10 @@ public abstract class CockpitService extends Service
     // 拍片用，這種類型的指令將跳過 interrupt logic 判斷，直接影響 app 的視覺、聽覺輸出
     public static final int EVENT_DATA_FILM_MAKING = 30;
 
+    // 拯救臉部肌肉，模擬偵測到臉部表情
+    public static final int EVENT_DATA_FACE_EMOTION= 31;
+
+    // 重新連線事件的傳遞延遲時間 (重新連線間隔)
     private static final int RECONNECT_EVENT_DELAY = 1000;
 
     // 是否在斷線時嘗試重新連線
@@ -135,8 +139,7 @@ public abstract class CockpitService extends Service
         try
         {
             method = service.getMethod("isServiceSpawned");
-            Boolean ret = (Boolean) method.invoke(null);
-            isServiceSpawned = ret;
+            isServiceSpawned = (Boolean) method.invoke(null);
             Log.i(LOG_TAG, "startService(): " + service.getSimpleName()
                     + ".isServiceSpawned() = " + isServiceSpawned);
         }

@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 
 import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -16,6 +17,15 @@ import org.json.JSONObject;
 public class InternetCockpitService extends CockpitService
 {
     private static final String LOG_TAG = "InternetCockpitService";
+
+    // 只是文字，這種類型的指令內的文字會被當作 OTG 裝置傳出的字串
+    private static final int SERVER_PAPER_TYPE_TEXT = 0;
+
+    // 拍片用，這種類型的指令將跳過 interrupt logic 判斷，直接影響 app 的視覺、聽覺輸出
+    private static final int SERVER_PAPER_TYPE_FILM_MAKING = 1;
+
+    // 拯救臉部肌肉，模擬偵測到臉部表情
+    private static final int SERVER_PAPER_TYPE_FACE_EMOTION_DETECTED = 2;
 
     private static boolean serviceSpawned = false;
 
@@ -170,20 +180,34 @@ public class InternetCockpitService extends CockpitService
         }
 
         @Override
-        public void onDataText(String text)
+        public void onPaper(int type, String text)
         {
-            if (mHandler != null)
+            if (mHandler == null)
             {
-                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_TEXT, 0, text).sendToTarget();
+                return;
             }
-        }
 
-        @Override
-        public void onDataFilmMaking(JSONObject json)
-        {
-            if (mHandler != null)
+            switch (type)
             {
-                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_FILM_MAKING, 0, json).sendToTarget();
+                case SERVER_PAPER_TYPE_TEXT:
+                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_TEXT, 0, text).sendToTarget();
+                    break;
+                case SERVER_PAPER_TYPE_FILM_MAKING:
+                    try
+                    {
+                        JSONObject filmMakingJson = new JSONObject(text);
+                        mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_FILM_MAKING, 0, filmMakingJson).sendToTarget();
+                    }
+                    catch (JSONException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    break;
+                case SERVER_PAPER_TYPE_FACE_EMOTION_DETECTED:
+                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_FACE_EMOTION, 0, text).sendToTarget();
+                    break;
+                default:
+                    Log.w(LOG_TAG, "Drop paper with unknown type " + type);
             }
         }
     };

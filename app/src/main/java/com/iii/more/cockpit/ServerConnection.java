@@ -28,19 +28,13 @@ class ServerConnection extends WebSocketClient
     private static final int SERVER_MESSAGE_ACTION_TYPE_SIGN_IN = 0;
     private static final int SERVER_MESSAGE_ACTION_TYPE_PAPER = 1;
 
-    // 只是文字，這種類型的指令內的文字會被當作 OTG 裝置傳出的字串
-    private static final int SERVER_PAPER_TYPE_COMMAND_TEXT = 0;
-
-    // 拍片用，這種類型的指令將跳過 interrupt logic 判斷，直接影響 app 的視覺、聽覺輸出
-    private static final int SERVER_PAPER_TYPE_COMMAND_FILM_MAKING = 1;
-
     private static final int API_VERSION = 1;
 
     private final String mDeviceId;
     private final EventListener mEventListener;
     private boolean registered = false;
 
-    public ServerConnection(URI uri, String deviceId, EventListener l)
+    ServerConnection(URI uri, String deviceId, EventListener l)
     {
         super(uri, new Draft_6455());
 
@@ -53,7 +47,7 @@ class ServerConnection extends WebSocketClient
     {
         if (uri != null && uri.getScheme().equals("wss"))
         {
-            Log.d(LOG_TAG, "connect() URI scheme is wss, performing additional setup");
+            Log.d(LOG_TAG, "connect() URI scheme is wss, running additional setup");
             try
             {
                 SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -237,23 +231,9 @@ class ServerConnection extends WebSocketClient
         JSONObject paperBody = actionBody.getJSONObject("paperBody");
         String text = paperBody.getString("text");
 
-        switch (paperType)
+        if (mEventListener != null)
         {
-            case SERVER_PAPER_TYPE_COMMAND_TEXT:
-                if (mEventListener != null && text != null)
-                {
-                    mEventListener.onDataText(text);
-                }
-                break;
-            case SERVER_PAPER_TYPE_COMMAND_FILM_MAKING:
-                JSONObject filmMakingJson = new JSONObject(text);
-                if (mEventListener != null && filmMakingJson != null)
-                {
-                    mEventListener.onDataFilmMaking(filmMakingJson);
-                }
-                break;
-            default:
-                Log.w(LOG_TAG, "Got unknown paper type (" + paperType + ")");
+            mEventListener.onPaper(paperType, text);
         }
     }
 
@@ -276,10 +256,10 @@ class ServerConnection extends WebSocketClient
         /** 連上 server，尚未註冊 device ID */
         void onPermissionGranted();
 
-        /** 使用者不允許裝置的使用時的回呼 */
+        ///** 使用者不允許裝置的使用時的回呼 */
         //void onPermissionNotGranted();
 
-        /** 找不到可用的裝置時的回呼，通常發生在應用程式剛啟動而裝置未插入時 */
+        ///** 找不到可用的裝置時的回呼，通常發生在應用程式剛啟動而裝置未插入時 */
         //void onNoDevice();
 
         /** 斷線時的回呼 */
@@ -291,8 +271,6 @@ class ServerConnection extends WebSocketClient
         /** 不支援此種裝置連接方式時的回呼 (應該很少發生吧?) */
         void onProtocolNotSupported();
 
-        void onDataText(String text);
-
-        void onDataFilmMaking(JSONObject json);
+        void onPaper(int type, String text);
     }
 }
