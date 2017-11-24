@@ -9,14 +9,18 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
 
+import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
+import com.iii.more.logic.LogicParameters;
 import com.iii.more.main.CockpitSensorEventListener;
+import com.iii.more.main.FaceEmotionEventListener;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
 import com.iii.more.main.TTSEventListener;
+import com.iii.more.main.TTSParameters;
 
 import android.os.Handler;
 import android.view.Gravity;
@@ -38,7 +42,7 @@ import sdk.ideas.tool.speech.voice.VoiceRecognition;
  * Created by jugo on 2017/11/1
  */
 
-public class ZooActivity extends Activity
+public class ZooActivity extends Activity implements FaceEmotionEventListener
 {
     private final int SCEN_INDEX_START = 100;           // 等待動物園圖案的RFID
     private final int SCEN_INDEX_ANIMAL_RFID = 101;     // 取得動物園圖案的RFID
@@ -778,4 +782,19 @@ public class ZooActivity extends Activity
         }
     };
     
+    @Override
+    public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String,
+        String> ttsEmotionData, HashMap<String, String> imageEmotionData, Object extendData)
+    {
+        Logs.showTrace("[ZooActivity] faceEmotionData: " + faceEmotionData +
+            "#######################");
+        
+        
+    }
+    
+    @Override
+    public void onFaceDetectResult(boolean isDetectFace)
+    {
+    
+    }
 }
