@@ -228,6 +228,10 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     protected void onDestroy()
     {
         Logs.showTrace("[MainActivity] onDestroy");
+        
+        MainApplication mainApplication = (MainApplication) this.getApplication();
+        mainApplication.stopFaceEmotion();
+        
         if (null != mDisplayHandler)
         {
             mDisplayHandler.killAll();
@@ -246,8 +250,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     protected void onStop()
     {
         Logs.showTrace("[MainActivity] onStop");
-        MainApplication mainApplication = (MainApplication) this.getApplication();
-        mainApplication.stopFaceEmotion();
+       
         if (null != mLogicHandler)
         {
             mLogicHandler.endAll();
