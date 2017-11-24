@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             mReadPenBLEHandler.disconnect();
         }
     
-        mLogicHandler.stopTTS();
+        mLogicHandler.unBindTTSListenersToMainApplication();
         
         super.onDestroy();
     }
