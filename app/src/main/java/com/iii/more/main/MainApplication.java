@@ -16,7 +16,6 @@ import com.iii.more.emotion.EmotionHandler;
 import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptHandler;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
-import com.iii.more.interrupt.logic.InterruptLogicHandler;
 import com.iii.more.interrupt.logic.InterruptLogicParameters;
 
 import org.json.JSONException;
@@ -48,15 +47,12 @@ public class MainApplication extends Application
 
     private Tracker mTracker = new Tracker(this);
     private TextToSpeechHandler mTtsHandler = new TextToSpeechHandler(this);
+    private CockpitListenerBridge mCockpitListenerBridge = new CockpitListenerBridge(this);
 
-    private CockpitConnectionEventListener mCockpitConnectionEventListener;
-    private CockpitSensorEventListener mCockpitSensorEventListener;
-    private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
     private FaceEmotionEventListener mFaceEmotionEventListener = null;
     private TTSEventListener mTtsEventListener;
 
     // this logic handler does not handle emotion logic
-    private InterruptLogicHandler mInterruptLogicHandler = new InterruptLogicHandler(this);
 
     private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
     private EmotionHandler mEmotionHandler = null;
@@ -71,7 +67,7 @@ public class MainApplication extends Application
     {
         super.onCreate();
 
-        initCockpitService();
+        initCockpit();
         initInterruptLogic();
         initFaceEmotionInterrupt();
         initTTS();
@@ -97,22 +93,22 @@ public class MainApplication extends Application
         editor.apply();
     }
 
-    public void setCockpitConnectionEventListener(CockpitConnectionEventListener l)
+    public void setCockpitConnectionListener(CockpitConnectionEventListener l)
     {
         Logs.showTrace("[MainApplication] setCockpitConnectionEventListener()");
-        mCockpitConnectionEventListener = l;
+        mCockpitListenerBridge.cockpitConnectionEventListener = l;
     }
 
     public void setCockpitSensorEventListener(CockpitSensorEventListener l)
     {
         Logs.showTrace("[MainApplication] setCockpitSensorEventListener()");
-        mCockpitSensorEventListener = l;
+        mCockpitListenerBridge.cockpitSensorEventListener = l;
     }
 
     public void setCockpitFilmMakingEventListener(CockpitFilmMakingEventListener l)
     {
         Logs.showTrace("[MainApplication] setCockpitFilmMakingEventListener()");
-        mCockpitFilmMakingEventListener = l;
+        mCockpitListenerBridge.cockpitFilmMakingEventListener = l;
     }
 
     public void setFaceEmotionEventListener(FaceEmotionEventListener l)
@@ -183,10 +179,10 @@ public class MainApplication extends Application
     /**
      * 設定 TTS pitch & speech rate
      */
-    public void setTTSPitch(float fpitch, float frate)
+    public void setTTSPitch(float pitch, float rate)
     {
-        mTtsHandler.setPitch(fpitch);
-        mTtsHandler.setSpeechRate(frate);
+        mTtsHandler.setPitch(pitch);
+        mTtsHandler.setSpeechRate(rate);
     }
 
     /**
@@ -217,9 +213,9 @@ public class MainApplication extends Application
     /**
      * 設定好 TTS pitch & speech rate 後再將 text 轉為語音輸出
      */
-    public void playTTS(String text, String textId, float fpitch, float frate)
+    public void playTTS(String text, String textId, float pitch, float rate)
     {
-        setTTSPitch(fpitch, frate);
+        setTTSPitch(pitch, rate);
         playTTS(text, textId);
     }
 
@@ -232,8 +228,27 @@ public class MainApplication extends Application
         mTtsHandler.stop();
     }
 
-    private void initCockpitService()
+    private void initCockpit()
     {
+        mCockpitListenerBridge.setEventDelegate(new CockpitListenerBridge.TellMeWhatToDo() {
+            @Override
+            public void onFaceEmotionDetected(String emotionName) {
+                // face emotion simulation commands from cockpit
+                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
+                        "simulates when face emotion is detected, emotionName = `" + emotionName + "`");
+
+                HashMap<String, String> faceEmotionEvent =
+                        MagicBook.cookFaceEmotionDetectedEvent(mFaceEmotionInterruptHandler, emotionName);
+
+                if (null != faceEmotionEvent)
+                {
+                    Message m = mSelfHandler.obtainMessage(FaceEmotionInterruptParameters.CLASS_FACE_EMOTION_INTERRUPT,
+                            0, 0, faceEmotionEvent);
+                    mSelfHandler.sendMessage(m);
+                }
+            }
+        });
+
         CockpitService.startThenBindService(this, InternetCockpitService.class, mCockpitServiceConnection,
                 null);
         CockpitService.startThenBindService(this, OtgCockpitService.class, mCockpitServiceConnection, null);
@@ -244,7 +259,7 @@ public class MainApplication extends Application
      */
     private void initFaceEmotionInterrupt()
     {
-        String interruptEmotionBehaviorDataArrayInput = "";
+        String interruptEmotionBehaviorDataArrayInput;
         try
         {
             SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
@@ -290,8 +305,8 @@ public class MainApplication extends Application
                     .INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
         }
 
-        mInterruptLogicHandler.setInterruptLogicBehaviorDataArray(interruptLogicBehaviorDataArrayInput);
-        mInterruptLogicHandler.setHandler(mSelfHandler);
+        mCockpitListenerBridge.sensorInterruptLogicHandler.setInterruptLogicBehaviorDataArray(interruptLogicBehaviorDataArrayInput);
+        mCockpitListenerBridge.sensorInterruptLogicHandler.setHandler(mSelfHandler);
     }
 
     /**
@@ -368,10 +383,8 @@ public class MainApplication extends Application
             switch (msg.what)
             {
                 case CockpitService.MSG_WHAT:
-                    app.handleCockpitServiceMessage(msg);
-                    break;
                 case InterruptLogicParameters.CLASS_INTERRUPT_LOGIC:
-                    app.handleInterruptLogicMessage(msg);
+                    app.mCockpitListenerBridge.handleMessage(msg);
                     break;
                 case EmotionParameters.CLASS_EMOTION:
                     app.handleMessageFaceEmotionMessage(msg);
@@ -464,52 +477,7 @@ public class MainApplication extends Application
         }
     }
 
-    /**
-     * 處理來自 InterruptLogicHandler 的事件
-     */
-    private void handleInterruptLogicMessage(Message msg)
-    {
-        if (null == mCockpitSensorEventListener)
-        {
-            return;
-        }
 
-        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-
-        switch (msg.arg2)
-        {
-            case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
-                String trigger_result = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
-                Logs.showTrace("[MainApplication] handleInterruptLogicMessage() " +
-                        "trigger_result = " + trigger_result);
-
-                switch (trigger_result)
-                {
-                    case "握手":
-                        mCockpitSensorEventListener.onShakeHands(null);
-                        break;
-                    case "拍手":
-                        mCockpitSensorEventListener.onClapHands(null);
-                        break;
-                    case "擠壓":
-                        mCockpitSensorEventListener.onPinchCheeks(null);
-                        break;
-                    case "拍頭":
-                        mCockpitSensorEventListener.onPatHead(null);
-                        break;
-                    case "RFID":
-                        // TODO remove or change this quick and dirty code
-                        String reading = message.get(InterruptLogicParameters.JSON_STRING_TAG);
-                        mCockpitSensorEventListener.onScannedRfid(null, reading);
-                        break;
-                    default:
-                        Logs.showTrace("[MainApplication] handleInterruptLogicMessage() unknown trigger_result: " + trigger_result);
-                }
-                break;
-            default:
-                Logs.showTrace("[MainApplication] handleInterruptLogicMessage() unknown msg.arg2: " + msg.arg2);
-        }
-    }
 
     /**
      * 處理來自 Tracker 的事件
@@ -524,121 +492,6 @@ public class MainApplication extends Application
 
         Logs.showTrace("[MainApplication] handleTrackerMessage() " +
                 "Result: " + result + " From: " + from + " Message: " + message);
-    }
-
-    /**
-     * 處理來自 CockpitService 的事件
-     */
-    private void handleCockpitServiceMessage(Message msg)
-    {
-        if (msg.arg1 == CockpitService.EVENT_DATA_TEXT)
-        {
-            // plain text from cockpit
-            String data = (String) msg.obj;
-            Logs.showTrace("[MainApplication] handleCockpitServiceMessage() plain text, text = `" + data + "`");
-
-            if (null != mInterruptLogicHandler)
-            {
-                mInterruptLogicHandler.setDeviceEventData(data);
-                mInterruptLogicHandler.startEventDataAnalysis();
-            }
-
-            return;
-        }
-        else if (msg.arg1 == CockpitService.EVENT_DATA_FILM_MAKING)
-        {
-            // film making commands from cockpit
-            JSONObject j = (JSONObject) msg.obj;
-
-            if (null != mCockpitFilmMakingEventListener)
-            {
-                try
-                {
-                    String action = j.getString("action");
-                    String text = j.getString("text");
-                    Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
-                            "film making action = `" + action + "`, text = `" + text + "`");
-
-                    switch (action)
-                    {
-                        case "tts":
-                            String language = j.getString("language");
-                            mCockpitFilmMakingEventListener.onTTS(null, text, language);
-                            break;
-                        case "showFaceImage":
-                            mCockpitFilmMakingEventListener.onEmotionImage(null, text);
-                            break;
-                        default:
-                            Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
-                                    "film making unknown action = `" + action);
-                            break;
-                    }
-                }
-                catch (JSONException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-
-            return;
-        }
-        else if (msg.arg1 == CockpitService.EVENT_DATA_FACE_EMOTION)
-        {
-            // face emotion simulation commands from cockpit
-            String emotionName = (String) msg.obj;
-            Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
-                    "simulates when face emotion is detected, emotionName = `" + emotionName + "`");
-
-            HashMap<String, String> faceEmotionEvent =
-                    MagicBook.cookFaceEmotionDetectedEvent(mFaceEmotionInterruptHandler, emotionName);
-
-            if (null != faceEmotionEvent)
-            {
-                Message m = mSelfHandler.obtainMessage(FaceEmotionInterruptParameters.CLASS_FACE_EMOTION_INTERRUPT,
-                        0, 0, faceEmotionEvent);
-                mSelfHandler.sendMessage(m);
-            }
-
-            return;
-        }
-
-        if (null == mCockpitConnectionEventListener)
-        {
-            return;
-        }
-
-        // connection events
-        switch (msg.arg1)
-        {
-            case CockpitService.EVENT_NO_DEVICE:
-                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onNoDevice()");
-                mCockpitConnectionEventListener.onNoDevice(null);
-                break;
-            case CockpitService.EVENT_READY:
-                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onReady()");
-                mCockpitConnectionEventListener.onReady(null);
-                break;
-            case CockpitService.EVENT_PROTOCOL_NOT_SUPPORTED:
-            case CockpitService.EVENT_CDC_DRIVER_NOT_WORKING:
-            case CockpitService.EVENT_USB_DEVICE_NOT_WORKING:
-                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onProtocolNotSupported()");
-                mCockpitConnectionEventListener.onProtocolNotSupported(null);
-                break;
-            case CockpitService.EVENT_PERMISSION_GRANTED:
-                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onPermissionGranted()");
-                mCockpitConnectionEventListener.onPermissionGranted(null);
-                break;
-            case CockpitService.EVENT_PERMISSION_NOT_GRANTED:
-                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onPermissionNotGranted()");
-                mCockpitConnectionEventListener.onPermissionNotGranted(null);
-                break;
-            case CockpitService.EVENT_DISCONNECTED:
-                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onDisconnected()");
-                mCockpitConnectionEventListener.onDisconnected(null);
-                break;
-            default:
-                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() unhandled msg.arg1: " + msg.arg1);
-        }
     }
 
     /**

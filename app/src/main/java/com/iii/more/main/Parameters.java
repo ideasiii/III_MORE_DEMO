@@ -14,11 +14,11 @@ public abstract class Parameters
 
     public static final String TASK_COMPOSER_DATA = "taskcomposerdata";
 
-    public static final String CMP_HOST_IP = "175.98.119.121";
-    public static final int CMP_HOST_PORT = 2310;
+    static final String CMP_HOST_IP = "175.98.119.121";
+    static final int CMP_HOST_PORT = 2310;
     
     // 布偶的藍牙裝置名稱
-    public static final String DEFAULT_DEVICE_ID = "module_01";
+    static final String DEFAULT_DEVICE_ID = "module_01";
 
     // 此 app 在 tracker 的 APP ID
     static final String TRACKER_APP_ID = "1510555888386";
