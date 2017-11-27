@@ -28,6 +28,8 @@ public abstract class FaceEmotionInterruptParameters
     public static final String STRING_TTS_PITCH = "TTS_PITCH";
     public static final String STRING_TTS_SPEED = "TTS_SPEED";
     
+    public static final String STRING_EMOTION_NAME = "EMOTION_NAME";
+    
     public static final String STRING_NATURAL = "NATURAL";
     public static final int INT_NATURAL_RULE = 999;
     

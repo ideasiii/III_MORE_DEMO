@@ -131,7 +131,8 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                     // Logs.showTrace("[FaceEmotionInterruptHandler] 觸發規則名稱: " +
                     //        nowEmotionState.emotionName + " 觸發次數: " + newFaceData.emotionTriggerTimeRule);
                     //callback to application
-                    HashMap<String, String> message = new HashMap<>(mEmotionHashMapData);
+                    HashMap<String, String> message = new HashMap<>();
+                    message.put(FaceEmotionInterruptParameters.STRING_EMOTION_NAME,nowEmotionState.emotionName);
                     EmotionBrainElement emotionBrainElement = getEmotionBrainElementByEmotionName
                             (nowEmotionState.emotionName);
                     if (null != emotionBrainElement)

@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         {
             mReadPenBLEHandler.disconnect();
         }
-    
+        
         mLogicHandler.unBindTTSListenersToMainApplication();
         
         super.onDestroy();
@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     protected void onStop()
     {
         Logs.showTrace("[MainActivity] onStop");
-       
+        
         if (null != mLogicHandler)
         {
             mLogicHandler.endAll();
@@ -840,11 +840,19 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String, String>
             ttsHashMap, HashMap<String, String> imageHashMap, Object extendData)
     {
+        //debug using start
         Logs.showTrace("[MainActivity] faceEmotionData: " + faceEmotionData);
         if (null != ttsHashMap)
         {
-            Logs.showTrace("[MainActivity] ttsEmotionData: " + ttsHashMap);
+            Logs.showTrace("[MainActivity] ttsHashMap: " + ttsHashMap);
         }
+        if (null != imageHashMap)
+        {
+            Logs.showTrace("[MainActivity] imageHashMap" + imageHashMap);
+        }
+        //debug using end
+        
+    
         if (!isBlockFaceEmotionListener)
         {
             
