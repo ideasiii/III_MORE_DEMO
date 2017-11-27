@@ -47,14 +47,18 @@ public class FaceEmotionInterruptHandler extends BaseHandler
     private void startEmotionEventDataAnalysis()
     {
         EmotionElement data = runFaceEmotionRule(mEmotionHashMapData);
+        
+        //debug using
+        /*
         if (null != data)
         {
-            data.print();
+            //data.print();
         }
         else
         {
             //Logs.showTrace("[FaceEmotionInterruptHandler] No Rule for face emotion");
         }
+        */
         judgeNowEmotionState(data);
     }
     

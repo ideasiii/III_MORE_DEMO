@@ -34,25 +34,25 @@ public class AnimationHandler extends BaseHandler
         @Override
         public void onAnimationStart(Animator animation)
         {
-            Logs.showTrace("[AnimationHandler] onAnimationStart" + animation.getClass().toString());
+            //Logs.showTrace("[AnimationHandler] onAnimationStart" + animation.getClass().toString());
         }
         
         @Override
         public void onAnimationEnd(Animator animation)
         {
-            Logs.showTrace("[AnimationHandler] onAnimationEnd" + animation.getClass().toString());
+            //Logs.showTrace("[AnimationHandler] onAnimationEnd" + animation.getClass().toString());
         }
         
         @Override
         public void onAnimationCancel(Animator animation)
         {
-            Logs.showTrace("[AnimationHandler] onAnimationCancel" + animation.getClass().toString());
+           // Logs.showTrace("[AnimationHandler] onAnimationCancel" + animation.getClass().toString());
         }
         
         @Override
         public void onAnimationRepeat(Animator animation)
         {
-            Logs.showTrace("[AnimationHandler] onAnimationRepeat" + animation.getClass().toString());
+            //Logs.showTrace("[AnimationHandler] onAnimationRepeat" + animation.getClass().toString());
             
         }
     };
