@@ -9,18 +9,15 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
 
-import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
-import com.iii.more.logic.LogicParameters;
 import com.iii.more.main.CockpitSensorEventListener;
 import com.iii.more.main.FaceEmotionEventListener;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
 import com.iii.more.main.TTSEventListener;
-import com.iii.more.main.TTSParameters;
 
 import android.os.Handler;
 import android.view.Gravity;
@@ -77,6 +74,7 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
     private final int SCEN_INDEX_EAT_ICECREAME = 134;
     private final int SCEN_INDEX_EATED_DNUTE = 135;
     private final int SCEN_INDEX_EATED_ICECREAME = 136;
+    private final int SCEN_INDEX_FACE_EMONTION = 777;
     private final int SCEN_INDEX_GAME_OVER = 666;
     private final int SCEN_INDEX_FINISH = 999;
     
@@ -92,6 +90,32 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
     private LinearLayout linearFood = null;
     private int mnDroppedX = 0;
     
+    //// {TTS_SPEED=1.0, TTS_PITCH=1.0, TTS_TEXT=你笑得好開心喔！什麼事情這麼好笑？}
+    // {IMG_FILE_NAME=OCTOBO_Expressions-31.png}
+    private class CEmotion
+    {
+        String strEmotion;
+        String strTTS_SPEED;
+        String strTTS_PITCH;
+        String strTTS_TEXT;
+        String strIMG_FILE_NAME;
+        
+        public CEmotion()
+        {
+            clear();
+        }
+        
+        void clear()
+        {
+            strEmotion = null;
+            strIMG_FILE_NAME = null;
+            strTTS_PITCH = null;
+            strTTS_SPEED = null;
+            strTTS_TEXT = null;
+        }
+    }
+    
+    private CEmotion stEmotion;
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -170,6 +194,8 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
         trackerHandler.setSource("0");
         trackerHandler.setActivity("game");
         trackerHandler.setDescription("Edubot Zoo Game");
+        
+        stEmotion = new CEmotion();
     }
     
     @Override
@@ -229,6 +255,10 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
         String strFaceImg = "";
         int nFace;
         
+        if (null != stEmotion.strEmotion)
+        {
+            nIndex = SCEN_INDEX_FACE_EMONTION;
+        }
         switch (nIndex)
         {
             case SCEN_INDEX_START: // 遊戲開始
@@ -482,6 +512,10 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
                 break;
             case SCEN_INDEX_FINISH:
                 finish();
+                break;
+            case SCEN_INDEX_FACE_EMONTION:
+                stEmotion.clear();
+                strTTS = stEmotion.strTTS_TEXT;
                 break;
             default:
                 return;
@@ -778,6 +812,9 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
                 case SCEN_INDEX_GAME_OVER:
                     handlerScenarize.sendEmptyMessageDelayed(SCEN_INDEX_FINISH, 2000);
                     break;
+                case SCEN_INDEX_FACE_EMONTION:
+                    handlerScenarize.sendEmptyMessageDelayed(mnScenarizeIndex, 100);
+                    break;
             }
         }
     };
@@ -786,10 +823,30 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
     public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String,
         String> ttsEmotionData, HashMap<String, String> imageEmotionData, Object extendData)
     {
-        Logs.showTrace("[ZooActivity] faceEmotionData: " + faceEmotionData +
-            "#######################");
+        stEmotion.clear();
         
+        if (null != faceEmotionData)
+        {
+            stEmotion.strEmotion = faceEmotionData.get("EMOTION_NAME");
+        }
         
+        if (null != ttsEmotionData)
+        {
+            stEmotion.strTTS_SPEED = ttsEmotionData.get("TTS_SPEED");
+            stEmotion.strTTS_PITCH = ttsEmotionData.get("TTS_PITCH");
+            stEmotion.strTTS_TEXT = ttsEmotionData.get("TTS_TEXT");
+        }
+        
+        if (null != imageEmotionData)
+        {
+            stEmotion.strIMG_FILE_NAME = imageEmotionData.get("IMG_FILE_NAME");
+        }
+        
+        Logs.showTrace("[ZooActivity] onFaceEmotionResult EMOTION_NAME:" + stEmotion.strEmotion +
+            " TTS_SPEED:" + stEmotion.strTTS_SPEED + " TTS_PITCH:" + stEmotion.strTTS_PITCH + " "
+            + "TTS_TEXT:" + stEmotion.strTTS_TEXT + " IMG_FILE_NAME:" + stEmotion.strIMG_FILE_NAME);
+        
+        handlerScenarize.sendEmptyMessage(SCEN_INDEX_FACE_EMONTION);
     }
     
     @Override
