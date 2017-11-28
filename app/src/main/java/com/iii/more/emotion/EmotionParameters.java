@@ -24,6 +24,13 @@ public abstract class EmotionParameters
     public static final String STRING_EMOTION_SURPRISE = "SURPRISE";
     public static final String STRING_EMOTION_CONTEMPT = "CONTEMPT";
     public static final String STRING_EXPRESSION_ATTENTION = "ATTENTION";
+    
+    //new add in
+    //Engagement
+    public static final String STRING_EMOTION_ENGAGEMENT = "ENGAGEMENT";
+    //Valence
+    public static final String STRING_EMOTION_VALENCE ="VALENCE";
+    
    
    
 }

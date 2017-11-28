@@ -55,6 +55,10 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
         noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_SURPRISE, "-1");
         noEmotionHashMap.put(EmotionParameters.STRING_EXPRESSION_ATTENTION, "-1");
         
+        //new add in
+        noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_VALENCE, "-1");
+        noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_ENGAGEMENT, "-1");
+        
     }
     
     
@@ -97,8 +101,8 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
             
             isCloseEmotionDataThread = false;
             
-            handleEmotionDataThread = new Thread(new ReadEmotionQueueRunnable(EmotionParameters.ONE_TIME_COUNT,
-                    EmotionParameters.THREAD_SLEEP_TIME));
+            handleEmotionDataThread = new Thread(new ReadEmotionQueueRunnable(EmotionParameters
+                    .ONE_TIME_COUNT, EmotionParameters.THREAD_SLEEP_TIME));
             handleEmotionDataThread.start();
             
             //###need to add ready code startService
@@ -139,7 +143,8 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
             Logs.showTrace("onFaceDetected have Face now detect emotion...");
             
             message.put("message", "detect face");
-            callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION, EmotionParameters.METHOD_FACE_DETECT, message);
+            callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION, EmotionParameters
+                    .METHOD_FACE_DETECT, message);
             
         }
         else
@@ -147,7 +152,8 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
             Logs.showTrace("onFaceDetected no Face detect....");
             emotionVolatileHashMap = null;
             message.put("message", "detect no face");
-            callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION, EmotionParameters.METHOD_NO_FACE_DETECT, message);
+            callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION, EmotionParameters
+                    .METHOD_NO_FACE_DETECT, message);
             
         }
     }
@@ -174,13 +180,22 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
             HashMap<String, String> faceHashMap = new HashMap<>();
             
             faceHashMap.put(EmotionParameters.STRING_EMOTION_ANGER, String.valueOf(face.emotions.getAnger()));
-            faceHashMap.put(EmotionParameters.STRING_EMOTION_CONTEMPT, String.valueOf(face.emotions.getContempt()));
-            faceHashMap.put(EmotionParameters.STRING_EMOTION_DISGUST, String.valueOf(face.emotions.getDisgust()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_CONTEMPT, String.valueOf(face.emotions
+                    .getContempt()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_DISGUST, String.valueOf(face.emotions
+                    .getDisgust()));
             faceHashMap.put(EmotionParameters.STRING_EMOTION_FEAR, String.valueOf(face.emotions.getFear()));
             faceHashMap.put(EmotionParameters.STRING_EMOTION_JOY, String.valueOf(face.emotions.getJoy()));
-            faceHashMap.put(EmotionParameters.STRING_EMOTION_SADNESS, String.valueOf(face.emotions.getSadness()));
-            faceHashMap.put(EmotionParameters.STRING_EMOTION_SURPRISE, String.valueOf(face.emotions.getSurprise()));
-            faceHashMap.put(EmotionParameters.STRING_EXPRESSION_ATTENTION, String.valueOf(face.expressions.getAttention()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_SADNESS, String.valueOf(face.emotions
+                    .getSadness()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_SURPRISE, String.valueOf(face.emotions
+                    .getSurprise()));
+            faceHashMap.put(EmotionParameters.STRING_EXPRESSION_ATTENTION, String.valueOf(face.expressions
+                    .getAttention()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_ENGAGEMENT, String.valueOf(face.emotions
+                    .getEngagement()));
+            faceHashMap.put(EmotionParameters.STRING_EMOTION_VALENCE, String.valueOf(face.emotions
+                    .getValence()));
             
             //Logs.showTrace("[EmotionHandler] get face Emotion:" + faceHashMap);
             
@@ -232,8 +247,10 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
                             //### get last one to show this person emotion
                             if (emotionArrayListData.size() > 0)
                             {
-                                HashMap<String, String> message = emotionArrayListData.get(emotionArrayListData.size() - 1);
-                                callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION, EmotionParameters.METHOD_EMOTION_DETECT, message);
+                                HashMap<String, String> message = emotionArrayListData.get
+                                        (emotionArrayListData.size() - 1);
+                                callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION,
+                                        EmotionParameters.METHOD_EMOTION_DETECT, message);
                             }
                         }
                     }
@@ -242,11 +259,13 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
                         if (null != emotionVolatileHashMap)
                         {
                             HashMap<String, String> message = new HashMap<>(emotionVolatileHashMap);
-                            callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION, EmotionParameters.METHOD_EMOTION_DETECT, message);
+                            callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION,
+                                    EmotionParameters.METHOD_EMOTION_DETECT, message);
                         }
                         else
                         {
-                            callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION, EmotionParameters.METHOD_EMOTION_DETECT, noEmotionHashMap);
+                            callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION,
+                                    EmotionParameters.METHOD_EMOTION_DETECT, noEmotionHashMap);
                             
                         }
                         
