@@ -1,6 +1,7 @@
 package com.iii.more.main;
 
 import android.app.Application;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -57,6 +58,9 @@ public class MainApplication extends Application
     private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
     private EmotionHandler mEmotionHandler = null;
     private static boolean isFaceEmotionStart = false;
+
+    // 方便讓遙控器控制端辨識的名稱
+    private String mInternetCockpitServiceFriendlyName;
 
     public MainApplication()
     {
@@ -228,8 +232,32 @@ public class MainApplication extends Application
         mTtsHandler.stop();
     }
 
+    /**
+     * 取得要傳送給 InternetCockpit 伺服器的識別名稱
+     */
+    private void getInternetCockpitFriendlyName()
+    {
+        try
+        {
+            BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            mInternetCockpitServiceFriendlyName = bluetoothAdapter.getName();
+        }
+        catch(Exception e)
+        {
+            Logs.showError("Cannot get bluetooth device name");
+            mInternetCockpitServiceFriendlyName = "N/A";
+        }
+
+        Logs.showTrace("use " + mInternetCockpitServiceFriendlyName + " as friendly name in InternetCockpitService");
+    }
+
+    /**
+     * 初始化駕駛艙連結
+     */
     private void initCockpit()
     {
+        getInternetCockpitFriendlyName();
+
         mCockpitListenerBridge.setEventDelegate(new CockpitListenerBridge.TellMeWhatToDo() {
             @Override
             public void onFaceEmotionDetected(String emotionName) {
@@ -259,7 +287,7 @@ public class MainApplication extends Application
      */
     private void initFaceEmotionInterrupt()
     {
-        String interruptEmotionBehaviorDataArrayInput;
+        String interruptEmotionBehaviorDataArrayInput = "";
         try
         {
             SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
@@ -325,6 +353,7 @@ public class MainApplication extends Application
             {
                 mInternetCockpitService = (InternetCockpitService) mCockpitService;
                 mInternetCockpitService.setDeviceId(SemanticDeviceID.getDeviceID(getApplicationContext()));
+                mInternetCockpitService.setFriendlyName(mInternetCockpitServiceFriendlyName);
                 mInternetCockpitService.setServerAddress(Parameters.INTERNET_COCKPIT_SERVER_ADDRESS);
             }
             else if (mCockpitService instanceof OtgCockpitService)
@@ -476,8 +505,6 @@ public class MainApplication extends Application
             mFaceEmotionInterruptHandler.setEmotionEventData((HashMap<String, String>) msg.obj);
         }
     }
-
-
 
     /**
      * 處理來自 Tracker 的事件

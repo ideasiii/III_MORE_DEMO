@@ -32,6 +32,7 @@ public class InternetCockpitService extends CockpitService
     private ServerConnection mServerConnection;
     private URI mServerUri;
     private String mDeviceId;
+    private String mFriendlyName = "";
 
     @Override
     public void onCreate()
@@ -95,6 +96,10 @@ public class InternetCockpitService extends CockpitService
         mDeviceId = id;
     }
 
+    public void setFriendlyName(String name) {
+        mFriendlyName = name;
+    }
+
     @Override
     public void connect()
     {
@@ -113,7 +118,7 @@ public class InternetCockpitService extends CockpitService
         }
 
         mReconnectOnDisconnect = true;
-        mServerConnection = new ServerConnection(mServerUri, mDeviceId, mServerConnectionEventListener);
+        mServerConnection = new ServerConnection(mServerUri, mDeviceId, mFriendlyName, mServerConnectionEventListener);
         mServerConnection.connect();
     }
 
@@ -204,7 +209,7 @@ public class InternetCockpitService extends CockpitService
                     }
                     break;
                 case SERVER_PAPER_TYPE_FACE_EMOTION_DETECTED:
-                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_FACE_EMOTION, 0, text).sendToTarget();
+                    mHandler.obtainMessage(CockpitService.MSG_WHAT, CockpitService.EVENT_DATA_FACE_EMOTION, 0, text).sendToTarget();
                     break;
                 default:
                     Log.w(LOG_TAG, "Drop paper with unknown type " + type);

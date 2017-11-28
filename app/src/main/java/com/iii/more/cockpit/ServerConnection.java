@@ -31,14 +31,16 @@ class ServerConnection extends WebSocketClient
     private static final int API_VERSION = 1;
 
     private final String mDeviceId;
+    private final String mFriendlyName;
     private final EventListener mEventListener;
     private boolean registered = false;
 
-    ServerConnection(URI uri, String deviceId, EventListener l)
+    ServerConnection(URI uri, String deviceId, String friendlyName, EventListener l)
     {
         super(uri, new Draft_6455());
 
         mDeviceId = deviceId;
+        mFriendlyName = friendlyName;
         mEventListener = l;
     }
 
@@ -123,6 +125,7 @@ class ServerConnection extends WebSocketClient
         {
             JSONObject jsonBody = new JSONObject();
             jsonBody.put("id", mDeviceId);
+            jsonBody.put("friendlyName", mFriendlyName);
             jsonBody.put("apiVersion", API_VERSION);
 
             JSONObject jsonRoot = new JSONObject();
