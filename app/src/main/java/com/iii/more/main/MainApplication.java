@@ -53,14 +53,12 @@ public class MainApplication extends Application
     private FaceEmotionEventListener mFaceEmotionEventListener = null;
     private TTSEventListener mTtsEventListener;
 
-    // this logic handler does not handle emotion logic
-
     private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
     private EmotionHandler mEmotionHandler = null;
     private static boolean isFaceEmotionStart = false;
 
     // 方便讓遙控器控制端辨識的名稱
-    private String mInternetCockpitServiceFriendlyName;
+    private String mInternetCockpitFriendlyName;
 
     public MainApplication()
     {
@@ -171,6 +169,11 @@ public class MainApplication extends Application
         mTracker.track(data);
     }
 
+    public void sendToTrackerWithObjectMap(HashMap<String, Object> data)
+    {
+        mTracker.trackWithObjectMap(data);
+    }
+
     /**
      * 初始化 TTS 服務
      */
@@ -240,15 +243,15 @@ public class MainApplication extends Application
         try
         {
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            mInternetCockpitServiceFriendlyName = bluetoothAdapter.getName();
+            mInternetCockpitFriendlyName = bluetoothAdapter.getName();
         }
         catch(Exception e)
         {
             Logs.showError("Cannot get bluetooth device name");
-            mInternetCockpitServiceFriendlyName = "N/A";
+            mInternetCockpitFriendlyName = "N/A";
         }
 
-        Logs.showTrace("use " + mInternetCockpitServiceFriendlyName + " as friendly name in InternetCockpitService");
+        Logs.showTrace("use " + mInternetCockpitFriendlyName + " as friendly name in InternetCockpitService");
     }
 
     /**
@@ -353,7 +356,7 @@ public class MainApplication extends Application
             {
                 mInternetCockpitService = (InternetCockpitService) mCockpitService;
                 mInternetCockpitService.setDeviceId(SemanticDeviceID.getDeviceID(getApplicationContext()));
-                mInternetCockpitService.setFriendlyName(mInternetCockpitServiceFriendlyName);
+                mInternetCockpitService.setFriendlyName(mInternetCockpitFriendlyName);
                 mInternetCockpitService.setServerAddress(Parameters.INTERNET_COCKPIT_SERVER_ADDRESS);
             }
             else if (mCockpitService instanceof OtgCockpitService)

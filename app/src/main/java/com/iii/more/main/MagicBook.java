@@ -32,6 +32,8 @@ class MagicBook
         simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_SURPRISE, "-100");
         simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_CONTEMPT, "-100");
         simFaceEmotionEventBase.put(EmotionParameters.STRING_EXPRESSION_ATTENTION, "-100");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_ENGAGEMENT, "-100");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_VALENCE, "-100");
         simFaceEmotionEventBase.put("This is", "fake");
     }
 
