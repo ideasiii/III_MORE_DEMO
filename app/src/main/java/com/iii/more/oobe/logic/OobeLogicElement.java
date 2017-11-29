@@ -55,7 +55,7 @@ public class OobeLogicElement
                 //create display json
                 JSONObject data = new JSONObject();
                 data.put("time", 0);
-                data.put("host", "https://smabuild.sytes.net/edubot/OCTOBO_Expressions/");
+                data.put("host", "https://ryejuice.sytes.net/edubot/OCTOBO_Expressions/");
                 data.put("color", "#FFA0C9EC");
                 data.put("description", "快樂");
                 data.put("animation", animate);

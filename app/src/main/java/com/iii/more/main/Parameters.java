@@ -14,7 +14,7 @@ public abstract class Parameters
 
     public static final String TASK_COMPOSER_DATA = "taskcomposerdata";
 
-    static final String CMP_HOST_IP = "175.98.119.121";
+    static final String CMP_HOST_IP = "54.199.198.94";
     static final int CMP_HOST_PORT = 2310;
     
     // 布偶的藍牙裝置名稱
@@ -23,7 +23,7 @@ public abstract class Parameters
     // 此 app 在 tracker 的 APP ID
     static final String TRACKER_APP_ID = "1510555888386";
 
-    static final String INTERNET_COCKPIT_SERVER_ADDRESS = "wss://smabuild.sytes.net:21099/puppet";
+    static final String INTERNET_COCKPIT_SERVER_ADDRESS = "wss://ryejuice.sytes.net:2406/puppet";
 
     static final String INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT = "[{\"sensors\":[\"f1\",\"f2\",\"C\",\"D\"],\"trigger_rule\":1,\"action\":1,\"tag\":\"SHAKE_HANDS\",\"trigger\":\"OCTOBO_Expressions-35.png\",\"value\":\"1\",\"desc\":\"握手\"},{\"sensors\":[\"f1\",\"f2\",\"C\",\"D\"],\"trigger_rule\":2,\"action\":2,\"tag\":\"CLAP_HANDS\",\"trigger\":\"OCTOBO_Expressions-24.png\",\"value\":\"1\",\"desc\":\"拍手\"},{\"sensors\":[\"FSR1\",\"FSR2\"],\"trigger_rule\":2,\"action\":3,\"tag\":\"EXTRUSION\",\"trigger\":\"OCTOBO_Expressions-01.png\",\"value\":\"1\",\"desc\":\"擠壓\"},{\"sensors\":[\"X\",\"Y\",\"Z\"],\"trigger_rule\":1,\"action\":4,\"tag\":\"SHAKE\",\"trigger\":\"OCTOBO_Expressions-38.png\",\"value\":\"1\",\"desc\":\"搖晃\"},{\"sensors\":[\"H\"],\"trigger_rule\":1,\"action\":5,\"tag\":\"TURN_ON_THE_LIGHT\",\"trigger\":\"ON\",\"value\":\"1\",\"desc\":\"開燈\"},{\"sensors\":[\"FSR1\",\"FSR2\"],\"trigger_rule\":1,\"action\":6,\"tag\":\"PAT_HEAD\",\"trigger\":\"OCTOBO_Expressions-01.png\",\"value\":\"1\",\"desc\":\"拍頭\"}]";
 
