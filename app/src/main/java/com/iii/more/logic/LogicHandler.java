@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 import com.iii.more.init.InitCheckBoardParameters;
 import com.iii.more.main.MainApplication;
+import com.iii.more.main.Parameters;
 import com.iii.more.main.TTSEventListener;
 import com.iii.more.main.TTSParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
@@ -85,8 +86,8 @@ public class LogicHandler extends BaseHandler
         public void handleMessage(Message msg)
         {
             Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) + " " +
-                    "" + "" + "" + "" + "" + "" + "" + "" + "" + "From: " + String.valueOf(msg.arg2) + " "
-                    + "Message: " + msg.obj);
+                    "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "From: " + String.valueOf(msg.arg2) +
+                    " " + "Message: " + msg.obj);
             handleMessages(msg);
         }
     };
@@ -244,7 +245,7 @@ public class LogicHandler extends BaseHandler
         }
         else
         {
-            
+        
         }
     }
     
@@ -295,7 +296,9 @@ public class LogicHandler extends BaseHandler
         }
         else
         {
-            ttsService(TTSParameters.ID_SERVICE_STORY_BEGIN, TTSParameters.STRING_SERVICE_STORY_BEGIN, "zh");
+            MainApplication app = (MainApplication) mContext.getApplicationContext();
+            ttsService(TTSParameters.ID_SERVICE_STORY_BEGIN, app.getName(Parameters.ID_CHILD_NAME) +
+                    TTSParameters.STRING_SERVICE_STORY_BEGIN, "zh");
         }
         
     }

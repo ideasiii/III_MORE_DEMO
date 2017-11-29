@@ -56,7 +56,7 @@ import sdk.ideas.common.ResponseCode;
 
 
 public class MainActivity extends AppCompatActivity implements CockpitFilmMakingEventListener,
-        FaceEmotionEventListener
+        FaceEmotionEventListener, CockpitSensorEventListener
 {
     private static final String ALERT_DIALOG_CONFIRM_CONNECT_BLE_READ_PEN_ERROR =
             "c4b008ba-8b2f-404e-9e44-dd0605486446";
@@ -220,6 +220,9 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         mHttpAPIHandler = new HttpAPIHandler(this);
         mHttpAPIHandler.setHandler(mHandler);
         
+        //set on sensor
+        ((MainApplication) getApplication()).setCockpitSensorEventListener(this);
+        
         
     }
     
@@ -377,9 +380,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                         
                         //### pause story Streaming and call TTS to
                         //### ask question
-                        mLogicHandler.pauseStoryStreaming();
-                        mDisplayHandler.resetAllDisplayViews();
-                        mLogicHandler.startUpStory(null, null, null);
+                        startUpStoryMode();
                         break;
                     case LogicParameters.MODE_FRIEND:
                         
@@ -841,27 +842,69 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             ttsHashMap, HashMap<String, String> imageHashMap, Object extendData)
     {
         //debug using start
-        Logs.showTrace("[MainActivity] faceEmotionData: " + faceEmotionData);
+        Logs.showTrace("[MainActivity]onFaceEmotionResult faceEmotionData: " + faceEmotionData);
         if (null != ttsHashMap)
         {
-            Logs.showTrace("[MainActivity] ttsHashMap: " + ttsHashMap);
+            Logs.showTrace("[MainActivity]onFaceEmotionResult ttsHashMap: " + ttsHashMap);
         }
         if (null != imageHashMap)
         {
-            Logs.showTrace("[MainActivity] imageHashMap" + imageHashMap);
+            Logs.showTrace("[MainActivity]onFaceEmotionResult imageHashMap" + imageHashMap);
         }
         //debug using end
         
-    
+        
         if (!isBlockFaceEmotionListener)
         {
+            //add Tracker data
+            HashMap<String, String> trackerData = new HashMap<>();
+            
+            trackerData.put("Source", "2");
+            trackerData.put("Description", "多型態智能 face affectiva present");
+            trackerData.put("FaceEmotionName", faceEmotionData.get(FaceEmotionInterruptParameters
+                    .STRING_EMOTION_NAME));
+            
+            //image file data
+            JSONObject imgJsonObject = new JSONObject();
+            try
+            {
+                imgJsonObject.put("File", imageHashMap.get(FaceEmotionInterruptParameters
+                        .STRING_IMG_FILE_NAME));
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+            trackerData.put("RobotFace", imgJsonObject.toString());
+            
+            //add tts data
+            if (null != ttsHashMap)
+            {
+                JSONObject ttsJsonObject = new JSONObject();
+                try
+                {
+                    ttsJsonObject.put("Text", ttsHashMap.get(FaceEmotionInterruptParameters.STRING_TTS_TEXT));
+                    ttsJsonObject.put("Pitch", ttsHashMap.get(FaceEmotionInterruptParameters
+                            .STRING_TTS_PITCH));
+                    ttsJsonObject.put("Speed", ttsHashMap.get(FaceEmotionInterruptParameters
+                            .STRING_TTS_SPEED));
+                    
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+                trackerData.put("TTS", ttsJsonObject.toString());
+            }
+            ((MainApplication) getApplication()).sendToTracker(trackerData);
+            
+            //debug using
+            //Logs.showTrace("[MainActivity]onFaceEmotionResult Tracker Data: " + trackerData);
             
             if (mLogicHandler.getMode() == LogicParameters.MODE_STORY)
             {
-                
                 if (null != mLogicHandler)
                 {
-                    
                     if (null != ttsHashMap)
                     {
                         isBlockFaceEmotionListener = true;
@@ -869,12 +912,10 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                         //pause story
                         mLogicHandler.pauseStoryStreaming();
                         
-                        
                         Logs.showTrace("[MainActivity] tts" + ttsHashMap.get(FaceEmotionInterruptParameters
                                 .STRING_TTS_TEXT));
                         mLogicHandler.ttsService(TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE,
                                 ttsHashMap.get(FaceEmotionInterruptParameters.STRING_TTS_TEXT), "zh");
-                        
                         
                     }
                 }
@@ -932,5 +973,49 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     public void onFaceDetectResult(boolean isDetectFace)
     {
         Logs.showTrace("[MainActivity] Face Detect: " + String.valueOf(isDetectFace));
+    }
+    
+    @Override
+    public void onShakeHands(Object arg)
+    {
+        startUpStoryMode();
+    }
+    
+    @Override
+    public void onClapHands(Object arg)
+    {
+        startUpStoryMode();
+    }
+    
+    @Override
+    public void onPinchCheeks(Object arg)
+    {
+        startUpStoryMode();
+    }
+    
+    @Override
+    public void onPatHead(Object arg)
+    {
+        startUpStoryMode();
+    }
+    
+    @Override
+    public void onScannedRfid(Object arg, String scannedResult)
+    {
+    
+    }
+    
+    private void startUpStoryMode()
+    {
+        if (null != mDisplayHandler && null != mLogicHandler)
+        {
+            if (mLogicHandler.getMode() == LogicParameters.MODE_STORY)
+            {
+                mLogicHandler.pauseStoryStreaming();
+                
+                mDisplayHandler.resetAllDisplayViews();
+                mLogicHandler.startUpStory(null, null, null);
+            }
+        }
     }
 }

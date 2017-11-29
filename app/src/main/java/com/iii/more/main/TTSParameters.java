@@ -43,7 +43,7 @@ public abstract class TTSParameters
     public static final String ID_SERVICE_START_UP_GREETINGS_STORY_MODE = "9f0a1ece-775a-4bb2-a8a6-daacc6c5be66";
     public static final String STRING_SERVICE_START_UP_GREETINGS_STORY_MODE = "切換至故事模式";
     public static final String ID_SERVICE_STORY_BEGIN = "d3515c80-e737-454e-899e-9e0af2010b98";
-    public static final String STRING_SERVICE_STORY_BEGIN = "要聽什麼故事阿";
+    public static final String STRING_SERVICE_STORY_BEGIN = "你要聽什麼故事阿";
     
     public static final String ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE = "d3515c80-e737-454e-899e-9e0af201781";
     public static final String STRING_SERVICE_INTERRUPT_STORY_MODE = "";
