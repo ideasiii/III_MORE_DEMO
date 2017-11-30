@@ -15,8 +15,8 @@ import sdk.ideas.common.Logs;
 
 public abstract class Tools
 {
-    private static final ClassConstantValueReverseLookup botAppDrawableReverseLookup = new ClassConstantValueReverseLookup(R.drawable.class);
-    private static final ClassConstantValueLookup botAppDrawableIdLookup = new ClassConstantValueLookup(R.drawable.class);
+    private static final ClassConstantValueReverseLookup botAppDrawableReverseLookup = new ClassConstantValueReverseLookup(com.iii.more.main.R.drawable.class);
+    private static final ClassConstantValueLookup botAppDrawableIdLookup = new ClassConstantValueLookup(com.iii.more.main.R.drawable.class);
 
     public static boolean validateMicAvailability()
     {
@@ -58,6 +58,29 @@ public abstract class Tools
     public static String getDrawableName(int drawableId)
     {
         return botAppDrawableReverseLookup.getName(drawableId);
+    }
+
+    /**
+     * 從 url 中取出檔案名稱 (不含附檔名)
+     * e.g., url 為 https://abc.com/def/starfish09.png，返回結果為 starfish09
+     * 若 url 為 https://abc.com/def/ (斜線後沒有檔名)，返回結果為空字串
+     */
+    public static String stripFilenameFromUrl(String url)
+    {
+        if (url.endsWith("/"))
+        {
+            return "";
+        }
+
+        return url.substring(url.lastIndexOf('/')+1, url.length());
+    }
+
+    /**
+     * strip filename (without extension) from url
+     */
+    public static String removeFileExtension(String file)
+    {
+        return file.substring(0, file.lastIndexOf('.'));
     }
 
     public static int getDrawableId(String name)

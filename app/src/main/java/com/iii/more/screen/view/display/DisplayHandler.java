@@ -51,11 +51,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
     private ArrayDeque<DisplayElement> mDisplayQueue = null;
     private ArrayDeque<DisplayElement> mSaveDisplayQueue = null;
     private DisplayElement theLastDisplayElement = null;
-    
-    private HashMap<String, Integer> imageOctoboHashMap = null;
-    
-    //private HashMap<String, Integer> imageStarFishHashMap = null;
-    
+
     private RequestListener mRequestListener = new RequestListener<Integer, GlideDrawable>()
     {
         @Override
@@ -90,20 +86,8 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         mDisplayQueue = new ArrayDeque<>();
         mDisplayHandler = new Handler(Looper.getMainLooper());
         mDisplayRunnable = new DisplayRunnable();
-        
-        createMappingTable();
-        
-        
     }
-    
-   
-    
-    public int getDrawableFromFileName(@NonNull String fileName)
-    {
-        return imageOctoboHashMap.get(fileName);
-    }
-    
-    
+
     public void pauseDisplaying(int seconds)
     {
         Logs.showTrace("[DisplayHandler] pauseDisplaying in: " + String.valueOf(seconds));
@@ -406,11 +390,11 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
                 ViewHandler.setBackgroundColor(display.backgroundColor, mHashMapViews.get(DisplayParameters
                         .RELATIVE_LAYOUT_ID));
                 
-                Integer drawableNum = 0;
+                int drawableId;
                 
                 if (display.imageURL.contains("OCTOBO_Expressions-"))
                 {
-                    drawableNum = convertOctoboImageURLToDrawable(display.imageURL);
+                    drawableId = convertOctoboImageURLToDrawableID(display.imageURL);
                 }
                 else
                 {
@@ -420,73 +404,54 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
                                 .starfish_background), mHashMapViews.get(DisplayParameters
                                 .RELATIVE_LAYOUT_ID));
                     }
-                    drawableNum = convertStarFishImageURLToDrawable(display.imageURL);
+                    drawableId = convertStarFishImageURLToDrawableID(display.imageURL);
                 }
-                if (drawableNum != 0)
+                if (drawableId != 0)
                 {
-                    Glide.with(mContext).load(drawableNum)
+                    Glide.with(mContext).load(drawableId)
                             //.load(display.imageURL)
                             .listener(mRequestListener).into(new GlideDrawableImageViewTarget(((ImageView)
                             mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID))));
                 }
-                
-                
-            }
-            
-            
-        }
-    }
-    
-    private Integer convertOctoboImageURLToDrawable(String url)
-    {
-        for (String key : imageOctoboHashMap.keySet())
-        {
-            if (url.contains(key))
-            {
-                return imageOctoboHashMap.get(key);
             }
         }
-        return 0;
-        
-        
     }
-    
-    private Integer convertStarFishImageURLToDrawable(String url)
+
+    private int convertOctoboImageURLToDrawableID(@NonNull String url)
     {
-        Logs.showTrace("convertStarFishImageURLToDrawable() url = " + url);
+        String filename = Tools.stripFilenameFromUrl(url);
+        Logs.showTrace("convertOctoboImageURLToDrawableID() url = " + url + ", filename = " + filename);
 
-        if (url.endsWith("/"))
+        return getDrawableIDFromFileName(filename);
+    }
+
+    private int convertStarFishImageURLToDrawableID(@NonNull String url)
+    {
+        String filename = Tools.stripFilenameFromUrl(url);
+        Logs.showTrace("convertStarFishImageURLToDrawableID() url = " + url + ", filename = " + filename);
+
+        return getDrawableIDFromFileName(filename);
+    }
+
+    public int getDrawableIDFromFileName(@NonNull String filename)
+    {
+        if (filename.startsWith("OCTOBO_Expressions-"))
         {
-            return 0;
+            filename = "octobo" + filename.substring(filename.lastIndexOf('-')+1, filename.length());
         }
-
-        // strip filename (without extension) from url
-        String file = url.substring(url.lastIndexOf('/')+1, url.length());
-        String filename = file.substring(0, file.lastIndexOf('.'));
-
-        Logs.showTrace("convertStarFishImageURLToDrawable() filename = " + filename);
 
         try
         {
+            filename = Tools.removeFileExtension(filename);
+            Logs.showTrace("getDrawableIDFromFileName() filename = " + filename);
             return Tools.getDrawableId(filename);
         }
         catch (NoSuchElementException e)
         {
             return 0;
         }
-
-        /*for (String key : imageStarFishHashMap.keySet())
-        {
-            if (url.contains(key))
-            {
-                return imageStarFishHashMap.get(key);
-            }
-            
-        }
-        return 0;
-        */
     }
-    
+
     @Override
     public void onClick(View v)
     {
@@ -500,8 +465,6 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
             
             callBackMessage(ResponseCode.ERR_SUCCESS, DisplayParameters.CLASS_DISPLAY, DisplayParameters
                     .METHOD_CLICK, message);
-            
-            
         }
     }
     
@@ -520,100 +483,4 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
             toDo();
         }
     }
-    
-    
-    private void createMappingTable()
-    {
-        imageOctoboHashMap = new HashMap<>();
-        imageOctoboHashMap.put("OCTOBO_Expressions-01.png", R.drawable.octobo01);
-        imageOctoboHashMap.put("OCTOBO_Expressions-02.png", R.drawable.octobo02);
-        imageOctoboHashMap.put("OCTOBO_Expressions-03.png", R.drawable.octobo03);
-        imageOctoboHashMap.put("OCTOBO_Expressions-04.png", R.drawable.octobo04);
-        imageOctoboHashMap.put("OCTOBO_Expressions-05.png", R.drawable.octobo05);
-        imageOctoboHashMap.put("OCTOBO_Expressions-06.png", R.drawable.octobo06);
-        imageOctoboHashMap.put("OCTOBO_Expressions-07.png", R.drawable.octobo07);
-        imageOctoboHashMap.put("OCTOBO_Expressions-08.png", R.drawable.octobo08);
-        imageOctoboHashMap.put("OCTOBO_Expressions-09.png", R.drawable.octobo09);
-        imageOctoboHashMap.put("OCTOBO_Expressions-10.png", R.drawable.octobo10);
-        imageOctoboHashMap.put("OCTOBO_Expressions-11.png", R.drawable.octobo11);
-        imageOctoboHashMap.put("OCTOBO_Expressions-12.png", R.drawable.octobo12);
-        imageOctoboHashMap.put("OCTOBO_Expressions-13.png", R.drawable.octobo13);
-        imageOctoboHashMap.put("OCTOBO_Expressions-14.png", R.drawable.octobo14);
-        imageOctoboHashMap.put("OCTOBO_Expressions-15.png", R.drawable.octobo15);
-        imageOctoboHashMap.put("OCTOBO_Expressions-16.png", R.drawable.octobo16);
-        imageOctoboHashMap.put("OCTOBO_Expressions-17.png", R.drawable.octobo17);
-        imageOctoboHashMap.put("OCTOBO_Expressions-18.png", R.drawable.octobo18);
-        imageOctoboHashMap.put("OCTOBO_Expressions-19.png", R.drawable.octobo19);
-        imageOctoboHashMap.put("OCTOBO_Expressions-20.png", R.drawable.octobo20);
-        imageOctoboHashMap.put("OCTOBO_Expressions-21.png", R.drawable.octobo21);
-        imageOctoboHashMap.put("OCTOBO_Expressions-22.png", R.drawable.octobo22);
-        imageOctoboHashMap.put("OCTOBO_Expressions-23.png", R.drawable.octobo23);
-        imageOctoboHashMap.put("OCTOBO_Expressions-24.png", R.drawable.octobo24);
-        imageOctoboHashMap.put("OCTOBO_Expressions-25.png", R.drawable.octobo25);
-        imageOctoboHashMap.put("OCTOBO_Expressions-26.png", R.drawable.octobo26);
-        imageOctoboHashMap.put("OCTOBO_Expressions-27.png", R.drawable.octobo27);
-        imageOctoboHashMap.put("OCTOBO_Expressions-28.png", R.drawable.octobo28);
-        imageOctoboHashMap.put("OCTOBO_Expressions-29.png", R.drawable.octobo29);
-        imageOctoboHashMap.put("OCTOBO_Expressions-30.png", R.drawable.octobo30);
-        imageOctoboHashMap.put("OCTOBO_Expressions-31.png", R.drawable.octobo31);
-        imageOctoboHashMap.put("OCTOBO_Expressions-32.png", R.drawable.octobo32);
-        imageOctoboHashMap.put("OCTOBO_Expressions-33.png", R.drawable.octobo33);
-        imageOctoboHashMap.put("OCTOBO_Expressions-34.png", R.drawable.octobo34);
-        imageOctoboHashMap.put("OCTOBO_Expressions-35.png", R.drawable.octobo35);
-        imageOctoboHashMap.put("OCTOBO_Expressions-36.png", R.drawable.octobo36);
-        imageOctoboHashMap.put("OCTOBO_Expressions-37.png", R.drawable.octobo37);
-        imageOctoboHashMap.put("OCTOBO_Expressions-38.png", R.drawable.octobo38);
-        imageOctoboHashMap.put("OCTOBO_Expressions-39.png", R.drawable.octobo39);
-        imageOctoboHashMap.put("OCTOBO_Expressions-40.png", R.drawable.octobo40);
-        
-        
-        /*imageStarFishHashMap = new HashMap<>();
-        imageStarFishHashMap.put("starfish01.png", R.drawable.starfish01);
-        imageStarFishHashMap.put("starfish02.png", R.drawable.starfish02);
-        imageStarFishHashMap.put("starfish03.png", R.drawable.starfish03);
-        imageStarFishHashMap.put("starfish04.png", R.drawable.starfish04);
-        imageStarFishHashMap.put("starfish05.png", R.drawable.starfish05);
-        imageStarFishHashMap.put("starfish06.png", R.drawable.starfish06);
-        imageStarFishHashMap.put("starfish07.png", R.drawable.starfish07);
-        imageStarFishHashMap.put("starfish08.png", R.drawable.starfish08);
-        imageStarFishHashMap.put("starfish09.png", R.drawable.starfish09);
-        imageStarFishHashMap.put("starfish10.png", R.drawable.starfish10);
-        
-        imageStarFishHashMap.put("starfish11.png", R.drawable.starfish11);
-        imageStarFishHashMap.put("starfish12.png", R.drawable.starfish12);
-        imageStarFishHashMap.put("starfish13.png", R.drawable.starfish13);
-        imageStarFishHashMap.put("starfish14.png", R.drawable.starfish14);
-        imageStarFishHashMap.put("starfish15.png", R.drawable.starfish15);
-        imageStarFishHashMap.put("starfish16.png", R.drawable.starfish16);
-        imageStarFishHashMap.put("starfish17.png", R.drawable.starfish17);
-        imageStarFishHashMap.put("starfish18.png", R.drawable.starfish18);
-        imageStarFishHashMap.put("starfish19.png", R.drawable.starfish19);
-        imageStarFishHashMap.put("starfish20.png", R.drawable.starfish20);
-        
-        imageStarFishHashMap.put("starfish21.png", R.drawable.starfish21);
-        imageStarFishHashMap.put("starfish22.png", R.drawable.starfish22);
-        imageStarFishHashMap.put("starfish23.png", R.drawable.starfish23);
-        imageStarFishHashMap.put("starfish24.png", R.drawable.starfish24);
-        imageStarFishHashMap.put("starfish25.png", R.drawable.starfish25);
-        imageStarFishHashMap.put("starfish26.png", R.drawable.starfish26);
-        imageStarFishHashMap.put("starfish27.png", R.drawable.starfish27);
-        imageStarFishHashMap.put("starfish28.png", R.drawable.starfish28);
-        imageStarFishHashMap.put("starfish29.png", R.drawable.starfish29);
-        imageStarFishHashMap.put("starfish30.png", R.drawable.starfish30);
-        
-        imageStarFishHashMap.put("starfish31.png", R.drawable.starfish31);
-        imageStarFishHashMap.put("starfish32.png", R.drawable.starfish32);
-        imageStarFishHashMap.put("starfish33.png", R.drawable.starfish33);
-        imageStarFishHashMap.put("starfish34.png", R.drawable.starfish34);
-        imageStarFishHashMap.put("starfish35.png", R.drawable.starfish35);
-        imageStarFishHashMap.put("starfish36.png", R.drawable.starfish36);
-        imageStarFishHashMap.put("starfish37.png", R.drawable.starfish37);
-        imageStarFishHashMap.put("starfish38.png", R.drawable.starfish38);
-        imageStarFishHashMap.put("starfish39.png", R.drawable.starfish39);
-        imageStarFishHashMap.put("starfish40.png", R.drawable.starfish40);*/
-        
-        
-    }
-    
-    
 }

@@ -921,7 +921,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 }
                 if (null != imageHashMap)
                 {
-                    mDisplayHandler.setImageViewImageFromDrawable(mDisplayHandler.getDrawableFromFileName
+                    mDisplayHandler.setImageViewImageFromDrawable(mDisplayHandler.getDrawableIDFromFileName
                             (imageHashMap.get("IMG_FILE_NAME")));
                 }
                 
