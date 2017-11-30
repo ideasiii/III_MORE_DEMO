@@ -1,4 +1,4 @@
-package com.iii.more.main;
+package com.iii.more.main.secret;
 
 import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptHandler;
@@ -16,7 +16,7 @@ import java.util.Random;
 /**
  * 小秘方
  */
-class MagicBook
+public class MagicBook
 {
     // cookFaceEmotionDetectedEvent() 所回傳內容的基礎
     private static final HashMap<String, String> simFaceEmotionEventBase = new HashMap<>();
@@ -40,7 +40,7 @@ class MagicBook
     /**
      * 根據 emotionName 從 emotionHandler 產生一個辨識到臉部情緒時的模擬訊息
      */
-    static HashMap<String, String> cookFaceEmotionDetectedEvent(
+    public static HashMap<String, String> cookFaceEmotionDetectedEvent(
             FaceEmotionInterruptHandler emotionHandler, String emotionName)
     {
         try

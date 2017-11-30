@@ -18,6 +18,7 @@ import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptHandler;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.interrupt.logic.InterruptLogicParameters;
+import com.iii.more.main.secret.MagicBook;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -98,19 +99,19 @@ public class MainApplication extends Application
     public void setCockpitConnectionListener(CockpitConnectionEventListener l)
     {
         Logs.showTrace("[MainApplication] setCockpitConnectionEventListener()");
-        mCockpitListenerBridge.cockpitConnectionEventListener = l;
+        mCockpitListenerBridge.setConnectionListener(l);
     }
 
     public void setCockpitSensorEventListener(CockpitSensorEventListener l)
     {
-        Logs.showTrace("[MainApplication] setCockpitSensorEventListener()");
-        mCockpitListenerBridge.cockpitSensorEventListener = l;
+        Logs.showTrace("[MainApplication] setSensorEventListener()");
+        mCockpitListenerBridge.setSensorEventListener(l);
     }
 
     public void setCockpitFilmMakingEventListener(CockpitFilmMakingEventListener l)
     {
-        Logs.showTrace("[MainApplication] setCockpitFilmMakingEventListener()");
-        mCockpitListenerBridge.cockpitFilmMakingEventListener = l;
+        Logs.showTrace("[MainApplication] setFilmMakingEventListener()");
+        mCockpitListenerBridge.setFilmMakingEventListener(l);
     }
 
     public void setFaceEmotionEventListener(FaceEmotionEventListener l)
@@ -255,7 +256,7 @@ public class MainApplication extends Application
     }
 
     /**
-     * 初始化駕駛艙連結
+     * 初始化布偶連結
      */
     private void initCockpit()
     {
@@ -264,7 +265,7 @@ public class MainApplication extends Application
         mCockpitListenerBridge.setEventDelegate(new CockpitListenerBridge.TellMeWhatToDo() {
             @Override
             public void onFaceEmotionDetected(String emotionName) {
-                // face emotion simulation commands from cockpit
+                // face emotion simulation commands
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
                         "simulates when face emotion is detected, emotionName = `" + emotionName + "`");
 

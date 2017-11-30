@@ -20,9 +20,9 @@ import sdk.ideas.common.Logs;
  */
 class CockpitListenerBridge
 {
-    CockpitConnectionEventListener cockpitConnectionEventListener;
-    CockpitSensorEventListener cockpitSensorEventListener;
-    CockpitFilmMakingEventListener cockpitFilmMakingEventListener;
+    private CockpitConnectionEventListener mCockpitConnectionEventListener;
+    private CockpitSensorEventListener mCockpitSensorEventListener;
+    private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
 
     // 判斷 sensor 傳來的數值組合是否要觸發特殊事件的 handler
     InterruptLogicHandler sensorInterruptLogicHandler;
@@ -39,6 +39,24 @@ class CockpitListenerBridge
     CockpitListenerBridge(Context context)
     {
         sensorInterruptLogicHandler = new InterruptLogicHandler(context);
+    }
+
+    void setConnectionListener(CockpitConnectionEventListener l)
+    {
+        Logs.showTrace("[MainApplication] setCockpitConnectionEventListener()");
+        mCockpitConnectionEventListener = l;
+    }
+
+    void setSensorEventListener(CockpitSensorEventListener l)
+    {
+        Logs.showTrace("[MainApplication] setSensorEventListener()");
+        mCockpitSensorEventListener = l;
+    }
+
+    void setFilmMakingEventListener(CockpitFilmMakingEventListener l)
+    {
+        Logs.showTrace("[MainApplication] setFilmMakingEventListener()");
+        mCockpitFilmMakingEventListener = l;
     }
 
     void setEventDelegate(TellMeWhatToDo d)
@@ -98,7 +116,7 @@ class CockpitListenerBridge
      */
     private void handleInterruptLogicMessage(Message msg)
     {
-        if (null == cockpitSensorEventListener)
+        if (null == mCockpitSensorEventListener)
         {
             return;
         }
@@ -115,21 +133,21 @@ class CockpitListenerBridge
                 switch (trigger_result)
                 {
                     case "握手":
-                        cockpitSensorEventListener.onShakeHands(null);
+                        mCockpitSensorEventListener.onShakeHands(null);
                         break;
                     case "拍手":
-                        cockpitSensorEventListener.onClapHands(null);
+                        mCockpitSensorEventListener.onClapHands(null);
                         break;
                     case "擠壓":
-                        cockpitSensorEventListener.onPinchCheeks(null);
+                        mCockpitSensorEventListener.onPinchCheeks(null);
                         break;
                     case "拍頭":
-                        cockpitSensorEventListener.onPatHead(null);
+                        mCockpitSensorEventListener.onPatHead(null);
                         break;
                     case "RFID":
                         // TODO remove or change this quick and dirty code
                         String reading = message.get(InterruptLogicParameters.JSON_STRING_TAG);
-                        cockpitSensorEventListener.onScannedRfid(null, reading);
+                        mCockpitSensorEventListener.onScannedRfid(null, reading);
                         break;
                     default:
                         Logs.showTrace("handleInterruptLogicMessage() unknown trigger_result: " + trigger_result);
@@ -145,7 +163,7 @@ class CockpitListenerBridge
      */
     private void handleCockpitServiceFilmMakingEvents(Message msg)
     {
-        if (null == cockpitFilmMakingEventListener)
+        if (null == mCockpitFilmMakingEventListener)
         {
             return;
         }
@@ -163,10 +181,10 @@ class CockpitListenerBridge
             {
                 case "tts":
                     String language = j.getString("language");
-                    cockpitFilmMakingEventListener.onTTS(null, text, language);
+                    mCockpitFilmMakingEventListener.onTTS(null, text, language);
                     break;
                 case "showFaceImage":
-                    cockpitFilmMakingEventListener.onEmotionImage(null, text);
+                    mCockpitFilmMakingEventListener.onEmotionImage(null, text);
                     break;
                 default:
                     Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
@@ -185,7 +203,7 @@ class CockpitListenerBridge
      */
     private void handleCockpitServiceConnectionEvents(Message msg)
     {
-        if (null == cockpitConnectionEventListener)
+        if (null == mCockpitConnectionEventListener)
         {
             return;
         }
@@ -194,29 +212,29 @@ class CockpitListenerBridge
         {
             case CockpitService.EVENT_NO_DEVICE:
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onNoDevice()");
-                cockpitConnectionEventListener.onNoDevice(null);
+                mCockpitConnectionEventListener.onNoDevice(null);
                 break;
             case CockpitService.EVENT_READY:
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onReady()");
-                cockpitConnectionEventListener.onReady(null);
+                mCockpitConnectionEventListener.onReady(null);
                 break;
             case CockpitService.EVENT_PROTOCOL_NOT_SUPPORTED:
             case CockpitService.EVENT_CDC_DRIVER_NOT_WORKING:
             case CockpitService.EVENT_USB_DEVICE_NOT_WORKING:
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onProtocolNotSupported()");
-                cockpitConnectionEventListener.onProtocolNotSupported(null);
+                mCockpitConnectionEventListener.onProtocolNotSupported(null);
                 break;
             case CockpitService.EVENT_PERMISSION_GRANTED:
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onPermissionGranted()");
-                cockpitConnectionEventListener.onPermissionGranted(null);
+                mCockpitConnectionEventListener.onPermissionGranted(null);
                 break;
             case CockpitService.EVENT_PERMISSION_NOT_GRANTED:
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onPermissionNotGranted()");
-                cockpitConnectionEventListener.onPermissionNotGranted(null);
+                mCockpitConnectionEventListener.onPermissionNotGranted(null);
                 break;
             case CockpitService.EVENT_DISCONNECTED:
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() onDisconnected()");
-                cockpitConnectionEventListener.onDisconnected(null);
+                mCockpitConnectionEventListener.onDisconnected(null);
                 break;
             default:
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() unhandled msg.arg1: " + msg.arg1);

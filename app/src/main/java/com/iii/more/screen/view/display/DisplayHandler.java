@@ -18,6 +18,7 @@ import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 import com.iii.more.animate.AnimationHandler;
 import com.iii.more.main.R;
+import com.iii.more.main.Tools;
 import com.iii.more.screen.view.ViewHandler;
 
 import org.json.JSONArray;
@@ -30,6 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
@@ -52,9 +54,9 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
     
     private HashMap<String, Integer> imageOctoboHashMap = null;
     
-    private HashMap<String, Integer> imageStarFishHashMap = null;
+    //private HashMap<String, Integer> imageStarFishHashMap = null;
     
-    RequestListener mRequestListener = new RequestListener<Integer, GlideDrawable>()
+    private RequestListener mRequestListener = new RequestListener<Integer, GlideDrawable>()
     {
         @Override
         public boolean onException(Exception e, Integer model, Target<GlideDrawable> target, boolean
@@ -451,7 +453,29 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
     
     private Integer convertStarFishImageURLToDrawable(String url)
     {
-        for (String key : imageStarFishHashMap.keySet())
+        Logs.showTrace("convertStarFishImageURLToDrawable() url = " + url);
+
+        if (url.endsWith("/"))
+        {
+            return 0;
+        }
+
+        // strip filename (without extension) from url
+        String file = url.substring(url.lastIndexOf('/')+1, url.length());
+        String filename = file.substring(0, file.lastIndexOf('.'));
+
+        Logs.showTrace("convertStarFishImageURLToDrawable() filename = " + filename);
+
+        try
+        {
+            return Tools.getDrawableId(filename);
+        }
+        catch (NoSuchElementException e)
+        {
+            return 0;
+        }
+
+        /*for (String key : imageStarFishHashMap.keySet())
         {
             if (url.contains(key))
             {
@@ -460,8 +484,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
             
         }
         return 0;
-        
-        
+        */
     }
     
     @Override
@@ -544,7 +567,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         imageOctoboHashMap.put("OCTOBO_Expressions-40.png", R.drawable.octobo40);
         
         
-        imageStarFishHashMap = new HashMap<>();
+        /*imageStarFishHashMap = new HashMap<>();
         imageStarFishHashMap.put("starfish01.png", R.drawable.starfish01);
         imageStarFishHashMap.put("starfish02.png", R.drawable.starfish02);
         imageStarFishHashMap.put("starfish03.png", R.drawable.starfish03);
@@ -587,7 +610,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         imageStarFishHashMap.put("starfish37.png", R.drawable.starfish37);
         imageStarFishHashMap.put("starfish38.png", R.drawable.starfish38);
         imageStarFishHashMap.put("starfish39.png", R.drawable.starfish39);
-        imageStarFishHashMap.put("starfish40.png", R.drawable.starfish40);
+        imageStarFishHashMap.put("starfish40.png", R.drawable.starfish40);*/
         
         
     }

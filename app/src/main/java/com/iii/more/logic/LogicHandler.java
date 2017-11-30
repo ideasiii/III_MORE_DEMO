@@ -5,7 +5,6 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
-import com.iii.more.init.InitCheckBoardParameters;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.TTSEventListener;

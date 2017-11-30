@@ -4,6 +4,9 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 
+import com.iii.more.main.secret.ClassConstantValueLookup;
+import com.iii.more.main.secret.ClassConstantValueReverseLookup;
+
 import sdk.ideas.common.Logs;
 
 /**
@@ -12,6 +15,9 @@ import sdk.ideas.common.Logs;
 
 public abstract class Tools
 {
+    private static final ClassConstantValueReverseLookup botAppDrawableReverseLookup = new ClassConstantValueReverseLookup(R.drawable.class);
+    private static final ClassConstantValueLookup botAppDrawableIdLookup = new ClassConstantValueLookup(R.drawable.class);
+
     public static boolean validateMicAvailability()
     {
         Boolean available = true;
@@ -48,7 +54,14 @@ public abstract class Tools
         
         return available;
     }
-    
-    
-    
+
+    public static String getDrawableName(int drawableId)
+    {
+        return botAppDrawableReverseLookup.getName(drawableId);
+    }
+
+    public static int getDrawableId(String name)
+    {
+        return botAppDrawableIdLookup.getValue(name);
+    }
 }

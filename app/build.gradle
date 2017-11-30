@@ -43,7 +43,7 @@ repositories {
 dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile files('libs/premission.jar')
+    compile files('libs/permission.jar')
     compile files('libs/TTS.jar')
     compile files('libs/voice.jar')
     compile files('libs/module.jar')
