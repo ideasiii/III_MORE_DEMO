@@ -18,9 +18,10 @@ public class OobeLogicElement
     public String response = "";
     public String movie = "";
     public int wait = 0;
-    private int regret = 3;
+    private int regretTime = 3;
     
-    public OobeLogicElement(int state, int wait, String tts, String imageFile, String response, String movie)
+    public OobeLogicElement(int state, int wait, int regretTime, String tts, String imageFile, String
+            response, String movie)
     {
         this.wait = wait;
         this.state = state;
@@ -28,14 +29,15 @@ public class OobeLogicElement
         this.response = response;
         this.movie = movie;
         this.imageFile = imageFile;
+        this.regretTime = regretTime;
     }
     
     public int getRegret()
     {
         Logs.showTrace("[OobeLogicElement]");
-        regret--;
-        Logs.showTrace("[OobeLogicElement] now regret: " + String.valueOf(regret));
-        return regret;
+        regretTime--;
+        Logs.showTrace("[OobeLogicElement] now regret: " + String.valueOf(regretTime));
+        return regretTime;
     }
     
     public String getDisplayJsonString()
@@ -80,8 +82,8 @@ public class OobeLogicElement
     
     public void print()
     {
-        Logs.showTrace("[OobeLogicHandler] Element: state: " + String.valueOf(state) + " tts:" + tts
-                + " imgFile: " + imageFile + " movie:" + movie);
+        Logs.showTrace("[OobeLogicHandler] Element: state: " + String.valueOf(state) + " tts:" + tts + " "
+                + "imgFile: " + imageFile + " movie:" + movie);
         
     }
     

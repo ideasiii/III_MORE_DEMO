@@ -227,7 +227,7 @@ public class OobeLogicHandler extends BaseHandler
         }
         else
         {
-            mainApp.playTTS(textString, textID);
+            mainApp.playTTS(textString, textID,1.0f,0.9f);
         }
     }
     
