@@ -166,17 +166,40 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                 Logs.showError("[OobeActivity] log tracker data ERROR: " + e.toString());
                             }
                             
-                            
-                            if (mOobeLogicHandler.getState() == 0)
+                            if (mOobeLogicHandler.getState() == 1 || mOobeLogicHandler.getState() == 3)
                             {
-                                mMainApplication.setName(Parameters.ID_CHILD_NAME, message.get("message"));
+                                if (!isNoAIJudge(message.get("message")))
+                                {
+                                    Logs.showTrace("[OobeActivity] answer YES in state: " +
+                                            mOobeLogicHandler.getState());
+                                    
+                                    mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
+                                }
+                                else
+                                {
+                                    Logs.showTrace("[OobeActivity] answer NO in state: " +
+                                            mOobeLogicHandler.getState());
+                                    
+                                    mOobeLogicHandler.setState(mOobeLogicHandler.getState() - 1);
+                                }
+                                doNext();
                             }
-                            else if (mOobeLogicHandler.getState() == 1)
+                            else
                             {
-                                mMainApplication.setName(Parameters.ID_ROBOT_NAME, message.get("message"));
+                                if (mOobeLogicHandler.getState() == 0)
+                                {
+                                    mMainApplication.setName(Parameters.ID_CHILD_NAME, message.get
+                                            ("message"));
+                                    
+                                }
+                                else if (mOobeLogicHandler.getState() == 2)
+                                {
+                                    mMainApplication.setName(Parameters.ID_ROBOT_NAME, message.get
+                                            ("message"));
+                                }
+                                mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
+                                doNext();
                             }
-                            mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
-                            doNext();
                             
                             
                         }
@@ -708,6 +731,17 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
         return null;
     }
     
+    private boolean isNoAIJudge(String text)
+    {
+        for (int i = 0; i < OobeParameters.NO_THESAURUS.length; i++)
+        {
+            if (text.contains(OobeParameters.NO_THESAURUS[i]))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     
     @Override
     public void onShakeHands(Object sender)

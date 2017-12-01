@@ -27,6 +27,7 @@ import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.game.zoo.ZooActivity;
 import com.iii.more.logic.LogicHandler;
 import com.iii.more.logic.LogicParameters;
+import com.iii.more.main.track.MainTracker;
 import com.iii.more.screen.view.display.DisplayHandler;
 import com.iii.more.screen.view.display.DisplayParameters;
 
@@ -76,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     //AI Server connect
     private HttpAPIHandler mHttpAPIHandler = null;
     
-    
     //Analysis Activity Json
     private LogicHandler mLogicHandler = null;
     
@@ -90,8 +90,12 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     //BLE connect read pen
     private ReadPenBLEHandler mReadPenBLEHandler = null;
     
+    
+    //it can block face listen let it don't get message
     private volatile boolean isBlockFaceEmotionListener = false;
     
+    //track user behavior
+    private MainTracker mMainTracker = null;
     
     private Handler mHandler = new Handler()
     {
@@ -214,16 +218,14 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         
         mLogicHandler = new LogicHandler(this);
         mLogicHandler.setHandler(mHandler);
-        //mLogicHandler.init();
-        
         
         mHttpAPIHandler = new HttpAPIHandler(this);
         mHttpAPIHandler.setHandler(mHandler);
         
-        //set on sensor
+        //set on device sensor
         ((MainApplication) getApplication()).setCockpitSensorEventListener(this);
-        
-        
+    
+        mMainTracker = new MainTracker(this);
     }
     
     
@@ -312,53 +314,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     }
     
     
-    private boolean handMadeCheckBluetoothRFIDData(String inputData)
-    {
-        if (inputData.contains("RFID"))
-        {
-            JSONObject animate = new JSONObject();
-            try
-            {
-                animate.put("type", 2);
-                
-                animate.put("duration", 3000);
-                animate.put("repeat", 0);
-                animate.put("interpolate", 1);
-                
-                //create display json
-                JSONObject data = new JSONObject();
-                data.put("time", 0);
-                data.put("host", "https://ryejuice.sytes.net/edubot/OCTOBO_Expressions/");
-                data.put("color", "#FFA0C9EC");
-                data.put("description", "快樂");
-                data.put("animation", animate);
-                data.put("text", new JSONObject());
-                data.put("file", "OCTOBO_Expressions-17.png");
-                JSONArray show = new JSONArray();
-                show.put(data);
-                
-                JSONObject display = new JSONObject();
-                display.put("enable", 1);
-                display.put("show", show);
-                if (null != mDisplayHandler)
-                {
-                    mDisplayHandler.setDisplayJson(display);
-                    mDisplayHandler.startDisplay();
-                }
-                
-                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, "This  is  an  Apple !", "en");
-                
-            }
-            catch (JSONException e)
-            {
-                Logs.showError("[MainActivity] handMadeCheckBluetoothRFIDData ERROR: " + e.toString());
-            }
-            return true;
-        }
-        return false;
-        
-    }
-    
     
     private void handleMessageHttpAPI(Message msg)
     {
@@ -391,9 +346,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     
                     case LogicParameters.MODE_GAME:
                         
-                        
                         break;
-                    
                 }
                 break;
             default:
@@ -422,8 +375,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     Logs.showTrace("[MainActivity] read pen connect fail !!!");
                     showAlertDialogConnectBLEReadPenError();
                 }
-                
-                
                 break;
             case ReadPenBLEParameters.METHOD_RECEIVE:
                 HashMap<String, String> message = (HashMap<String, String>) msg.obj;
@@ -434,12 +385,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                             SemanticWordCMPParameters.TYPE_REQUEST_BLE, message.get("message"));
                 }
                 
-                
                 break;
-            
-            
         }
-        
     }
     
     
@@ -509,8 +456,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                             {
                                 mLogicHandler.resumeStoryStreaming();
                                 mDisplayHandler.resumeDisplaying();
-                                Logs.showTrace("#################set isBlockFaceEmotionListener " +
-                                        "false############");
                                 isBlockFaceEmotionListener = false;
                             }
                         }, 3000);

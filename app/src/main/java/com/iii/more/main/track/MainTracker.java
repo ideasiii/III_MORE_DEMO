@@ -1,4 +1,4 @@
-package com.iii.more.oobe.track;
+package com.iii.more.main.track;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,16 +11,16 @@ import java.util.Map;
 import sdk.ideas.common.Logs;
 
 /**
- * Created by joe on 2017/11/30.
+ * Created by joe on 2017/12/01.
  */
 
-public class OobeTracker
+public class MainTracker
 {
     private Context mContext = null;
     private HashMap<String, String> defaultData = null;
     
     
-    public OobeTracker(@NonNull Context context)
+    public MainTracker(@NonNull Context context)
     {
         mContext = context;
         init();
@@ -47,14 +47,13 @@ public class OobeTracker
         defaultData = new HashMap<>();
         defaultData.put("Source", "0");
         defaultData.put("Description", "data from Activity");
-        defaultData.put("Activity", "oobe");
+        defaultData.put("Activity", "story");
         defaultData.put("RobotFace", "{\"File\": \"\"}");
         defaultData.put("Sensor", "{\"Type\": \"\",\"Value\":\"\"}");
         defaultData.put("Scene", "");
         defaultData.put("Microphone", "{\"Text\": \"\"}");
         defaultData.put("Speaker", "{\"Type\": \"\",\"TTS\":{\"Text\": \"\",\"Pitch\": \"\",\"Speed\": " +
                 "\"\"},\"Media\":{\"Type\": \"\",\"URL\":\"\",\"Local\":\"\"}}");
-        
         
     }
     
