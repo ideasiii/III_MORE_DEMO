@@ -11,11 +11,11 @@ import com.iii.more.main.listeners.TTSEventListener;
 import com.iii.more.main.TTSParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
-import com.iii.more.tts.TTSCache;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -33,12 +33,8 @@ import static com.iii.more.logic.LogicParameters.MODE_STORY;
 import static com.iii.more.logic.LogicParameters.MODE_UNKNOWN;
 
 /**
- * Created by joe on 2017/7/26.
+ * Created by joe on 2017/7/26
  */
-
-/**
- * //### is pending to write!!
- **/
 
 public class LogicHandler extends BaseHandler
 {
@@ -76,24 +72,11 @@ public class LogicHandler extends BaseHandler
     {
         mModeNow = mode;
     }
-    
-    
-    private Handler selfHandler = new Handler()
-    {
-        @Override
-        public void handleMessage(Message msg)
-        {
-            Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) + " " +
-                    "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "From: " + String.valueOf(msg.arg2) +
-                    " " + "Message: " + msg.obj);
-            handleMessages(msg);
-        }
-    };
-    
-    
+
+    private Handler selfHandler = new SelfHandler(this);
+
     private void handleMessages(Message msg)
     {
-        
         switch (msg.what)
         {
             
@@ -108,7 +91,6 @@ public class LogicHandler extends BaseHandler
                 break;
         }
     }
-    
     
     private void handleMessageWebMediaPlayer(Message msg)
     {
@@ -154,9 +136,7 @@ public class LogicHandler extends BaseHandler
                     message3.put("message", strStoryPauseSecond);
                     callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters
                             .METHOD_STORY_PAUSE, message3);
-                    
                     break;
-                
                 default:
                     break;
             }
@@ -166,8 +146,6 @@ public class LogicHandler extends BaseHandler
             //異常例外處理
             onError(TTSParameters.ID_SERVICE_IO_EXCEPTION);
         }
-        
-        
     }
     
     private void handleMessageVoiceRecognition(Message msg)
@@ -187,8 +165,6 @@ public class LogicHandler extends BaseHandler
                 returnMessage.put("message", message.get("message"));
                 callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters
                         .METHOD_VOICE, returnMessage);
-                
-                
             }
         }
         
@@ -231,11 +207,8 @@ public class LogicHandler extends BaseHandler
                             }
                         }
                     }, 3000);
-                    
                 }
-                
             }
-            
         }
         else if (msg.arg1 == ResponseCode.ERR_IO_EXCEPTION)
         {
@@ -281,8 +254,8 @@ public class LogicHandler extends BaseHandler
             mWebMediaPlayerHandler = new WebMediaPlayerHandler(mContext);
             mWebMediaPlayerHandler.setHandler(selfHandler);
         }
+
         bindTTSListenersToMainApplication();
-        
     }
     
     
@@ -323,10 +296,7 @@ public class LogicHandler extends BaseHandler
                 mModeNow = MODE_FRIEND;
                 ttsService(ttsID, TTSParameters.STRING_SERVICE_START_UP_GREETINGS_FRIEND_MODE, "zh");
                 break;
-            
-            
         }
-        
     }
     
     public void setActivityJson(@NonNull JSONObject activityJson)
@@ -344,7 +314,6 @@ public class LogicHandler extends BaseHandler
                 {
                     case SemanticWordCMPParameters.TYPE_RESPONSE_UNKNOWN:
                         //callback to mainActivity onERROR
-                        
                         break;
                     case SemanticWordCMPParameters.TYPE_RESPONSE_LOCAL:
                         if (mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_HOST) &&
@@ -360,12 +329,8 @@ public class LogicHandler extends BaseHandler
                         {
                             Logs.showError("[LogicHandler] ERROR while read Local Host OR File");
                         }
-                        
-                        
                         break;
                     case SemanticWordCMPParameters.TYPE_RESPONSE_SPOTIFY:
-                        
-                        
                         break;
                     case SemanticWordCMPParameters.TYPE_RESPONSE_TTS:
                         if (mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_LANG) &&
@@ -405,12 +370,11 @@ public class LogicHandler extends BaseHandler
         {
             mWebMediaPlayerHandler.pausePlayMediaStream();
         }
-        
     }
     
     public void ttsService(String textID, String textString, String languageString)
     {
-        Locale localeSet = null;
+        Locale localeSet;
         switch (languageString)
         {
             case "zh":
@@ -421,38 +385,16 @@ public class LogicHandler extends BaseHandler
                 break;
             default:
                 localeSet = Locale.TAIWAN;
-                break;
         }
         
-        MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
-        Locale currentTtsLocale = mainApp.getTTSLanguage();
-        
-        if (!currentTtsLocale.toString().equals(localeSet.toString()))
-        {
-            Logs.showTrace("[OobeLogicHandler] OLD getLocale():" + currentTtsLocale.toString());
-            mainApp.setTTSLanguage(localeSet);
-            Logs.showTrace("[OobeLogicHandler] NEW getLocale():" + currentTtsLocale.toString());
-            
-            TTSCache.setTTSHandlerInit(true);
-            mainApp.initTTS();
-        }
-        
-        if (TTSCache.getTTSHandlerInit())
-        {
-            TTSCache.setTTSCache(textString, textID);
-        }
-        else
-        {
-            mainApp.playTTS(textString, textID);
-        }
-        
+        MainApplication app = (MainApplication) mContext.getApplicationContext();
+        app.setTTSLanguage(localeSet);
+        app.playTTS(textString, textID);
     }
     
     
     public void endAll()
     {
-        
-        
         if (null != mWebMediaPlayerHandler)
         {
             mWebMediaPlayerHandler.stopPlayMediaStream();
@@ -462,13 +404,10 @@ public class LogicHandler extends BaseHandler
         {
             mVoiceRecognition.stopListen();
         }
-        
-        //stopTTS();
-        
     }
     
     // this should be call in onResume() to override existing listeners in MainApplication
-    public void bindTTSListenersToMainApplication()
+    private void bindTTSListenersToMainApplication()
     {
         
         MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
@@ -490,30 +429,45 @@ public class LogicHandler extends BaseHandler
     
     private class CacheStory
     {
-        public int pauseStorySecond = -1;
+        int pauseStorySecond;
         
-        public CacheStory(int pauseStorySecond)
+        CacheStory(int pauseStorySecond)
         {
             this.pauseStorySecond = pauseStorySecond;
         }
-        
-        
     }
-    
+
+    private static class SelfHandler extends Handler
+    {
+        private final WeakReference<LogicHandler> mWeakSelf;
+
+        SelfHandler(LogicHandler lh)
+        {
+            mWeakSelf = new WeakReference<>(lh);
+        }
+
+        @Override
+        public void handleMessage(Message msg)
+        {
+            LogicHandler self = mWeakSelf.get();
+            if (null == self)
+            {
+                return;
+            }
+
+            Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) + " " +
+                    "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "From: " + String.valueOf(msg.arg2) +
+                    " " + "Message: " + msg.obj);
+            self.handleMessages(msg);
+        }
+    }
+
     private TTSEventListener mTTSEventListener = new TTSEventListener()
     {
         @Override
         public void onInitSuccess()
         {
             Logs.showTrace("[OobeLogicHandler] TTS onInitSuccess() is not handled");
-            
-            TTSCache.setTTSHandlerInit(false);
-            HashMap<String, String> ttsCache = TTSCache.getTTSCache();
-            if (null != ttsCache)
-            {
-                MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
-                mainApp.playTTS(ttsCache.get("tts"), ttsCache.get("param"));
-            }
         }
         
         @Override
@@ -592,16 +546,12 @@ public class LogicHandler extends BaseHandler
                     data.put("ttsID", TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE);
                     callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters
                             .METHOD_TTS, data);
-                    
-                    
                     break;
                 
                 default:
                     break;
-                
             }
         }
     };
-    
     
 }

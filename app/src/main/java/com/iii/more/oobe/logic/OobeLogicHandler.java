@@ -9,7 +9,6 @@ import com.iii.more.main.MainApplication;
 import com.iii.more.main.listeners.TTSEventListener;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
-import com.iii.more.tts.TTSCache;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -22,7 +21,7 @@ import sdk.ideas.common.ResponseCode;
 import sdk.ideas.tool.speech.voice.VoiceRecognition;
 
 /**
- * Created by joe on 2017/11/01.
+ * Created by joe on 2017/11/01
  */
 
 public class OobeLogicHandler extends BaseHandler
@@ -167,10 +166,6 @@ public class OobeLogicHandler extends BaseHandler
         {
             onError(OobeTTSParameters.ID_SERVICE_IO_EXCEPTION);
         }
-        else
-        {
-        
-        }
     }
     
     public void onError(String index)
@@ -209,26 +204,8 @@ public class OobeLogicHandler extends BaseHandler
         }
 
         MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
-        Locale currentTtsLocale = mainApp.getTTSLanguage();
-
-        if (!currentTtsLocale.toString().equals(localeSet.toString()))
-        {
-            Logs.showTrace("[OobeLogicHandler] OLD getLocale():" + currentTtsLocale.toString());
-            mainApp.setTTSLanguage(localeSet);
-            Logs.showTrace("[OobeLogicHandler] NEW getLocale():" + currentTtsLocale.toString());
-            
-            TTSCache.setTTSHandlerInit(true);
-            mainApp.initTTS();
-        }
-        
-        if (TTSCache.getTTSHandlerInit())
-        {
-            TTSCache.setTTSCache(textString, textID);
-        }
-        else
-        {
-            mainApp.playTTS(textString, textID,1.0f,0.9f);
-        }
+        mainApp.setTTSLanguage(localeSet);
+        mainApp.playTTS(textString, textID,1.0f,0.9f);
     }
     
     public void killAll()
@@ -253,7 +230,7 @@ public class OobeLogicHandler extends BaseHandler
     {
         private final WeakReference<OobeLogicHandler> mWeakSelf;
 
-        public InClassHandler(OobeLogicHandler h)
+        InClassHandler(OobeLogicHandler h)
         {
             mWeakSelf = new WeakReference<>(h);
         }
@@ -275,14 +252,6 @@ public class OobeLogicHandler extends BaseHandler
         public void onInitSuccess()
         {
             Logs.showTrace("[OobeLogicHandler] TTS onInitSuccess() is not handled");
-
-            TTSCache.setTTSHandlerInit(false);
-            HashMap<String, String> ttsCache = TTSCache.getTTSCache();
-            if (null != ttsCache)
-            {
-                MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
-                mainApp.playTTS(ttsCache.get("tts"), ttsCache.get("param"));
-            }
         }
 
         @Override
