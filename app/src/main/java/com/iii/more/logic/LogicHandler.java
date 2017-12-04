@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
-import com.iii.more.main.TTSEventListener;
+import com.iii.more.main.listeners.TTSEventListener;
 import com.iii.more.main.TTSParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
@@ -25,7 +25,6 @@ import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
-import sdk.ideas.tool.speech.tts.TextToSpeechHandler;
 import sdk.ideas.tool.speech.voice.VoiceRecognition;
 
 import static com.iii.more.logic.LogicParameters.MODE_FRIEND;

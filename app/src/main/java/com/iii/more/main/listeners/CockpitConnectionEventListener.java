@@ -1,4 +1,4 @@
-package com.iii.more.main;
+package com.iii.more.main.listeners;
 
 /**
  * CockpitService 各種事件的 listener，只有 MainApplication 類別會接受此 listener。

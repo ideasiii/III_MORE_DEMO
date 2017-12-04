@@ -6,7 +6,7 @@ import android.os.Message;
 import android.view.SurfaceHolder;
 
 import com.iii.more.main.MainApplication;
-import com.iii.more.main.TTSEventListener;
+import com.iii.more.main.listeners.TTSEventListener;
 import com.iii.more.stream.WebMediaPlayerHandler;
 import com.iii.more.stream.WebMediaPlayerParameters;
 import com.iii.more.tts.TTSCache;

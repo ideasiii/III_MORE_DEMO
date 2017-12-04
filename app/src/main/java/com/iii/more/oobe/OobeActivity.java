@@ -15,7 +15,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 
-import com.iii.more.main.CockpitSensorEventListener;
+import com.iii.more.main.listeners.CockpitSensorEventListener;
 import com.iii.more.main.MainActivity;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;

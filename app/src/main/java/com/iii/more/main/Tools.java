@@ -10,7 +10,7 @@ import com.iii.more.main.secret.ClassConstantValueReverseLookup;
 import sdk.ideas.common.Logs;
 
 /**
- * Created by joe on 2017/4/18.
+ * Created by joe on 2017/4/18
  */
 
 public abstract class Tools

@@ -12,12 +12,12 @@ import android.support.annotation.Nullable;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
-import com.iii.more.main.CockpitSensorEventListener;
-import com.iii.more.main.FaceEmotionEventListener;
+import com.iii.more.main.listeners.CockpitSensorEventListener;
+import com.iii.more.main.listeners.FaceEmotionEventListener;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
-import com.iii.more.main.TTSEventListener;
+import com.iii.more.main.listeners.TTSEventListener;
 
 import android.os.Handler;
 import android.view.Gravity;
