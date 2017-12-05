@@ -74,6 +74,7 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
     private final int SCEN_INDEX_EAT_ICECREAME = 134;
     private final int SCEN_INDEX_EATED_DNUTE = 135;
     private final int SCEN_INDEX_EATED_ICECREAME = 136;
+    private final int SCEN_INDEX_MRT_MAP = 137;
     private final int SCEN_INDEX_FACE_EMONTION = 777;
     private final int SCEN_INDEX_GAME_OVER = 666;
     private final int SCEN_INDEX_FINISH = 999;
@@ -89,6 +90,8 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
     private ImageView ivMan = null;
     private LinearLayout linearFood = null;
     private int mnDroppedX = 0;
+    private int mnTraffic = 0;
+    private MrtMap mrtMap = null;
     
     //// {TTS_SPEED=1.0, TTS_PITCH=1.0, TTS_TEXT=你笑得好開心喔！什麼事情這麼好笑？}
     // {IMG_FILE_NAME=OCTOBO_Expressions-31.png}
@@ -196,6 +199,14 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
         trackerHandler.setDescription("Edubot Zoo Game");
         
         stEmotion = new CEmotion();
+        
+        mrtMap = new MrtMap(this);
+        RelativeLayout.LayoutParams layoutParamsMrtMap = new RelativeLayout.LayoutParams(1000,
+            1000);
+        layoutParamsMrtMap.setMargins((int) 0, (int) 200, (int) 0, (int) 0);
+        layoutParamsMrtMap.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        mrtMap.setLayoutParams(layoutParamsMrtMap);
+        
     }
     
     @Override
@@ -286,9 +297,9 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
                 strFaceImg = "octobo13.png";
                 robotHead.bringFaceImgtoFront();
                 robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                // robotHead.setPitch(1.2f, 0.8f);
                 break;
             case SCEN_INDEX_TRAFFIC_BUS: // 孩子選擇搭公車
+                mnTraffic = SCEN_INDEX_TRAFFIC_BUS;
                 strTTS = "請刷悠遊卡";
                 nFace = R.drawable.noeye;
                 strFaceImg = "noeye.png";
@@ -298,8 +309,17 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
                 robotHead.showFaceImg(true);
                 break;
             case SCEN_INDEX_TRAFFIC_MRT:
+                mnTraffic = SCEN_INDEX_TRAFFIC_MRT;
+                strTTS = "請刷悠遊卡";
+                nFace = R.drawable.noeye;
+                strFaceImg = "noeye.png";
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.setObjectImg(R.drawable.mrt_train, ImageView.ScaleType.CENTER_INSIDE);
+                robotHead.showObjectImg(true);
+                robotHead.showFaceImg(true);
                 break;
             case SCEN_INDEX_TRAFFIC_CAR:
+                mnTraffic = SCEN_INDEX_TRAFFIC_CAR;
                 break;
             case SCEN_INDEX_TRAFFIC_CARD:   // 孩子將悠遊卡RFID放上盤子
                 strTTS = "逼，，逼";
@@ -348,6 +368,12 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
                 robotHead.setObjectImg(R.drawable.busmoving, ImageView.ScaleType.CENTER_INSIDE);
                 robotHead.showObjectImg(true);
                 robotHead.showFaceImg(true);
+                break;
+            case SCEN_INDEX_MRT_MAP:
+                robotHead.showObjectImg(false);
+                nFace = R.drawable.noeye;
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.addView(mrtMap);
                 break;
             case SCEN_INDEX_ZOO_DOOR:       // 顯示出動物園的大門
                 strTTS = "到囉，，讓我們一起來參觀動物吧";
@@ -594,9 +620,29 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
                 case SCEN_INDEX_HOLD_HAND:
                     mnScenarizeIndex = -1;
                     handlerScenarize.removeMessages(SCEN_INDEX_TRAFFIC_BUS);
-                    handlerScenarize.sendEmptyMessage(SCEN_INDEX_TRAFFIC_BUS);
+                    if (0 == scannedResult.compareTo("1"))
+                    {
+                        handlerScenarize.sendEmptyMessage(SCEN_INDEX_TRAFFIC_BUS);
+                    }
+                    else if (0 == scannedResult.compareTo("2"))
+                    {
+                        handlerScenarize.sendEmptyMessage(SCEN_INDEX_TRAFFIC_MRT);
+                    }
+                    else if (0 == scannedResult.compareTo("3"))
+                    {
+                        handlerScenarize.sendEmptyMessage(SCEN_INDEX_TRAFFIC_CAR);
+                    }
+                    else
+                    {
+                        handlerScenarize.sendEmptyMessage(SCEN_INDEX_TRAFFIC_BUS);
+                    }
                     break;
                 case SCEN_INDEX_TRAFFIC_BUS:
+                    mnScenarizeIndex = -1;
+                    handlerScenarize.removeMessages(SCEN_INDEX_TRAFFIC_CARD);
+                    handlerScenarize.sendEmptyMessage(SCEN_INDEX_TRAFFIC_CARD);
+                    break;
+                case SCEN_INDEX_TRAFFIC_MRT:
                     mnScenarizeIndex = -1;
                     handlerScenarize.removeMessages(SCEN_INDEX_TRAFFIC_CARD);
                     handlerScenarize.sendEmptyMessage(SCEN_INDEX_TRAFFIC_CARD);
@@ -726,7 +772,8 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
             switch (Integer.valueOf(utteranceId))
             {
                 case SCEN_INDEX_START:
-                    handlerScenarize.sendEmptyMessage(SCEN_INDEX_ANIMAL_RFID);
+                    // handlerScenarize.sendEmptyMessage(SCEN_INDEX_ANIMAL_RFID);
+                    handlerScenarize.sendEmptyMessage(SCEN_INDEX_MRT_MAP); // 測試
                     break;
                 case SCEN_INDEX_ANIMAL_RFID:
                     handlerScenarize.sendEmptyMessageDelayed(SCEN_INDEX_HOLD_HAND, 2000);
@@ -737,12 +784,22 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
                 case SCEN_INDEX_TRAFFIC_BUS: // 孩子將悠遊卡RFID放上盤子
                     handlerScenarize.sendEmptyMessageDelayed(SCEN_INDEX_TRAFFIC_CARD, 6000);
                     break;
-                case SCEN_INDEX_TRAFFIC_MRT:
+                case SCEN_INDEX_TRAFFIC_MRT: // 孩子將悠遊卡RFID放上盤子
+                    handlerScenarize.sendEmptyMessageDelayed(SCEN_INDEX_TRAFFIC_CARD, 6000);
                     break;
                 case SCEN_INDEX_TRAFFIC_CAR:
                     break;
                 case SCEN_INDEX_TRAFFIC_CARD:
-                    handlerScenarize.sendEmptyMessageDelayed(SCEN_INDEX_BUS_INSIDE, 1000);
+                    switch (mnTraffic)
+                    {
+                        case SCEN_INDEX_TRAFFIC_BUS:
+                            handlerScenarize.sendEmptyMessageDelayed(SCEN_INDEX_BUS_INSIDE, 1000);
+                            break;
+                        case SCEN_INDEX_TRAFFIC_MRT:
+                            handlerScenarize.sendEmptyMessageDelayed(SCEN_INDEX_MRT_MAP, 1000);
+                            break;
+                    }
+                    
                     break;
                 case SCEN_INDEX_BUS_INSIDE:     // 等待拉人去座位
                     handlerScenarize.sendEmptyMessageDelayed(SCEN_INDEX_DROP_CUSTOM, 6000);
