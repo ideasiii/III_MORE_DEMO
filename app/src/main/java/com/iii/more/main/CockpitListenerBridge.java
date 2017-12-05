@@ -1,6 +1,7 @@
 package com.iii.more.main;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.os.Message;
 
 import com.iii.more.cockpit.CockpitService;
@@ -27,6 +28,11 @@ class CockpitListenerBridge
     private CockpitSensorEventListener mCockpitSensorEventListener;
     private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
 
+    private MediaPlayer mRfidScannedSoundPlayer;
+    private MediaPlayer mShakeHandSoundPlayer;
+
+    private Context mContext;
+
     // 判斷 sensor 傳來的數值組合是否要觸發特殊事件的 handler
     InterruptLogicHandler sensorInterruptLogicHandler;
 
@@ -41,6 +47,7 @@ class CockpitListenerBridge
 
     CockpitListenerBridge(Context context)
     {
+        mContext = context;
         sensorInterruptLogicHandler = new InterruptLogicHandler(context);
     }
 
@@ -126,6 +133,11 @@ class CockpitListenerBridge
 
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
 
+        if (mRfidScannedSoundPlayer == null)
+            mRfidScannedSoundPlayer = MediaPlayer.create(mContext, R.raw.rfid_scanned);
+        if (mShakeHandSoundPlayer == null)
+            mShakeHandSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand);
+
         switch (msg.arg2)
         {
             case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
@@ -136,25 +148,31 @@ class CockpitListenerBridge
                 switch (trigger_result)
                 {
                     case "握手":
+                        playShakeHandSound();
                         mCockpitSensorEventListener.onShakeHands(null);
                         break;
                     case "拍手":
+                        playShakeHandSound();
                         mCockpitSensorEventListener.onClapHands(null);
                         break;
                     case "擠壓":
+                        playShakeHandSound();
                         mCockpitSensorEventListener.onPinchCheeks(null);
                         break;
                     case "拍頭":
+                        playShakeHandSound();
                         mCockpitSensorEventListener.onPatHead(null);
                         break;
                     case "RFID":
-                        // TODO remove or change this quick and dirty code
+                        playRfidScannedSound();
                         String reading = message.get(InterruptLogicParameters.JSON_STRING_TAG);
                         mCockpitSensorEventListener.onScannedRfid(null, reading);
                         break;
                     default:
                         Logs.showTrace("handleInterruptLogicMessage() unknown trigger_result: " + trigger_result);
                 }
+
+
                 break;
             default:
                 Logs.showTrace("handleInterruptLogicMessage() unknown msg.arg2: " + msg.arg2);
@@ -241,6 +259,29 @@ class CockpitListenerBridge
                 break;
             default:
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() unhandled msg.arg1: " + msg.arg1);
+        }
+    }
+
+    private void playRfidScannedSound()
+    {
+        replayMediaPlayer(mRfidScannedSoundPlayer);
+    }
+
+
+    private void playShakeHandSound()
+    {
+        replayMediaPlayer(mShakeHandSoundPlayer);
+    }
+
+    private static void replayMediaPlayer(MediaPlayer mp)
+    {
+        if (mp.isPlaying())
+        {
+            mp.seekTo(0);
+        }
+        else
+        {
+            mp.start();
         }
     }
 }
