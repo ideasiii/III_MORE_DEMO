@@ -84,8 +84,8 @@ public class RobotHead extends RelativeLayout
         imgObject.setTag("Object Image");
         imgObject.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imgObject.setAdjustViewBounds(true);
-        LayoutParams layoutParams1 = new LayoutParams((int) Utility.convertDpToPixel(500,
-            context), (int) Utility.convertDpToPixel(500, context));
+        LayoutParams layoutParams1 = new LayoutParams((int) Utility.convertDpToPixel(400,
+            context), (int) Utility.convertDpToPixel(400, context));
         layoutParams1.setMargins((int) 0, (int) 200, (int) 0, (int) 0);
         layoutParams1.addRule(RelativeLayout.CENTER_HORIZONTAL);
         imgObject.setLayoutParams(layoutParams1);

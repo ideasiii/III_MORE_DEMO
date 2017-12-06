@@ -74,8 +74,6 @@ public class ZooActivity extends Activity
             @Override
             public void onDropped(View view, int nX, int nY)
             {
-                handlerScenarize.removeMessages(SCEN.SCEN_INDEX_BUS_INSIDE);
-                handlerScenarize.removeMessages(SCEN.SCEN_INDEX_DROP_CUSTOM);
                 mnDroppedX = nX;
                 handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_DROP_CUSTOM);
                 Logs.showTrace("onDropped view: " + view.getTag() + "x: " + String.valueOf
@@ -243,6 +241,11 @@ public class ZooActivity extends Activity
             }
             
             strTTS = jsonScenarize.getString("tts_text");
+            if (SCEN.SCEN_INDEX_BUS_INSIDE == nIndex)
+            {
+                robotHead.addView(ivMan);
+            }
+            
             
             application.setTTSPitch(1.0f, 1.0f);
             application.playTTS(strTTS, String.valueOf(nIndex));
@@ -251,295 +254,14 @@ public class ZooActivity extends Activity
             trackerHandler.setRobotFace(strFaceImg).setSensor("", "").setScene(String.valueOf
                 (GLOBAL.mnScenarizeIndex)).setMicrophone("").setSpeaker("tts", strTTS, "1", "1",
                 "").send();
+            Logs.showTrace("[ZooActivity] Scenarize : " + jsonScenarize.toString());
         }
         catch (Exception e)
         {
             Logs.showError("[ZooActivity] Scenarize Exception:" + e.getMessage());
         }
         
-       
-        /*
-        switch (nIndex)
-        {
-            case SCEN.SCEN_INDEX_START: // 遊戲開始
-                robotHead.showFaceImg(true);
-                robotHead.showObjectImg(false);
-                nFace = R.drawable.octobo16;
-                strFaceImg = "octobo16.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                strTTS = "嗨! 你好 來玩遊戲吧";
-                break;
-            case SCEN.SCEN_INDEX_ANIMAL_RFID:
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                strTTS = "哈囉，" + strName + "今天我們一起去動物園玩！牽著我的手，出發囉！";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.zoo_map, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.showObjectImg(true);
-                robotHead.bringObjImgtoFront();
-                // robotHead.setPitch(1.3f, 0.9f);
-                break;
-            case SCEN.SCEN_INDEX_HOLD_HAND:
-                strTTS = "抓緊喔！今天，你想要坐什麼交通工具去呢？";
-                nFace = R.drawable.octobo13;
-                strFaceImg = "octobo13.png";
-                robotHead.bringFaceImgtoFront();
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                break;
-            case SCEN.SCEN_INDEX_TRAFFIC_BUS: // 孩子選擇搭公車
-                mnTraffic = SCEN.SCEN_INDEX_TRAFFIC_BUS;
-                strTTS = "請刷悠遊卡";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.bus, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.showObjectImg(true);
-                robotHead.showFaceImg(true);
-                break;
-            case SCEN.SCEN_INDEX_TRAFFIC_MRT:
-                mnTraffic = SCEN.SCEN_INDEX_TRAFFIC_MRT;
-                strTTS = "請刷悠遊卡";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.mrt_train, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.showObjectImg(true);
-                robotHead.showFaceImg(true);
-                break;
-            case SCEN.SCEN_INDEX_TRAFFIC_CAR:
-                mnTraffic = SCEN.SCEN_INDEX_TRAFFIC_CAR;
-                break;
-            case SCEN.SCEN_INDEX_TRAFFIC_CARD:   // 孩子將悠遊卡RFID放上盤子
-                strTTS = "逼，，逼";
-                break;
-            case SCEN.SCEN_INDEX_BUS_INSIDE:     // 章魚寶眼睛螢幕畫面轉成公車內部
-                strTTS = strName + "，，請你幫忙讓大家都有座位坐";
-                robotHead.bringObjImgtoFront();
-                nFace = R.drawable.businside;
-                strFaceImg = "businside.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.setObjectImg(R.drawable.man, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.showObjectImg(false);
-                robotHead.showFaceImg(true);
-                robotHead.addView(ivMan);
-                break;
-            case SCEN.SCEN_INDEX_DROP_CUSTOM:    // 孩子直接用手指在畫面上拉乘客到座位上，完成
-                robotHead.removeView(ivMan);
-                strTTS = "好棒！!!我們出發囉！";
-                robotHead.showObjectImg(false);
-                Logs.showTrace("dropped X = " + String.valueOf(mnDroppedX));
-                if (550 < mnDroppedX)
-                {
-                    nFace = R.drawable.businside_right;
-                    strFaceImg = "businside_right.png";
-                }
-                else
-                {
-                    nFace = R.drawable.businside_left;
-                    strFaceImg = "businside_left.png";
-                }
-                
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_INSIDE);
-                break;
-            case SCEN.SCEN_INDEX_DROP_CUSTOM_IDLE:
-                strTTS = "快一點呀，，公車要開囉！";
-                break;
-            case SCEN.SCEN_INDEX_DROP_CUSTOM_IDLE2:
-                strTTS = "啊啊 ，，來不及了，，公車開動囉！";
-                break;
-            case SCEN.SCEN_INDEX_BUS_DRIVE:      // 公車開始移動
-                strTTS = "噗噗噗噗噗噗噗噗噗噗";
-                robotHead.bringFaceImgtoFront();
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.busmoving, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.showObjectImg(true);
-                robotHead.showFaceImg(true);
-                break;
-            case SCEN.SCEN_INDEX_MRT_MAP:
-                robotHead.showObjectImg(false);
-                nFace = R.drawable.noeye;
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.addView(mrtMap);
-                break;
-            case SCEN.SCEN_INDEX_ZOO_DOOR:       // 顯示出動物園的大門
-                strTTS = "到囉，，讓我們一起來參觀動物吧";
-                nFace = R.drawable.zoodoor;
-                strFaceImg = "zoodoor.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.showObjectImg(true);
-                robotHead.showFaceImg(true);
-                break;
-            case SCEN.SCEN_INDEX_ANIMAL_MONKEY:
-                strTTS = "看，是猴子";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.monkey, ImageView.ScaleType.CENTER_CROP);
-                break;
-            case SCEN.SCEN_INDEX_BANANA:
-                strTTS = "猴子 最愛吃香蕉";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.banana, ImageView.ScaleType.CENTER_CROP);
-                break;
-            case SCEN.SCEN_INDEX_BANANA_NON:
-                strTTS = "啊嗯";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.banana_non, ImageView.ScaleType.CENTER_CROP);
-                break;
-            case SCEN.SCEN_INDEX_FOOD_MENU:
-                strTTS = strName + "我們來吃東西休息一下吧！選你想吃得食物吧";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.FIT_XY);
-                robotHead.showObjectImg(false);
-                robotHead.addView(linearFood);
-                break;
-            case SCEN.SCEN_INDEX_EAT_HAMBERB:
-                robotHead.removeView(linearFood);
-                strTTS = "來吃漢堡囉！";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.burger, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.showObjectImg(true);
-                robotHead.showFaceImg(true);
-                robotHead.bringObjImgtoFront();
-                break;
-            case SCEN.SCEN_INDEX_EATED_HAMBERB:
-                strTTS = "嗯 好吃！,, 我們下次再來玩";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.burger_non, ImageView.ScaleType.CENTER_INSIDE);
-                break;
-            case SCEN.SCEN_INDEX_EAT_DNUTE:
-                robotHead.removeView(linearFood);
-                strTTS = "來吃甜甜圈囉！";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.donut, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.showObjectImg(true);
-                robotHead.showFaceImg(true);
-                robotHead.bringObjImgtoFront();
-                break;
-            case SCEN.SCEN_INDEX_EATED_DNUTE:
-                strTTS = "嗯 好吃！,, 我們下次再來玩";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.donut_non, ImageView.ScaleType.CENTER_INSIDE);
-                break;
-            case SCEN.SCEN_INDEX_EAT_ICECREAME:
-                robotHead.removeView(linearFood);
-                strTTS = "來吃冰淇淋囉！";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.icecream, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.showObjectImg(true);
-                robotHead.showFaceImg(true);
-                robotHead.bringObjImgtoFront();
-                break;
-            case SCEN.SCEN_INDEX_EATED_ICECREAME:
-                strTTS = "嗯 好吃！,, 我們下次再來玩";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.icecream_non, ImageView.ScaleType.CENTER_INSIDE);
-                break;
-            case SCEN.SCEN_INDEX_ANIMAL_ELEPHONE:
-                strTTS = "快看，，是大象";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.elephone2, ImageView.ScaleType.FIT_XY);
-                robotHead.showObjectImg(true);
-                break;
-            case SCEN.SCEN_INDEX_VEGETABLE:
-                strTTS = "大象最喜歡吃草跟樹葉!!";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.vegetable, ImageView.ScaleType.FIT_XY);
-                robotHead.showObjectImg(true);
-                break;
-            case SCEN.SCEN_INDEX_VEGETABLE_NON:
-                strTTS = "啊嗯嗯嗯";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.vegetable_non, ImageView.ScaleType.FIT_XY);
-                robotHead.showObjectImg(true);
-                break;
-            case SCEN.SCEN_INDEX_LEMUR:
-                strTTS = "是狐猴";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.lemur, ImageView.ScaleType.FIT_XY);
-                robotHead.showObjectImg(true);
-                break;
-            case SCEN.SCEN_INDEX_APPLE:
-                strTTS = "蘋果是狐猴最愛吃的食物";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.apple, ImageView.ScaleType.FIT_XY);
-                robotHead.showObjectImg(true);
-                break;
-            case SCEN.SCEN_INDEX_APPLE_NON:
-                strTTS = "啊嗯";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.apple_non, ImageView.ScaleType.FIT_XY);
-                robotHead.showObjectImg(true);
-                break;
-            case SCEN.SCEN_INDEX_ANIMAL_KONG:
-                strTTS = "哈哈，，是猩猩，，猩猩最喜歡吃香蕉喔!!";
-                robotHead.setObjectImg(R.drawable.kong, ImageView.ScaleType.FIT_XY);
-                break;
-            case SCEN.SCEN_INDEX_FAV_ANIMAL:
-                strTTS = "今天，真好玩，請告訴我，你最喜歡什麼動物呢";
-                robotHead.showObjectImg(false);
-                nFace = R.drawable.octobo31;
-                strFaceImg = "octobo31.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                break;
-            case SCEN.SCEN_INDEX_FAV_ANIMAL_SPEECH:
-                // mVoiceRecognition.startListen();
-                break;
-            case SCEN.SCEN_INDEX_GAME_OVER:
-                strTTS = "再見囉";
-                nFace = R.drawable.noeye;
-                strFaceImg = "noeye.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.setObjectImg(R.drawable.zoodoor, ImageView.ScaleType.FIT_XY);
-                robotHead.showObjectImg(true);
-                break;
-            case SCEN.SCEN_INDEX_FINISH:
-                finish();
-                break;
-            case SCEN.SCEN_INDEX_FACE_EMONTION:
-                
-                break;
-            default:
-                return;
-        }
-        application.setTTSPitch(1.0f, 1.0f);
-        application.playTTS(strTTS, String.valueOf(nIndex));
         
-        // 傳送Tracker Data
-        trackerHandler.setRobotFace(strFaceImg).setSensor("", "").setScene(String.valueOf(GLOBAL
-            .mnScenarizeIndex)).setMicrophone("").setSpeaker("tts", strTTS, "1", "1", "").send();
-            */
     }
     
     private final Handler handlerScenarize = new Handler()

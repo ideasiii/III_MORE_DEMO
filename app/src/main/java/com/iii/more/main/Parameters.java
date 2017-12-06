@@ -1,7 +1,7 @@
 package com.iii.more.main;
 
 /**
- * Created by joe on 2017/4/12.
+ * Created by joe on 2017/4/12
  */
 
 public abstract class Parameters

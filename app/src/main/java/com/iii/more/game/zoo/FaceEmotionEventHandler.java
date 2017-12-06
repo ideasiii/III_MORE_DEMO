@@ -66,9 +66,9 @@ public class FaceEmotionEventHandler
             }
             
             Message message = new Message();
-            message.what = SCEN.SCEN_INDEX_FACE_EMONTION;
+            message.what = SCEN.SENSOR_FACE_EMOTION;
             message.obj = jsonRoot.toString();
-            handlerScenarize.sendMessage(message);
+           // handlerScenarize.sendMessage(message);
         }
         
         @Override

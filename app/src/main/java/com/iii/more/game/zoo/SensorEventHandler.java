@@ -19,6 +19,7 @@ class SensorEventHandler
 {
     private Handler handlerScenarize = null;
     
+    
     SensorEventHandler(Handler handler)
     {
         handlerScenarize = handler;
@@ -117,34 +118,25 @@ class SensorEventHandler
                     handlerScenarize.sendEmptyMessage(nNext);
                     break;
                 case SCEN.SCEN_INDEX_HOLD_HAND:
-                    handlerScenarize.removeMessages(SCEN.SCEN_INDEX_TRAFFIC_BUS);
-                    if (0 == scannedResult.compareTo("1"))
+                    if (0 == scannedResult.compareTo(SCEN.TRAFFIC_BUS))
                     {
                         handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_BUS);
                     }
-                    else if (0 == scannedResult.compareTo("2"))
+                    else if (0 == scannedResult.compareTo(SCEN.TRAFFIC_MRT))
                     {
                         handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_MRT);
                     }
-                    else if (0 == scannedResult.compareTo("3"))
+                    else if (0 == scannedResult.compareTo(SCEN.TRAFFIC_CAR))
                     {
                         handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_CAR);
                     }
-                    else
-                    {
-                        handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_BUS);
-                    }
                     break;
                 case SCEN.SCEN_INDEX_TRAFFIC_BUS:
-                    GLOBAL.mnScenarizeIndex = -1;
-                    handlerScenarize.removeMessages(SCEN.SCEN_INDEX_TRAFFIC_CARD);
-                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_CARD);
-                    break;
                 case SCEN.SCEN_INDEX_TRAFFIC_MRT:
-                    GLOBAL.mnScenarizeIndex = -1;
-                    handlerScenarize.removeMessages(SCEN.SCEN_INDEX_TRAFFIC_CARD);
-                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_CARD);
+                case SCEN.SCEN_INDEX_TRAFFIC_CARD_BUS:
+                    handlerScenarize.sendEmptyMessage(nNext);
                     break;
+               
             }
             
             trackerHandler.setRobotFace("").setSensor("rfid", scannedResult).setScene(String
