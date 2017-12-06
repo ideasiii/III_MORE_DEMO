@@ -63,7 +63,6 @@ public class StateHandler extends BaseHandler
         
         //set brightness
         BrightnessUtils.setBrightness((Activity) mContext, brightness);
-        
     }
     
     

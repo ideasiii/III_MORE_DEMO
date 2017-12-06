@@ -53,6 +53,8 @@ import java.util.HashMap;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
+import static java.sql.DriverManager.println;
+
 
 /**
  * //### is pending to write!!
@@ -517,6 +519,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         }, 1200);
         
         
+        
+        
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
         switch (Integer.valueOf(message.get("onClick")))
         {
@@ -959,8 +963,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         {
             if (mLogicHandler.getMode() == LogicParameters.MODE_STORY)
             {
-                mLogicHandler.pauseStoryStreaming();
-                
+                //mLogicHandler.pauseStoryStreaming();
+                mLogicHandler.endAll();
                 mDisplayHandler.resetAllDisplayViews();
                 mLogicHandler.startUpStory(null, null, null);
             }
