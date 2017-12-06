@@ -29,7 +29,11 @@ class CockpitListenerBridge
     private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
 
     private MediaPlayer mRfidScannedSoundPlayer;
+    private MediaPlayer mBloodSoundPlayer;
     private MediaPlayer mShakeHandSoundPlayer;
+    private boolean mPlaySoundOnRfidScanned = true;
+    private boolean mPlaySoundOnSensorEventTriggered = true;
+    private boolean mPlayBloodySoundOnShakeHand = false;
 
     private Context mContext;
 
@@ -133,11 +137,6 @@ class CockpitListenerBridge
 
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
 
-        if (mRfidScannedSoundPlayer == null)
-            mRfidScannedSoundPlayer = MediaPlayer.create(mContext, R.raw.rfid_scanned);
-        if (mShakeHandSoundPlayer == null)
-            mShakeHandSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand);
-
         switch (msg.arg2)
         {
             case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
@@ -207,6 +206,15 @@ class CockpitListenerBridge
                 case "showFaceImage":
                     mCockpitFilmMakingEventListener.onEmotionImage(null, text);
                     break;
+                case "toggleRfidScannedSound":
+                    mPlaySoundOnRfidScanned = !mPlaySoundOnRfidScanned;
+                    break;
+                case "toggleSensorEventTriggeredSound":
+                    mPlaySoundOnSensorEventTriggered = !mPlaySoundOnSensorEventTriggered;
+                    break;
+                case "switchShakeHandSound":
+                    mPlayBloodySoundOnShakeHand = !mPlayBloodySoundOnShakeHand;
+                    break;
                 default:
                     Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
                             "film making unknown action = `" + action);
@@ -264,14 +272,57 @@ class CockpitListenerBridge
 
     private void playRfidScannedSound()
     {
+        if (!mPlaySoundOnRfidScanned)
+        {
+            return;
+        }
+
+        if (mRfidScannedSoundPlayer == null)
+        {
+            mRfidScannedSoundPlayer = MediaPlayer.create(mContext, R.raw.rfid_scanned);
+        }
+
         replayMediaPlayer(mRfidScannedSoundPlayer);
     }
 
-
     private void playShakeHandSound()
     {
+        if (!mPlaySoundOnSensorEventTriggered)
+        {
+            return;
+        }
+
+        if (mPlayBloodySoundOnShakeHand)
+        {
+            playBloodyShakeHandSound();
+        }
+        else
+        {
+            playNormalShakeHandSound();
+        }
+    }
+
+    private void playNormalShakeHandSound()
+    {
+        if (mShakeHandSoundPlayer == null)
+        {
+            mShakeHandSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand);
+        }
+
         replayMediaPlayer(mShakeHandSoundPlayer);
     }
+
+
+    private void playBloodyShakeHandSound()
+    {
+        if (mBloodSoundPlayer == null)
+        {
+            mBloodSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand_bloody);
+        }
+
+        replayMediaPlayer(mBloodSoundPlayer);
+    }
+
 
     private static void replayMediaPlayer(MediaPlayer mp)
     {
