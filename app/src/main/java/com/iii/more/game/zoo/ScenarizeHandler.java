@@ -33,6 +33,9 @@ public class ScenarizeHandler
     
     public void createScenarize(SparseArray<JSONObject> scenarize)
     {
+        int nFace;
+        String strFaceImg;
+        
         try
         {
             scenarize.clear();
@@ -42,10 +45,17 @@ public class ScenarizeHandler
                     .ScaleType.CENTER_CROP, ImageView.ScaleType.CENTER_CROP, FRONT.FACE, "嗨! 你好 "
                     + "來玩遊戲吧");
             
-            setScenarize(scenarize, SCEN.SCEN_INDEX_ANIMAL_RFID, SCEN.SCEN_INDEX_HOLD_HAND, true,
-                true, R.drawable.noeye, R.drawable.zoo, "noeye.png", ImageView.ScaleType
-                    .CENTER_CROP, ImageView.ScaleType.CENTER_INSIDE, FRONT.OBJECT, "哈囉，" + GLOBAL
-                    .ChildName + "今天我們一起去動物園玩！牽著我的手，出發囉！");
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_ANIMAL_RFID,
+                SCEN.SCEN_INDEX_HOLD_HAND,
+                true,
+                true,
+                R.drawable.noeye,
+                R.drawable.zoo,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.OBJECT, "哈囉，" + GLOBAL.ChildName + "今天我們一起去動物園玩！牽著我的手，出發囉！");
             
             setScenarize(scenarize, SCEN.SCEN_INDEX_HOLD_HAND, SCEN.SCEN_INDEX_NO_ACTION, true,
                 true, R.drawable.noeye, R.drawable.traffic, "noeye.png", ImageView.ScaleType
@@ -53,18 +63,29 @@ public class ScenarizeHandler
                 "抓緊喔！今天，你想要坐什麼交通工具去呢");
             
             // 幹 是坐公車
-            setScenarize(scenarize, SCEN.SCEN_INDEX_TRAFFIC_BUS, SCEN.SCEN_INDEX_TRAFFIC_CARD_BUS,
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_TRAFFIC_BUS,
+                SCEN.SCEN_INDEX_TRAFFIC_CARD_BUS,
                 true,
                 true, R.drawable.noeye, R.drawable.bus, "noeye.png", ImageView.ScaleType
                     .CENTER_CROP, ImageView.ScaleType.CENTER_INSIDE, FRONT.OBJECT, "請刷悠遊卡");
     
     
-            setScenarize(scenarize, SCEN.SCEN_INDEX_TRAFFIC_CARD_BUS, SCEN.SCEN_INDEX_BUS_INSIDE,
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_TRAFFIC_CARD_BUS,
+                SCEN.SCEN_INDEX_BUS_INSIDE,
                 true,
-                true, R.drawable.noeye, R.drawable.bus, "noeye.png", ImageView.ScaleType
-                    .CENTER_CROP, ImageView.ScaleType.CENTER_INSIDE, FRONT.OBJECT, "逼，，逼");
+                true,
+                R.drawable.noeye,
+                R.drawable.bus,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.OBJECT, "逼，，逼");
     
-            setScenarize(scenarize, SCEN.SCEN_INDEX_BUS_INSIDE, SCEN.SCEN_INDEX_NO_ACTION,
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_BUS_INSIDE,
+                SCEN.SCEN_INDEX_NO_ACTION,
                 true,
                 false,
                 R.drawable.businside,
@@ -74,14 +95,56 @@ public class ScenarizeHandler
                 ImageView.ScaleType.CENTER_INSIDE,
                 FRONT.FACE,
                 "請你幫忙讓大家都有座位坐");
-            /*
-              
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.setObjectImg(R.drawable.man, ImageView.ScaleType.CENTER_INSIDE);
-                robotHead.showObjectImg(false);
-                robotHead.showFaceImg(true);
-                robotHead.addView(ivMan);*/
             
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_DROP_CUSTOM,
+                SCEN.SCEN_INDEX_BUS_DRIVE,
+                true,
+                false,
+                R.drawable.businside_right,
+                R.drawable.bus,
+                "businside_right.png",
+                ImageView.ScaleType.CENTER_INSIDE,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "好棒！!!我們出發囉！");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_BUS_DRIVE,
+                SCEN.SCEN_INDEX_ZOO_DOOR,
+                true,
+                true,
+                R.drawable.noeye,
+                R.drawable.bus_run,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "噗噗噗噗噗噗噗噗噗噗");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_ZOO_DOOR,
+                SCEN.SCEN_INDEX_ZOO_DOOR,
+                true,
+                true,
+                R.drawable.noeye,
+                R.drawable.zoo,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "到囉，，讓我們一起來參觀動物吧");
+            
+            /*
+   
+                case SCEN.SCEN_INDEX_ZOO_DOOR:       // 顯示出動物園的大門
+                strTTS = "到囉，，讓我們一起來參觀動物吧";
+                nFace = R.drawable.zoodoor;
+                strFaceImg = "zoodoor.png";
+                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
+                robotHead.showObjectImg(true);
+                robotHead.showFaceImg(true);
+            */
             // 坐捷運
             setScenarize(scenarize, SCEN.SCEN_INDEX_TRAFFIC_MRT, SCEN.SCEN_INDEX_TRAFFIC_CARD_MRT,
                 true,

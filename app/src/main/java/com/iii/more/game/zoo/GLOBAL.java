@@ -13,5 +13,5 @@ public abstract class GLOBAL
     public static int mnScenarizeIndex;
     public static SparseArray<JSONObject> scenarize = new SparseArray<JSONObject>();
     public static String ChildName;
-    
+    public static int mnDroppedX = 0;
 }

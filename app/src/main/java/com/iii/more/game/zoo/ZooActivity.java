@@ -51,8 +51,6 @@ public class ZooActivity extends Activity
     public ImageView ivDonuts = null;
     private ImageView ivMan = null;
     private LinearLayout linearFood = null;
-    private int mnDroppedX = 0;
-    private int mnTraffic = 0;
     private MrtMap mrtMap = null;
     private TTSEventHandler ttsEventHandler = null;
     private SensorEventHandler sensorEventHandler = null;
@@ -74,10 +72,10 @@ public class ZooActivity extends Activity
             @Override
             public void onDropped(View view, int nX, int nY)
             {
-                mnDroppedX = nX;
+                GLOBAL.mnDroppedX = nX;
                 handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_DROP_CUSTOM);
                 Logs.showTrace("onDropped view: " + view.getTag() + "x: " + String.valueOf
-                    (mnDroppedX));
+                    (GLOBAL.mnDroppedX));
             }
         });
         application = (MainApplication) getApplication();
@@ -246,6 +244,26 @@ public class ZooActivity extends Activity
                 robotHead.addView(ivMan);
             }
             
+            if (SCEN.SCEN_INDEX_DROP_CUSTOM == nIndex)
+            {
+                robotHead.removeView(ivMan);
+            }
+    
+            if(SCEN.SCEN_INDEX_DROP_CUSTOM == nIndex)
+            {
+                if (550 < GLOBAL.mnDroppedX)
+                {
+                    robotHead.setFace(R.drawable.businside_right, (ImageView.ScaleType)
+                        jsonScenarize.get("face_scale_type"));
+                    strFaceImg = "businside_right.png";
+                }
+                else
+                {
+                    robotHead.setFace(R.drawable.businside_left, (ImageView.ScaleType)
+                        jsonScenarize.get("face_scale_type"));
+                    strFaceImg = "businside_left.png";
+                }
+            }
             
             application.setTTSPitch(1.0f, 1.0f);
             application.playTTS(strTTS, String.valueOf(nIndex));

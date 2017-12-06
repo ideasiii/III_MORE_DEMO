@@ -76,13 +76,9 @@ class TTSEventHandler
             {
                 
                 case SCEN.SCEN_INDEX_TRAFFIC_CARD_BUS:
-                    handlerScenarize.sendEmptyMessage(nNext);
-                    break;
                 case SCEN.SCEN_INDEX_DROP_CUSTOM:    // 好棒！!!我們出發囉！
-                 //   handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_BUS_DRIVE);
-                    break;
                 case SCEN.SCEN_INDEX_BUS_DRIVE:      // 公車開始移動
-                 //   handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_ZOO_DOOR);
+                    handlerScenarize.sendEmptyMessage(nNext);
                     break;
                 case SCEN.SCEN_INDEX_ZOO_DOOR:
                  //   handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_ANIMAL_MONKEY);
@@ -112,34 +108,34 @@ class TTSEventHandler
                 case SCEN.SCEN_INDEX_EATED_HAMBERB:
                 case SCEN.SCEN_INDEX_EATED_DNUTE:
                 case SCEN.SCEN_INDEX_EATED_ICECREAME:
-                    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_GAME_OVER, 1000);
+                 //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_GAME_OVER, 1000);
                     break;
                 case SCEN.SCEN_INDEX_ANIMAL_ELEPHONE:
-                    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_VEGETABLE, 1000);
+                //    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_VEGETABLE, 1000);
                     break;
                 case SCEN.SCEN_INDEX_VEGETABLE:
                     handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_VEGETABLE_NON, 2000);
                     break;
                 case SCEN.SCEN_INDEX_VEGETABLE_NON:
-                    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_LEMUR, 1000);
+                 //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_LEMUR, 1000);
                     break;
                 case SCEN.SCEN_INDEX_LEMUR:
-                    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_APPLE, 1000);
+                 //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_APPLE, 1000);
                     break;
                 case SCEN.SCEN_INDEX_APPLE:
-                    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_APPLE_NON, 2000);
+                //    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_APPLE_NON, 2000);
                     break;
                 case SCEN.SCEN_INDEX_APPLE_NON:
-                    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_FOOD_MENU, 1000);
+                 //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_FOOD_MENU, 1000);
                     break;
                 case SCEN.SCEN_INDEX_ANIMAL_KONG:
-                    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_FAV_ANIMAL, 1000);
+                 //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_FAV_ANIMAL, 1000);
                     break;
                 case SCEN.SCEN_INDEX_FAV_ANIMAL:
-                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_FAV_ANIMAL_SPEECH);
+                //    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_FAV_ANIMAL_SPEECH);
                     break;
                 case SCEN.SCEN_INDEX_GAME_OVER:
-                    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_FINISH, 2000);
+                //    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_FINISH, 2000);
                     break;
                 
             }
