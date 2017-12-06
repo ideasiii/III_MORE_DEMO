@@ -4,7 +4,8 @@ package com.iii.more.game.zoo;
  * Created by jugo on 2017/12/5
  */
 
-public abstract class SCEN
+
+abstract class SCEN
 {
     public static final int SCEN_INDEX_START = 100;           // 等待動物園圖案的RFID
     public static final int SCEN_INDEX_ANIMAL_RFID = 101;     // 取得動物園圖案的RFID
@@ -43,4 +44,10 @@ public abstract class SCEN
     public static final int SCEN_INDEX_FACE_EMONTION = 777;
     public static final int SCEN_INDEX_GAME_OVER = 666;
     public static final int SCEN_INDEX_FINISH = 999;
+    
+    public static final int SENSOR_SHACK_HAND = 1000;
+    public static final int SENSOR_CLAP_HAND = 1001;
+    public static final int SENSOR_PINCH_CHEEK = 1002;
+    public static final int SENSOR_PAT_HEAD = 1003;
+    public static final int SENSOR_RFID = 1004;
 }

@@ -9,16 +9,16 @@ import android.os.Handler;
  * Created by jugo on 2017/12/5
  */
 
-public class TTSEventHandler
+class TTSEventHandler
 {
     private Handler handlerScenarize = null;
     
-    public TTSEventHandler(Handler handler)
+    TTSEventHandler(Handler handler)
     {
         handlerScenarize = handler;
     }
     
-    public TTSEventListener getTTSEventListener()
+    TTSEventListener getTTSEventListener()
     {
         return ttsEventListener;
     }

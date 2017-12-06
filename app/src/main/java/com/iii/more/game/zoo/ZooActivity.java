@@ -1,6 +1,6 @@
 package com.iii.more.game.zoo;
 
-import android.annotation.SuppressLint;
+
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -12,14 +12,12 @@ import android.support.annotation.Nullable;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
-import com.iii.more.main.listeners.CockpitSensorEventListener;
-import com.iii.more.main.listeners.FaceEmotionEventListener;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
-import com.iii.more.main.listeners.TTSEventListener;
 
 import android.os.Handler;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,6 +25,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -39,10 +39,8 @@ import sdk.ideas.tool.speech.voice.VoiceRecognition;
  * Created by jugo on 2017/11/1
  */
 
-public class ZooActivity extends Activity implements FaceEmotionEventListener
+public class ZooActivity extends Activity
 {
-    
-    
     private MainApplication application = null;
     private RobotHead robotHead = null;
     public static TrackerHandler trackerHandler = null;
@@ -58,33 +56,8 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
     private MrtMap mrtMap = null;
     private TTSEventHandler ttsEventHandler = null;
     private SensorEventHandler sensorEventHandler = null;
-    
-    //// {TTS_SPEED=1.0, TTS_PITCH=1.0, TTS_TEXT=你笑得好開心喔！什麼事情這麼好笑？}
-    // {IMG_FILE_NAME=OCTOBO_Expressions-31.png}
-    private class CEmotion
-    {
-        String strEmotion;
-        String strTTS_SPEED;
-        String strTTS_PITCH;
-        String strTTS_TEXT;
-        String strIMG_FILE_NAME;
-        
-        public CEmotion()
-        {
-            clear();
-        }
-        
-        void clear()
-        {
-            strEmotion = null;
-            strIMG_FILE_NAME = null;
-            strTTS_PITCH = null;
-            strTTS_SPEED = null;
-            strTTS_TEXT = null;
-        }
-    }
-    
-    private CEmotion stEmotion;
+    private FaceEmotionEventHandler faceEmotionEventHandler = null;
+    private ScenarizeHandler scenarizeHandler = null;
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -113,11 +86,17 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
         
         ttsEventHandler = new TTSEventHandler(handlerScenarize);
         sensorEventHandler = new SensorEventHandler(handlerScenarize);
+        faceEmotionEventHandler = new FaceEmotionEventHandler(handlerScenarize);
+        scenarizeHandler = new ScenarizeHandler(this);
+        scenarizeHandler.createScenarize(GLOBAL.scenarize);
         
         // 註冊 Sensor 感應 From Application
         application.setCockpitSensorEventListener(sensorEventHandler.getSensorEventListener());
         // 註冊TTS Listener
         application.setTTSEventListener(ttsEventHandler.getTTSEventListener());
+        // 註冊FaceEmotionEventListener
+        application.setFaceEmotionEventListener(faceEmotionEventHandler
+            .getFaceEmotionEventListener());
         
         robotHead.setObjectImg(R.drawable.busy, ImageView.ScaleType.CENTER_INSIDE);
         robotHead.showObjectImg(true);
@@ -169,8 +148,6 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
         trackerHandler.setActivity("game");
         trackerHandler.setDescription("Edubot Zoo Game");
         
-        stEmotion = new CEmotion();
-        
         mrtMap = new MrtMap(this);
         RelativeLayout.LayoutParams layoutParamsMrtMap = new RelativeLayout.LayoutParams(1000,
             1000);
@@ -195,10 +172,10 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
     {
         Logs.showTrace("onStart");
         super.onStart();
-        application.setFaceEmotionEventListener(this);
         mVoiceRecognition = new VoiceRecognition(this);
         mVoiceRecognition.setHandler(handlerSpeech);
         mVoiceRecognition.setLocale(Locale.TAIWAN);
+        GLOBAL.ChildName = application.getName(Parameters.ID_CHILD_NAME);
         Scenarize(SCEN.SCEN_INDEX_START);
     }
     
@@ -233,14 +210,55 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
     {
         GLOBAL.mnScenarizeIndex = nIndex;
         String strTTS = "";
-        String strName = application.getName(Parameters.ID_CHILD_NAME);
         String strFaceImg = "";
-        int nFace;
         
-        if (null != stEmotion.strEmotion)
+        Logs.showTrace("[ZooActivity] Scenarize Index:" + nIndex);
+        
+        if (GLOBAL.scenarize.indexOfKey(nIndex) < 0)
         {
-            nIndex = SCEN.SCEN_INDEX_FACE_EMONTION;
+            Logs.showError("[ZooActivity] Scenarize invalid Index:" + nIndex);
+            return;
         }
+        
+        try
+        {
+            JSONObject jsonScenarize = GLOBAL.scenarize.get(nIndex);
+            int nNext = jsonScenarize.getInt("next");
+            robotHead.showFaceImg(jsonScenarize.getBoolean("face_show"));
+            robotHead.showObjectImg(jsonScenarize.getBoolean("object_show"));
+            robotHead.setFace(jsonScenarize.getInt("face_id"), (ImageView.ScaleType)
+                jsonScenarize.get("face_scale_type"));
+            robotHead.setObjectImg(jsonScenarize.getInt("object_id"), (ImageView.ScaleType)
+                jsonScenarize.get("object_scale_type"));
+            strFaceImg = jsonScenarize.getString("face_image");
+            ScenarizeHandler.FRONT front = (ScenarizeHandler.FRONT) jsonScenarize.get("front");
+            switch (front)
+            {
+                case FACE:
+                    robotHead.bringFaceImgtoFront();
+                    break;
+                case OBJECT:
+                    robotHead.bringObjImgtoFront();
+                    break;
+            }
+            
+            strTTS = jsonScenarize.getString("tts_text");
+            
+            application.setTTSPitch(1.0f, 1.0f);
+            application.playTTS(strTTS, String.valueOf(nIndex));
+            
+            // 傳送Tracker Data
+            trackerHandler.setRobotFace(strFaceImg).setSensor("", "").setScene(String.valueOf
+                (GLOBAL.mnScenarizeIndex)).setMicrophone("").setSpeaker("tts", strTTS, "1", "1",
+                "").send();
+        }
+        catch (Exception e)
+        {
+            Logs.showError("[ZooActivity] Scenarize Exception:" + e.getMessage());
+        }
+        
+       
+        /*
         switch (nIndex)
         {
             case SCEN.SCEN_INDEX_START: // 遊戲開始
@@ -510,8 +528,7 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
                 finish();
                 break;
             case SCEN.SCEN_INDEX_FACE_EMONTION:
-                stEmotion.clear();
-                strTTS = stEmotion.strTTS_TEXT;
+                
                 break;
             default:
                 return;
@@ -522,9 +539,9 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
         // 傳送Tracker Data
         trackerHandler.setRobotFace(strFaceImg).setSensor("", "").setScene(String.valueOf(GLOBAL
             .mnScenarizeIndex)).setMicrophone("").setSpeaker("tts", strTTS, "1", "1", "").send();
+            */
     }
     
-    @SuppressLint("HandlerLeak")
     private final Handler handlerScenarize = new Handler()
     {
         @Override
@@ -534,106 +551,6 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
         }
     };
     
-    private CockpitSensorEventListener cockpitSensorEventListener = new CockpitSensorEventListener()
-    {
-        // "Type":"clap_hand|shake_hand|pat_hat|squeeze|rfid"
-        
-        @Override
-        public void onShakeHands(Object sender)
-        {
-            if (SCEN.SCEN_INDEX_ANIMAL_RFID == GLOBAL.mnScenarizeIndex)
-            {
-                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_HOLD_HAND);
-            }
-            Logs.showTrace("onShakeHands");
-            trackerHandler.setRobotFace("").setSensor("shake_hand", "1").setScene(String.valueOf
-                (GLOBAL.mnScenarizeIndex)).setMicrophone("").setSpeaker("tts", "", "1", "1", "")
-                .send();
-        }
-        
-        @Override
-        public void onClapHands(Object sender)
-        {
-            if (SCEN.SCEN_INDEX_ANIMAL_RFID == GLOBAL.mnScenarizeIndex)
-            {
-                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_HOLD_HAND);
-            }
-            Logs.showTrace("onClapHands");
-            trackerHandler.setRobotFace("").setSensor("clap_hand", "1").setScene(String.valueOf
-                (GLOBAL.mnScenarizeIndex)).setMicrophone("").setSpeaker("tts", "", "1", "1", "")
-                .send();
-        }
-        
-        @Override
-        public void onPinchCheeks(Object sender)
-        {
-            // 捏臉頰
-            Logs.showTrace("onPinchCheeks");
-            trackerHandler.setRobotFace("").setSensor("pinch_cheeks", "1").setScene(String
-                .valueOf(GLOBAL.mnScenarizeIndex)).setMicrophone("").setSpeaker("tts", "", "1",
-                "1", "").send();
-        }
-        
-        @Override
-        public void onPatHead(Object sender)
-        {
-            Logs.showTrace("onPatHead");
-            trackerHandler.setRobotFace("").setSensor("pat_hat", "1").setScene(String.valueOf
-                (GLOBAL.mnScenarizeIndex)).setMicrophone("").setSpeaker("tts", "", "1", "1", "")
-                .send();
-        }
-        
-        @Override
-        public void onScannedRfid(Object sensor, String scannedResult)
-        {
-            Logs.showTrace("onScannedRfid Result:" + scannedResult);
-            trackerHandler.setRobotFace("").setSensor("rfid", scannedResult).setScene(String
-                .valueOf(GLOBAL.mnScenarizeIndex)).setMicrophone("").setSpeaker("tts", "", "1",
-                "1", "").send();
-            Logs.showTrace("[ZooActivity] onScannedRfid GLOBAL.mnScenarizeIndex=" + String
-                .valueOf(GLOBAL.mnScenarizeIndex));
-            switch (GLOBAL.mnScenarizeIndex)
-            {
-                case SCEN.SCEN_INDEX_START:
-                    GLOBAL.mnScenarizeIndex = -1;
-                    //handlerScenarize.removeMessages(SCEN.SCEN_INDEX_ANIMAL_RFID);
-                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_ANIMAL_RFID);
-                    break;
-                case SCEN.SCEN_INDEX_HOLD_HAND:
-                    GLOBAL.mnScenarizeIndex = -1;
-                    handlerScenarize.removeMessages(SCEN.SCEN_INDEX_TRAFFIC_BUS);
-                    if (0 == scannedResult.compareTo("1"))
-                    {
-                        handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_BUS);
-                    }
-                    else if (0 == scannedResult.compareTo("2"))
-                    {
-                        handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_MRT);
-                    }
-                    else if (0 == scannedResult.compareTo("3"))
-                    {
-                        handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_CAR);
-                    }
-                    else
-                    {
-                        handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_BUS);
-                    }
-                    break;
-                case SCEN.SCEN_INDEX_TRAFFIC_BUS:
-                    GLOBAL.mnScenarizeIndex = -1;
-                    handlerScenarize.removeMessages(SCEN.SCEN_INDEX_TRAFFIC_CARD);
-                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_CARD);
-                    break;
-                case SCEN.SCEN_INDEX_TRAFFIC_MRT:
-                    GLOBAL.mnScenarizeIndex = -1;
-                    handlerScenarize.removeMessages(SCEN.SCEN_INDEX_TRAFFIC_CARD);
-                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_CARD);
-                    break;
-            }
-        }
-    };
-    
-    @SuppressLint("HandlerLeak")
     private Handler handlerSpeech = new Handler()
     {
         @Override
@@ -727,39 +644,4 @@ public class ZooActivity extends Activity implements FaceEmotionEventListener
         }
     };
     
-    @Override
-    public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String,
-        String> ttsEmotionData, HashMap<String, String> imageEmotionData, Object extendData)
-    {
-        stEmotion.clear();
-        
-        if (null != faceEmotionData)
-        {
-            stEmotion.strEmotion = faceEmotionData.get("EMOTION_NAME");
-        }
-        
-        if (null != ttsEmotionData)
-        {
-            stEmotion.strTTS_SPEED = ttsEmotionData.get("TTS_SPEED");
-            stEmotion.strTTS_PITCH = ttsEmotionData.get("TTS_PITCH");
-            stEmotion.strTTS_TEXT = ttsEmotionData.get("TTS_TEXT");
-        }
-        
-        if (null != imageEmotionData)
-        {
-            stEmotion.strIMG_FILE_NAME = imageEmotionData.get("IMG_FILE_NAME");
-        }
-        
-        Logs.showTrace("[ZooActivity] onFaceEmotionResult EMOTION_NAME:" + stEmotion.strEmotion +
-            " TTS_SPEED:" + stEmotion.strTTS_SPEED + " TTS_PITCH:" + stEmotion.strTTS_PITCH + " "
-            + "TTS_TEXT:" + stEmotion.strTTS_TEXT + " IMG_FILE_NAME:" + stEmotion.strIMG_FILE_NAME);
-        
-        handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_FACE_EMONTION);
-    }
-    
-    @Override
-    public void onFaceDetectResult(boolean isDetectFace)
-    {
-    
-    }
 }
