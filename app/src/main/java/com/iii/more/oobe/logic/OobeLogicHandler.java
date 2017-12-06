@@ -164,6 +164,8 @@ public class OobeLogicHandler extends BaseHandler
         }
         else if (msg.arg1 == ResponseCode.ERR_IO_EXCEPTION)
         {
+            
+            // ### need to m
             onError(OobeTTSParameters.ID_SERVICE_IO_EXCEPTION);
         }
     }
@@ -205,7 +207,7 @@ public class OobeLogicHandler extends BaseHandler
 
         MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
         mainApp.setTTSLanguage(localeSet);
-        mainApp.playTTS(textString, textID,1.0f,0.9f);
+        mainApp.playTTS(textString, textID,1.0f,0.95f);
     }
     
     public void killAll()
