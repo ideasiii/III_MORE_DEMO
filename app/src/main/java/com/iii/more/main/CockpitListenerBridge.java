@@ -121,6 +121,9 @@ class CockpitListenerBridge
             case CockpitService.EVENT_DATA_FILM_MAKING:
                 handleCockpitServiceFilmMakingEvents(msg);
                 break;
+            case CockpitService.EVENT_DATA_PARAMETERS:
+                handleCockpitServiceParameterEvents(msg);
+                break;
             default:
                 handleCockpitServiceConnectionEvents(msg);
         }
@@ -172,10 +175,45 @@ class CockpitListenerBridge
                         Logs.showTrace("handleInterruptLogicMessage() unknown trigger_result: " + trigger_result);
                 }
 
-
                 break;
             default:
                 Logs.showTrace("handleInterruptLogicMessage() unknown msg.arg2: " + msg.arg2);
+        }
+    }
+
+    /**
+     * 處理 CockpitService 與參數設定有關的事件
+     */
+    private void handleCockpitServiceParameterEvents(Message msg)
+    {
+        try
+        {
+            JSONObject j = (JSONObject) msg.obj;
+
+            String action = j.getString("action");
+            String text = j.getString("text");
+            Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
+                "parameter action = `" + action + "`, text = `" + text + "`");
+
+            switch (action)
+            {
+                case "toggleRfidScannedSound":
+                    mPlaySoundOnRfidScanned = !mPlaySoundOnRfidScanned;
+                    break;
+                case "toggleSensorEventTriggeredSound":
+                    mPlaySoundOnSensorEventTriggered = !mPlaySoundOnSensorEventTriggered;
+                    break;
+                case "switchShakeHandSound":
+                    mPlayBloodySoundOnShakeHand = !mPlayBloodySoundOnShakeHand;
+                    break;
+                default:
+                    Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
+                        "parameter unknown action = `" + action);
+            }
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -206,15 +244,6 @@ class CockpitListenerBridge
                     break;
                 case "showFaceImage":
                     mCockpitFilmMakingEventListener.onEmotionImage(null, text);
-                    break;
-                case "toggleRfidScannedSound":
-                    mPlaySoundOnRfidScanned = !mPlaySoundOnRfidScanned;
-                    break;
-                case "toggleSensorEventTriggeredSound":
-                    mPlaySoundOnSensorEventTriggered = !mPlaySoundOnSensorEventTriggered;
-                    break;
-                case "switchShakeHandSound":
-                    mPlayBloodySoundOnShakeHand = !mPlayBloodySoundOnShakeHand;
                     break;
                 default:
                     Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +

@@ -18,18 +18,21 @@ public class InternetCockpitService extends CockpitService
 {
     private static final String LOG_TAG = "InternetCockpitService";
 
-    // 只是文字，這種類型的指令內的文字會被當作 OTG 裝置傳出的字串
-    private static final int SERVER_PAPER_TYPE_TEXT = 0;
+    /** paper 內容的類型 */
+    private static class PaperType
+    {
+        /** 只是文字，這類指令內的文字會被當作 OTG 裝置傳出的字串 */
+        private static final int TEXT = 0;
 
-    // 拍片用，這種類型的指令將跳過 interrupt logic 判斷，直接影響 app 的視覺、聽覺輸出
-    private static final int SERVER_PAPER_TYPE_FILM_MAKING = 1;
+        /** 拍片用，這類指令將跳過 interrupt logic 判斷，直接影響 app 的視覺、聽覺輸出 */
+        private static final int FILM_MAKING = 1;
 
-    // 拯救臉部肌肉，模擬偵測到臉部表情
-    private static final int SERVER_PAPER_TYPE_FACE_EMOTION_DETECTED = 2;
+        /** 拯救臉部肌肉，模擬偵測到臉部表情 */
+        private static final int FACE_EMOTION_DETECTED = 2;
 
-    //
-    private static final int SERVER_PAPER_TYPE_PARAMETERS = 3;
-
+        /** 修改設定參數 */
+        private static final int PARAMETERS = 3;
+    }
 
     private static boolean serviceSpawned = false;
 
@@ -83,7 +86,7 @@ public class InternetCockpitService extends CockpitService
             e.printStackTrace();
             if (mHandler != null)
             {
-                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_PROTOCOL_NOT_SUPPORTED, 0).sendToTarget();
+                mHandler.obtainMessage(MSG_WHAT, EVENT_PROTOCOL_NOT_SUPPORTED, 0).sendToTarget();
             }
         }
     }
@@ -149,7 +152,7 @@ public class InternetCockpitService extends CockpitService
         {
             if (mHandler != null)
             {
-                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_PERMISSION_GRANTED, 0).sendToTarget();
+                mHandler.obtainMessage(MSG_WHAT, EVENT_PERMISSION_GRANTED, 0).sendToTarget();
             }
         }
 
@@ -164,7 +167,7 @@ public class InternetCockpitService extends CockpitService
 
             if (mHandler != null)
             {
-                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DISCONNECTED, 0).sendToTarget();
+                mHandler.obtainMessage(MSG_WHAT, EVENT_DISCONNECTED, 0).sendToTarget();
             }
 
             scheduleReconnect();
@@ -175,7 +178,7 @@ public class InternetCockpitService extends CockpitService
         {
             if (mHandler != null)
             {
-                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_READY, 0).sendToTarget();
+                mHandler.obtainMessage(MSG_WHAT, EVENT_READY, 0).sendToTarget();
             }
         }
 
@@ -184,7 +187,7 @@ public class InternetCockpitService extends CockpitService
         {
             if (mHandler != null)
             {
-                mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_PROTOCOL_NOT_SUPPORTED, 0).sendToTarget();
+                mHandler.obtainMessage(MSG_WHAT, EVENT_PROTOCOL_NOT_SUPPORTED, 0).sendToTarget();
             }
         }
 
@@ -198,22 +201,33 @@ public class InternetCockpitService extends CockpitService
 
             switch (type)
             {
-                case SERVER_PAPER_TYPE_TEXT:
-                    mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_TEXT, 0, text).sendToTarget();
+                case PaperType.TEXT:
+                    mHandler.obtainMessage(MSG_WHAT, EVENT_DATA_TEXT, 0, text).sendToTarget();
                     break;
-                case SERVER_PAPER_TYPE_FILM_MAKING:
+                case PaperType.FILM_MAKING:
                     try
                     {
-                        JSONObject filmMakingJson = new JSONObject(text);
-                        mHandler.obtainMessage(CockpitService.MSG_WHAT, EVENT_DATA_FILM_MAKING, 0, filmMakingJson).sendToTarget();
+                        JSONObject json = new JSONObject(text);
+                        mHandler.obtainMessage(MSG_WHAT, EVENT_DATA_FILM_MAKING, 0, json).sendToTarget();
                     }
                     catch (JSONException e)
                     {
                         e.printStackTrace();
                     }
                     break;
-                case SERVER_PAPER_TYPE_FACE_EMOTION_DETECTED:
-                    mHandler.obtainMessage(CockpitService.MSG_WHAT, CockpitService.EVENT_DATA_FACE_EMOTION, 0, text).sendToTarget();
+                case PaperType.FACE_EMOTION_DETECTED:
+                    mHandler.obtainMessage(MSG_WHAT, EVENT_DATA_FACE_EMOTION, 0, text).sendToTarget();
+                    break;
+                case PaperType.PARAMETERS:
+                    try
+                    {
+                        JSONObject json = new JSONObject(text);
+                        mHandler.obtainMessage(MSG_WHAT, EVENT_DATA_PARAMETERS, 0, json).sendToTarget();
+                    }
+                    catch (JSONException e)
+                    {
+                        e.printStackTrace();
+                    }
                     break;
                 default:
                     Log.w(LOG_TAG, "Drop paper with unknown type " + type);

@@ -40,6 +40,9 @@ public abstract class CockpitService extends Service
     // 拯救臉部肌肉，模擬偵測到臉部表情
     public static final int EVENT_DATA_FACE_EMOTION= 31;
 
+    // 修改設定參數
+    public static final int EVENT_DATA_PARAMETERS = 32;
+
     // 重新連線事件的傳遞延遲時間 (重新連線間隔)
     private static final int RECONNECT_EVENT_DELAY = 1000;
 
