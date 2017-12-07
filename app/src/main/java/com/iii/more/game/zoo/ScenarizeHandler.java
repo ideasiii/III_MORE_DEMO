@@ -157,13 +157,7 @@ public class ScenarizeHandler
             
             /*
    
-                case SCEN.SCEN_INDEX_ZOO_DOOR:       // 顯示出動物園的大門
-                strTTS = "到囉，，讓我們一起來參觀動物吧";
-                nFace = R.drawable.zoodoor;
-                strFaceImg = "zoodoor.png";
-                robotHead.setFace(nFace, ImageView.ScaleType.CENTER_CROP);
-                robotHead.showObjectImg(true);
-                robotHead.showFaceImg(true);
+            
             */
             // 坐捷運
             setScenarize(scenarize, SCEN.SCEN_INDEX_TRAFFIC_MRT, SCEN.SCEN_INDEX_TRAFFIC_CARD_MRT,

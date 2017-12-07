@@ -149,6 +149,16 @@ public class ViewPagerLayout extends RelativeLayout
             Pages.put(Pages.size(), page);
             return (Pages.size() - 1);
         }
+    
+        public int addPage(View view, String strTitle,int position)
+        {
+            Page page = new Page();
+            page.view = view;
+            page.strTitle = strTitle;
+            Pages.put(position, page);
+            return position;
+        }
+        
         
         public void removePage(int position)
         {
