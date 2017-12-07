@@ -43,6 +43,7 @@ abstract class SCEN
     public static final int SCEN_INDEX_EATED_ICECREAME = 136;
     public static final int SCEN_INDEX_MRT_MAP = 137;
     public static final int SCEN_INDEX_TRAFFIC_CARD_MRT = 138;
+    public static final int SCEN_INDEX_CHOICE_ZOO = 139;    // 選動物區
     public static final int SCEN_INDEX_GAME_OVER = 666;
     public static final int SCEN_INDEX_FINISH = 999;
     

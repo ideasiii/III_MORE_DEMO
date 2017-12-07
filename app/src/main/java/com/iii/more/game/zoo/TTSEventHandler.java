@@ -76,12 +76,10 @@ class TTSEventHandler
             {
                 
                 case SCEN.SCEN_INDEX_TRAFFIC_CARD_BUS:
-                case SCEN.SCEN_INDEX_DROP_CUSTOM:    // 好棒！!!我們出發囉！
-                case SCEN.SCEN_INDEX_BUS_DRIVE:      // 公車開始移動
+                case SCEN.SCEN_INDEX_DROP_CUSTOM:          // 好棒！!!我們出發囉！
+                case SCEN.SCEN_INDEX_BUS_DRIVE:            // 公車開始移動
+                case SCEN.SCEN_INDEX_ZOO_DOOR:             // 到動物園門口
                     handlerScenarize.sendEmptyMessage(nNext);
-                    break;
-                case SCEN.SCEN_INDEX_ZOO_DOOR:
-                 //   handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_ANIMAL_MONKEY);
                     break;
                 case SCEN.SCEN_INDEX_ANIMAL_MONKEY:
                  //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_BANANA, 2000);

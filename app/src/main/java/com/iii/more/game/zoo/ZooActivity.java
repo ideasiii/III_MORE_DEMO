@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
+import com.iii.more.game.module.ViewPagerLayout;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
@@ -56,6 +57,7 @@ public class ZooActivity extends Activity
     private SensorEventHandler sensorEventHandler = null;
     private FaceEmotionEventHandler faceEmotionEventHandler = null;
     private ScenarizeHandler scenarizeHandler = null;
+    private ZooAreaLayout zooAreaLayout = null;
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -74,8 +76,8 @@ public class ZooActivity extends Activity
             {
                 GLOBAL.mnDroppedX = nX;
                 handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_DROP_CUSTOM);
-                Logs.showTrace("onDropped view: " + view.getTag() + "x: " + String.valueOf
-                    (GLOBAL.mnDroppedX));
+                Logs.showTrace("onDropped view: " + view.getTag() + "x: " + String.valueOf(GLOBAL
+                    .mnDroppedX));
             }
         });
         application = (MainApplication) getApplication();
@@ -145,12 +147,14 @@ public class ZooActivity extends Activity
         trackerHandler.setDescription("Edubot Zoo Game");
         
         mrtMap = new MrtMap(this);
-        RelativeLayout.LayoutParams layoutParamsMrtMap = new RelativeLayout.LayoutParams(1000,
-            1000);
-        layoutParamsMrtMap.setMargins((int) 0, (int) 200, (int) 0, (int) 0);
+        RelativeLayout.LayoutParams layoutParamsMrtMap = new RelativeLayout.LayoutParams(600,
+            600);
+        layoutParamsMrtMap.setMargins((int) 0, (int) 300, (int) 0, (int) 0);
         layoutParamsMrtMap.addRule(RelativeLayout.CENTER_HORIZONTAL);
         mrtMap.setLayoutParams(layoutParamsMrtMap);
-        
+    
+        zooAreaLayout = new ZooAreaLayout(this);
+        zooAreaLayout.setLayoutParams(layoutParamsMrtMap);
     }
     
     @Override
@@ -248,8 +252,8 @@ public class ZooActivity extends Activity
             {
                 robotHead.removeView(ivMan);
             }
-    
-            if(SCEN.SCEN_INDEX_DROP_CUSTOM == nIndex)
+            
+            if (SCEN.SCEN_INDEX_DROP_CUSTOM == nIndex)
             {
                 if (550 < GLOBAL.mnDroppedX)
                 {
@@ -263,6 +267,11 @@ public class ZooActivity extends Activity
                         jsonScenarize.get("face_scale_type"));
                     strFaceImg = "businside_left.png";
                 }
+            }
+            
+            if (SCEN.SCEN_INDEX_CHOICE_ZOO == nIndex)
+            {
+                robotHead.addView(zooAreaLayout);
             }
             
             application.setTTSPitch(1.0f, 1.0f);

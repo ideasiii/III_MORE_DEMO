@@ -40,10 +40,17 @@ public class ScenarizeHandler
         {
             scenarize.clear();
             
-            setScenarize(scenarize, SCEN.SCEN_INDEX_START, SCEN.SCEN_INDEX_ANIMAL_RFID, true,
-                false, R.drawable.octobo16, R.drawable.zoo_map, "octobo16.png", ImageView
-                    .ScaleType.CENTER_CROP, ImageView.ScaleType.CENTER_CROP, FRONT.FACE, "嗨! 你好 "
-                    + "來玩遊戲吧");
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_START,
+                SCEN.SCEN_INDEX_ANIMAL_RFID,
+                true,
+                false,
+                R.drawable.octobo16,
+                R.drawable.zoo,
+                "octobo16.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_CROP,
+                FRONT.FACE, "嗨! 你好 來玩遊戲吧");
             
             setScenarize(scenarize,
                 SCEN.SCEN_INDEX_ANIMAL_RFID,
@@ -124,7 +131,7 @@ public class ScenarizeHandler
     
             setScenarize(scenarize,
                 SCEN.SCEN_INDEX_ZOO_DOOR,
-                SCEN.SCEN_INDEX_ZOO_DOOR,
+                SCEN.SCEN_INDEX_CHOICE_ZOO,
                 true,
                 true,
                 R.drawable.noeye,
@@ -134,6 +141,19 @@ public class ScenarizeHandler
                 ImageView.ScaleType.CENTER_INSIDE,
                 FRONT.FACE,
                 "到囉，，讓我們一起來參觀動物吧");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_CHOICE_ZOO,
+                SCEN.SCEN_INDEX_NO_ACTION,
+                true,
+                false,
+                R.drawable.noeye,
+                R.drawable.zoo,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "請選擇你要參觀的動物區");
             
             /*
    
