@@ -1,2 +1,2 @@
-include ':app', ':library', ':moduleservice'
+include ':app', ':library', ':moduleservice', ':doll-sensors'
 

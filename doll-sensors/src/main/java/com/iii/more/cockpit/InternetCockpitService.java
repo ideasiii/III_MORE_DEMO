@@ -27,6 +27,10 @@ public class InternetCockpitService extends CockpitService
     // 拯救臉部肌肉，模擬偵測到臉部表情
     private static final int SERVER_PAPER_TYPE_FACE_EMOTION_DETECTED = 2;
 
+    //
+    private static final int SERVER_PAPER_TYPE_PARAMETERS = 3;
+
+
     private static boolean serviceSpawned = false;
 
     private ServerConnection mServerConnection;

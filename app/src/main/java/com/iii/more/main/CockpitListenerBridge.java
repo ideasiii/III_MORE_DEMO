@@ -29,8 +29,9 @@ class CockpitListenerBridge
     private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
 
     private MediaPlayer mRfidScannedSoundPlayer;
-    private MediaPlayer mBloodSoundPlayer;
+    private MediaPlayer mBloodyShakeHandSoundPlayer;
     private MediaPlayer mShakeHandSoundPlayer;
+
     private boolean mPlaySoundOnRfidScanned = true;
     private boolean mPlaySoundOnSensorEventTriggered = true;
     private boolean mPlayBloodySoundOnShakeHand = false;
@@ -315,12 +316,12 @@ class CockpitListenerBridge
 
     private void playBloodyShakeHandSound()
     {
-        if (mBloodSoundPlayer == null)
+        if (mBloodyShakeHandSoundPlayer == null)
         {
-            mBloodSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand_bloody);
+            mBloodyShakeHandSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand_bloody);
         }
 
-        replayMediaPlayer(mBloodSoundPlayer);
+        replayMediaPlayer(mBloodyShakeHandSoundPlayer);
     }
 
 

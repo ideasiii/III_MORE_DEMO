@@ -70,7 +70,7 @@ public abstract class CockpitService extends Service
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         Log.d(LOG_TAG, "onStartCommand()");
-        return Service.START_NOT_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -167,6 +167,6 @@ public abstract class CockpitService extends Service
         }
 
         Intent bindingIntent = new Intent(context, service);
-        context.bindService(bindingIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        context.bindService(bindingIntent, serviceConnection, BIND_AUTO_CREATE);
     }
 }

@@ -49,7 +49,7 @@ public class OtgCockpitService extends CockpitService
 
         mSerialPortConnected = false;
         serviceSpawned = true;
-        mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        mUsbManager = (UsbManager) getSystemService(USB_SERVICE);
     }
 
     @Override
