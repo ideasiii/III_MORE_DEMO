@@ -114,7 +114,7 @@ public class ZooTaiwanLayout extends ViewPagerLayout
                     break;
             }
             
-            Glide.with(context).load(R.drawable.taiwan_monkey).asGif().diskCacheStrategy
+            Glide.with(context).load(nr).asGif().diskCacheStrategy
                 (DiskCacheStrategy.SOURCE).into(animal.image);
             addPage(animal.image, animal.name);
         }
