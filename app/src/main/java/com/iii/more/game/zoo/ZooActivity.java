@@ -59,7 +59,7 @@ public class ZooActivity extends Activity
     private ZooAreaLayout zooAreaLayout = null;
     private ZooAnimalLayout zooAnimalLayout = null;
     private int mnZooAreaCount = 0;
-    private int nTimeoutAnimal = 5;
+    private int nTimeoutAnimal = 4;
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
