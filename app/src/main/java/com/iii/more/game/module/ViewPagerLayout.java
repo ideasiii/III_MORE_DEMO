@@ -6,6 +6,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -19,6 +20,7 @@ public class ViewPagerLayout extends RelativeLayout
     private Context theContext = null;
     private ViewPager viewPager = null;
     private ViewPagerAdapter viewPagerAdapter = null;
+    private boolean mbPagingEnable = true;
     
     public ViewPagerLayout(Context context)
     {
@@ -55,7 +57,17 @@ public class ViewPagerLayout extends RelativeLayout
         viewPager.setBackgroundColor(Color.TRANSPARENT);
         addView(viewPager);
         viewPagerAdapter = new ViewPagerAdapter();
+        viewPager.setOnTouchListener(onTouchListener);
     }
+    
+    private OnTouchListener onTouchListener = new OnTouchListener()
+    {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent)
+        {
+            return !mbPagingEnable;
+        }
+    };
     
     public void start()
     {
@@ -87,6 +99,21 @@ public class ViewPagerLayout extends RelativeLayout
     public void removePage(int position)
     {
         viewPagerAdapter.removePage(position);
+    }
+    
+    public void setPagingEnable(boolean bEnable)
+    {
+        mbPagingEnable = bEnable;
+    }
+    
+    public int getCurrentPage()
+    {
+        return viewPager.getCurrentItem();
+    }
+    
+    public int getPageCount()
+    {
+        return viewPagerAdapter.getCount();
     }
     
     private class ViewPagerAdapter extends PagerAdapter
@@ -149,8 +176,8 @@ public class ViewPagerLayout extends RelativeLayout
             Pages.put(Pages.size(), page);
             return (Pages.size() - 1);
         }
-    
-        public int addPage(View view, String strTitle,int position)
+        
+        public int addPage(View view, String strTitle, int position)
         {
             Page page = new Page();
             page.view = view;

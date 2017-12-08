@@ -58,6 +58,7 @@ public class ZooActivity extends Activity
     private FaceEmotionEventHandler faceEmotionEventHandler = null;
     private ScenarizeHandler scenarizeHandler = null;
     private ZooAreaLayout zooAreaLayout = null;
+    private ZooTaiwanLayout zooTaiwanLayout = null;
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -154,6 +155,10 @@ public class ZooActivity extends Activity
         
         zooAreaLayout = new ZooAreaLayout(this, handlerScenarize);
         zooAreaLayout.setLayoutParams(layoutParamsMrtMap);
+        
+        zooTaiwanLayout = new ZooTaiwanLayout(this);
+        zooTaiwanLayout.setHandler(handlerScenarize);
+        zooTaiwanLayout.setLayoutParams(layoutParamsMrtMap);
     }
     
     @Override
@@ -271,6 +276,13 @@ public class ZooActivity extends Activity
             if (SCEN.SCEN_INDEX_CHOICE_ZOO == nIndex)
             {
                 robotHead.addView(zooAreaLayout);
+            }
+            
+            if (SCEN.SCEN_INDEX_ZOO_TAIWAN == nIndex)
+            {
+                robotHead.removeView(zooAreaLayout);
+                robotHead.addView(zooTaiwanLayout);
+                zooTaiwanLayout.startSlideShow(3, true);
             }
             
             application.setTTSPitch(1.0f, 1.0f);

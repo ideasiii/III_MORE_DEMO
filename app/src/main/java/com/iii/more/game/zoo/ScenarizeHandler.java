@@ -75,7 +75,7 @@ public class ScenarizeHandler
                 SCEN.SCEN_INDEX_TRAFFIC_CARD_BUS,
                 true,
                 true, R.drawable.noeye, R.drawable.bus, "noeye.png", ImageView.ScaleType
-                    .CENTER_CROP, ImageView.ScaleType.CENTER_INSIDE, FRONT.OBJECT, "請刷悠遊卡");
+                    .CENTER_CROP, ImageView.ScaleType.CENTER_INSIDE, FRONT.OBJECT, "坐公車時要記得使用悠遊卡付錢喔!!這樣才是好寶寶! 請刷悠遊卡");
     
     
             setScenarize(scenarize,
@@ -154,6 +154,19 @@ public class ScenarizeHandler
                 ImageView.ScaleType.CENTER_INSIDE,
                 FRONT.FACE,
                 "請選擇你要參觀的動物區");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_ZOO_TAIWAN,
+                SCEN.SCEN_INDEX_NO_ACTION,
+                true,
+                false,
+                R.drawable.noeye,
+                R.drawable.zoo,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "歡迎參觀台灣動物區");
             
             /*
    
@@ -163,7 +176,8 @@ public class ScenarizeHandler
             setScenarize(scenarize, SCEN.SCEN_INDEX_TRAFFIC_MRT, SCEN.SCEN_INDEX_TRAFFIC_CARD_MRT,
                 true,
                 true, R.drawable.noeye, R.drawable.mrt, "noeye.png", ImageView.ScaleType
-                    .CENTER_CROP, ImageView.ScaleType.CENTER_INSIDE, FRONT.OBJECT, "請刷悠遊卡");
+                    .CENTER_CROP, ImageView.ScaleType.CENTER_INSIDE, FRONT.OBJECT,
+                "坐捷運時要記得使用悠遊卡付錢喔!!這樣才是好寶寶! 請刷悠遊卡。");
             
             // 坐車子
         }
