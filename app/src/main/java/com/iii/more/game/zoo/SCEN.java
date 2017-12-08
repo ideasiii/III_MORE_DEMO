@@ -49,6 +49,7 @@ abstract class SCEN
     public static final int SCEN_INDEX_ZOO_RAIN = 142;      // 熱帶雨林動物區
     public static final int SCEN_INDEX_ZOO_CUT = 143;       // 可愛動物區
     public static final int SCEN_INDEX_ZOO_AFFICA = 144;    // 非洲動物區
+    public static final int SCEN_INDEX_ANIMAL_END = 145;
     public static final int SCEN_INDEX_GAME_OVER = 666;
     public static final int SCEN_INDEX_FINISH = 999;
     
@@ -59,7 +60,11 @@ abstract class SCEN
     public static final int SENSOR_RFID = 1004;
     public static final int SENSOR_FACE_EMOTION = 1005;
     
-    public static final String TRAFFIC_BUS = "1";
-    public static final String TRAFFIC_MRT = "2";
-    public static final String TRAFFIC_CAR = "3";
+    public static final int MSG_TTS_PLAY = 2000;
+    
+    public static final String TRAFFIC_BUS = "3268108115";
+    public static final String TRAFFIC_MRT = "6487127115";
+    public static final String TRAFFIC_CAR = "208145104115";
+    
+    public static final int MAX_ZOO_VISIT = 2;
 }

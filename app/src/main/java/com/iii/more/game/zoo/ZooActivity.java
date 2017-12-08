@@ -1,6 +1,7 @@
 package com.iii.more.game.zoo;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -12,13 +13,11 @@ import android.support.annotation.Nullable;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
-import com.iii.more.game.module.ViewPagerLayout;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
 
 import android.os.Handler;
-import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -58,7 +57,9 @@ public class ZooActivity extends Activity
     private FaceEmotionEventHandler faceEmotionEventHandler = null;
     private ScenarizeHandler scenarizeHandler = null;
     private ZooAreaLayout zooAreaLayout = null;
-    private ZooTaiwanLayout zooTaiwanLayout = null;
+    private ZooAnimalLayout zooAnimalLayout = null;
+    private int mnZooAreaCount = 0;
+    private int nTimeoutAnimal = 5;
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -156,9 +157,9 @@ public class ZooActivity extends Activity
         zooAreaLayout = new ZooAreaLayout(this, handlerScenarize);
         zooAreaLayout.setLayoutParams(layoutParamsMrtMap);
         
-        zooTaiwanLayout = new ZooTaiwanLayout(this);
-        zooTaiwanLayout.setHandler(handlerScenarize);
-        zooTaiwanLayout.setLayoutParams(layoutParamsMrtMap);
+        zooAnimalLayout = new ZooAnimalLayout(this);
+        zooAnimalLayout.setHandler(handlerScenarize);
+        zooAnimalLayout.setLayoutParams(layoutParamsMrtMap);
     }
     
     @Override
@@ -180,7 +181,8 @@ public class ZooActivity extends Activity
         mVoiceRecognition.setHandler(handlerSpeech);
         mVoiceRecognition.setLocale(Locale.TAIWAN);
         GLOBAL.ChildName = application.getName(Parameters.ID_CHILD_NAME);
-        Scenarize(SCEN.SCEN_INDEX_START);
+        mnZooAreaCount = 0;
+        Scenarize(SCEN.SCEN_INDEX_START, null);
     }
     
     @Override
@@ -210,19 +212,40 @@ public class ZooActivity extends Activity
         super.onDestroy();
     }
     
-    public void Scenarize(int nIndex)
+    public void Scenarize(int nIndex, Object object)
     {
-        GLOBAL.mnScenarizeIndex = nIndex;
+        Logs.showTrace("[ZooActivity] Scenarize Index:" + nIndex);
         String strTTS = "";
         String strFaceImg = "";
         
-        Logs.showTrace("[ZooActivity] Scenarize Index:" + nIndex);
+        if (SCEN.MSG_TTS_PLAY == nIndex)
+        {
+            application.setTTSPitch(1.0f, 1.0f);
+            application.playTTS((String) object, String.valueOf(nIndex));
+            return;
+        }
+    
+        if (SCEN.SCEN_INDEX_ANIMAL_END == nIndex)
+        {
+            if (SCEN.MAX_ZOO_VISIT <= mnZooAreaCount)
+            {
+                Logs.showTrace("MAX_ZOO_VISIT ################");
+                return;
+            }
+            else
+            {
+                robotHead.removeView(zooAnimalLayout);
+                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_CHOICE_ZOO);
+            }
+        }
         
         if (GLOBAL.scenarize.indexOfKey(nIndex) < 0)
         {
             Logs.showError("[ZooActivity] Scenarize invalid Index:" + nIndex);
             return;
         }
+        
+        GLOBAL.mnScenarizeIndex = nIndex;
         
         try
         {
@@ -276,13 +299,55 @@ public class ZooActivity extends Activity
             if (SCEN.SCEN_INDEX_CHOICE_ZOO == nIndex)
             {
                 robotHead.addView(zooAreaLayout);
+                if(0 < mnZooAreaCount)
+                {
+                    strTTS = "讓我們再來參觀其他動物區";
+                }
             }
             
             if (SCEN.SCEN_INDEX_ZOO_TAIWAN == nIndex)
             {
+                ++mnZooAreaCount;
                 robotHead.removeView(zooAreaLayout);
-                robotHead.addView(zooTaiwanLayout);
-                zooTaiwanLayout.startSlideShow(3, true);
+                zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.台灣動物區);
+                robotHead.addView(zooAnimalLayout);
+                zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
+            }
+            
+            if (SCEN.SCEN_INDEX_ZOO_BIRD == nIndex)
+            {
+                ++mnZooAreaCount;
+                robotHead.removeView(zooAreaLayout);
+                zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.鳥園);
+                robotHead.addView(zooAnimalLayout);
+                zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
+            }
+            
+            if (SCEN.SCEN_INDEX_ZOO_RAIN == nIndex)
+            {
+                ++mnZooAreaCount;
+                robotHead.removeView(zooAreaLayout);
+                zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.熱帶雨林動物區);
+                robotHead.addView(zooAnimalLayout);
+                zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
+            }
+            
+            if (SCEN.SCEN_INDEX_ZOO_CUT == nIndex)
+            {
+                ++mnZooAreaCount;
+                robotHead.removeView(zooAreaLayout);
+                zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.可愛動物區);
+                robotHead.addView(zooAnimalLayout);
+                zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
+            }
+            
+            if (SCEN.SCEN_INDEX_ZOO_AFFICA == nIndex)
+            {
+                ++mnZooAreaCount;
+                robotHead.removeView(zooAreaLayout);
+                zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.非洲動物區);
+                robotHead.addView(zooAnimalLayout);
+                zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
             }
             
             application.setTTSPitch(1.0f, 1.0f);
@@ -302,15 +367,17 @@ public class ZooActivity extends Activity
         
     }
     
+    @SuppressLint("HandlerLeak")
     private final Handler handlerScenarize = new Handler()
     {
         @Override
         public void handleMessage(Message msg)
         {
-            Scenarize(msg.what);
+            Scenarize(msg.what, msg.obj);
         }
     };
     
+    @SuppressLint("HandlerLeak")
     private Handler handlerSpeech = new Handler()
     {
         @Override

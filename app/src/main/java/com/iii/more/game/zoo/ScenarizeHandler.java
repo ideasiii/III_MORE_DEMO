@@ -167,6 +167,58 @@ public class ScenarizeHandler
                 ImageView.ScaleType.CENTER_INSIDE,
                 FRONT.FACE,
                 "歡迎參觀台灣動物區");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_ZOO_BIRD,
+                SCEN.SCEN_INDEX_NO_ACTION,
+                true,
+                false,
+                R.drawable.noeye,
+                R.drawable.zoo,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "歡迎參觀鳥園");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_ZOO_RAIN,
+                SCEN.SCEN_INDEX_NO_ACTION,
+                true,
+                false,
+                R.drawable.noeye,
+                R.drawable.zoo,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "歡迎參觀熱帶雨林動物區");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_ZOO_CUT,
+                SCEN.SCEN_INDEX_NO_ACTION,
+                true,
+                false,
+                R.drawable.noeye,
+                R.drawable.zoo,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "歡迎參觀可愛動物區");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_ZOO_AFFICA,
+                SCEN.SCEN_INDEX_NO_ACTION,
+                true,
+                false,
+                R.drawable.noeye,
+                R.drawable.zoo,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "歡迎參觀非洲動物區");
             
             /*
    

@@ -116,6 +116,17 @@ public class ViewPagerLayout extends RelativeLayout
         return viewPagerAdapter.getCount();
     }
     
+    public String getTitle(int position)
+    {
+        return viewPagerAdapter.getTitle(position);
+    }
+    
+    public void clear()
+    {
+        viewPagerAdapter.clear();
+    }
+    
+    
     private class ViewPagerAdapter extends PagerAdapter
     {
         
@@ -168,6 +179,11 @@ public class ViewPagerLayout extends RelativeLayout
             return Pages.get(position).view;
         }
         
+        public String getTitle(int position)
+        {
+            return Pages.get(position).strTitle;
+        }
+        
         public int addPage(View view, String strTitle)
         {
             Page page = new Page();
@@ -193,6 +209,11 @@ public class ViewPagerLayout extends RelativeLayout
             {
                 Pages.removeAt(position);
             }
+        }
+        
+        public void clear()
+        {
+            Pages.clear();
         }
         
         public boolean isValid(int position)
