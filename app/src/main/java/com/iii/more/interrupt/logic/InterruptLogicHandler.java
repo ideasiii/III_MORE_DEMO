@@ -17,130 +17,107 @@ import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
 /**
- * Created by joe on 2017/9/22.
- */
-
-/**
- * ### pending to write
+ * Created by joe on 2017/9/22
  */
 
 public class InterruptLogicHandler extends BaseHandler
 {
-    private JSONArray mInterruptLogicBehaviorDataArray = null;
-   
-    private String mEventData = "";
-   
-    private ArrayList<LogicBrainElement> mLogicBrainArrayListData = null;
-    
+    private JSONArray mInterruptRules = null;
+    //private String mEventData = "";
+    private ArrayList<InterruptRule> mLogicBrainArrayListData = null;
 
     public InterruptLogicHandler(Context context)
     {
         super(context);
+
         try
         {
-            mInterruptLogicBehaviorDataArray = new JSONArray(InterruptLogicParameters.DEFAULT_LOGIC_BEHAVIOR_DATA);
+            mInterruptRules = new JSONArray(InterruptLogicParameters.DEFAULT_LOGIC_BEHAVIOR_DATA);
         }
         catch (JSONException e)
         {
             Logs.showError("[InterruptLogicHandler] default maybe ERROR: " + e.toString());
         }
+
         mLogicBrainArrayListData = new ArrayList<>();
-       
     }
     
-    public void setInterruptLogicBehaviorDataArray(@NonNull String logicBehavior)
+    public void refillInterruptRules(@NonNull String src)
     {
-        Logs.showTrace("[InterruptLogicHandler] set logic behavior data: " + logicBehavior);
+        Logs.showTrace("[InterruptLogicHandler] set logic behavior data: " + src);
+
         try
         {
-            mInterruptLogicBehaviorDataArray = new JSONArray(logicBehavior);
+            mInterruptRules = new JSONArray(src);
             mLogicBrainArrayListData.clear();
-            try
+
+            for (int i = 0; i < mInterruptRules.length(); i++)
             {
-                for (int i = 0; i < mInterruptLogicBehaviorDataArray.length(); i++)
+                JSONObject jsonBrainElement = (JSONObject) mInterruptRules.get(i);
+                if (!jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_ACTION_PRIORITY)
+                    || !jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_SENSORS)
+                    || !jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_DESCRIPTION)
+                    || !jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_TAG)
+                    || !jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT)
+                    || !jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_TRIGGER_RULE)
+                    || !jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_VALUE))
                 {
-                    JSONObject jsonBrainElement = (JSONObject) mInterruptLogicBehaviorDataArray.get(i);
-                    if (jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_ACTION_PRIORITY)
-                            && jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_SENSORS)
-                            && jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_DESCRIPTION)
-                            && jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_TAG)
-                            && jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT)
-                            && jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_TRIGGER_RULE)
-                            && jsonBrainElement.has(InterruptLogicParameters.JSON_STRING_VALUE))
-                    {
-                        JSONArray jsonSensorElement = jsonBrainElement.getJSONArray(InterruptLogicParameters.JSON_STRING_SENSORS);
-                        ArrayList<String> sensorData = new ArrayList<>();
-                        for (int j = 0; j < jsonSensorElement.length(); j++)
-                        {
-                            sensorData.add((String) jsonSensorElement.get(j));
-                        }
-                        
-                        mLogicBrainArrayListData.add(new LogicBrainElement(sensorData, jsonBrainElement.getInt(InterruptLogicParameters.JSON_STRING_TRIGGER_RULE),
-                                jsonBrainElement.getInt(InterruptLogicParameters.JSON_STRING_ACTION_PRIORITY),
-                                jsonBrainElement.getString(InterruptLogicParameters.JSON_STRING_TAG),
-                                jsonBrainElement.getString(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT),
-                                jsonBrainElement.getString(InterruptLogicParameters.JSON_STRING_VALUE),
-                                jsonBrainElement.getString(InterruptLogicParameters.JSON_STRING_DESCRIPTION)));
-                    }
-                    else
-                    {
-                        Logs.showError("[InterruptLogicHandler] data parse ERROR: some data LOST");
-                    }
+                    Logs.showError("[InterruptLogicHandler] data parse ERROR: some data LOST");
+                    continue;
                 }
 
-                //for debugging use
-                /*Logs.showTrace("[InterruptLogicHandler] unsorted mLogicBrainArrayListData####");
-                for (int i = 0; i < mLogicBrainArrayListData.size(); i++)
+                JSONArray jsonSensorElement = jsonBrainElement.getJSONArray(InterruptLogicParameters.JSON_STRING_SENSORS);
+                ArrayList<String> sensorData = new ArrayList<>();
+                for (int j = 0; j < jsonSensorElement.length(); j++)
                 {
-                    mLogicBrainArrayListData.get(i).print();
-                }*/
-                
-                //sort by action priority
-                Collections.sort(mLogicBrainArrayListData,
-                        new Comparator<LogicBrainElement>()
-                        {
-                            @Override
-                            public int compare(LogicBrainElement o1, LogicBrainElement o2)
-                            {
-                                return o1.getActionPriority() - o2.getActionPriority();
-                            }
-                        });
-
-                //for debugging use
-                Logs.showTrace("[InterruptLogicHandler] sorted mLogicBrainArrayListData===");
-                for (int i = 0; i < mLogicBrainArrayListData.size(); i++)
-                {
-                    mLogicBrainArrayListData.get(i).print();
+                    sensorData.add((String) jsonSensorElement.get(j));
                 }
+
+                InterruptRule newElement = new InterruptRule(sensorData,
+                    jsonBrainElement.getInt(InterruptLogicParameters.JSON_STRING_TRIGGER_RULE),
+                    jsonBrainElement.getInt(InterruptLogicParameters.JSON_STRING_ACTION_PRIORITY),
+                    jsonBrainElement.getString(InterruptLogicParameters.JSON_STRING_TAG),
+                    jsonBrainElement.getString(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT),
+                    jsonBrainElement.getString(InterruptLogicParameters.JSON_STRING_VALUE),
+                    jsonBrainElement.getString(InterruptLogicParameters.JSON_STRING_DESCRIPTION));
+                mLogicBrainArrayListData.add(newElement);
             }
-            catch (JSONException e)
+
+            // sort by action priority
+            Collections.sort(mLogicBrainArrayListData,
+                    new Comparator<InterruptRule>()
+                    {
+                        @Override
+                        public int compare(InterruptRule o1, InterruptRule o2)
+                        {
+                            return o1.getActionPriority() - o2.getActionPriority();
+                        }
+                    });
+
+            // for debugging
+            Logs.showTrace("[InterruptLogicHandler] sorted mLogicBrainArrayListData===");
+            for (int i = 0; i < mLogicBrainArrayListData.size(); i++)
             {
-                Logs.showError("[InterruptLogicHandler] data Logic parse ERROR: " + e.toString());
+                mLogicBrainArrayListData.get(i).print();
             }
         }
         catch (JSONException e)
         {
-            Logs.showError("[InterruptLogicHandler] set Interrupt Logic Behavior ERROR: " + logicBehavior);
+            Logs.showError("[InterruptLogicHandler] data Logic parse ERROR: " + e.toString());
         }
     }
-    
-   
-    
-    public void setDeviceEventData(@NonNull String deviceEventData)
+
+    public void startEventDataAnalysis(@NonNull String deviceEventData)
     {
         Logs.showTrace("[InterruptLogicHandler] device event data: " + deviceEventData);
-        mEventData = deviceEventData;
-    }
-    
-    public void startEventDataAnalysis()
-    {
-        if (null == mEventData || mEventData.length() < 1)
+
+        if (null == deviceEventData || deviceEventData.length() < 1)
         {
             Logs.showTrace("[InterruptLogicHandler] startEventDataAnalysis() no mEventData");
             return;
         }
 
-        HashMap<String, String> eventHashMapData = convertToHashMapData(mEventData);
+        HashMap<String, String> eventHashMapData = convertToHashMapData(deviceEventData);
         if (null == eventHashMapData)
         {
             Logs.showTrace("[InterruptLogicHandler] startEventDataAnalysis() no eventHashMapData");
@@ -162,9 +139,9 @@ public class InterruptLogicHandler extends BaseHandler
         }
         else if (eventHashMapData.containsKey(InterruptLogicParameters.STRING_RFID))
         {
-            // TODO RFID is not written in trigger rules, check separately
+            // TODO RFID tag is not part of Task Composer rules, just return what it read
             String rfidValue = eventHashMapData.get(InterruptLogicParameters.STRING_RFID);
-            int rfidInteger = Integer.parseInt(rfidValue);
+            Long rfidInteger = Long.parseLong(rfidValue);
 
             if (0 != rfidInteger)
             {
@@ -228,7 +205,7 @@ public class InterruptLogicHandler extends BaseHandler
 
         for (int i = 0; i < mLogicBrainArrayListData.size(); i++)
         {
-            LogicBrainElement judgeBrainElement = mLogicBrainArrayListData.get(i);
+            InterruptRule judgeBrainElement = mLogicBrainArrayListData.get(i);
             int triggerCount = 0;
 
             //Logs.showTrace("[InterruptLogicHandler] checking actionPriority: " + String.valueOf(i + 1));
@@ -251,7 +228,7 @@ public class InterruptLogicHandler extends BaseHandler
                 }
             }
 
-            if (triggerCount == judgeBrainElement.triggerRule)
+            if (triggerCount == judgeBrainElement.triggerCount)
             {
                 // trigger rule matched
                 HashMap<String, String> result = new HashMap<>();
@@ -261,11 +238,12 @@ public class InterruptLogicHandler extends BaseHandler
             }
         }
 
-        // no matched rules
+        // no match
         return null;
     }
     
-    // data example: {"model":001,"s_bright":6,"s_head":[1,0,0,0],"s_cheek":[0,0],"s_rfid":0000039183}
+    // data example: {"model":001,"s_bright":6,"s_head":[1,0,0,0],"s_cheek":[0,0],"s_rfid":2812938271}
+    // RFID tag 數字從 10 位數至 13 位數都有可能·所以必須用 Long 類型儲存
     private HashMap<String, String> convertToHashMapData(String data)
     {
         try
@@ -303,8 +281,8 @@ public class InterruptLogicHandler extends BaseHandler
             
             if (json.has("s_rfid"))
             {
-                int rfidRead = json.getInt("s_rfid");
-                hashMapData.put(InterruptLogicParameters.STRING_RFID, Integer.toString(rfidRead));
+                long tag = json.getLong("s_rfid");
+                hashMapData.put(InterruptLogicParameters.STRING_RFID, Long.toString(tag));
             }
 
             return hashMapData;
@@ -319,13 +297,11 @@ public class InterruptLogicHandler extends BaseHandler
 
     private static boolean isSensorValueAboveTriggeringThreshold(String sensorName, double value)
     {
-        //FSR1 & FSR2 (臉頰) 沒有擠壓情況下會有時會大於 0，需去雜訊
         if (sensorName.equals("FSR1") || sensorName.equals("FSR2"))
         {
             return value >= InterruptLogicParameters.SENSOR_CHEEK_TRIGGER_THRESHOLD;
         }
 
-        //開燈補正　H需大於255
         if (sensorName.equals("H"))
         {
             return value >= InterruptLogicParameters.SENSOR_AMBIENT_LIGHT_TRIGGER_THRESHOLD;
@@ -335,22 +311,22 @@ public class InterruptLogicHandler extends BaseHandler
     }
     
     
-    private class LogicBrainElement
+    private static class InterruptRule
     {
-        public ArrayList<String> sensors = null;
-        public int triggerRule = 0;
-        public int actionPriority = 0;
-        public String tag = null;
-        public String triggerResult = null;
-        public String value = null;
-        public String description = null;
+        ArrayList<String> sensors = null;
+        int triggerCount = 0;
+        int actionPriority = 0;
+        String tag = null;
+        String triggerResult = null;
+        String value = null;
+        String description = null;
         
-        public LogicBrainElement(@NonNull ArrayList<String> sensors, int triggerRule, int actionPriority,
-                @NonNull String tag, @NonNull String triggerResult, @NonNull String value,
-                @NonNull String description)
+        InterruptRule(@NonNull ArrayList<String> sensors, int triggerCount, int actionPriority,
+                      @NonNull String tag, @NonNull String triggerResult, @NonNull String value,
+                      @NonNull String description)
         {
             this.sensors = sensors;
-            this.triggerRule = triggerRule;
+            this.triggerCount = triggerCount;
             this.actionPriority = actionPriority;
             this.tag = tag;
             this.triggerResult = triggerResult;
@@ -358,22 +334,21 @@ public class InterruptLogicHandler extends BaseHandler
             this.description = description;
         }
         
-        public int getActionPriority()
+        int getActionPriority()
         {
             return actionPriority;
         }
         
-        public void print()
+        void print()
         {
             Logs.showTrace("***********************");
-            Logs.showTrace("[LogicBrainElement] description: " + description);
-            Logs.showTrace("[LogicBrainElement] actionPriority: " + String.valueOf(actionPriority));
-            Logs.showTrace("[LogicBrainElement] tag: " + tag);
-            Logs.showTrace("[LogicBrainElement] triggerResult: " + triggerResult);
-            Logs.showTrace("[LogicBrainElement] triggerRule: " + String.valueOf(triggerRule));
-            Logs.showTrace("[LogicBrainElement] sensors: " + sensors);
+            Logs.showTrace("[InterruptRule] description: " + description);
+            Logs.showTrace("[InterruptRule] actionPriority: " + String.valueOf(actionPriority));
+            Logs.showTrace("[InterruptRule] tag: " + tag);
+            Logs.showTrace("[InterruptRule] triggerResult: " + triggerResult);
+            Logs.showTrace("[InterruptRule] triggerCount: " + String.valueOf(triggerCount));
+            Logs.showTrace("[InterruptRule] sensors: " + sensors);
             Logs.showTrace("***********************");
         }
     }
-    
 }

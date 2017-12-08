@@ -29,12 +29,12 @@ class CockpitListenerBridge
     private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
 
     private MediaPlayer mRfidScannedSoundPlayer;
-    private MediaPlayer mBloodyShakeHandSoundPlayer;
-    private MediaPlayer mShakeHandSoundPlayer;
+    private MediaPlayer mBloodySensorEventSoundPlayer;
+    private MediaPlayer mNornalSensorEventSoundPlayer;
 
     private boolean mPlaySoundOnRfidScanned = true;
     private boolean mPlaySoundOnSensorEventTriggered = true;
-    private boolean mPlayBloodySoundOnShakeHand = false;
+    private boolean mPlayBloodySoundOnSensorEvent = false;
 
     private Context mContext;
 
@@ -46,7 +46,7 @@ class CockpitListenerBridge
     /** 必須要丟回給 MainApplication 處理的訊息都放在這裡 */
     interface TellMeWhatToDo
     {
-        // 當收到要假造偵測到臉部情緒的指令時的 callback
+        /** 當收到要假造偵測到臉部情緒的指令時的 callback */
         void onFaceEmotionDetected(String emotionName);
     }
 
@@ -94,21 +94,18 @@ class CockpitListenerBridge
         }
     }
 
-    /**
-     * 處理來自 CockpitService 的訊息
-     */
+    /** 處理來自 CockpitService 的訊息 */
     private void handleCockpitServiceMessage(Message msg)
     {
         switch (msg.arg1)
         {
             case CockpitService.EVENT_DATA_TEXT:
                 String text = (String) msg.obj;
-                Logs.showTrace("handleCockpitServiceMessage() plain text, text = `" + text + "`");
+                Logs.showTrace("handleCockpitServiceMessage() plain text = `" + text + "`");
 
                 if (null != sensorInterruptLogicHandler)
                 {
-                    sensorInterruptLogicHandler.setDeviceEventData(text);
-                    sensorInterruptLogicHandler.startEventDataAnalysis();
+                    sensorInterruptLogicHandler.startEventDataAnalysis(text);
                 }
                 break;
             case CockpitService.EVENT_DATA_FACE_EMOTION:
@@ -129,9 +126,7 @@ class CockpitListenerBridge
         }
     }
 
-    /**
-     * 處理來自 InterruptLogicHandler 的事件
-     */
+    /** 處理來自 InterruptLogicHandler 的事件 */
     private void handleInterruptLogicMessage(Message msg)
     {
         if (null == mCockpitSensorEventListener)
@@ -151,23 +146,23 @@ class CockpitListenerBridge
                 switch (trigger_result)
                 {
                     case "握手":
-                        playShakeHandSound();
+                        playSensorEventSound();
                         mCockpitSensorEventListener.onShakeHands(null);
                         break;
                     case "拍手":
-                        playShakeHandSound();
+                        playSensorEventSound();
                         mCockpitSensorEventListener.onClapHands(null);
                         break;
                     case "擠壓":
-                        playShakeHandSound();
+                        playSensorEventSound();
                         mCockpitSensorEventListener.onPinchCheeks(null);
                         break;
                     case "拍頭":
-                        playShakeHandSound();
+                        playSensorEventSound();
                         mCockpitSensorEventListener.onPatHead(null);
                         break;
                     case "RFID":
-                        playRfidScannedSound();
+                        playRfidEventSound();
                         String reading = message.get(InterruptLogicParameters.JSON_STRING_TAG);
                         mCockpitSensorEventListener.onScannedRfid(null, reading);
                         break;
@@ -181,9 +176,7 @@ class CockpitListenerBridge
         }
     }
 
-    /**
-     * 處理 CockpitService 與參數設定有關的事件
-     */
+    /** 處理 CockpitService 與參數設定有關的事件 */
     private void handleCockpitServiceParameterEvents(Message msg)
     {
         try
@@ -204,7 +197,7 @@ class CockpitListenerBridge
                     mPlaySoundOnSensorEventTriggered = !mPlaySoundOnSensorEventTriggered;
                     break;
                 case "switchShakeHandSound":
-                    mPlayBloodySoundOnShakeHand = !mPlayBloodySoundOnShakeHand;
+                    mPlayBloodySoundOnSensorEvent = !mPlayBloodySoundOnSensorEvent;
                     break;
                 default:
                     Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
@@ -217,9 +210,7 @@ class CockpitListenerBridge
         }
     }
 
-    /**
-     * 處理 CockpitService 與影片製作有關的事件
-     */
+    /** 處理 CockpitService 與影片製作有關的事件 */
     private void handleCockpitServiceFilmMakingEvents(Message msg)
     {
         if (null == mCockpitFilmMakingEventListener)
@@ -257,9 +248,7 @@ class CockpitListenerBridge
         }
     }
 
-    /**
-     * 處理 CockpitService 與連線狀態有關的事件
-     */
+    /** 處理 CockpitService 與連線狀態有關的事件 */
     private void handleCockpitServiceConnectionEvents(Message msg)
     {
         if (null == mCockpitConnectionEventListener)
@@ -300,7 +289,8 @@ class CockpitListenerBridge
         }
     }
 
-    private void playRfidScannedSound()
+    /** 播放 RFID 偵測事件音效 */
+    private void playRfidEventSound()
     {
         if (!mPlaySoundOnRfidScanned)
         {
@@ -315,45 +305,49 @@ class CockpitListenerBridge
         replayMediaPlayer(mRfidScannedSoundPlayer);
     }
 
-    private void playShakeHandSound()
+    /** 播放 sensor 事件音效 */
+    private void playSensorEventSound()
     {
         if (!mPlaySoundOnSensorEventTriggered)
         {
             return;
         }
 
-        if (mPlayBloodySoundOnShakeHand)
+        if (mPlayBloodySoundOnSensorEvent)
         {
-            playBloodyShakeHandSound();
+            playR18SensorEventSound();
         }
         else
         {
-            playNormalShakeHandSound();
+            playNormalSensorEventSound();
         }
     }
 
-    private void playNormalShakeHandSound()
+    /** 播放一般的 sensor 事件音效 */
+    private void playNormalSensorEventSound()
     {
-        if (mShakeHandSoundPlayer == null)
+        if (mNornalSensorEventSoundPlayer == null)
         {
-            mShakeHandSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand);
+            mNornalSensorEventSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand);
         }
 
-        replayMediaPlayer(mShakeHandSoundPlayer);
+        replayMediaPlayer(mNornalSensorEventSoundPlayer);
     }
 
 
-    private void playBloodyShakeHandSound()
+    /** 播放很奇怪的 sensor 事件音效 */
+    private void playR18SensorEventSound()
     {
-        if (mBloodyShakeHandSoundPlayer == null)
+        if (mBloodySensorEventSoundPlayer == null)
         {
-            mBloodyShakeHandSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand_bloody);
+            mBloodySensorEventSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand_bloody);
         }
 
-        replayMediaPlayer(mBloodyShakeHandSoundPlayer);
+        replayMediaPlayer(mBloodySensorEventSoundPlayer);
     }
 
 
+    /** 將 MediaPlayer 重頭播放 */
     private static void replayMediaPlayer(MediaPlayer mp)
     {
         if (mp.isPlaying())

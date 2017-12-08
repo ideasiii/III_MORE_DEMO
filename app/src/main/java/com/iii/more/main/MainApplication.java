@@ -344,7 +344,7 @@ public class MainApplication extends Application
                     .INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
         }
         
-        mCockpitListenerBridge.sensorInterruptLogicHandler.setInterruptLogicBehaviorDataArray
+        mCockpitListenerBridge.sensorInterruptLogicHandler.refillInterruptRules
                 (interruptLogicBehaviorDataArrayInput);
         mCockpitListenerBridge.sensorInterruptLogicHandler.setHandler(mSelfHandler);
     }
