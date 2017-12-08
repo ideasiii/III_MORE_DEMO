@@ -220,6 +220,32 @@ public class ScenarizeHandler
                 FRONT.FACE,
                 "歡迎參觀非洲動物區");
             
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_FOOD_STORE,
+                SCEN.SCEN_INDEX_FOOD_CHOICE,
+                true,
+                true,
+                R.drawable.noeye,
+                R.drawable.food_store,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "我們來吃東西休息一下吧！");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_FOOD_CHOICE,
+                SCEN.SCEN_INDEX_NO_ACTION,
+                true,
+                false,
+                R.drawable.noeye,
+                R.drawable.food_store,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "請選擇你要吃的食物");
+            
             /*
    
             

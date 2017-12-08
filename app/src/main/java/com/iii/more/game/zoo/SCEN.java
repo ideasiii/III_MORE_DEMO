@@ -22,21 +22,9 @@ abstract class SCEN
     // 孩子很久未在畫面上拉乘客到座位上part2
     public static final int SCEN_INDEX_BUS_DRIVE = 111;
     public static final int SCEN_INDEX_ZOO_DOOR = 112;
-    public static final int SCEN_INDEX_ANIMAL_MONKEY = 113;
-    public static final int SCEN_INDEX_FOOD_MENU = 118;
     public static final int SCEN_INDEX_EAT_HAMBERB = 119;
     public static final int SCEN_INDEX_EATED_HAMBERB = 120;
-    public static final int SCEN_INDEX_ANIMAL_ELEPHONE = 122;
-    public static final int SCEN_INDEX_ANIMAL_KONG = 123;
     public static final int SCEN_INDEX_FAV_ANIMAL = 124;
-    public static final int SCEN_INDEX_FAV_ANIMAL_SPEECH = 125;
-    public static final int SCEN_INDEX_BANANA = 126;
-    public static final int SCEN_INDEX_BANANA_NON = 127;
-    public static final int SCEN_INDEX_VEGETABLE = 128;
-    public static final int SCEN_INDEX_VEGETABLE_NON = 129;
-    public static final int SCEN_INDEX_LEMUR = 130;
-    public static final int SCEN_INDEX_APPLE = 131;
-    public static final int SCEN_INDEX_APPLE_NON = 132;
     public static final int SCEN_INDEX_EAT_DNUTE = 133;
     public static final int SCEN_INDEX_EAT_ICECREAME = 134;
     public static final int SCEN_INDEX_EATED_DNUTE = 135;
@@ -50,6 +38,8 @@ abstract class SCEN
     public static final int SCEN_INDEX_ZOO_CUT = 143;       // 可愛動物區
     public static final int SCEN_INDEX_ZOO_AFFICA = 144;    // 非洲動物區
     public static final int SCEN_INDEX_ANIMAL_END = 145;
+    public static final int SCEN_INDEX_FOOD_STORE = 146;
+    public static final int SCEN_INDEX_FOOD_CHOICE = 147;
     public static final int SCEN_INDEX_GAME_OVER = 666;
     public static final int SCEN_INDEX_FINISH = 999;
     

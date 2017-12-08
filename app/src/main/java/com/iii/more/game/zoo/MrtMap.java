@@ -19,7 +19,6 @@ import com.iii.more.main.R;
 public class MrtMap extends RelativeLayout
 {
     private ImageView imgMap = null;
-    private ImageView imgTrain = null;
     private FingerPaintView fingerPaintView = null;
     
     public MrtMap(Context context)
@@ -51,7 +50,6 @@ public class MrtMap extends RelativeLayout
     {
         setBackgroundColor(Color.TRANSPARENT);
         imgMap = new ImageView(context);
-        imgTrain = new ImageView(context);
         
         RelativeLayout.LayoutParams layoutParamsMap = new RelativeLayout.LayoutParams(ViewGroup
             .LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -59,11 +57,9 @@ public class MrtMap extends RelativeLayout
         RelativeLayout.LayoutParams layoutParamsTrain = new RelativeLayout.LayoutParams(200, 200);
         
         imgMap.setLayoutParams(layoutParamsMap);
-        imgTrain.setLayoutParams(layoutParamsTrain);
         
         imgMap.setImageResource(R.drawable.mrt_map);
         imgMap.setBackgroundColor(Color.TRANSPARENT);
-        imgTrain.setImageResource(R.drawable.mrt_train);
         
         imgMap.setScaleType(ImageView.ScaleType.FIT_XY);
     
@@ -72,7 +68,5 @@ public class MrtMap extends RelativeLayout
         fingerPaintView.setBackgroundResource(R.drawable.mrt_map);
         
         addView(fingerPaintView);
-        addView(imgTrain);
-        
     }
 }

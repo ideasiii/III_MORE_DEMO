@@ -89,21 +89,8 @@ class TTSEventHandler
                 case SCEN.SCEN_INDEX_DROP_CUSTOM:          // 好棒！!!我們出發囉！
                 case SCEN.SCEN_INDEX_BUS_DRIVE:            // 公車開始移動
                 case SCEN.SCEN_INDEX_ZOO_DOOR:             // 到動物園門口
+                case SCEN.SCEN_INDEX_FOOD_STORE:          // 我們來吃東西休息一下吧！
                     handlerScenarize.sendEmptyMessage(nNext);
-                    break;
-                case SCEN.SCEN_INDEX_ANIMAL_MONKEY:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_BANANA, 2000);
-                    break;
-                case SCEN.SCEN_INDEX_BANANA:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_BANANA_NON, 1000);
-                    break;
-                case SCEN.SCEN_INDEX_BANANA_NON:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN
-                    // .SCEN_INDEX_ANIMAL_ELEPHONE,                 2000);
-                    break;
-                case SCEN.SCEN_INDEX_FOOD_MENU:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_EAT_HAMBERB,
-                    // 6000);
                     break;
                 case SCEN.SCEN_INDEX_EAT_HAMBERB:
                     //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_EATED_HAMBERB,
@@ -121,27 +108,6 @@ class TTSEventHandler
                 case SCEN.SCEN_INDEX_EATED_DNUTE:
                 case SCEN.SCEN_INDEX_EATED_ICECREAME:
                     //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_GAME_OVER, 1000);
-                    break;
-                case SCEN.SCEN_INDEX_ANIMAL_ELEPHONE:
-                    //    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_VEGETABLE, 1000);
-                    break;
-                case SCEN.SCEN_INDEX_VEGETABLE:
-                    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_VEGETABLE_NON, 2000);
-                    break;
-                case SCEN.SCEN_INDEX_VEGETABLE_NON:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_LEMUR, 1000);
-                    break;
-                case SCEN.SCEN_INDEX_LEMUR:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_APPLE, 1000);
-                    break;
-                case SCEN.SCEN_INDEX_APPLE:
-                    //    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_APPLE_NON, 2000);
-                    break;
-                case SCEN.SCEN_INDEX_APPLE_NON:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_FOOD_MENU, 1000);
-                    break;
-                case SCEN.SCEN_INDEX_ANIMAL_KONG:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_FAV_ANIMAL, 1000);
                     break;
                 case SCEN.SCEN_INDEX_FAV_ANIMAL:
                     //    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_FAV_ANIMAL_SPEECH);

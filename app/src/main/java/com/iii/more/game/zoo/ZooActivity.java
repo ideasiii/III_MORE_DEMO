@@ -46,11 +46,7 @@ public class ZooActivity extends Activity
     public static TrackerHandler trackerHandler = null;
     
     private VoiceRecognition mVoiceRecognition = null;
-    public ImageView ivHambergur = null;
-    public ImageView ivIceCream = null;
-    public ImageView ivDonuts = null;
     private ImageView ivMan = null;
-    private LinearLayout linearFood = null;
     private MrtMap mrtMap = null;
     private TTSEventHandler ttsEventHandler = null;
     private SensorEventHandler sensorEventHandler = null;
@@ -101,47 +97,18 @@ public class ZooActivity extends Activity
         robotHead.setObjectImg(R.drawable.busy, ImageView.ScaleType.CENTER_INSIDE);
         robotHead.showObjectImg(true);
         
-        
-        ivHambergur = new ImageView(this);
-        ivDonuts = new ImageView(this);
-        ivIceCream = new ImageView(this);
         ivMan = new ImageView(this);
-        
-        ivHambergur.setTag("BURGER");
-        ivDonuts.setTag("DNUTE");
-        ivIceCream.setTag("ICECREAM");
         ivMan.setTag("MAN");
-        
-        ivHambergur.setImageResource(R.drawable.burger);
-        ivDonuts.setImageResource(R.drawable.donut);
-        ivIceCream.setImageResource(R.drawable.icecream);
         ivMan.setImageResource(R.drawable.man);
         ivMan.setScaleType(ImageView.ScaleType.FIT_XY);
         
         LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams((int) Utility
             .convertDpToPixel(250, this), (int) Utility.convertDpToPixel(250, this));
-        ivHambergur.setLayoutParams(layoutParams1);
-        ivDonuts.setLayoutParams(layoutParams1);
-        ivIceCream.setLayoutParams(layoutParams1);
         
         RelativeLayout.LayoutParams layoutParams2 = new RelativeLayout.LayoutParams(300, 650);
         layoutParams2.setMargins(200, 700, 0, 0);
         ivMan.setLayoutParams(layoutParams2);
         ivMan.setOnTouchListener(dropTouchListener);
-        
-        
-        linearFood = new LinearLayout(this);
-        linearFood.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams
-            .MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
-        linearFood.setOrientation(LinearLayout.VERTICAL);
-        linearFood.setGravity(Gravity.CENTER_HORIZONTAL);
-        linearFood.addView(ivHambergur);
-        linearFood.addView(ivDonuts);
-        linearFood.addView(ivIceCream);
-        
-        ivHambergur.setOnTouchListener(onTouchListener);
-        ivDonuts.setOnTouchListener(onTouchListener);
-        ivIceCream.setOnTouchListener(onTouchListener);
         
         trackerHandler = new TrackerHandler(this);
         trackerHandler.setSource("0");
@@ -224,12 +191,12 @@ public class ZooActivity extends Activity
             application.playTTS((String) object, String.valueOf(nIndex));
             return;
         }
-    
+        
         if (SCEN.SCEN_INDEX_ANIMAL_END == nIndex)
         {
             if (SCEN.MAX_ZOO_VISIT <= mnZooAreaCount)
             {
-                Logs.showTrace("MAX_ZOO_VISIT ################");
+                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_FOOD_STORE);
                 return;
             }
             else
@@ -298,17 +265,21 @@ public class ZooActivity extends Activity
             
             if (SCEN.SCEN_INDEX_CHOICE_ZOO == nIndex)
             {
-                robotHead.addView(zooAreaLayout);
-                if(0 < mnZooAreaCount)
+                if (0 < mnZooAreaCount)
                 {
+                    robotHead.removeView(zooAnimalLayout);
                     strTTS = "讓我們再來參觀其他動物區";
                 }
+                robotHead.addView(zooAreaLayout);
             }
             
             if (SCEN.SCEN_INDEX_ZOO_TAIWAN == nIndex)
             {
                 ++mnZooAreaCount;
-                robotHead.removeView(zooAreaLayout);
+                if (null != zooAreaLayout)
+                {
+                    robotHead.removeView(zooAreaLayout);
+                }
                 zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.台灣動物區);
                 robotHead.addView(zooAnimalLayout);
                 zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
@@ -350,6 +321,15 @@ public class ZooActivity extends Activity
                 zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
             }
             
+            if (SCEN.SCEN_INDEX_FOOD_STORE == nIndex)
+            {
+                robotHead.removeView(zooAnimalLayout);
+            }
+            
+            if (SCEN.SCEN_INDEX_FOOD_CHOICE == nIndex)
+            {
+                Logs.showTrace("SCEN_INDEX_FOOD_CHOICE ###########################");
+            }
             application.setTTSPitch(1.0f, 1.0f);
             application.playTTS(strTTS, String.valueOf(nIndex));
             
