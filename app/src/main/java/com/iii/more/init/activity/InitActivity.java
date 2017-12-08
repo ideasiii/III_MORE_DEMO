@@ -14,8 +14,14 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Handler;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.bumptech.glide.request.target.Target;
 import com.iii.more.animate.AnimationHandler;
 import com.iii.more.http.server.DeviceHttpServerHandler;
 import com.iii.more.http.server.DeviceHttpServerParameters;
@@ -73,13 +79,14 @@ public class InitActivity extends AppCompatActivity
     //init handler
     private InitCheckBoardHandler mInitCheckBoardHandler = null;
     
+    
     private Handler mHandler = new Handler()
     {
         @Override
         public void handleMessage(Message msg)
         {
-            Logs.showTrace("[InitActivity] Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) +
-                    " From: " + String.valueOf(msg.arg2) + " Message: " + msg.obj);
+            Logs.showTrace("[InitActivity] Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf
+                (msg.what) + " From: " + String.valueOf(msg.arg2) + " Message: " + msg.obj);
             handleMessages(msg);
         }
     };
@@ -158,13 +165,10 @@ public class InitActivity extends AppCompatActivity
         super.onWindowFocusChanged(hasFocus);
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && hasFocus)
         {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View
+                .SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View
+                .SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View
+                .SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
     }
     
@@ -182,13 +186,15 @@ public class InitActivity extends AppCompatActivity
                     editor.putString(Parameters.TASK_COMPOSER_DATA, message.get("message"));
                     editor.apply();
                     
-                    mInitCheckBoardHandler.setDeviceServerState(InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_SUCCESS);
+                    mInitCheckBoardHandler.setDeviceServerState(InitCheckBoardParameters
+                        .STATE_DEVICE_SERVER_INIT_SUCCESS);
                 }
                 else
                 {
                     
                     Logs.showTrace("[MainActivity] connect Server Error, use default logic behavior!");
-                    mInitCheckBoardHandler.setDeviceServerState(InitCheckBoardParameters.STATE_DEVICE_SERVER_INIT_SUCCESS);
+                    mInitCheckBoardHandler.setDeviceServerState(InitCheckBoardParameters
+                        .STATE_DEVICE_SERVER_INIT_SUCCESS);
                     
                 }
                 break;
@@ -229,12 +235,9 @@ public class InitActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         createShortCut();
-        final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View
+            .SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         
         // This work only for android 4.4+
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
@@ -271,9 +274,11 @@ public class InitActivity extends AppCompatActivity
         Intent shortcutIntent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
         shortcutIntent.putExtra("duplicate", false);
         shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "More APP");
-        Parcelable icon = Intent.ShortcutIconResource.fromContext(getApplicationContext(), R.mipmap.ic_launcher);
+        Parcelable icon = Intent.ShortcutIconResource.fromContext(getApplicationContext(), R.mipmap
+            .ic_launcher);
         shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
-        shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(getApplicationContext(), InitActivity.class));
+        shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(getApplicationContext(),
+            InitActivity.class));
         sendBroadcast(shortcutIntent);
     }
     
@@ -281,16 +286,20 @@ public class InitActivity extends AppCompatActivity
     {
         setContentView(R.layout.welcome_layout);
         
+        /* Build App time Start*/
         TextView apkBuildDateView = (TextView) findViewById(R.id.apk_build_date_text_view);
-        String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                .format(BuildConfig.buildTime);
+        String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(BuildConfig
+            .buildTime);
         apkBuildDateView.setText("Built on " + formattedBuildDateText);
+        /* Build App time end*/
         
+        //old More Logo
         AnimationHandler animationHandler = new AnimationHandler(this);
         animationHandler.setView(findViewById(R.id.logo_image_view));
         try
         {
-            animationHandler.setAnimateJsonBehavior(new JSONObject("{\"type\":1,\"duration\":3000,\"repeat\":0, \"interpolate\":1}"));
+            animationHandler.setAnimateJsonBehavior(new JSONObject("{\"type\":1,\"duration\":3000,"+
+            "\"repeat\":0, \"interpolate\":1}"));
             animationHandler.startAnimate();
             mHandler.sendEmptyMessageDelayed(InitActivityParameters.MESSAGE_END_WELCOME_LAYOUT, 3100);
         }
@@ -298,6 +307,9 @@ public class InitActivity extends AppCompatActivity
         {
             Logs.showError("[InitActivity] " + e.toString());
         }
+        
+      
+        
     }
     
     private void showAlertDialogConnectDeviceServerERROR(int flag)
@@ -305,23 +317,24 @@ public class InitActivity extends AppCompatActivity
         if (flag == 1)
         {
             mAlertDialogHandler.setText(InitActivityParameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
-                    "與章魚裝置連線失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
+                "與章魚裝置連線失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
             mAlertDialogHandler.show();
         }
         else if (flag == 2)
         {
             mAlertDialogHandler.setText(InitActivityParameters.ALERT_DIALOG_CONNECTING_DEVICE, "章魚裝置連結",
-                    "與章魚裝置連線不明失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
+                "與章魚裝置連線不明失敗，請確認章魚裝置是否開啟或網路是否開啟，重開APP再試一次!", "是的", "", false);
             mAlertDialogHandler.show();
         }
     }
     
     private void setTaskDescriptionLabelToBuildDate()
     {
-        String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                .format(BuildConfig.buildTime);
+        String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(BuildConfig
+            .buildTime);
         
-        ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(formattedBuildDateText);
+        ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription
+            (formattedBuildDateText);
         setTaskDescription(taskDescription);
     }
     
@@ -351,26 +364,27 @@ public class InitActivity extends AppCompatActivity
     }
     
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-            @NonNull String[] permissions, @NonNull int[] grantResults)
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[]
+        grantResults)
     {
         mRuntimePermissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
     
     private void showAlertDialogWritingPermission()
     {
-        mAlertDialogHandler.setText(InitActivityParameters.ALERT_DIALOG_WRITE_PERMISSION, getResources().getString(R.string.writesettingtitle),
-                getResources().getString(R.string.writesettingcontent), getResources().getString(R.string.writesettingpositivebutton),
-                getResources().getString(R.string.writesettingnegativebutton), false);
+        mAlertDialogHandler.setText(InitActivityParameters.ALERT_DIALOG_WRITE_PERMISSION, getResources()
+            .getString(R.string.writesettingtitle), getResources().getString(R.string.writesettingcontent),
+            getResources().getString(R.string.writesettingpositivebutton), getResources().getString(R
+                .string.writesettingnegativebutton), false);
         
         mAlertDialogHandler.show();
     }
     
     private void showAlertDialogLicencesPermission()
     {
-        mAlertDialogHandler.setText(InitActivityParameters.ALERT_DIALOG_LICENCES_PERMISSION, getResources().getString(R.string.licencestitle),
-                getContent(this, R.raw.licenses), getResources().getString(R.string.licencespositivebutton),
-                null, false);
+        mAlertDialogHandler.setText(InitActivityParameters.ALERT_DIALOG_LICENCES_PERMISSION, getResources()
+            .getString(R.string.licencestitle), getContent(this, R.raw.licenses), getResources().getString
+            (R.string.licencespositivebutton), null, false);
         
         mAlertDialogHandler.show();
     }
@@ -472,7 +486,8 @@ public class InitActivity extends AppCompatActivity
             //###
             //check share preference is exist child face or name
             MainApplication app = (MainApplication) this.getApplicationContext();
-            if (null == app.getName(Parameters.ID_CHILD_NAME) || app.getName(Parameters.ID_CHILD_NAME).equals(""))
+            if (null == app.getName(Parameters.ID_CHILD_NAME) || app.getName(Parameters.ID_CHILD_NAME)
+                .equals(""))
             {
                 return true;
             }

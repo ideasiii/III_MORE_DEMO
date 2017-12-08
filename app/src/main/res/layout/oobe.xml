@@ -20,7 +20,7 @@
             android:layout_height="600dp"
             android:layout_alignTop="@+id/oobe_image_view"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="140dp"
+            android:layout_marginTop="100dp"
             android:focusable="false"
             android:visibility="invisible">
 
