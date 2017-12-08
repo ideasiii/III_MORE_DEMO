@@ -1,6 +1,7 @@
 package com.iii.more.game.zoo;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,22 +15,24 @@ import com.iii.more.main.R;
 
 public class ZooAreaLayout extends ViewPagerLayout
 {
+    private Handler handlerScenarize = null;
+    
+    private static enum ZOO
+    {
+        TAIWAN, BIRD, RAIN, CUT, AFFICA
+    }
+    
     private ImageView imgZooTaiwan = null;
     private ImageView imgZooBird = null;
     private ImageView imgZoorain = null;
     private ImageView imgZoocut = null;
     private ImageView imgZooAffica = null;
     
-    private int nPositionZooTaiwan;
-    private int nPositionZooBird;
-    private int nPositionZooRain;
-    private int nPositionZooCut;
-    private int nPositionZooAffica;
-    
-    public ZooAreaLayout(Context context)
+    public ZooAreaLayout(Context context, Handler handler)
     {
         super(context);
         init(context);
+        handlerScenarize = handler;
     }
     
     public ZooAreaLayout(Context context, AttributeSet attrs)
@@ -52,8 +55,6 @@ public class ZooAreaLayout extends ViewPagerLayout
     
     public void init(Context context)
     {
-        int position;
-        
         imgZooTaiwan = new ImageView(context);
         imgZooBird = new ImageView(context);
         imgZoorain = new ImageView(context);
@@ -65,18 +66,24 @@ public class ZooAreaLayout extends ViewPagerLayout
         imgZoorain.setImageResource(R.drawable.zoo_rain);
         imgZoocut.setImageResource(R.drawable.zoo_cut);
         imgZooAffica.setImageResource(R.drawable.zoo_affrica);
-    
-    
-        position = addPage(imgZooTaiwan,"台灣動物區");
-        imgZooTaiwan.setTag(position);
-        position = addPage(imgZooBird,"鳥園");
-        imgZooBird.setTag(position);
-        position = addPage(imgZooAffica,"非洲動物區");
-        imgZooAffica.setTag(position);
-        position = addPage(imgZoocut,"可愛動物區");
-        imgZoocut.setTag(position);
-        position = addPage(imgZoorain,"熱帶雨林動物區");
-        imgZoorain.setTag(position);
+        
+        imgZooTaiwan.setTag(ZOO.TAIWAN);
+        imgZooBird.setTag(ZOO.BIRD);
+        imgZoocut.setTag(ZOO.CUT);
+        imgZoorain.setTag(ZOO.RAIN);
+        imgZooAffica.setTag(ZOO.AFFICA);
+        
+        imgZooTaiwan.setOnClickListener(onClickListener);
+        imgZooBird.setOnClickListener(onClickListener);
+        imgZoocut.setOnClickListener(onClickListener);
+        imgZoorain.setOnClickListener(onClickListener);
+        imgZooAffica.setOnClickListener(onClickListener);
+        
+        addPage(imgZooTaiwan, "台灣動物區");
+        addPage(imgZooBird, "鳥園");
+        addPage(imgZooAffica, "非洲動物區");
+        addPage(imgZoocut, "可愛動物區");
+        addPage(imgZoorain, "熱帶雨林動物區");
         
         start();
     }
@@ -86,7 +93,25 @@ public class ZooAreaLayout extends ViewPagerLayout
         @Override
         public void onClick(View view)
         {
-           Object obj =  view.getTag();
+            ZOO tagZoo = (ZOO) view.getTag();
+            switch (tagZoo)
+            {
+                case TAIWAN:
+                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_ZOO_TAIWAN);
+                    break;
+                case BIRD:
+                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_ZOO_BIRD);
+                    break;
+                case RAIN:
+                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_ZOO_RAIN);
+                    break;
+                case CUT:
+                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_ZOO_CUT);
+                    break;
+                case AFFICA:
+                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_ZOO_AFFICA);
+                    break;
+            }
         }
     };
 }

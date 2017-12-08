@@ -147,13 +147,12 @@ public class ZooActivity extends Activity
         trackerHandler.setDescription("Edubot Zoo Game");
         
         mrtMap = new MrtMap(this);
-        RelativeLayout.LayoutParams layoutParamsMrtMap = new RelativeLayout.LayoutParams(600,
-            600);
+        RelativeLayout.LayoutParams layoutParamsMrtMap = new RelativeLayout.LayoutParams(600, 600);
         layoutParamsMrtMap.setMargins((int) 0, (int) 300, (int) 0, (int) 0);
         layoutParamsMrtMap.addRule(RelativeLayout.CENTER_HORIZONTAL);
         mrtMap.setLayoutParams(layoutParamsMrtMap);
-    
-        zooAreaLayout = new ZooAreaLayout(this);
+        
+        zooAreaLayout = new ZooAreaLayout(this, handlerScenarize);
         zooAreaLayout.setLayoutParams(layoutParamsMrtMap);
     }
     

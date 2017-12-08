@@ -44,6 +44,11 @@ abstract class SCEN
     public static final int SCEN_INDEX_MRT_MAP = 137;
     public static final int SCEN_INDEX_TRAFFIC_CARD_MRT = 138;
     public static final int SCEN_INDEX_CHOICE_ZOO = 139;    // 選動物區
+    public static final int SCEN_INDEX_ZOO_TAIWAN = 140;    // 台灣動物區
+    public static final int SCEN_INDEX_ZOO_BIRD = 141;      // 鳥園
+    public static final int SCEN_INDEX_ZOO_RAIN = 142;      // 熱帶雨林動物區
+    public static final int SCEN_INDEX_ZOO_CUT = 143;       // 可愛動物區
+    public static final int SCEN_INDEX_ZOO_AFFICA = 144;    // 非洲動物區
     public static final int SCEN_INDEX_GAME_OVER = 666;
     public static final int SCEN_INDEX_FINISH = 999;
     
