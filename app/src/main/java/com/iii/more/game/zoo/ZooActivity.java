@@ -20,10 +20,8 @@ import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
 
 import android.os.Handler;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -212,7 +210,7 @@ public class ZooActivity extends Activity
                 handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_CHOICE_ZOO);
             }
         }
-    
+        
         if (SCEN.SCEN_INDEX_FINISH == nIndex)
         {
             finish();
@@ -363,6 +361,11 @@ public class ZooActivity extends Activity
                 robotHead.addView(imgvFoodEat);
             }
             
+            if (SCEN.SCEN_INDEX_MRT_MAP == nIndex)
+            {
+                robotHead.addView(mrtMap);
+                
+            }
             if (SCEN.SCEN_INDEX_GAME_OVER == nIndex)
             {
                 robotHead.removeView(imgvFoodEat);

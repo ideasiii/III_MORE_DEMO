@@ -14,7 +14,7 @@ abstract class SCEN
     public static final int SCEN_INDEX_TRAFFIC_BUS = 103;     // 孩子選擇搭公車
     public static final int SCEN_INDEX_TRAFFIC_MRT = 104;     // 孩子選擇搭捷運
     public static final int SCEN_INDEX_TRAFFIC_CAR = 105;     // 孩子選擇坐汽車
-    public static final int SCEN_INDEX_TRAFFIC_CARD_BUS = 106;    // 孩子將悠遊卡RFID放上盤子
+    public static final int SCEN_INDEX_TRAFFIC_CARD_BUS = 106;    // 孩子將BUS悠遊卡RFID放上盤子
     public static final int SCEN_INDEX_BUS_INSIDE = 107;      // 章魚寶眼睛螢幕畫面轉成公車內部
     public static final int SCEN_INDEX_DROP_CUSTOM = 108;     // 孩子直接用手指在畫面上拉乘客到座位上
     public static final int SCEN_INDEX_DROP_CUSTOM_IDLE = 109;     // 孩子很久未在畫面上拉乘客到座位上
@@ -30,7 +30,7 @@ abstract class SCEN
     public static final int SCEN_INDEX_EATED_DNUTE = 135;
     public static final int SCEN_INDEX_EATED_ICECREAME = 136;
     public static final int SCEN_INDEX_MRT_MAP = 137;
-    public static final int SCEN_INDEX_TRAFFIC_CARD_MRT = 138;
+    public static final int SCEN_INDEX_TRAFFIC_CARD_MRT = 138;  // // 孩子將MRT悠遊卡RFID放上盤子
     public static final int SCEN_INDEX_CHOICE_ZOO = 139;    // 選動物區
     public static final int SCEN_INDEX_ZOO_TAIWAN = 140;    // 台灣動物區
     public static final int SCEN_INDEX_ZOO_BIRD = 141;      // 鳥園
@@ -41,6 +41,7 @@ abstract class SCEN
     public static final int SCEN_INDEX_FOOD_STORE = 146;
     public static final int SCEN_INDEX_FOOD_CHOICE = 147;
     public static final int SCEN_INDEX_FOOD_EAT = 148;
+    
     public static final int SCEN_INDEX_GAME_OVER = 666;
     public static final int SCEN_INDEX_FINISH = 999;
     

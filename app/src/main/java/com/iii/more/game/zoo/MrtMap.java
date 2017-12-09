@@ -13,7 +13,7 @@ import com.iii.more.game.module.FingerPaintView;
 import com.iii.more.main.R;
 
 /**
- * Created by joe on 2017/11/29.
+ * Created by jugo on 2017/11/29
  */
 
 public class MrtMap extends RelativeLayout
@@ -62,7 +62,7 @@ public class MrtMap extends RelativeLayout
         imgMap.setBackgroundColor(Color.TRANSPARENT);
         
         imgMap.setScaleType(ImageView.ScaleType.FIT_XY);
-    
+        
         fingerPaintView = new FingerPaintView(context);
         fingerPaintView.setLayoutParams(layoutParamsMap);
         fingerPaintView.setBackgroundResource(R.drawable.mrt_map);

@@ -90,6 +90,7 @@ class TTSEventHandler
                 case SCEN.SCEN_INDEX_BUS_DRIVE:            // 公車開始移動
                 case SCEN.SCEN_INDEX_ZOO_DOOR:             // 到動物園門口
                 case SCEN.SCEN_INDEX_FOOD_STORE:          // 我們來吃東西休息一下吧！
+                case SCEN.SCEN_INDEX_TRAFFIC_CARD_MRT:
                     handlerScenarize.sendEmptyMessage(nNext);
                     break;
                 case SCEN.SCEN_INDEX_FOOD_EAT:

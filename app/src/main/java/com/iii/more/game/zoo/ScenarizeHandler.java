@@ -272,16 +272,45 @@ public class ScenarizeHandler
                 FRONT.FACE,
                 "掰掰囉");
             
-            /*
-   
-            
-            */
             // 坐捷運
-            setScenarize(scenarize, SCEN.SCEN_INDEX_TRAFFIC_MRT, SCEN.SCEN_INDEX_TRAFFIC_CARD_MRT,
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_TRAFFIC_MRT,
+                SCEN.SCEN_INDEX_TRAFFIC_CARD_MRT,
                 true,
-                true, R.drawable.noeye, R.drawable.mrt, "noeye.png", ImageView.ScaleType
-                    .CENTER_CROP, ImageView.ScaleType.CENTER_INSIDE, FRONT.OBJECT,
+                true,
+                R.drawable.noeye,
+                R.drawable.mrt,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.OBJECT,
                 "坐捷運時要記得使用悠遊卡付錢喔!!這樣才是好寶寶! 請刷悠遊卡。");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_TRAFFIC_CARD_MRT,
+                SCEN.SCEN_INDEX_MRT_MAP,
+                true,
+                true,
+                R.drawable.noeye,
+                R.drawable.mrt,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.OBJECT,
+                "逼，，逼");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_MRT_MAP,
+                SCEN.SCEN_INDEX_NO_ACTION,
+                true,
+                false,
+                R.drawable.noeye,
+                R.drawable.mrt,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.OBJECT,
+                GLOBAL.ChildName + "請你幫忙畫出坐車的路線圖");
             
             // 坐車子
         }

@@ -15,6 +15,7 @@ import android.graphics.Path;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -123,6 +124,7 @@ public class FingerPaintView extends View
             mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
             mX = x;
             mY = y;
+            Log.d("[FingerPaintView]","touch_move X=" + mX + " Y=" + mY);
         }
     }
     
@@ -133,6 +135,7 @@ public class FingerPaintView extends View
             mPath.lineTo(mX, mY);
             // commit the path to our offscreen
             mCanvas.drawPath(mPath, mPaint);
+            Log.d("[FingerPaintView]", "touch_up X=" + mX + " Y=" + mY);
         }
         // kill this so we don't double draw
         mPath.reset();
@@ -166,8 +169,6 @@ public class FingerPaintView extends View
             case MotionEvent.ACTION_MOVE:
                 touch_move(x, y);
                 invalidate();
-                Logs.showTrace("[FingerPaintView] processEvent X=" + String.valueOf(x) + " Y=" +
-                    String.valueOf(y));
                 break;
             case MotionEvent.ACTION_UP:
                 touch_up();
