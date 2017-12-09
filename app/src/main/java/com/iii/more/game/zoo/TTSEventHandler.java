@@ -92,30 +92,10 @@ class TTSEventHandler
                 case SCEN.SCEN_INDEX_FOOD_STORE:          // 我們來吃東西休息一下吧！
                     handlerScenarize.sendEmptyMessage(nNext);
                     break;
-                case SCEN.SCEN_INDEX_EAT_HAMBERB:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_EATED_HAMBERB,
-                    // 1000);
-                    break;
-                case SCEN.SCEN_INDEX_EAT_DNUTE:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_EATED_DNUTE,
-                    // 1000);
-                    break;
-                case SCEN.SCEN_INDEX_EAT_ICECREAME:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN
-                    // .SCEN_INDEX_EATED_ICECREAME,  1000);
-                    break;
-                case SCEN.SCEN_INDEX_EATED_HAMBERB:
-                case SCEN.SCEN_INDEX_EATED_DNUTE:
-                case SCEN.SCEN_INDEX_EATED_ICECREAME:
-                    //   handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_GAME_OVER, 1000);
-                    break;
-                case SCEN.SCEN_INDEX_FAV_ANIMAL:
-                    //    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_FAV_ANIMAL_SPEECH);
-                    break;
+                case SCEN.SCEN_INDEX_FOOD_EAT:
                 case SCEN.SCEN_INDEX_GAME_OVER:
-                    //    handlerScenarize.sendEmptyMessageDelayed(SCEN.SCEN_INDEX_FINISH, 2000);
+                    handlerScenarize.sendEmptyMessageDelayed(nNext,2000);
                     break;
-                
             }
         }
     };

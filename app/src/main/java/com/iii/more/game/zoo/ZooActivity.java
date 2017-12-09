@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
@@ -56,6 +58,9 @@ public class ZooActivity extends Activity
     private ZooAnimalLayout zooAnimalLayout = null;
     private int mnZooAreaCount = 0;
     private int nTimeoutAnimal = 4;
+    RelativeLayout.LayoutParams layoutParamsExView = null;
+    private FoodListLayout foodListLayout = null;
+    private ImageView imgvFoodEat = null;
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -116,17 +121,19 @@ public class ZooActivity extends Activity
         trackerHandler.setDescription("Edubot Zoo Game");
         
         mrtMap = new MrtMap(this);
-        RelativeLayout.LayoutParams layoutParamsMrtMap = new RelativeLayout.LayoutParams(600, 600);
-        layoutParamsMrtMap.setMargins((int) 0, (int) 300, (int) 0, (int) 0);
-        layoutParamsMrtMap.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        mrtMap.setLayoutParams(layoutParamsMrtMap);
+        layoutParamsExView = new RelativeLayout.LayoutParams(600, 600);
+        layoutParamsExView.setMargins((int) 0, (int) 300, (int) 0, (int) 0);
+        layoutParamsExView.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        mrtMap.setLayoutParams(layoutParamsExView);
         
         zooAreaLayout = new ZooAreaLayout(this, handlerScenarize);
-        zooAreaLayout.setLayoutParams(layoutParamsMrtMap);
+        zooAreaLayout.setLayoutParams(layoutParamsExView);
         
-        zooAnimalLayout = new ZooAnimalLayout(this);
-        zooAnimalLayout.setHandler(handlerScenarize);
-        zooAnimalLayout.setLayoutParams(layoutParamsMrtMap);
+        foodListLayout = new FoodListLayout(this, handlerScenarize);
+        foodListLayout.setLayoutParams(layoutParamsExView);
+        
+        imgvFoodEat = new ImageView(this);
+        imgvFoodEat.setLayoutParams(layoutParamsExView);
     }
     
     @Override
@@ -205,6 +212,11 @@ public class ZooActivity extends Activity
                 handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_CHOICE_ZOO);
             }
         }
+    
+        if (SCEN.SCEN_INDEX_FINISH == nIndex)
+        {
+            finish();
+        }
         
         if (GLOBAL.scenarize.indexOfKey(nIndex) < 0)
         {
@@ -276,10 +288,10 @@ public class ZooActivity extends Activity
             if (SCEN.SCEN_INDEX_ZOO_TAIWAN == nIndex)
             {
                 ++mnZooAreaCount;
-                if (null != zooAreaLayout)
-                {
-                    robotHead.removeView(zooAreaLayout);
-                }
+                robotHead.removeView(zooAreaLayout);
+                zooAnimalLayout = new ZooAnimalLayout(this);
+                zooAnimalLayout.setHandler(handlerScenarize);
+                zooAnimalLayout.setLayoutParams(layoutParamsExView);
                 zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.台灣動物區);
                 robotHead.addView(zooAnimalLayout);
                 zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
@@ -289,6 +301,9 @@ public class ZooActivity extends Activity
             {
                 ++mnZooAreaCount;
                 robotHead.removeView(zooAreaLayout);
+                zooAnimalLayout = new ZooAnimalLayout(this);
+                zooAnimalLayout.setHandler(handlerScenarize);
+                zooAnimalLayout.setLayoutParams(layoutParamsExView);
                 zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.鳥園);
                 robotHead.addView(zooAnimalLayout);
                 zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
@@ -298,6 +313,9 @@ public class ZooActivity extends Activity
             {
                 ++mnZooAreaCount;
                 robotHead.removeView(zooAreaLayout);
+                zooAnimalLayout = new ZooAnimalLayout(this);
+                zooAnimalLayout.setHandler(handlerScenarize);
+                zooAnimalLayout.setLayoutParams(layoutParamsExView);
                 zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.熱帶雨林動物區);
                 robotHead.addView(zooAnimalLayout);
                 zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
@@ -307,6 +325,9 @@ public class ZooActivity extends Activity
             {
                 ++mnZooAreaCount;
                 robotHead.removeView(zooAreaLayout);
+                zooAnimalLayout = new ZooAnimalLayout(this);
+                zooAnimalLayout.setHandler(handlerScenarize);
+                zooAnimalLayout.setLayoutParams(layoutParamsExView);
                 zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.可愛動物區);
                 robotHead.addView(zooAnimalLayout);
                 zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
@@ -316,6 +337,9 @@ public class ZooActivity extends Activity
             {
                 ++mnZooAreaCount;
                 robotHead.removeView(zooAreaLayout);
+                zooAnimalLayout = new ZooAnimalLayout(this);
+                zooAnimalLayout.setHandler(handlerScenarize);
+                zooAnimalLayout.setLayoutParams(layoutParamsExView);
                 zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.非洲動物區);
                 robotHead.addView(zooAnimalLayout);
                 zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
@@ -328,7 +352,20 @@ public class ZooActivity extends Activity
             
             if (SCEN.SCEN_INDEX_FOOD_CHOICE == nIndex)
             {
-                Logs.showTrace("SCEN_INDEX_FOOD_CHOICE ###########################");
+                robotHead.addView(foodListLayout);
+            }
+            
+            if (SCEN.SCEN_INDEX_FOOD_EAT == nIndex)
+            {
+                robotHead.removeView(foodListLayout);
+                Glide.with(this).load((int) object).diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    .into(imgvFoodEat);
+                robotHead.addView(imgvFoodEat);
+            }
+            
+            if (SCEN.SCEN_INDEX_GAME_OVER == nIndex)
+            {
+                robotHead.removeView(imgvFoodEat);
             }
             application.setTTSPitch(1.0f, 1.0f);
             application.playTTS(strTTS, String.valueOf(nIndex));
@@ -341,7 +378,7 @@ public class ZooActivity extends Activity
         }
         catch (Exception e)
         {
-            Logs.showError("[ZooActivity] Scenarize Exception:" + e.getMessage());
+            Logs.showError("[ZooActivity] Scenarize Exception:" + e.toString());
         }
         
         
@@ -385,39 +422,6 @@ public class ZooActivity extends Activity
                 mVoiceRecognition.stopListen();
                 handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_GAME_OVER);
             }
-        }
-    };
-    
-    private View.OnTouchListener onTouchListener = new View.OnTouchListener()
-    {
-        
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent)
-        {
-            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
-            {
-                String strTag = (String) view.getTag();
-                Logs.showTrace("onTouch down view tag: " + strTag);
-                if (0 == strTag.compareTo("BURGER"))
-                {
-                    handlerScenarize.removeMessages(SCEN.SCEN_INDEX_EAT_HAMBERB);
-                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_EAT_HAMBERB);
-                    return true;
-                }
-                if (0 == strTag.compareTo("DNUTE"))
-                {
-                    handlerScenarize.removeMessages(SCEN.SCEN_INDEX_EAT_DNUTE);
-                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_EAT_DNUTE);
-                    return true;
-                }
-                if (0 == strTag.compareTo("ICECREAM"))
-                {
-                    handlerScenarize.removeMessages(SCEN.SCEN_INDEX_EAT_ICECREAME);
-                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_EAT_ICECREAME);
-                    return true;
-                }
-            }
-            return false;
         }
     };
     

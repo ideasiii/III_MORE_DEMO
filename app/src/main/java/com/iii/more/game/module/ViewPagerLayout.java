@@ -79,6 +79,11 @@ public class ViewPagerLayout extends RelativeLayout
         LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
             LayoutParams.MATCH_PARENT);
         view.setLayoutParams(layoutParams);
+        if (null == viewPagerAdapter)
+        {
+            viewPagerAdapter = new ViewPagerAdapter();
+            viewPager.setAdapter(viewPagerAdapter);
+        }
         return viewPagerAdapter.addPage(view, strTitle);
     }
     
@@ -186,6 +191,10 @@ public class ViewPagerLayout extends RelativeLayout
         
         public int addPage(View view, String strTitle)
         {
+            if (null == Pages)
+            {
+                Pages = new SparseArray<Page>();
+            }
             Page page = new Page();
             page.view = view;
             page.strTitle = strTitle;
@@ -195,6 +204,10 @@ public class ViewPagerLayout extends RelativeLayout
         
         public int addPage(View view, String strTitle, int position)
         {
+            if (null == Pages)
+            {
+                Pages = new SparseArray<Page>();
+            }
             Page page = new Page();
             page.view = view;
             page.strTitle = strTitle;

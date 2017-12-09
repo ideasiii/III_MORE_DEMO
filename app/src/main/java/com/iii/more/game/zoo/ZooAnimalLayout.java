@@ -203,7 +203,7 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.taiwan_bear;
                             break;
                     }
-                    
+                 
                     Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .into(animal.image);
                     addPage(animal.image, animal.name);

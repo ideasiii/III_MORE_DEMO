@@ -40,6 +40,7 @@ abstract class SCEN
     public static final int SCEN_INDEX_ANIMAL_END = 145;
     public static final int SCEN_INDEX_FOOD_STORE = 146;
     public static final int SCEN_INDEX_FOOD_CHOICE = 147;
+    public static final int SCEN_INDEX_FOOD_EAT = 148;
     public static final int SCEN_INDEX_GAME_OVER = 666;
     public static final int SCEN_INDEX_FINISH = 999;
     

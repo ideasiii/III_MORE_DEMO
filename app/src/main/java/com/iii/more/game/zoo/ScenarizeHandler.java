@@ -230,7 +230,7 @@ public class ScenarizeHandler
                 "noeye.png",
                 ImageView.ScaleType.CENTER_CROP,
                 ImageView.ScaleType.CENTER_INSIDE,
-                FRONT.FACE,
+                FRONT.OBJECT,
                 "我們來吃東西休息一下吧！");
     
             setScenarize(scenarize,
@@ -245,6 +245,32 @@ public class ScenarizeHandler
                 ImageView.ScaleType.CENTER_INSIDE,
                 FRONT.FACE,
                 "請選擇你要吃的食物");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_FOOD_EAT,
+                SCEN.SCEN_INDEX_GAME_OVER,
+                true,
+                false,
+                R.drawable.noeye,
+                R.drawable.food_store,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                ",,,,,,,,,,,,啊,,嗯,,嗯,,嗯  嗯 ,,好吃！,, ,,我們下次再來玩");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_GAME_OVER,
+                SCEN.SCEN_INDEX_FINISH,
+                true,
+                true,
+                R.drawable.noeye,
+                R.drawable.zoo,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "掰掰囉");
             
             /*
    
