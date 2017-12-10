@@ -21,6 +21,8 @@ import android.view.View;
 
 import sdk.ideas.common.Logs;
 
+import static com.iii.more.game.module.FingerPaintView.Emotion.Touch_up;
+
 public class FingerPaintView extends View
 {
     
@@ -36,6 +38,22 @@ public class FingerPaintView extends View
     private Paint mpaintEraser = null;
     private String mstrBackground = null;
     private String mstrText = null;
+    private OnTouchLister onTouchLister = null;
+    
+    public static enum Emotion
+    {
+        Touch_up, Touch_move, Touch_down;
+    }
+    
+    public static interface OnTouchLister
+    {
+        public void onTouch(Emotion emotion, float nX, float nY);
+    }
+    
+    public void setOnTouchLister(OnTouchLister listener)
+    {
+        onTouchLister = listener;
+    }
     
     public FingerPaintView(Context context)
     {
@@ -124,7 +142,7 @@ public class FingerPaintView extends View
             mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
             mX = x;
             mY = y;
-            Log.d("[FingerPaintView]","touch_move X=" + mX + " Y=" + mY);
+            Log.d("[FingerPaintView]", "touch_move X=" + mX + " Y=" + mY);
         }
     }
     
@@ -136,6 +154,10 @@ public class FingerPaintView extends View
             // commit the path to our offscreen
             mCanvas.drawPath(mPath, mPaint);
             Log.d("[FingerPaintView]", "touch_up X=" + mX + " Y=" + mY);
+            if (null != onTouchLister)
+            {
+                onTouchLister.onTouch(Emotion.Touch_up, mX, mY);
+            }
         }
         // kill this so we don't double draw
         mPath.reset();

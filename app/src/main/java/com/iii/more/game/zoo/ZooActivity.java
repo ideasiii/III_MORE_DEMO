@@ -118,7 +118,7 @@ public class ZooActivity extends Activity
         trackerHandler.setActivity("game");
         trackerHandler.setDescription("Edubot Zoo Game");
         
-        mrtMap = new MrtMap(this);
+        mrtMap = new MrtMap(this, handlerScenarize);
         layoutParamsExView = new RelativeLayout.LayoutParams(600, 600);
         layoutParamsExView.setMargins((int) 0, (int) 300, (int) 0, (int) 0);
         layoutParamsExView.addRule(RelativeLayout.CENTER_HORIZONTAL);
@@ -280,6 +280,10 @@ public class ZooActivity extends Activity
                     robotHead.removeView(zooAnimalLayout);
                     strTTS = "讓我們再來參觀其他動物區";
                 }
+                if (0 < robotHead.indexOfChild(mrtMap))
+                {
+                    robotHead.removeView(mrtMap);
+                }
                 robotHead.addView(zooAreaLayout);
             }
             
@@ -364,8 +368,8 @@ public class ZooActivity extends Activity
             if (SCEN.SCEN_INDEX_MRT_MAP == nIndex)
             {
                 robotHead.addView(mrtMap);
-                
             }
+            
             if (SCEN.SCEN_INDEX_GAME_OVER == nIndex)
             {
                 robotHead.removeView(imgvFoodEat);
@@ -412,7 +416,7 @@ public class ZooActivity extends Activity
                 mVoiceRecognition.stopListen();
                 Logs.showTrace("[LogicHandler] Get voice Text: " + message.get("message"));
                 //mstrFavAnimal = (String) message.get("message");
-                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_GAME_OVER);
+                //handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_GAME_OVER);
             }
             else if (msg.arg1 == ResponseCode.ERR_SUCCESS)
             {
