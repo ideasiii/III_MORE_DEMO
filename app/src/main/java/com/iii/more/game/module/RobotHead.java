@@ -67,7 +67,9 @@ public class RobotHead extends RelativeLayout
     {
         LayoutParams layoutParamsP = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
             LayoutParams.MATCH_PARENT);
+        this.setPadding(0, 170, 0, 0);
         this.setLayoutParams(layoutParamsP);
+        setBackgroundColor(Color.rgb(160, 201, 236)); //A0C9EC
         
         setBackgroundResource(R.color.default_app_color);
         imgFace = new ImageView(context);
@@ -86,7 +88,7 @@ public class RobotHead extends RelativeLayout
         imgObject.setAdjustViewBounds(true);
         LayoutParams layoutParams1 = new LayoutParams((int) Utility.convertDpToPixel(400,
             context), (int) Utility.convertDpToPixel(400, context));
-        layoutParams1.setMargins((int) 0, (int) 200, (int) 0, (int) 0);
+        layoutParams1.setMargins((int) 0, (int) 300, (int) 0, (int) 0);
         layoutParams1.addRule(RelativeLayout.CENTER_HORIZONTAL);
         imgObject.setLayoutParams(layoutParams1);
         imgObject.setBackgroundColor(Color.TRANSPARENT);

@@ -115,9 +115,12 @@ class SensorEventHandler
             switch (GLOBAL.mnScenarizeIndex)
             {
                 case SCEN.SCEN_INDEX_START:
-                    handlerScenarize.sendEmptyMessage(nNext);
+                    if (0 == scannedResult.compareTo(SCEN.GAME_ZOO))
+                    {
+                        handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_ANIMAL_RFID);
+                    }
                     break;
-                case SCEN.SCEN_INDEX_HOLD_HAND:
+                case SCEN.SCEN_INDEX_HOLD_HAND: // "抓緊喔！今天，你想要坐什麼交通工具去呢"
                     if (0 == scannedResult.compareTo(SCEN.TRAFFIC_BUS))
                     {
                         handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_TRAFFIC_BUS);
@@ -133,10 +136,12 @@ class SensorEventHandler
                     break;
                 case SCEN.SCEN_INDEX_TRAFFIC_BUS:
                 case SCEN.SCEN_INDEX_TRAFFIC_MRT:
-                case SCEN.SCEN_INDEX_TRAFFIC_CARD_BUS:
-                    handlerScenarize.sendEmptyMessage(nNext);
+                    if (0 == scannedResult.compareTo(SCEN.TRAFFIC_CARD)) // 刷悠遊卡
+                    {
+                        handlerScenarize.sendEmptyMessage(nNext);
+                    }
                     break;
-               
+                
             }
             
             trackerHandler.setRobotFace("").setSensor("rfid", scannedResult).setScene(String

@@ -6,10 +6,16 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import com.iii.more.main.R;
+
 
 /**
  * Created by Jugo on 2017/12/7
@@ -21,6 +27,10 @@ public class ViewPagerLayout extends RelativeLayout
     private ViewPager viewPager = null;
     private ViewPagerAdapter viewPagerAdapter = null;
     private boolean mbPagingEnable = true;
+    private LinearLayout linearLayout = null;
+    private ImageView imgForward = null;
+    private ImageView imgBack = null;
+    
     
     public ViewPagerLayout(Context context)
     {
@@ -51,13 +61,42 @@ public class ViewPagerLayout extends RelativeLayout
         setBackgroundColor(Color.TRANSPARENT);
         theContext = context;
         viewPager = new ViewPager(context);
-        LayoutParams layoutParamsViewPager = new LayoutParams(ViewGroup.LayoutParams
+        
+        linearLayout = new LinearLayout(context);
+        linearLayout.setGravity(Gravity.CENTER);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        RelativeLayout.LayoutParams layoutParamsLL = new RelativeLayout.LayoutParams(LayoutParams
             .MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        linearLayout.setPadding(100, 0, 100, 0);
+        linearLayout.setLayoutParams(layoutParamsLL);
+        
+        RelativeLayout.LayoutParams layoutParamsViewPager = new RelativeLayout.LayoutParams
+            (LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         viewPager.setLayoutParams(layoutParamsViewPager);
         viewPager.setBackgroundColor(Color.TRANSPARENT);
-        addView(viewPager);
+        
+        // addView(viewPager);
+        
         viewPagerAdapter = new ViewPagerAdapter();
         viewPager.setOnTouchListener(onTouchListener);
+        
+        RelativeLayout.LayoutParams layoutParamsForward = new RelativeLayout.LayoutParams(80,
+            LayoutParams.MATCH_PARENT);
+        imgForward = new ImageView(context);
+        imgForward.setImageResource(R.drawable.arrows_forward);
+        imgForward.setLayoutParams(layoutParamsForward);
+        imgForward.setScaleType(ImageView.ScaleType.FIT_XY);
+    
+        imgBack = new ImageView(context);
+        imgBack.setImageResource(R.drawable.arrows_back);
+        imgBack.setLayoutParams(layoutParamsForward);
+        imgBack.setScaleType(ImageView.ScaleType.FIT_XY);
+        
+        linearLayout.addView(imgBack);
+        linearLayout.addView(viewPager);
+        linearLayout.addView(imgForward);
+        
+        addView(linearLayout);
     }
     
     private OnTouchListener onTouchListener = new OnTouchListener()

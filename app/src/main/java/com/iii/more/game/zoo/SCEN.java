@@ -54,9 +54,11 @@ abstract class SCEN
     
     public static final int MSG_TTS_PLAY = 2000;
     
+    public static final String GAME_ZOO = "22418120115";
     public static final String TRAFFIC_BUS = "3268108115";
     public static final String TRAFFIC_MRT = "6487127115";
     public static final String TRAFFIC_CAR = "208145104115";
+    public static final String TRAFFIC_CARD = "2287191147";
     
     public static final int MAX_ZOO_VISIT = 2;
 }
