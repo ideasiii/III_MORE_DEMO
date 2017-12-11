@@ -18,5 +18,5 @@ public interface CockpitSensorEventListener
     void onPatHead(Object arg);
 
     /** RFID 掃描到東西時的回呼 */
-    void onScannedRfid(Object arg, String scannedResult);
+    void onScannedRfid(Object arg, String tag);
 }

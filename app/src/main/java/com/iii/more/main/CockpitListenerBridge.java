@@ -29,12 +29,12 @@ class CockpitListenerBridge
     private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
 
     private MediaPlayer mRfidScannedSoundPlayer;
+    private MediaPlayer mNormalSensorEventSoundPlayer;
     private MediaPlayer mBloodySensorEventSoundPlayer;
-    private MediaPlayer mNornalSensorEventSoundPlayer;
 
     private boolean mPlaySoundOnRfidScanned = true;
-    private boolean mPlaySoundOnSensorEventTriggered = true;
-    private boolean mPlayBloodySoundOnSensorEvent = false;
+    private boolean mPlaySoundOnSensorEvent = true;
+    private boolean mUseBloodySensorEventSound = false;
 
     private Context mContext;
 
@@ -139,11 +139,11 @@ class CockpitListenerBridge
         switch (msg.arg2)
         {
             case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
-                String trigger_result = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
+                String triggerResult = message.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION);
                 Logs.showTrace("[MainApplication] handleInterruptLogicMessage() " +
-                        "trigger_result = " + trigger_result);
+                        "trigger_result = " + triggerResult);
 
-                switch (trigger_result)
+                switch (triggerResult)
                 {
                     case "握手":
                         playSensorEventSound();
@@ -163,11 +163,11 @@ class CockpitListenerBridge
                         break;
                     case "RFID":
                         playRfidEventSound();
-                        String reading = message.get(InterruptLogicParameters.JSON_STRING_TAG);
-                        mCockpitSensorEventListener.onScannedRfid(null, reading);
+                        String tag = message.get(InterruptLogicParameters.JSON_STRING_TAG);
+                        mCockpitSensorEventListener.onScannedRfid(null, tag);
                         break;
                     default:
-                        Logs.showTrace("handleInterruptLogicMessage() unknown trigger_result: " + trigger_result);
+                        Logs.showTrace("handleInterruptLogicMessage() unknown triggerResult: " + triggerResult);
                 }
 
                 break;
@@ -194,10 +194,10 @@ class CockpitListenerBridge
                     mPlaySoundOnRfidScanned = !mPlaySoundOnRfidScanned;
                     break;
                 case "toggleSensorEventTriggeredSound":
-                    mPlaySoundOnSensorEventTriggered = !mPlaySoundOnSensorEventTriggered;
+                    mPlaySoundOnSensorEvent = !mPlaySoundOnSensorEvent;
                     break;
                 case "switchShakeHandSound":
-                    mPlayBloodySoundOnSensorEvent = !mPlayBloodySoundOnSensorEvent;
+                    mUseBloodySensorEventSound = !mUseBloodySensorEventSound;
                     break;
                 default:
                     Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
@@ -308,12 +308,12 @@ class CockpitListenerBridge
     /** 播放 sensor 事件音效 */
     private void playSensorEventSound()
     {
-        if (!mPlaySoundOnSensorEventTriggered)
+        if (!mPlaySoundOnSensorEvent)
         {
             return;
         }
 
-        if (mPlayBloodySoundOnSensorEvent)
+        if (mUseBloodySensorEventSound)
         {
             playR18SensorEventSound();
         }
@@ -326,12 +326,12 @@ class CockpitListenerBridge
     /** 播放一般的 sensor 事件音效 */
     private void playNormalSensorEventSound()
     {
-        if (mNornalSensorEventSoundPlayer == null)
+        if (mNormalSensorEventSoundPlayer == null)
         {
-            mNornalSensorEventSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand);
+            mNormalSensorEventSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand);
         }
 
-        replayMediaPlayer(mNornalSensorEventSoundPlayer);
+        replayMediaPlayer(mNormalSensorEventSoundPlayer);
     }
 
 
