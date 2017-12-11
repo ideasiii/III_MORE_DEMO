@@ -300,10 +300,11 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                         }
                         
                         
-                        message.get("rfidCode");
-                        mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
-                        doNext();
-                        
+                        // ### maybe happened error
+                        //
+                       
+                            mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
+                            doNext();
                         break;
                     
                     
@@ -814,6 +815,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
     public void onScannedRfid(Object sensor, String scannedResult)
     {
         Logs.showTrace("[OobeActivity] onScanned RFID : scannedResult: " + String.valueOf(scannedResult));
+        
         rfidString = scannedResult;
     }
     
@@ -879,18 +881,21 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                     //###
                                     // can send message to let know have
                                     // response
-                                    Message msg = new Message();
-                                    msg.what = OobeParameters.RUNNABLE_HARDWARE_CHECK;
-                                    msg.arg1 = OobeParameters.METHOD_RFID_DETECT;
-                                    
-                                    HashMap<String, String> message = new HashMap<>();
-                                    message.put("rfidCode", rfidString);
-                                    msg.obj = message;
-                                    
-                                    mHandler.sendMessage(msg);
-                                    
-                                    
-                                    break;
+    
+                                    if (rfidString.equals(OobeParameters.ID_RFID_STRIPED_FISH))
+                                    {
+                                        Message msg = new Message();
+                                        msg.what = OobeParameters.RUNNABLE_HARDWARE_CHECK;
+                                        msg.arg1 = OobeParameters.METHOD_RFID_DETECT;
+    
+                                        HashMap<String, String> message = new HashMap<>();
+                                        message.put("rfidCode", rfidString);
+                                        msg.obj = message;
+    
+                                        mHandler.sendMessage(msg);
+                                        break;
+                                    }
+                                   
                                 }
                             }
                         }
