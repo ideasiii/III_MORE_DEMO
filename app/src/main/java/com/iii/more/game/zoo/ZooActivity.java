@@ -156,8 +156,8 @@ public class ZooActivity extends Activity
         mVoiceRecognition.setLocale(Locale.TAIWAN);
         GLOBAL.ChildName = application.getName(Parameters.ID_CHILD_NAME);
         mnZooAreaCount = 0;
-        //  Scenarize(SCEN.SCEN_INDEX_START, null);
-        Scenarize(SCEN.SCEN_INDEX_CHOICE_ZOO, null);// test
+        Scenarize(SCEN.SCEN_INDEX_START, null);
+        //Scenarize(SCEN.SCEN_INDEX_CHOICE_ZOO, null);// test
     }
     
     @Override
