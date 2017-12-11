@@ -1,4 +1,4 @@
-package premission.settings;
+package permission.settings;
 
 /**
  * Created by joe on 2017/7/20.

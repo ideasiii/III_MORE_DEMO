@@ -1,6 +1,5 @@
-package premission.settings;
+package permission.settings;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -9,15 +8,10 @@ import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 
-import com.iii.more.main.Parameters;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import sdk.ideas.common.BaseHandler;
-import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
-import sdk.ideas.tool.premisson.RuntimePermissionHandler;
 
 /**
  * Created by joe on 2017/7/20.

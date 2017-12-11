@@ -334,7 +334,6 @@ class CockpitListenerBridge
         replayMediaPlayer(mNormalSensorEventSoundPlayer);
     }
 
-
     /** 播放很奇怪的 sensor 事件音效 */
     private void playR18SensorEventSound()
     {
@@ -345,7 +344,6 @@ class CockpitListenerBridge
 
         replayMediaPlayer(mBloodySensorEventSoundPlayer);
     }
-
 
     /** 將 MediaPlayer 重頭播放 */
     private static void replayMediaPlayer(MediaPlayer mp)
