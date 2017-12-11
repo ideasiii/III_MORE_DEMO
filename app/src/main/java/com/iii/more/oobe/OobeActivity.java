@@ -131,12 +131,13 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                             //add tracker microphone
                             try
                             {
-                                HashMap<String, String> trackHashMap = new HashMap<>();
-                                JSONObject trackerJson = new JSONObject();
+                                HashMap<String, Object> trackHashMap = new HashMap<>();
                                 
-                                trackerJson.put("Text", message.get("message"));
+                                HashMap<String, Object> microphone = new HashMap<>();
+                                microphone.put("Text", message.get("message"));
+                                
                                 trackHashMap.put("Scene", String.valueOf(mOobeLogicHandler.getState()));
-                                trackHashMap.put("Microphone", trackerJson.toString());
+                                trackHashMap.put("Microphone", microphone);
                                 
                                 mOobeTracker.tracker(trackHashMap);
                             }
@@ -257,12 +258,13 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                         //add Tracker sensor detect
                         try
                         {
-                            HashMap<String, String> trackHashMap = new HashMap<>();
-                            JSONObject trackerJson = new JSONObject();
-                            trackerJson.put("TYPE", sensorGetEvent);
-                            trackerJson.put("Value", "");
+                            HashMap<String, Object> trackHashMap = new HashMap<>();
                             
-                            trackHashMap.put("Sensor", trackerJson.toString());
+                            HashMap<String, Object> sensorHashMap = new HashMap<>();
+                            sensorHashMap.put("TYPE", sensorGetEvent);
+                            sensorHashMap.put("Value", "");
+                            
+                            trackHashMap.put("Sensor", sensorHashMap);
                             trackHashMap.put("Scene", String.valueOf(mOobeLogicHandler.getState()));
                             
                             mOobeTracker.tracker(trackHashMap);
@@ -284,12 +286,12 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                         
                         try
                         {
-                            HashMap<String, String> trackHashMap = new HashMap<>();
-                            JSONObject trackerJson = new JSONObject();
-                            trackerJson.put("TYPE", "rfid");
-                            trackerJson.put("Value", message.get("rfidCode"));
+                            HashMap<String, Object> trackHashMap = new HashMap<>();
+                            HashMap<String, Object> sensorHashMap = new HashMap<>();
+                            sensorHashMap.put("TYPE", "rfid");
+                            sensorHashMap.put("Value", message.get("rfidCode"));
                             
-                            trackHashMap.put("Sensor", trackerJson.toString());
+                            trackHashMap.put("Sensor", sensorHashMap);
                             trackHashMap.put("Scene", String.valueOf(mOobeLogicHandler.getState()));
                             
                             mOobeTracker.tracker(trackHashMap);
@@ -302,9 +304,9 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                         
                         // ### maybe happened error
                         //
-                       
-                            mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
-                            doNext();
+                        
+                        mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
+                        doNext();
                         break;
                     
                     
@@ -470,37 +472,28 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                         
                         //###
                         // add robot face and speaker output
-                        HashMap<String, String> trackHashMap = new HashMap<>();
-                        JSONObject faceTrackJson = new JSONObject();
-                        JSONObject ttsTrackJson = new JSONObject();
-                        JSONObject mediaTrackJson = new JSONObject();
+                        HashMap<String, Object> trackHashMap = new HashMap<>();
+                        
+                        HashMap<String, Object> faceTrackHashMap = new HashMap<>();
+                        HashMap<String, Object> ttsTrackHashMap = new HashMap<>();
+                        HashMap<String, Object> mediaTrackHashMap = new HashMap<>();
                         
                         trackHashMap.put("Scene", String.valueOf(mOobeLogicHandler.getState()));
                         
                         //robot face
-                        try
-                        {
-                            faceTrackJson.put("File", mStateData.get(mOobeLogicHandler.getState()).imageFile);
-                            trackHashMap.put("RobotFace", faceTrackJson.toString());
-                        }
-                        catch (JSONException e)
-                        {
-                            Logs.showError("[OobeActivity] log tracker data ERROR: " + e.toString());
-                        }
+                        
+                        faceTrackHashMap.put("File", mStateData.get(mOobeLogicHandler.getState()).imageFile);
+                        trackHashMap.put("RobotFace", faceTrackHashMap);
+                        
                         
                         if (!tts.isEmpty())
                         {
-                            try
-                            {
-                                ttsTrackJson.put("Text", tts);
-                                ttsTrackJson.put("Pitch", "1");
-                                ttsTrackJson.put("Speed", "1");
-                            }
-                            catch (JSONException e)
-                            {
-                                Logs.showError("[OobeActivity] log tracker data ERROR: " + e.toString());
-                            }
+                            ttsTrackHashMap.put("Text", tts);
+                            ttsTrackHashMap.put("Pitch", "1");
+                            ttsTrackHashMap.put("Speed", "1");
                         }
+                        
+                        
                         if (null != displayJson)
                         {
                             try
@@ -523,9 +516,9 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                 {
                                     try
                                     {
-                                        mediaTrackJson.put("Type", "local");
-                                        mediaTrackJson.put("URL", "");
-                                        mediaTrackJson.put("Local", "oobe_movie");
+                                        mediaTrackHashMap.put("Type", "local");
+                                        mediaTrackHashMap.put("URL", "");
+                                        mediaTrackHashMap.put("Local", "oobe_movie");
                                         
                                         
                                         mOobeDisplayHandler.setImageViewImageFromDrawable(R.drawable.noeye);
@@ -564,33 +557,27 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                         
                         //###
                         // add tracker speaker
-                        JSONObject speakerTrackJson = new JSONObject();
-                        try
+                        HashMap<String, Object> speakerTrackHashMap = new HashMap<>();
+                        
+                        if (!ttsTrackHashMap.isEmpty() && !mediaTrackHashMap.isEmpty())
                         {
-                            if (ttsTrackJson.length() != 0 && mediaTrackJson.length() != 0)
-                            {
-                                speakerTrackJson.put("Type", "both");
-                                speakerTrackJson.put("TTS", ttsTrackJson.toString());
-                                speakerTrackJson.put("Media", mediaTrackJson.toString());
-                            }
-                            else if (mediaTrackJson.length() == 0)
-                            {
-                                speakerTrackJson.put("Type", "tts");
-                                speakerTrackJson.put("TTS", ttsTrackJson.toString());
-                            }
-                            else if (ttsTrackJson.length() == 0)
-                            {
-                                speakerTrackJson.put("Type", "media");
-                                speakerTrackJson.put("Media", mediaTrackJson.toString());
-                            }
-                            
-                            trackHashMap.put("Speaker", speakerTrackJson.toString());
-                            
+                            speakerTrackHashMap.put("Type", "both");
+                            speakerTrackHashMap.put("TTS", ttsTrackHashMap);
+                            speakerTrackHashMap.put("Media", mediaTrackHashMap);
                         }
-                        catch (JSONException e)
+                        else if (!ttsTrackHashMap.isEmpty())
                         {
-                            Logs.showError("[OobeActivity] log tracker data ERROR: " + e.toString());
+                            speakerTrackHashMap.put("Type", "tts");
+                            speakerTrackHashMap.put("TTS", ttsTrackHashMap);
                         }
+                        else if (!mediaTrackHashMap.isEmpty())
+                        {
+                            speakerTrackHashMap.put("Type", "media");
+                            speakerTrackHashMap.put("Media", mediaTrackHashMap);
+                        }
+                        
+                        trackHashMap.put("Speaker", speakerTrackHashMap);
+                        
                         
                         mOobeTracker.tracker(trackHashMap);
                         
@@ -881,21 +868,21 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                     //###
                                     // can send message to let know have
                                     // response
-    
+                                    
                                     if (rfidString.equals(OobeParameters.ID_RFID_STRIPED_FISH))
                                     {
                                         Message msg = new Message();
                                         msg.what = OobeParameters.RUNNABLE_HARDWARE_CHECK;
                                         msg.arg1 = OobeParameters.METHOD_RFID_DETECT;
-    
+                                        
                                         HashMap<String, String> message = new HashMap<>();
                                         message.put("rfidCode", rfidString);
                                         msg.obj = message;
-    
+                                        
                                         mHandler.sendMessage(msg);
                                         break;
                                     }
-                                   
+                                    
                                 }
                             }
                         }

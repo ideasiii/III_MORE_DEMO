@@ -17,7 +17,7 @@ import sdk.ideas.common.Logs;
 public class OobeTracker
 {
     private Context mContext = null;
-    private HashMap<String, String> defaultData = null;
+    private HashMap<String, Object> defaultData = null;
     
     
     public OobeTracker(@NonNull Context context)
@@ -27,17 +27,17 @@ public class OobeTracker
     }
     
     
-    public void tracker(HashMap<String, String> data)
+    public void tracker(HashMap<String, Object> data)
     {
-        HashMap<String, String> trackerData = new HashMap<>(defaultData);
+        HashMap<String, Object> trackerData = new HashMap<>(defaultData);
         
-        for (Map.Entry<String, String> e : data.entrySet())
+        for (Map.Entry<String, Object> e : data.entrySet())
         {
             trackerData.put(e.getKey(), e.getValue());
         }
         //debug using
         Logs.showTrace("[MainTracker] ######## send Tracker Data: " + trackerData);
-        ((MainApplication) mContext.getApplicationContext()).sendToTracker(trackerData);
+        ((MainApplication) mContext.getApplicationContext()).sendToTrackerWithObjectMap(trackerData);
         
     }
     
@@ -48,12 +48,39 @@ public class OobeTracker
         defaultData.put("Source", "0");
         defaultData.put("Description", "data from Activity");
         defaultData.put("Activity", "oobe");
-        defaultData.put("RobotFace", "{\"File\": \"\"}");
-        defaultData.put("Sensor", "{\"Type\": \"\",\"Value\":\"\"}");
+        
+        HashMap<String, Object> robotFace = new HashMap<>();
+        robotFace.put("File", "");
+        
+        defaultData.put("RobotFace", robotFace);
+        
+        HashMap<String, Object> sensor = new HashMap<>();
+        sensor.put("Type", "");
+        sensor.put("Value", "");
+        defaultData.put("Sensor", sensor);
+        
         defaultData.put("Scene", "");
-        defaultData.put("Microphone", "{\"Text\": \"\"}");
-        defaultData.put("Speaker", "{\"Type\": \"\",\"TTS\":{\"Text\": \"\",\"Pitch\": \"\",\"Speed\": " +
-                "\"\"},\"Media\":{\"Type\": \"\",\"URL\":\"\",\"Local\":\"\"}}");
+        
+        HashMap<String, Object> microphone = new HashMap<>();
+        microphone.put("Text", "");
+        defaultData.put("Microphone", microphone);
+        
+        HashMap<String, Object> speaker = new HashMap<>();
+        speaker.put("Type", "");
+        
+        HashMap<String, Object> tts = new HashMap<>();
+        tts.put("Text", "");
+        tts.put("Pitch", "");
+        tts.put("Speed", "");
+        
+        speaker.put("TTS", tts);
+        HashMap<String, Object> media = new HashMap<>();
+        media.put("Type", "");
+        media.put("URL", "");
+        media.put("Local", "");
+        speaker.put("Media", media);
+        
+        defaultData.put("Speaker", speaker);
         
         
     }
