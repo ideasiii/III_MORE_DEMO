@@ -271,7 +271,7 @@ public class ScenarizeHandler
                 ImageView.ScaleType.CENTER_CROP,
                 ImageView.ScaleType.CENTER_INSIDE,
                 FRONT.FACE,
-                ",,,,,,,,,,,,啊,,嗯,,嗯,,嗯  嗯 ,,好吃！,, ,,我們下次再來玩");
+                ",,,,,,,,,,,,啊,,嗯,,嗯,,嗯  嗯 ,,好吃！,,,,,,,,,,,,我們下次再來玩");
     
             setScenarize(scenarize,
                 SCEN.SCEN_INDEX_GAME_OVER,

@@ -27,7 +27,6 @@ public class ViewPagerLayout extends RelativeLayout
     private ViewPager viewPager = null;
     private ViewPagerAdapter viewPagerAdapter = null;
     private boolean mbPagingEnable = true;
-    private LinearLayout linearLayout = null;
     private ImageView imgForward = null;
     private ImageView imgBack = null;
     
@@ -60,43 +59,38 @@ public class ViewPagerLayout extends RelativeLayout
     {
         setBackgroundColor(Color.TRANSPARENT);
         theContext = context;
-        viewPager = new ViewPager(context);
-        
-        linearLayout = new LinearLayout(context);
-        linearLayout.setGravity(Gravity.CENTER);
-        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-        RelativeLayout.LayoutParams layoutParamsLL = new RelativeLayout.LayoutParams(LayoutParams
-            .MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        linearLayout.setPadding(100, 0, 100, 0);
-        linearLayout.setLayoutParams(layoutParamsLL);
         
         RelativeLayout.LayoutParams layoutParamsViewPager = new RelativeLayout.LayoutParams
             (LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        layoutParamsViewPager.setMargins(30, 30, 30, 30);
+        viewPager = new ViewPager(context);
         viewPager.setLayoutParams(layoutParamsViewPager);
         viewPager.setBackgroundColor(Color.TRANSPARENT);
-        
-        // addView(viewPager);
+        addView(viewPager);
         
         viewPagerAdapter = new ViewPagerAdapter();
         viewPager.setOnTouchListener(onTouchListener);
         
-        RelativeLayout.LayoutParams layoutParamsForward = new RelativeLayout.LayoutParams(80,
-            LayoutParams.MATCH_PARENT);
+        RelativeLayout.LayoutParams layoutParamsForward = new RelativeLayout.LayoutParams(80, 200);
+        layoutParamsForward.addRule(ALIGN_PARENT_END);
+        layoutParamsForward.addRule(CENTER_VERTICAL);
         imgForward = new ImageView(context);
-        imgForward.setImageResource(R.drawable.arrows_forward);
+        imgForward.setAlpha(0.5f);
+        imgForward.setImageResource(R.drawable.arrow_forward);
         imgForward.setLayoutParams(layoutParamsForward);
         imgForward.setScaleType(ImageView.ScaleType.FIT_XY);
-    
+        addView(imgForward);
+        
+        RelativeLayout.LayoutParams layoutParamsBack = new RelativeLayout.LayoutParams(80, 200);
+        layoutParamsBack.addRule(ALIGN_PARENT_START);
+        layoutParamsBack.addRule(CENTER_VERTICAL);
         imgBack = new ImageView(context);
-        imgBack.setImageResource(R.drawable.arrows_back);
-        imgBack.setLayoutParams(layoutParamsForward);
+        imgBack.setAlpha(0.5f);
+        imgBack.setImageResource(R.drawable.arrow_back);
+        imgBack.setLayoutParams(layoutParamsBack);
         imgBack.setScaleType(ImageView.ScaleType.FIT_XY);
+        addView(imgBack);
         
-        linearLayout.addView(imgBack);
-        linearLayout.addView(viewPager);
-        linearLayout.addView(imgForward);
-        
-        addView(linearLayout);
     }
     
     private OnTouchListener onTouchListener = new OnTouchListener()
@@ -170,6 +164,19 @@ public class ViewPagerLayout extends RelativeLayout
         viewPagerAdapter.clear();
     }
     
+    public void showArrow(boolean bShow)
+    {
+        if (bShow)
+        {
+            imgForward.setVisibility(VISIBLE);
+            imgBack.setVisibility(VISIBLE);
+        }
+        else
+        {
+            imgForward.setVisibility(INVISIBLE);
+            imgBack.setVisibility(INVISIBLE);
+        }
+    }
     
     private class ViewPagerAdapter extends PagerAdapter
     {

@@ -126,6 +126,8 @@ public class ZooActivity extends Activity
         
         zooAreaLayout = new ZooAreaLayout(this, handlerScenarize);
         zooAreaLayout.setLayoutParams(layoutParamsExView);
+        zooAreaLayout.showArrow(true);
+        zooAreaLayout.showArrow(true);
         
         foodListLayout = new FoodListLayout(this, handlerScenarize);
         foodListLayout.setLayoutParams(layoutParamsExView);
@@ -154,7 +156,8 @@ public class ZooActivity extends Activity
         mVoiceRecognition.setLocale(Locale.TAIWAN);
         GLOBAL.ChildName = application.getName(Parameters.ID_CHILD_NAME);
         mnZooAreaCount = 0;
-        Scenarize(SCEN.SCEN_INDEX_START, null);
+        //  Scenarize(SCEN.SCEN_INDEX_START, null);
+        Scenarize(SCEN.SCEN_INDEX_CHOICE_ZOO, null);// test
     }
     
     @Override
@@ -292,6 +295,7 @@ public class ZooActivity extends Activity
                 ++mnZooAreaCount;
                 robotHead.removeView(zooAreaLayout);
                 zooAnimalLayout = new ZooAnimalLayout(this);
+                zooAnimalLayout.showArrow(false);
                 zooAnimalLayout.setHandler(handlerScenarize);
                 zooAnimalLayout.setLayoutParams(layoutParamsExView);
                 zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.台灣動物區);
@@ -304,6 +308,7 @@ public class ZooActivity extends Activity
                 ++mnZooAreaCount;
                 robotHead.removeView(zooAreaLayout);
                 zooAnimalLayout = new ZooAnimalLayout(this);
+                zooAnimalLayout.showArrow(false);
                 zooAnimalLayout.setHandler(handlerScenarize);
                 zooAnimalLayout.setLayoutParams(layoutParamsExView);
                 zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.鳥園);
@@ -316,6 +321,7 @@ public class ZooActivity extends Activity
                 ++mnZooAreaCount;
                 robotHead.removeView(zooAreaLayout);
                 zooAnimalLayout = new ZooAnimalLayout(this);
+                zooAnimalLayout.showArrow(false);
                 zooAnimalLayout.setHandler(handlerScenarize);
                 zooAnimalLayout.setLayoutParams(layoutParamsExView);
                 zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.熱帶雨林動物區);
@@ -328,6 +334,7 @@ public class ZooActivity extends Activity
                 ++mnZooAreaCount;
                 robotHead.removeView(zooAreaLayout);
                 zooAnimalLayout = new ZooAnimalLayout(this);
+                zooAnimalLayout.showArrow(false);
                 zooAnimalLayout.setHandler(handlerScenarize);
                 zooAnimalLayout.setLayoutParams(layoutParamsExView);
                 zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.可愛動物區);
@@ -340,6 +347,7 @@ public class ZooActivity extends Activity
                 ++mnZooAreaCount;
                 robotHead.removeView(zooAreaLayout);
                 zooAnimalLayout = new ZooAnimalLayout(this);
+                zooAnimalLayout.showArrow(false);
                 zooAnimalLayout.setHandler(handlerScenarize);
                 zooAnimalLayout.setLayoutParams(layoutParamsExView);
                 zooAnimalLayout.init(ZooAnimalLayout.ANIMAL_AREA.非洲動物區);
@@ -415,8 +423,6 @@ public class ZooActivity extends Activity
             {
                 mVoiceRecognition.stopListen();
                 Logs.showTrace("[LogicHandler] Get voice Text: " + message.get("message"));
-                //mstrFavAnimal = (String) message.get("message");
-                //handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_GAME_OVER);
             }
             else if (msg.arg1 == ResponseCode.ERR_SUCCESS)
             {
@@ -427,7 +433,6 @@ public class ZooActivity extends Activity
             {
                 Logs.showTrace("get ERROR message: " + message.get("message"));
                 mVoiceRecognition.stopListen();
-                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_GAME_OVER);
             }
         }
     };
