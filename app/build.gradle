@@ -4,7 +4,7 @@ android {
         config {
             keyAlias 'III_MORE_DEMO'
             keyPassword 'ideas123!'
-            storeFile file('/source/III_MORE_DEMO/keystore.jks')
+            storeFile file('../keystore.jks')
             storePassword 'ideas123!'
         }
     }
