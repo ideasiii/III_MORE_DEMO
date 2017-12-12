@@ -141,6 +141,12 @@ class SensorEventHandler
                         handlerScenarize.sendEmptyMessage(nNext);
                     }
                     break;
+                case SCEN.SCEN_INDEX_TRAFFIC_CAR:
+                    if(0 == scannedResult.compareTo(SCEN.CAR_KEY))  // 鑰匙RFID放上盤子
+                    {
+                        handlerScenarize.sendEmptyMessage(nNext);
+                    }
+                    break;
                 
             }
             

@@ -32,7 +32,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + System.currentTimeMillis() + "L)"
             buildConfigField "boolean", "OOBE", "false"
-            debuggable false
+            debuggable true
             signingConfig signingConfigs.config
         }
     }

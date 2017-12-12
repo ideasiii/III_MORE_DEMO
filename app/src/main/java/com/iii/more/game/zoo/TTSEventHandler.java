@@ -8,11 +8,6 @@ import org.json.JSONObject;
 
 import sdk.ideas.common.Logs;
 
-
-/**
- * Created by jugo on 2017/12/5
- */
-
 class TTSEventHandler
 {
     private Handler handlerScenarize = null;
@@ -91,11 +86,12 @@ class TTSEventHandler
                 case SCEN.SCEN_INDEX_ZOO_DOOR:             // 到動物園門口
                 case SCEN.SCEN_INDEX_FOOD_STORE:          // 我們來吃東西休息一下吧！
                 case SCEN.SCEN_INDEX_TRAFFIC_CARD_MRT:
+                case SCEN.SCEN_INDEX_CAR_RUN:
                     handlerScenarize.sendEmptyMessage(nNext);
                     break;
                 case SCEN.SCEN_INDEX_FOOD_EAT:
                 case SCEN.SCEN_INDEX_GAME_OVER:
-                    handlerScenarize.sendEmptyMessageDelayed(nNext,2000);
+                    handlerScenarize.sendEmptyMessageDelayed(nNext, 2000);
                     break;
             }
         }

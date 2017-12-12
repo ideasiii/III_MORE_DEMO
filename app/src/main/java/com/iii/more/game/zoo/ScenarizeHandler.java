@@ -327,6 +327,44 @@ public class ScenarizeHandler
                 GLOBAL.ChildName + "請你幫忙畫出坐車的路線圖");
             
             // 坐車子
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_TRAFFIC_CAR,
+                SCEN.SCEN_INDEX_CAR_RUN,
+                true,
+                true,
+                R.drawable.noeye,
+                R.drawable.car,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "用鑰匙發動吧。");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_CAR_RUN,
+                SCEN.SCEN_INDEX_CAR_OUTSIDE,
+                true,
+                true,
+                R.drawable.noeye,
+                R.drawable.car_run,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "噗噗噗噗噗噗噗 你看窗外有好多交通工具");
+    
+            setScenarize(scenarize,
+                SCEN.SCEN_INDEX_CAR_OUTSIDE,
+                SCEN.SCEN_INDEX_NO_ACTION,
+                true,
+                false,
+                R.drawable.noeye,
+                R.drawable.car_run,
+                "noeye.png",
+                ImageView.ScaleType.CENTER_CROP,
+                ImageView.ScaleType.CENTER_INSIDE,
+                FRONT.FACE,
+                "");
         }
         catch (Exception es)
         {

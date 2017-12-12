@@ -17,18 +17,8 @@ abstract class SCEN
     public static final int SCEN_INDEX_TRAFFIC_CARD_BUS = 106;    // 孩子將BUS悠遊卡RFID放上盤子
     public static final int SCEN_INDEX_BUS_INSIDE = 107;      // 章魚寶眼睛螢幕畫面轉成公車內部
     public static final int SCEN_INDEX_DROP_CUSTOM = 108;     // 孩子直接用手指在畫面上拉乘客到座位上
-    public static final int SCEN_INDEX_DROP_CUSTOM_IDLE = 109;     // 孩子很久未在畫面上拉乘客到座位上
-    public static final int SCEN_INDEX_DROP_CUSTOM_IDLE2 = 110;     //
-    // 孩子很久未在畫面上拉乘客到座位上part2
     public static final int SCEN_INDEX_BUS_DRIVE = 111;
     public static final int SCEN_INDEX_ZOO_DOOR = 112;
-    public static final int SCEN_INDEX_EAT_HAMBERB = 119;
-    public static final int SCEN_INDEX_EATED_HAMBERB = 120;
-    public static final int SCEN_INDEX_FAV_ANIMAL = 124;
-    public static final int SCEN_INDEX_EAT_DNUTE = 133;
-    public static final int SCEN_INDEX_EAT_ICECREAME = 134;
-    public static final int SCEN_INDEX_EATED_DNUTE = 135;
-    public static final int SCEN_INDEX_EATED_ICECREAME = 136;
     public static final int SCEN_INDEX_MRT_MAP = 137;
     public static final int SCEN_INDEX_TRAFFIC_CARD_MRT = 138;  // // 孩子將MRT悠遊卡RFID放上盤子
     public static final int SCEN_INDEX_CHOICE_ZOO = 139;    // 選動物區
@@ -41,15 +31,10 @@ abstract class SCEN
     public static final int SCEN_INDEX_FOOD_STORE = 146;
     public static final int SCEN_INDEX_FOOD_CHOICE = 147;
     public static final int SCEN_INDEX_FOOD_EAT = 148;
-    
+    public static final int SCEN_INDEX_CAR_RUN = 149;
+    public static final int SCEN_INDEX_CAR_OUTSIDE = 150;
     public static final int SCEN_INDEX_GAME_OVER = 666;
     public static final int SCEN_INDEX_FINISH = 999;
-    
-    public static final int SENSOR_SHACK_HAND = 1000;
-    public static final int SENSOR_CLAP_HAND = 1001;
-    public static final int SENSOR_PINCH_CHEEK = 1002;
-    public static final int SENSOR_PAT_HEAD = 1003;
-    public static final int SENSOR_RFID = 1004;
     public static final int SENSOR_FACE_EMOTION = 1005;
     
     public static final int MSG_TTS_PLAY = 2000;
@@ -59,6 +44,7 @@ abstract class SCEN
     public static final String TRAFFIC_MRT = "6487127115";
     public static final String TRAFFIC_CAR = "208145104115";
     public static final String TRAFFIC_CARD = "2287191147";
+    public static final String CAR_KEY = "112199103115";
     
     public static final int MAX_ZOO_VISIT = 2;
 }
