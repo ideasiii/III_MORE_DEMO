@@ -4,7 +4,7 @@
 /build
 /release
 /app/build
-/app/build/release
+/app/release
 /models/build
 /wear/build
 .DS_Store
