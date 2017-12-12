@@ -2,7 +2,9 @@
 .idea
 /local.properties
 /build
+/release
 /app/build
+/app/build/release
 /models/build
 /wear/build
 .DS_Store
