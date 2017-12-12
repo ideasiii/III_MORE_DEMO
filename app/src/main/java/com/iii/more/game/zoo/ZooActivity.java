@@ -157,7 +157,6 @@ public class ZooActivity extends Activity
         GLOBAL.ChildName = application.getName(Parameters.ID_CHILD_NAME);
         mnZooAreaCount = 0;
         Scenarize(SCEN.SCEN_INDEX_START, null);
-        //Scenarize(SCEN.SCEN_INDEX_CHOICE_ZOO, null);// test
     }
     
     @Override

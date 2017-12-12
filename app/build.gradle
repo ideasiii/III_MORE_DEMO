@@ -1,6 +1,13 @@
 apply plugin: 'com.android.application'
-
 android {
+    signingConfigs {
+        config {
+            keyAlias 'III_MORE_DEMO'
+            keyPassword 'ideas123!'
+            storeFile file('/source/III_MORE_DEMO/keystore.jks')
+            storePassword 'ideas123!'
+        }
+    }
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
     defaultConfig {
@@ -13,47 +20,53 @@ android {
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
         }
+        signingConfig signingConfigs.config
     }
     buildTypes {
         debug {
             buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + System.currentTimeMillis() + "L)"
+            buildConfigField "boolean", "OOBE", "true"
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + System.currentTimeMillis() + "L)"
+            buildConfigField "boolean", "OOBE", "false"
+            debuggable false
+            signingConfig signingConfigs.config
         }
     }
-}
-
-repositories {
-    mavenCentral()
-    mavenLocal()
-    maven {
-        url "http://maven.affectiva.com"
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url "http://maven.affectiva.com"
+        }
+        flatDir {
+            dirs 'libs'
+        }
     }
-    flatDir {
-        dirs 'libs'
+    dependencies {
+        compile 'com.android.support:appcompat-v7:26.+'
+        compile 'com.android.support.constraint:constraint-layout:1.0.2'
+        compile files('libs/permission.jar')
+        compile files('libs/TTS.jar')
+        compile files('libs/voice.jar')
+        compile files('libs/module.jar')
+        compile project(':library')
+        compile 'com.github.bumptech.glide:glide:3.8.0'
+        compile 'com.android.support:support-annotations:26.0.0-alpha1'
+        compile 'com.ogaclejapan.arclayout:library:1.1.0@aar'
+        compile 'com.scalified:fab:1.1.3'
+        compile 'com.kaopiz:kprogresshud:1.1.0'
+        compile files('libs/bluetooth.jar')
+        compile project(':moduleservice')
+        compile files('libs/common.jar')
+        implementation files('libs/tracker.jar')
+        implementation project(':doll-sensors')
+    }
+    productFlavors {
     }
 }
-
-
 dependencies {
-    compile 'com.android.support:appcompat-v7:26.+'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile files('libs/permission.jar')
-    compile files('libs/TTS.jar')
-    compile files('libs/voice.jar')
-    compile files('libs/module.jar')
-    compile project(':library')
-    compile 'com.github.bumptech.glide:glide:3.8.0'
-    compile 'com.android.support:support-annotations:26.0.0-alpha1'
-    compile 'com.ogaclejapan.arclayout:library:1.1.0@aar'
-    compile 'com.scalified:fab:1.1.3'
-    compile 'com.kaopiz:kprogresshud:1.1.0'
-    compile files('libs/bluetooth.jar')
-    compile project(':moduleservice')
-    compile files('libs/common.jar')
-    implementation files('libs/tracker.jar')
-    implementation project(':doll-sensors')
 }
