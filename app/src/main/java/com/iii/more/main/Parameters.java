@@ -11,15 +11,15 @@ public abstract class Parameters
     public static final String ID_CHILD_NAME = "child_name";
     public static final String ID_ROBOT_NAME = "edubot_name";
     public static final String STRING_DEFAULT_ROBOT_NAME = "章魚寶";
-    
+
     public static final String TASK_COMPOSER_DATA = "taskcomposerdata";
-    
+
     static final String CMP_HOST_IP = "54.199.198.94";
     static final int CMP_HOST_PORT = 2310;
     
     // 布偶的藍牙裝置名稱
     static final String DEFAULT_DEVICE_ID = "module_01";
-    
+
     // 此 app 在 tracker 的 APP ID
     static final String TRACKER_APP_ID = "1510555888386";
     

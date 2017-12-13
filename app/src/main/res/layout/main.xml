@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="-60dp"
-            android:layout_marginEnd="-120dp"
+            android:layout_marginEnd="-150dp"
             android:layout_marginLeft="0dp"
             android:layout_marginRight="0dp"
             android:layout_marginStart="-150dp"
@@ -89,6 +89,17 @@
             />
 
     </com.iii.more.screen.ClipRevealFrame>
+
+    <com.scalified.fab.ActionButton
+        android:id="@+id/fab_setting_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin"
+        />
+
 
     <com.scalified.fab.ActionButton
         android:id="@+id/fab_btn"

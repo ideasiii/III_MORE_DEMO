@@ -20,22 +20,29 @@ import sdk.ideas.common.ResponseCode;
  * Created by joe on 2017/8/10.
  */
 
-public class FloatingActionButtonHandler extends BaseHandler implements View.OnClickListener, View.OnTouchListener
+public class FloatingActionButtonHandler extends BaseHandler implements View.OnClickListener, View
+    .OnTouchListener
 {
     private ActionButton mActionButton = null;
+    private String uuid = "";
     
     public FloatingActionButtonHandler(Context context)
     {
         super(context);
     }
     
-    public void setID(@IdRes int id)
+    public void setViewID(@IdRes int viewID)
     {
-        mActionButton = (ActionButton) ((AppCompatActivity) mContext).findViewById(id);
+        mActionButton = (ActionButton) ((AppCompatActivity) mContext).findViewById(viewID);
     }
     
-    public void init(int imageID, float imageSize, @NonNull ActionButton.Animations showAnimation,
-            @NonNull ActionButton.Animations hideAnimation)
+    public void setFabID(@NonNull String id)
+    {
+        uuid = id;
+    }
+    
+    public void init(int imageID, float imageSize, float size, @NonNull ActionButton.Animations
+        showAnimation, @NonNull ActionButton.Animations hideAnimation, boolean isShow)
     {
         if (null != mActionButton)
         {
@@ -43,21 +50,43 @@ public class FloatingActionButtonHandler extends BaseHandler implements View.OnC
             mActionButton.setImageSize(imageSize);
             mActionButton.setShowAnimation(showAnimation);
             mActionButton.setHideAnimation(hideAnimation);
+            mActionButton.setSize(size);
+            setVisibility(isShow);
+            /*if (isShow)
+            {
+                mActionButton.show();
+            }
+            else
+            {
+                mActionButton.hide();
+            }*/
+            
             mActionButton.setOnClickListener(this);
         }
         
+    }
+    
+    public void setVisibility(boolean isVisibility)
+    {
+        if (isVisibility)
+        {
+            mActionButton.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            mActionButton.setVisibility(View.INVISIBLE);
+        }
     }
     
     @Override
     public void onClick(View v)
     {
         HashMap<String, String> message = new HashMap<>();
-        //   message.put("FAB_X", String.valueOf((v.getLeft() + v.getRight()) / 2));
-        //  message.put("FAB_Y", String.valueOf((v.getTop() + v.getBottom()) / 2));
         message.put("message", "success");
         message.put("onClick", String.valueOf(v.getId()));
+        message.put("fabID", uuid);
         callBackMessage(ResponseCode.ERR_SUCCESS, FloatingActionButtonParameters.CLASS_FAB,
-                FloatingActionButtonParameters.METHOD_ON_CLICK, message);
+            FloatingActionButtonParameters.METHOD_ON_CLICK, message);
         
     }
     

@@ -414,11 +414,7 @@ public class LogicHandler extends BaseHandler
         mainApp.setTTSEventListener(mTTSEventListener);
     }
     
-    public void stopApplicationTTS()
-    {
-        MainApplication app = (MainApplication) mContext.getApplicationContext();
-        app.stopTTS();
-    }
+  
     
     public void unBindTTSListenersToMainApplication()
     {

@@ -36,7 +36,7 @@ public class OobeTracker
             trackerData.put(e.getKey(), e.getValue());
         }
         //debug using
-        Logs.showTrace("[MainTracker] ######## send Tracker Data: " + trackerData);
+        Logs.showTrace("[OobeTracker] ######## send Tracker Data: " + trackerData);
         ((MainApplication) mContext.getApplicationContext()).sendToTrackerWithObjectMap(trackerData);
         
     }
