@@ -49,7 +49,6 @@ public class ZooActivity extends Activity
     private ImageView ivMan = null;
     private MrtMap mrtMap = null;
     private TTSEventHandler ttsEventHandler = null;
-    private SensorEventHandler sensorEventHandler = null;
     private FaceEmotionEventHandler faceEmotionEventHandler = null;
     private ScenarizeHandler scenarizeHandler = null;
     private ZooAreaLayout zooAreaLayout = null;
@@ -84,13 +83,14 @@ public class ZooActivity extends Activity
         application = (MainApplication) getApplication();
         
         ttsEventHandler = new TTSEventHandler(handlerScenarize);
-        sensorEventHandler = new SensorEventHandler(handlerScenarize);
         faceEmotionEventHandler = new FaceEmotionEventHandler(handlerScenarize);
-        scenarizeHandler = new ScenarizeHandler(this);
+        
+        scenarizeHandler = new ScenarizeHandler(handlerScenarize);
         scenarizeHandler.createScenarize(GLOBAL.scenarize);
         
         // 註冊 Sensor 感應 From Application
-        application.setCockpitSensorEventListener(sensorEventHandler.getSensorEventListener());
+        application.setCockpitSensorEventListener(scenarizeHandler.sensorEventHandler
+            .getSensorEventListener());
         // 註冊TTS Listener
         application.setTTSEventListener(ttsEventHandler.getTTSEventListener());
         // 註冊FaceEmotionEventListener
@@ -188,7 +188,7 @@ public class ZooActivity extends Activity
     
     public void Scenarize(int nIndex, Object object)
     {
-        Logs.showTrace("[ZooActivity] Scenarize Index:" + nIndex);
+        Logs.showTrace("############################ Scenarize Index:" + nIndex + "############################");
         String strTTS = "";
         String strFaceImg = "";
         
@@ -224,12 +224,13 @@ public class ZooActivity extends Activity
             return;
         }
         
-        GLOBAL.mnScenarizeIndex = nIndex;
+        GLOBAL.scenarizeCurr.ScenarizeIndex = nIndex;
         
         try
         {
             JSONObject jsonScenarize = GLOBAL.scenarize.get(nIndex);
-            int nNext = jsonScenarize.getInt("next");
+            Logs.showTrace("[ZooActivity] Scenarize: " + jsonScenarize.toString());
+            GLOBAL.scenarizeCurr.ScenarizeNext = jsonScenarize.getInt("next");
             robotHead.showFaceImg(jsonScenarize.getBoolean("face_show"));
             robotHead.showObjectImg(jsonScenarize.getBoolean("object_show"));
             robotHead.setFace(jsonScenarize.getInt("face_id"), (ImageView.ScaleType)
@@ -386,9 +387,8 @@ public class ZooActivity extends Activity
             
             // 傳送Tracker Data
             trackerHandler.setRobotFace(strFaceImg).setSensor("", "").setScene(String.valueOf
-                (GLOBAL.mnScenarizeIndex)).setMicrophone("").setSpeaker("tts", strTTS, "1", "1",
-                "").send();
-            Logs.showTrace("[ZooActivity] Scenarize : " + jsonScenarize.toString());
+                (GLOBAL.scenarizeCurr.ScenarizeIndex)).setMicrophone("").setSpeaker("tts",
+                strTTS, "1", "1", "").send();
         }
         catch (Exception e)
         {

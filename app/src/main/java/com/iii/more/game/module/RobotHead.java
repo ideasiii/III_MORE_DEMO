@@ -107,12 +107,16 @@ public class RobotHead extends RelativeLayout
     {
         imgFace.setImageResource(nResId);
         imgFace.setScaleType(is);
+        imgFace.requestLayout();
+        Logs.showTrace("[zoo] RobotHead set Face image:" + nResId);
     }
     
     public void setObjectImg(int nResId, ImageView.ScaleType is)
     {
         imgObject.setImageResource(nResId);
         imgObject.setScaleType(is);
+        imgObject.requestLayout();
+        Logs.showTrace("[zoo] RobotHead set object image:" + nResId);
     }
     
     public void showObjectImg(boolean bShow)
