@@ -7,4 +7,8 @@
     <color name="default_app_color">#FFA0C9EC </color>
     <color name="starfish_background">#EB6F9F</color>>
     <color name="tumblr_primary">#36465D</color>
+
+    <color name="setting_main">#2dbda4</color>
+    <color name="setting_white">#ffffff</color>
+
 </resources>
