@@ -31,7 +31,6 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 android:checkMark="?android:attr/listChoiceIndicatorSingle"
-                android:checked="true"
                 android:clickable="true"
                 android:drawablePadding="10dp"
                 android:focusable="true"

@@ -64,6 +64,8 @@ android {
         compile files('libs/common.jar')
         implementation files('libs/tracker.jar')
         implementation project(':doll-sensors')
+        implementation 'com.squareup.okhttp3:okhttp:3.9.1'
+        implementation 'org.greenrobot:eventbus:3.1.1'
     }
     productFlavors {
     }

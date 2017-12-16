@@ -4,10 +4,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.iii.more.main.R;
+import com.iii.more.setting.Api.Core;
+import com.iii.more.setting.Api.Table;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import okhttp3.FormBody;
+
+import static com.iii.more.setting.Api.Table.HTTP_SUCCESS;
 
 /**
  * TODO: 此頁說明
@@ -27,8 +38,7 @@ public class SettingLv1Activity extends SettingBaseActivity {
     LinearLayout llPower;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mCtx = this;
         mActivity = this;
@@ -44,18 +54,18 @@ public class SettingLv1Activity extends SettingBaseActivity {
         return R.layout.activity_setting_lv1;
     }
 
-    private void init_UI()
-    {
+    private void init_UI() {
         llAccount = (LinearLayout) findViewById(R.id.llAccount);
-        llAccount.setOnClickListener(new View.OnClickListener(){
+        llAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(mCtx, AccountLv1Activity.class);
                 startActivity(i);
             }
         });
+        
         llBought = (LinearLayout) findViewById(R.id.llBought);
-        llBought.setOnClickListener(new View.OnClickListener(){
+        llBought.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(mCtx, BoughtLv1Activity.class);
@@ -64,7 +74,7 @@ public class SettingLv1Activity extends SettingBaseActivity {
         });
 
         llLanguage = (LinearLayout) findViewById(R.id.llLanguage);
-        llLanguage.setOnClickListener(new View.OnClickListener(){
+        llLanguage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(mCtx, LanguageLv1Activity.class);
@@ -73,7 +83,7 @@ public class SettingLv1Activity extends SettingBaseActivity {
         });
 
         llPower = (LinearLayout) findViewById(R.id.llPower);
-        llPower.setOnClickListener(new View.OnClickListener(){
+        llPower.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(mCtx, PowerLv1Activity.class);
@@ -82,4 +92,71 @@ public class SettingLv1Activity extends SettingBaseActivity {
         });
     }
 
+    private void TriggerCreate() {
+        Table.Request request = new Table.Request();
+        request.api_id = Table.device_info_id;
+        request.function_path = Table.device_info_url;
+        FormBody formBody = new FormBody.Builder()
+            .add("device_id", Table.device_id)
+            .build();
+        request.formBody = formBody;
+        new Core().TriggerApiTask(request);
+    }
+
+    private void TriggerGetInfo() {
+        Table.Request request = new Table.Request();
+        request.api_id = Table.device_info_id;
+        request.function_path = Table.device_info_url;
+        FormBody formBody = new FormBody.Builder()
+            .add("device_id", Table.device_id)
+            .build();
+        request.formBody = formBody;
+        new Core().TriggerApiTask(request);
+    }
+
+    @Override
+    public void onEventBus(Table.Response response) {
+        Log.e(TAG, String.valueOf(response.api_id));
+        Log.e(TAG, String.valueOf(response.httpCode));
+        Log.e(TAG, response.httpBody);
+        if (response.httpCode == HTTP_SUCCESS) {
+            switch (response.api_id) {
+                case Table.device_info_id: {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.httpBody);
+                        boolean success = jsonObject.optBoolean("success");
+                        if (success) {
+                            String mac_address = jsonObject.optString("mac_address");
+                            String device_os = jsonObject.optString("device_os");
+                            Log.d(TAG, mac_address);
+                            Log.d(TAG, device_os);
+                        } else {
+                            String error = jsonObject.optString("error");
+                            String message = jsonObject.optString("message");
+                            Toast.makeText(mCtx, error + "\n" + message, Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+                case Table.device_create_id: {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.httpBody);
+                        boolean success = jsonObject.optBoolean("success");
+                        if (success) {
+                            // TODO success parser
+                        } else {
+                            String error = jsonObject.optString("error");
+                            String message = jsonObject.optString("message");
+                            Toast.makeText(mCtx, error + "\n" + message, Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+            }
+        }
+    }
 }

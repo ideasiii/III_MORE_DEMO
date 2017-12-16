@@ -9,6 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.iii.more.main.R;
+import com.iii.more.setting.Api.Table;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * TODO: 此頁說明
@@ -25,6 +30,23 @@ public abstract class SettingBaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResourceId());
         init_UI();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventBus(Table.Response response) {
+
     }
 
     protected void setTitle(String value) {
