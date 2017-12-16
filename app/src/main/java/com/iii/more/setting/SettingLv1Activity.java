@@ -23,6 +23,8 @@ public class SettingLv1Activity extends SettingBaseActivity {
 
     LinearLayout llAccount;
     LinearLayout llBought;
+    LinearLayout llLanguage;
+    LinearLayout llPower;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -57,6 +59,24 @@ public class SettingLv1Activity extends SettingBaseActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(mCtx, BoughtLv1Activity.class);
+                startActivity(i);
+            }
+        });
+
+        llLanguage = (LinearLayout) findViewById(R.id.llLanguage);
+        llLanguage.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(mCtx, LanguageLv1Activity.class);
+                startActivity(i);
+            }
+        });
+
+        llPower = (LinearLayout) findViewById(R.id.llPower);
+        llPower.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(mCtx, PowerLv1Activity.class);
                 startActivity(i);
             }
         });
