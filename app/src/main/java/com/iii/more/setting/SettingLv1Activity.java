@@ -1,6 +1,11 @@
 package com.iii.more.setting;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import com.iii.more.main.R;
 
@@ -12,10 +17,19 @@ import com.iii.more.main.R;
 
 public class SettingLv1Activity extends SettingBaseActivity {
 
+    private String TAG = SettingLv1Activity.class.getSimpleName();
+    private Context mCtx;
+    private Activity mActivity;
+
+    LinearLayout llAccount;
+    LinearLayout llBought;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        mCtx = this;
+        mActivity = this;
 
         setTitle("設定");
         setLeftRes(R.drawable.ic_home_white_24dp);
@@ -30,7 +44,22 @@ public class SettingLv1Activity extends SettingBaseActivity {
 
     private void init_UI()
     {
-
+        llAccount = (LinearLayout) findViewById(R.id.llAccount);
+        llAccount.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(mCtx, AccountLv1Activity.class);
+                startActivity(i);
+            }
+        });
+        llBought = (LinearLayout) findViewById(R.id.llBought);
+        llBought.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(mCtx, BoughtLv1Activity.class);
+                startActivity(i);
+            }
+        });
     }
 
 }

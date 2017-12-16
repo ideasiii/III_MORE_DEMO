@@ -46,6 +46,7 @@ public abstract class SettingBaseActivity extends AppCompatActivity {
         final ImageView ivLeft = (ImageView) findViewById(R.id.ivLeft);
         if (ivLeft != null) {
             ivLeft.setOnClickListener(new View.OnClickListener() {
+
                 @Override
                 public void onClick(View v) {
                     int imageRes = getImageResource(ivLeft);
