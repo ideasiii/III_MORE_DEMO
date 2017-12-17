@@ -61,9 +61,7 @@ public class PowerLv1Activity extends SettingBaseActivity {
     }
 
     private void TriggerQuery() {
-        Table.Request request = new Table.Request();
-        request.api_id = Table.setting_option_lowpower_id;
-        request.function_path = Table.setting_option_lowpower_url;
+        Table.Request request = new Table.Request(Table.setting_option_lowpower_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)
             .build();
@@ -73,9 +71,7 @@ public class PowerLv1Activity extends SettingBaseActivity {
 
     private void TriggerSetting() {
         String action = switch1.isChecked() ? "0" : "1";
-        Table.Request request = new Table.Request();
-        request.api_id = Table.setting_lowpower_id;
-        request.function_path = Table.setting_lowpower_url;
+        Table.Request request = new Table.Request(Table.setting_lowpower_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)
             .add("action", action)
@@ -86,11 +82,11 @@ public class PowerLv1Activity extends SettingBaseActivity {
 
     @Override
     public void onEventBus(Table.Response response) {
-        Log.e(TAG, String.valueOf(response.api_id));
+        Log.e(TAG, response.getPath());
         Log.e(TAG, String.valueOf(response.httpCode));
         Log.e(TAG, response.httpBody);
         if (response.httpCode == HTTP_SUCCESS) {
-            switch (response.api_id) {
+            switch (response.function_id) {
                 case Table.setting_option_lowpower_id: {
                     try {
                         JSONObject jsonObject = new JSONObject(response.httpBody);
@@ -107,7 +103,8 @@ public class PowerLv1Activity extends SettingBaseActivity {
                         } else {
                             String error = jsonObject.optString("error");
                             String message = jsonObject.optString("message");
-                            Toast.makeText(mCtx, error + "\n" + message, Toast.LENGTH_SHORT).show();
+                            String messageInTable = response.getErrorDescription(error);
+                            Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -129,8 +126,8 @@ public class PowerLv1Activity extends SettingBaseActivity {
                             }
                         } else {
                             String error = jsonObject.optString("error");
-                            String message = jsonObject.optString("message");
-                            Toast.makeText(mCtx, error + "\n" + message, Toast.LENGTH_SHORT).show();
+                            String messageInTable = response.getErrorDescription(error);
+                            Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

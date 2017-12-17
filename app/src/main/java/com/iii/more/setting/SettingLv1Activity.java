@@ -93,9 +93,7 @@ public class SettingLv1Activity extends SettingBaseActivity {
     }
 
     private void TriggerCreate() {
-        Table.Request request = new Table.Request();
-        request.api_id = Table.device_info_id;
-        request.function_path = Table.device_info_url;
+        Table.Request request = new Table.Request(Table.device_info_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)
             .build();
@@ -104,9 +102,7 @@ public class SettingLv1Activity extends SettingBaseActivity {
     }
 
     private void TriggerGetInfo() {
-        Table.Request request = new Table.Request();
-        request.api_id = Table.device_info_id;
-        request.function_path = Table.device_info_url;
+        Table.Request request = new Table.Request(Table.device_info_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)
             .build();
@@ -116,11 +112,11 @@ public class SettingLv1Activity extends SettingBaseActivity {
 
     @Override
     public void onEventBus(Table.Response response) {
-        Log.e(TAG, String.valueOf(response.api_id));
+        Log.e(TAG, response.getPath());
         Log.e(TAG, String.valueOf(response.httpCode));
         Log.e(TAG, response.httpBody);
         if (response.httpCode == HTTP_SUCCESS) {
-            switch (response.api_id) {
+            switch (response.function_id) {
                 case Table.device_info_id: {
                     try {
                         JSONObject jsonObject = new JSONObject(response.httpBody);
@@ -133,7 +129,8 @@ public class SettingLv1Activity extends SettingBaseActivity {
                         } else {
                             String error = jsonObject.optString("error");
                             String message = jsonObject.optString("message");
-                            Toast.makeText(mCtx, error + "\n" + message, Toast.LENGTH_SHORT).show();
+                            String messageInTable = response.getErrorDescription(error);
+                            Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -149,7 +146,8 @@ public class SettingLv1Activity extends SettingBaseActivity {
                         } else {
                             String error = jsonObject.optString("error");
                             String message = jsonObject.optString("message");
-                            Toast.makeText(mCtx, error + "\n" + message, Toast.LENGTH_SHORT).show();
+                            String messageInTable = response.getErrorDescription(error);
+                            Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

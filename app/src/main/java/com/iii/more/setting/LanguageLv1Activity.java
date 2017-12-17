@@ -139,9 +139,7 @@ public class LanguageLv1Activity extends SettingBaseActivity {
         TriggerQuery();
     }
     private void TriggerQuery() {
-        Table.Request request = new Table.Request();
-        request.api_id = Table.setting_option_language_id;
-        request.function_path = Table.setting_option_language_url;
+        Table.Request request = new Table.Request(Table.setting_option_language_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)
             .build();
@@ -151,9 +149,7 @@ public class LanguageLv1Activity extends SettingBaseActivity {
 
     private void TriggerSetting() {
         String action = String.valueOf(LanguageId);
-        Table.Request request = new Table.Request();
-        request.api_id = Table.setting_language_id;
-        request.function_path = Table.setting_language_url;
+        Table.Request request = new Table.Request(Table.setting_language_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)
             .add("action", action)
@@ -164,11 +160,11 @@ public class LanguageLv1Activity extends SettingBaseActivity {
 
     @Override
     public void onEventBus(Table.Response response) {
-        Log.e(TAG, String.valueOf(response.api_id));
+        Log.e(TAG, response.getPath());
         Log.e(TAG, String.valueOf(response.httpCode));
         Log.e(TAG, response.httpBody);
         if (response.httpCode == HTTP_SUCCESS) {
-            switch (response.api_id) {
+            switch (response.function_id) {
                 case Table.setting_option_language_id: {
                     try {
                         JSONObject jsonObject = new JSONObject(response.httpBody);
@@ -191,7 +187,8 @@ public class LanguageLv1Activity extends SettingBaseActivity {
                         } else {
                             String error = jsonObject.optString("error");
                             String message = jsonObject.optString("message");
-                            Toast.makeText(mCtx, error + "\n" + message, Toast.LENGTH_SHORT).show();
+                            String messageInTable = response.getErrorDescription(error);
+                            Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -220,7 +217,8 @@ public class LanguageLv1Activity extends SettingBaseActivity {
                         } else {
                             String error = jsonObject.optString("error");
                             String message = jsonObject.optString("message");
-                            Toast.makeText(mCtx, error + "\n" + message, Toast.LENGTH_SHORT).show();
+                            String messageInTable = response.getErrorDescription(error);
+                            Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

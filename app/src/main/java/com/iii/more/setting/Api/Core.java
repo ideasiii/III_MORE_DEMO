@@ -37,7 +37,7 @@ public class Core {
 
         public ApiTask(Table.Request apiRequest) {
             this.apiRequest = apiRequest;
-            apiResponse = new Table.Response(apiRequest.api_id);
+            apiResponse = new Table.Response(apiRequest.function_id);
         }
 
         @Override
@@ -45,14 +45,14 @@ public class Core {
             super.onPreExecute();
             if( apiRequest.formBody == null ) {
                 cancel(true);
-                Log.e(TAG, apiRequest.function_path + ": not accept null formBody");
+                Log.e(TAG, apiRequest.getPath() + ": not accept null formBody");
             }
         }
 
         @Override
         protected Integer doInBackground(Void... param) {
 
-            String url = Table.mServer + apiRequest.function_path;
+            String url = Table.mServer + apiRequest.getPath();
             Log.e(TAG, url);
 
             Request request = new Request.Builder()
