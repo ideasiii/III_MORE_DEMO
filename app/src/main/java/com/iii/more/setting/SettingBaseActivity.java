@@ -1,11 +1,15 @@
 package com.iii.more.setting;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.iii.more.main.R;
@@ -25,10 +29,17 @@ public abstract class SettingBaseActivity extends AppCompatActivity {
 
     protected abstract int getLayoutResourceId();
 
+    private final String TAG = SettingBaseActivity.class.getSimpleName();
+    private Context mCtx;
+    private Activity mActivity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResourceId());
+        mCtx = this;
+        mActivity = this;
+
         init_UI();
     }
 
@@ -75,6 +86,18 @@ public abstract class SettingBaseActivity extends AppCompatActivity {
                     if (imageRes == R.drawable.ic_arrow_back_white_24dp) {
                         finish();
                     }
+                }
+            });
+        }
+
+        LinearLayout llMenuM = (LinearLayout) findViewById(R.id.llMenuM);
+        if (llMenuM != null) {
+            llMenuM.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(mCtx, AlarmLv1Activity.class);
+                    startActivity(i);
                 }
             });
         }

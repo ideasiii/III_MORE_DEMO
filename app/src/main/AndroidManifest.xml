@@ -69,6 +69,7 @@
         <activity android:name="com.iii.more.setting.BoughtLv1Activity"/>
         <activity android:name="com.iii.more.setting.LanguageLv1Activity"/>
         <activity android:name="com.iii.more.setting.PowerLv1Activity"/>
+        <activity android:name="com.iii.more.setting.AlarmLv1Activity"/>
 
         <service android:name="com.edgecase.moduleservice.DetectorService"/>
 

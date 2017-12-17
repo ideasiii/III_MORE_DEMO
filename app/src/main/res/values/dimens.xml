@@ -16,4 +16,7 @@
     <dimen name="item_font_size_medium">24sp</dimen>
     <dimen name="item_font_size_small">16sp</dimen>
 
+    <dimen name="setting_item_height">70dp</dimen>
+    <dimen name="setting_item_del_width">55dp</dimen>
+
 </resources>
