@@ -30,7 +30,7 @@ public class SettingLv1Activity extends SettingBaseActivity {
 
     private String TAG = SettingLv1Activity.class.getSimpleName();
     private Context mCtx;
-    private Activity mActivity;
+    public static Activity mActivity;
 
     LinearLayout llAccount;
     LinearLayout llBought;
@@ -44,7 +44,7 @@ public class SettingLv1Activity extends SettingBaseActivity {
         mActivity = this;
 
         setTitle("設定");
-        setLeftRes(R.drawable.ic_home_white_24dp);
+        setLeftRes(R.drawable.ic_settings_white_24dp);
 
         init_UI();
     }
@@ -52,6 +52,19 @@ public class SettingLv1Activity extends SettingBaseActivity {
     @Override
     protected int getLayoutResourceId() {
         return R.layout.activity_setting_lv1;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if( ShopLv1Activity.mActivity != null ) {
+            ShopLv1Activity.mActivity.finish();
+        }
+        if( AlarmLv1Activity.mActivity != null ) {
+            AlarmLv1Activity.mActivity.finish();
+        }
+        if( SettingLv1Activity.mActivity != null ) {
+            SettingLv1Activity.mActivity.finish();
+        }
     }
 
     private void init_UI() {

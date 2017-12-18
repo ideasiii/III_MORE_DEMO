@@ -10,5 +10,6 @@
 
     <color name="setting_main">#2dbda4</color>
     <color name="setting_white">#ffffff</color>
+    <color name="setting_div">#c2c2c2</color>
 
 </resources>

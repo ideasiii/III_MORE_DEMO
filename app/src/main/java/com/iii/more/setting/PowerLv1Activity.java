@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -40,7 +41,7 @@ public class PowerLv1Activity extends SettingBaseActivity {
         mActivity = this;
 
         setTitle("電源");
-
+        setFooterVisible(View.GONE);
         init_UI();
     }
 

@@ -45,7 +45,7 @@ public class LanguageLv1Activity extends SettingBaseActivity {
         mActivity = this;
 
         setTitle("語言");
-
+        setFooterVisible(View.GONE);
         init_UI();
     }
 

@@ -3,6 +3,7 @@ package com.iii.more.setting;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
 
 import com.iii.more.main.R;
 
@@ -24,6 +25,7 @@ public class BoughtLv1Activity extends SettingBaseActivity {
         mActivity = this;
 
         setTitle("已購買");
+        setFooterVisible(View.GONE);
         init_UI();
     }
 

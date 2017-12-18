@@ -3,6 +3,7 @@ package com.iii.more.setting;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
 
 import com.iii.more.main.R;
 
@@ -26,6 +27,7 @@ public class AccountLv2Activity extends SettingBaseActivity {
         mActivity = this;
 
         setTitle("帳號");
+        setFooterVisible(View.GONE);
         init_UI();
     }
 

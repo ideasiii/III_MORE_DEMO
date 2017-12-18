@@ -29,6 +29,7 @@ public class AccountLv1Activity extends SettingBaseActivity {
         mActivity = this;
 
         setTitle("帳號");
+        setFooterVisible(View.GONE);
         init_UI();
     }
 

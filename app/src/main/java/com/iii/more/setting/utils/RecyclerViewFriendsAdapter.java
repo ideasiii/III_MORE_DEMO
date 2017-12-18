@@ -39,8 +39,8 @@ public class RecyclerViewFriendsAdapter extends RecyclerView.Adapter<RecyclerVie
         this.alarms = alarms;
     }
 
-    private final int HEADER = 0;
-    private final int BODY = 1;
+    private final int ITEM_HEADER = 0;
+    private final int ITEM_BODY = 1;
 
     @Override
     public int getItemViewType(int position) {
@@ -51,13 +51,13 @@ public class RecyclerViewFriendsAdapter extends RecyclerView.Adapter<RecyclerVie
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder returnView = null;
         switch (viewType) {
-            case HEADER: {
+            case ITEM_HEADER: {
                 View view = mInflater.inflate(R.layout.alarm_item_header, parent, false);
                 ViewHolderHeader viewHolderHeader = new ViewHolderHeader(view);
                 returnView = viewHolderHeader;
             }
             break;
-            case BODY: {
+            case ITEM_BODY: {
                 View view = mInflater.inflate(R.layout.alarm_item_body, parent, false);
                 ViewHolderBody viewHolderBody = new ViewHolderBody(view);
                 returnView = viewHolderBody;
@@ -71,13 +71,13 @@ public class RecyclerViewFriendsAdapter extends RecyclerView.Adapter<RecyclerVie
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof ViewHolderHeader) {
             AlarmLv1Activity.Alarm alarm = alarms.get(position);
-            ((ViewHolderHeader) holder).title.setText(alarm.title);
+            ((ViewHolderHeader) holder).title.setText(alarm.name);
         } else if (holder instanceof ViewHolderBody) {
             AlarmLv1Activity.Alarm alarm = alarms.get(position);
             ViewHolderBody bodyHolder = (ViewHolderBody) holder;
-            bodyHolder.hhmm.setText(alarm.hhmm);
-            bodyHolder.title.setText(alarm.title);
-            bodyHolder.description.setText(alarm.description);
+            bodyHolder.time.setText(alarm.time);
+            bodyHolder.name.setText(alarm.name);
+            bodyHolder.story.setText(alarm.story);
 
             if( alarm.bShowDel ) {
                 bodyHolder.ivDel.setVisibility(View.VISIBLE);
@@ -129,17 +129,17 @@ public class RecyclerViewFriendsAdapter extends RecyclerView.Adapter<RecyclerVie
 
     public class ViewHolderBody extends RecyclerView.ViewHolder implements View.OnClickListener {
         public LinearLayout llItem;
-        public TextView hhmm;
-        public TextView title;
-        public TextView description;
+        public TextView name;
+        public TextView time;
+        public TextView story;
         public ImageView ivDel;
 
         public ViewHolderBody(View itemView) {
             super(itemView);
             llItem = (LinearLayout) itemView.findViewById(R.id.llItem);
-            hhmm = (TextView) itemView.findViewById(R.id.hhmm);
-            title = (TextView) itemView.findViewById(R.id.title);
-            description = (TextView) itemView.findViewById(R.id.description);
+            time = (TextView) itemView.findViewById(R.id.time);
+            name = (TextView) itemView.findViewById(R.id.name);
+            story = (TextView) itemView.findViewById(R.id.story);
             ivDel = (ImageView) itemView.findViewById(R.id.ivDel);
 
             llItem.setTag("llItem");
@@ -167,7 +167,7 @@ public class RecyclerViewFriendsAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     public String getItem(int position) {
-        return alarms.get(position).title;
+        return alarms.get(position).name;
     }
 
     public void setDelToggleListener(DelToggleListener delToggleListener) {

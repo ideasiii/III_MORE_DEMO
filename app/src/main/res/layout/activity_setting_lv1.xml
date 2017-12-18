@@ -61,7 +61,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#c2c2c2"/>
+        android:background="@color/setting_div"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -96,7 +96,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#c2c2c2"/>
+                android:background="@color/setting_div"/>
         </LinearLayout>
 
         <LinearLayout
@@ -120,7 +120,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#c2c2c2"/>
+                android:background="@color/setting_div"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -162,7 +162,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#c2c2c2"/>
+        android:background="@color/setting_div"/>
 
     <View
         android:layout_width="match_parent"
