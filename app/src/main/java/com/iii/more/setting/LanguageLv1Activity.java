@@ -201,20 +201,7 @@ public class LanguageLv1Activity extends SettingBaseActivity {
                         JSONObject jsonObject = new JSONObject(response.httpBody);
                         boolean success = jsonObject.optBoolean("success");
                         if (success) {
-                            int result = jsonObject.optInt("result");
-                            Log.d(TAG, String.valueOf(result));
-                            if (result == 0) {
-                                ctv1.setChecked(true);
-                            }
-                            if (result == 1) {
-                                ctv2.setChecked(true);
-                            }
-                            if (result == 2) {
-                                ctv3.setChecked(true);
-                            }
-                            if (result == 3) {
-                                ctv4.setChecked(true);
-                            }
+
                         } else {
                             String error = jsonObject.optString("error");
                             String message = jsonObject.optString("message");
