@@ -56,7 +56,8 @@ public class PowerLv1Activity extends SettingBaseActivity {
             public void onClick(View v) {
                 boolean checked = ((Switch)v).isChecked();
                 switch1.setChecked(!checked);
-                TriggerSetting();
+                String action = switch1.isChecked() ? "0" : "1";
+                TriggerSetting(action);
             }
         });
         TriggerQuery();
@@ -71,8 +72,7 @@ public class PowerLv1Activity extends SettingBaseActivity {
         new Core().TriggerApiTask(request);
     }
 
-    private void TriggerSetting() {
-        String action = switch1.isChecked() ? "0" : "1";
+    private void TriggerSetting(String action) {
         Table.Request request = new Table.Request(Table.setting_lowpower_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)
@@ -107,7 +107,11 @@ public class PowerLv1Activity extends SettingBaseActivity {
                             String error = jsonObject.optString("error");
                             String message = jsonObject.optString("message");
                             String messageInTable = response.getErrorDescription(error);
-                            Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
+                            if( error.equals("ER0100") ) {
+                                switch1.setChecked(false);
+                                TriggerSetting("0");
+                            }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

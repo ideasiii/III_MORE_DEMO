@@ -61,7 +61,8 @@
                 android:drawablePadding="10dp"
                 android:focusable="true"
                 android:gravity="center"
-                android:text="台語"/>
+                android:text="台語"
+                android:textColor="#8c8c8c"/>
 
             <View
                 android:layout_width="match_parent"
@@ -115,7 +116,8 @@
                 android:drawablePadding="10dp"
                 android:focusable="true"
                 android:gravity="center"
-                android:text="客語"/>
+                android:text="客語"
+                android:textColor="#8c8c8c"/>
 
         </LinearLayout>
     </LinearLayout>
