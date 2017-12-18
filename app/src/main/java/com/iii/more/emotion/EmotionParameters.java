@@ -12,7 +12,7 @@ public abstract class EmotionParameters
     public static final int METHOD_FACE_DETECT = 1;
     public static final int METHOD_NO_FACE_DETECT = 2;
     
-    public static final int THREAD_SLEEP_TIME = 1000;
+    public static final int THREAD_SLEEP_TIME = 500;
     public static final int ONE_TIME_COUNT = 5;
     
     

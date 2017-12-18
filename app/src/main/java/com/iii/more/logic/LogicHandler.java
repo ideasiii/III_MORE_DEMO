@@ -51,12 +51,12 @@ public class LogicHandler extends BaseHandler
     private CacheStory mCacheStory = null;
     
     
-    public boolean getPauseStoryMode()
+    public boolean isPauseStoryMode()
     {
         return isPauseStoryMode;
     }
     
-    public void setPauseStoryMode(boolean storyMode)
+    private void setPauseStoryMode(boolean storyMode)
     {
         isPauseStoryMode = storyMode;
     }

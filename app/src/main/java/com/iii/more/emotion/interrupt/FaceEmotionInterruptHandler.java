@@ -28,7 +28,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
     private HashMap<String, String> mEmotionHashMapData = null;
     
     private EmotionElement nowEmotionState = new EmotionElement(FaceEmotionInterruptParameters
-            .STRING_NATURAL, FaceEmotionInterruptParameters.INT_NATURAL_RULE);
+        .STRING_NATURAL, FaceEmotionInterruptParameters.INT_NATURAL_RULE);
     
     public FaceEmotionInterruptHandler(Context context)
     {
@@ -78,25 +78,25 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                 try
                 {
                     if (strNowEmotionValue.equals(mEmotionBrainArrayListData.get(i).triggerValue) &&
-                            mEmotionBrainArrayListData.get(i).emotionType.equals("EXPRESSION"))
+                        mEmotionBrainArrayListData.get(i).emotionType.equals("EXPRESSION"))
                     {
                         //debug using
                         //Logs.showTrace("[FaceEmotionInterruptHandler] strNowEmotionValue: " +
                         // strNowEmotionValue);
                         
                         data = new EmotionElement(mEmotionBrainArrayListData.get(i).emotionName,
-                                mEmotionBrainArrayListData.get(i).triggerTime);
+                            mEmotionBrainArrayListData.get(i).triggerTime);
                     }
                     else if (!mEmotionBrainArrayListData.get(i).emotionType.equals("EXPRESSION"))
                     {
                         
                         float floatNowEmotionValue = Float.valueOf(strNowEmotionValue);
                         float ruleEmotionValue = Float.valueOf(mEmotionBrainArrayListData.get(i)
-                                .triggerValue);
+                            .triggerValue);
                         if (floatNowEmotionValue >= ruleEmotionValue)
                         {
                             data = new EmotionElement(mEmotionBrainArrayListData.get(i).emotionName,
-                                    mEmotionBrainArrayListData.get(i).triggerTime);
+                                mEmotionBrainArrayListData.get(i).triggerTime);
                         }
                     }
                     
@@ -132,16 +132,17 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                     //        nowEmotionState.emotionName + " 觸發次數: " + newFaceData.emotionTriggerTimeRule);
                     //callback to application
                     HashMap<String, String> message = new HashMap<>();
-                    message.put(FaceEmotionInterruptParameters.STRING_EMOTION_NAME,nowEmotionState.emotionName);
+                    message.put(FaceEmotionInterruptParameters.STRING_EMOTION_NAME, nowEmotionState
+                        .emotionName);
                     EmotionBrainElement emotionBrainElement = getEmotionBrainElementByEmotionName
-                            (nowEmotionState.emotionName);
+                        (nowEmotionState.emotionName);
                     if (null != emotionBrainElement)
                     {
                         //debug using
                         //emotionBrainElement.print();
                         
                         message.put(FaceEmotionInterruptParameters.STRING_IMG_FILE_NAME,
-                                emotionBrainElement.emotionMappingImageName);
+                            emotionBrainElement.emotionMappingImageName);
                         
                         if (emotionBrainElement.emotionMappingTTS.size() > 0)
                         {
@@ -154,21 +155,21 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                             try
                             {
                                 message.put(FaceEmotionInterruptParameters.STRING_TTS_TEXT, ttsData
-                                        .getString("tts"));
+                                    .getString("tts"));
                                 message.put(FaceEmotionInterruptParameters.STRING_TTS_PITCH, ttsData
-                                        .getString("pitch"));
+                                    .getString("pitch"));
                                 message.put(FaceEmotionInterruptParameters.STRING_TTS_SPEED, ttsData
-                                        .getString("speed"));
+                                    .getString("speed"));
                             }
                             catch (JSONException e)
                             {
                                 Logs.showError("[FaceEmotionInterruptHandler] get TTS RULE ERROR" + e
-                                        .toString());
+                                    .toString());
                             }
                         }
                         callBackMessage(ResponseCode.ERR_SUCCESS, FaceEmotionInterruptParameters
-                                .CLASS_FACE_EMOTION_INTERRUPT, FaceEmotionInterruptParameters.METHOD_EVENT,
-                                message);
+                            .CLASS_FACE_EMOTION_INTERRUPT, FaceEmotionInterruptParameters.METHOD_EVENT,
+                            message);
                         
                         
                     }
@@ -221,7 +222,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                 JSONObject jsonEmotionBrainElement = mInterruptEmotionBehaviorDataArray.getJSONObject(i);
                 
                 JSONArray contents = jsonEmotionBrainElement.getJSONArray(FaceEmotionInterruptParameters
-                        .JSON_STRING_CONTENTS);
+                    .JSON_STRING_CONTENTS);
                 
                 ArrayList<JSONObject> contentArrayList = new ArrayList<>();
                 
@@ -231,18 +232,17 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                 }
                 
                 mEmotionBrainArrayListData.add(new EmotionBrainElement(jsonEmotionBrainElement.getInt
-                        (FaceEmotionInterruptParameters.JSON_STRING_ID), jsonEmotionBrainElement.getInt
-                        (FaceEmotionInterruptParameters.JSON_STRING_EMOTION_ID), jsonEmotionBrainElement
-                        .getString(FaceEmotionInterruptParameters.JSON_STRING_EMOTION_NAME),
-                        jsonEmotionBrainElement.getString(FaceEmotionInterruptParameters
-                                .JSON_STRING_EMOTION_MAPPING_IMAGE_NAME), jsonEmotionBrainElement.getString
-                        (FaceEmotionInterruptParameters.JSON_STRING_DATA_TYPE), jsonEmotionBrainElement
-                        .getInt(FaceEmotionInterruptParameters.JSON_STRING_PRIORITY),
-                        jsonEmotionBrainElement.getInt(FaceEmotionInterruptParameters
-                                .JSON_STRING_TRIGGER_TIME), jsonEmotionBrainElement.getString
-                        (FaceEmotionInterruptParameters.JSON_STRING_TRIGGER_VALUE), jsonEmotionBrainElement
-                        .getString(FaceEmotionInterruptParameters.JSON_STRING_EMOTION_TYPE),
-                        contentArrayList));
+                    (FaceEmotionInterruptParameters.JSON_STRING_ID), jsonEmotionBrainElement.getInt
+                    (FaceEmotionInterruptParameters.JSON_STRING_EMOTION_ID), jsonEmotionBrainElement
+                    .getString(FaceEmotionInterruptParameters.JSON_STRING_EMOTION_NAME),
+                    jsonEmotionBrainElement.getString(FaceEmotionInterruptParameters
+                        .JSON_STRING_EMOTION_MAPPING_IMAGE_NAME), jsonEmotionBrainElement.getString
+                    (FaceEmotionInterruptParameters.JSON_STRING_DATA_TYPE), jsonEmotionBrainElement.getInt
+                    (FaceEmotionInterruptParameters.JSON_STRING_PRIORITY), jsonEmotionBrainElement.getInt
+                    (FaceEmotionInterruptParameters.JSON_STRING_TRIGGER_TIME), jsonEmotionBrainElement
+                    .getString(FaceEmotionInterruptParameters.JSON_STRING_TRIGGER_VALUE),
+                    jsonEmotionBrainElement.getString(FaceEmotionInterruptParameters
+                        .JSON_STRING_EMOTION_TYPE), contentArrayList));
             }
             
             //sort it
@@ -293,7 +293,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         void print()
         {
             Logs.showTrace("[FaceEmotionInterruptHandler][EmotionElement] EmotionName: " + emotionName + " " +
-                    "emotionTriggerTime: " + String.valueOf(emotionTriggerTimeRule));
+                "" + "emotionTriggerTime: " + String.valueOf(emotionTriggerTimeRule));
         }
     }
     
@@ -312,8 +312,8 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         String emotionType = null;
         
         EmotionBrainElement(int id, int emotionID, @NonNull String emotionName, @NonNull String
-                emotionMappingImageName, @NonNull String dataType, int priority, int triggerTime, @NonNull
-                String triggerValue, @NonNull String emotionType, ArrayList<JSONObject> emotionMappingTTS)
+            emotionMappingImageName, @NonNull String dataType, int priority, int triggerTime, @NonNull
+            String triggerValue, @NonNull String emotionType, ArrayList<JSONObject> emotionMappingTTS)
         {
             this.id = id;
             this.emotionID = emotionID;
@@ -327,7 +327,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
             {
                 if (emotionName.equals("ATTENTION"))
                 {
-                    this.triggerTime = 30;
+                    this.triggerTime = FaceEmotionInterruptParameters.attentionTriggerTime;
                 }
                 else
                 {
@@ -360,7 +360,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                 for (int i = 0; i < emotionMappingTTS.size(); i++)
                 {
                     Logs.showTrace("[EmotionBrainElement] emotionMappingTTS (" + String.valueOf(i) + "): "
-                            + emotionMappingTTS.get(i));
+                        + emotionMappingTTS.get(i));
                 }
             }
             Logs.showTrace("*****************************************************");

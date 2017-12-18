@@ -273,23 +273,23 @@ public class MainApplication extends Application
             public void onFaceEmotionDetected(String emotionName)
             {
                 // face emotion simulation commands
-                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " + "simulates when face " +
-                        "emotion is detected, emotionName = `" + emotionName + "`");
+                Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " + "simulates when face "
+                    + "emotion is detected, emotionName = `" + emotionName + "`");
                 
                 HashMap<String, String> faceEmotionEvent = MagicBook.cookFaceEmotionDetectedEvent
-                        (mFaceEmotionInterruptHandler, emotionName);
+                    (mFaceEmotionInterruptHandler, emotionName);
                 
                 if (null != faceEmotionEvent)
                 {
                     Message m = mSelfHandler.obtainMessage(FaceEmotionInterruptParameters
-                            .CLASS_FACE_EMOTION_INTERRUPT, 0, 0, faceEmotionEvent);
+                        .CLASS_FACE_EMOTION_INTERRUPT, 0, 0, faceEmotionEvent);
                     mSelfHandler.sendMessage(m);
                 }
             }
         });
         
         CockpitService.startThenBindService(this, InternetCockpitService.class, mCockpitServiceConnection,
-                null);
+            null);
         CockpitService.startThenBindService(this, OtgCockpitService.class, mCockpitServiceConnection, null);
     }
     
@@ -313,10 +313,10 @@ public class MainApplication extends Application
         {
             Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
             interruptEmotionBehaviorDataArrayInput = Parameters
-                    .INTERRUPT_EMOTION_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
+                .INTERRUPT_EMOTION_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
         }
         mFaceEmotionInterruptHandler.setInterruptEmotionLogicBehaviorDataArray
-                (interruptEmotionBehaviorDataArrayInput);
+            (interruptEmotionBehaviorDataArrayInput);
         mFaceEmotionInterruptHandler.setHandler(mSelfHandler);
     }
     
@@ -341,11 +341,11 @@ public class MainApplication extends Application
         {
             Logs.showError("[MainApplication] Use fallback input for interrupt logic behavior");
             interruptLogicBehaviorDataArrayInput = Parameters
-                    .INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
+                .INTERRUPT_LOGIC_BEHAVIOR_DATA_ARRAY_FALLBACK_INPUT;
         }
         
         mCockpitListenerBridge.sensorInterruptLogicHandler.refillInterruptRules
-                (interruptLogicBehaviorDataArrayInput);
+            (interruptLogicBehaviorDataArrayInput);
         mCockpitListenerBridge.sensorInterruptLogicHandler.setHandler(mSelfHandler);
     }
     
@@ -461,23 +461,23 @@ public class MainApplication extends Application
             {
                 ttsHashMap = new HashMap<>();
                 ttsHashMap.put(FaceEmotionInterruptParameters.STRING_TTS_TEXT, message.get
-                        (FaceEmotionInterruptParameters.STRING_TTS_TEXT));
+                    (FaceEmotionInterruptParameters.STRING_TTS_TEXT));
                 ttsHashMap.put(FaceEmotionInterruptParameters.STRING_TTS_PITCH, message.get
-                        (FaceEmotionInterruptParameters.STRING_TTS_PITCH));
+                    (FaceEmotionInterruptParameters.STRING_TTS_PITCH));
                 ttsHashMap.put(FaceEmotionInterruptParameters.STRING_TTS_SPEED, message.get
-                        (FaceEmotionInterruptParameters.STRING_TTS_SPEED));
+                    (FaceEmotionInterruptParameters.STRING_TTS_SPEED));
                 message.remove(FaceEmotionInterruptParameters.STRING_TTS_TEXT);
                 message.remove(FaceEmotionInterruptParameters.STRING_TTS_PITCH);
                 message.remove(FaceEmotionInterruptParameters.STRING_TTS_SPEED);
                 
                 Logs.showTrace("[MainApplication] tts: " + ttsHashMap.get(FaceEmotionInterruptParameters
-                        .STRING_TTS_TEXT));
+                    .STRING_TTS_TEXT));
             }
             if (message.containsKey(FaceEmotionInterruptParameters.STRING_IMG_FILE_NAME))
             {
                 imgHashMap = new HashMap<>();
                 imgHashMap.put(FaceEmotionInterruptParameters.STRING_IMG_FILE_NAME, message.get
-                        (FaceEmotionInterruptParameters.STRING_IMG_FILE_NAME));
+                    (FaceEmotionInterruptParameters.STRING_IMG_FILE_NAME));
                 message.remove(FaceEmotionInterruptParameters.STRING_IMG_FILE_NAME);
             }
             mFaceEmotionEventListener.onFaceEmotionResult(message, ttsHashMap, imgHashMap, null);
@@ -511,7 +511,20 @@ public class MainApplication extends Application
                 Logs.showError("[MainApplication] send tracker while ERROR:" + e.toString());
             }
         }
-        
+        else if (msg.arg2 == EmotionParameters.METHOD_FACE_DETECT)
+        {
+            if (null != mFaceEmotionEventListener)
+            {
+                mFaceEmotionEventListener.onFaceDetectResult(true);
+            }
+        }
+        else if (msg.arg2 == EmotionParameters.METHOD_NO_FACE_DETECT)
+        {
+            if (null != mFaceEmotionEventListener)
+            {
+                mFaceEmotionEventListener.onFaceDetectResult(false);
+            }
+        }
         if (null != mFaceEmotionEventListener)
         {
             mFaceEmotionInterruptHandler.setEmotionEventData((HashMap<String, String>) msg.obj);
@@ -530,7 +543,7 @@ public class MainApplication extends Application
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
         
         Logs.showTrace("[MainApplication] handleTrackerMessage() " + "Result: " + result + " From: " + from
-                + " Message: " + message);
+            + " Message: " + message);
     }
     
     /**

@@ -34,6 +34,6 @@ public abstract class FaceEmotionInterruptParameters
     public static final int INT_NATURAL_RULE = 999;
     
     public  static final boolean isDebugging = true;
-    
+    public static final int attentionTriggerTime = 120;
     
 }

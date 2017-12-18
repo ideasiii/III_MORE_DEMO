@@ -3,6 +3,7 @@ package com.iii.more.main;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ import com.iii.more.screen.view.menu.MenuParameters;
 import com.iii.more.screen.view.alterdialog.AlertDialogHandler;
 import com.iii.more.screen.view.alterdialog.AlertDialogParameters;
 import com.iii.more.screen.view.progressDialog.ProgressDialog;
+import com.iii.more.setting.SettingLv1Activity;
 import com.scalified.fab.ActionButton;
 
 import org.json.JSONArray;
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     private FloatingActionButtonHandler mFABSettingHandler = null;
     //BLE connect read pen
     private ReadPenBLEHandler mReadPenBLEHandler = null;
-    
+    private MediaPlayer mRfidScannedSoundPlayer;
     
     //it can block face listen let it don't get message
     private volatile boolean isBlockFaceEmotionListener = false;
@@ -612,8 +614,58 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         }
         else if (message.get("fabID").equals(ID_FAB_SETTING_BUTTON))
         {
+            //end emotion
+            /*new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    ((MainApplication) MainActivity.this.getApplication()).stopFaceEmotion();
+                }
+            }).start();*/
+    
+            //((MainApplication) this.getApplication()).stopFaceEmotion();
+            
+            //end service
+            mLogicHandler.setMode(LogicParameters.MODE_UNKNOWN);
+            mLogicHandler.endAll();
+    
+            Logs.showTrace("[MainActivity] %% Hide FAB Setting %%");
+            mFABSettingHandler.hide();
+    
+            mMenuHandler.hideMenu(mFABMenuHandler.getFabX(), mFABMenuHandler.getFabY(), mFABMenuHandler
+                .getFabRadius());
+           
+            Toast.makeText(this,"進入家長模式",Toast.LENGTH_SHORT).show();
+            
             // ### pending Ready write
             Logs.showTrace("[MainActivity] %% Enter Ready Setting Page %%");
+            mHandler.postDelayed(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                   
+                    mFABMenuHandler.show();
+                }
+            },1000);
+    
+    
+            mHandler.postDelayed(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    Intent intent = new Intent();
+                    intent.setClass(MainActivity.this, SettingLv1Activity.class);
+                    startActivity(intent);
+                }
+            },1500);
+            
+            
+            
+           
+            
         }
     }
     
@@ -890,6 +942,27 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                             ttsHashMap.get(FaceEmotionInterruptParameters.STRING_TTS_TEXT), "zh");
                         
                     }
+                    else
+                    {
+                        if (!mLogicHandler.isPauseStoryMode())
+                        {
+                            isBlockFaceEmotionListener = true;
+                            //pause story
+                            mLogicHandler.pauseStoryStreaming();
+                            Logs.showTrace("[MainActivity]*** now No TTS HashMap and pause Story Streaming!");
+                            mHandler.postDelayed(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    Logs.showTrace("[MainActivity]*** now No TTS HashMap and resume Story Streaming!");
+                                    mLogicHandler.resumeStoryStreaming();
+                                    mDisplayHandler.resumeDisplaying();
+                                    isBlockFaceEmotionListener = false;
+                                }
+                            },3000);
+                        }
+                    }
                 }
                 if (null != imageHashMap)
                 {
@@ -945,6 +1018,37 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     public void onFaceDetectResult(boolean isDetectFace)
     {
         Logs.showTrace("[MainActivity] Face Detect: " + String.valueOf(isDetectFace));
+        
+        if (isDetectFace)
+        {
+            playRfidEventSound();
+        }
+        
+    }
+    
+    private void playRfidEventSound()
+    {
+        if (mRfidScannedSoundPlayer == null)
+        {
+            mRfidScannedSoundPlayer = MediaPlayer.create(this, R.raw.rfid_scanned);
+        }
+        
+        replayMediaPlayer(mRfidScannedSoundPlayer);
+    }
+    
+    /**
+     * 將 MediaPlayer 重頭播放
+     */
+    private static void replayMediaPlayer(MediaPlayer mp)
+    {
+        if (mp.isPlaying())
+        {
+            mp.seekTo(0);
+        }
+        else
+        {
+            mp.start();
+        }
     }
     
     @Override
