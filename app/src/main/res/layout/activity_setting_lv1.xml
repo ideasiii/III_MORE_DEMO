@@ -130,6 +130,7 @@
         android:orientation="horizontal">
 
         <LinearLayout
+            android:id="@+id/llReset"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"

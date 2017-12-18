@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -52,9 +51,11 @@ public class PowerLv1Activity extends SettingBaseActivity {
 
     private void init_UI() {
         switch1 = (Switch) findViewById(R.id.switch1);
-        switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        switch1.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            public void onClick(View v) {
+                boolean checked = ((Switch)v).isChecked();
+                switch1.setChecked(!checked);
                 TriggerSetting();
             }
         });
@@ -118,14 +119,7 @@ public class PowerLv1Activity extends SettingBaseActivity {
                         JSONObject jsonObject = new JSONObject(response.httpBody);
                         boolean success = jsonObject.optBoolean("success");
                         if (success) {
-                            int result = jsonObject.optInt("result");
-                            Log.d(TAG, String.valueOf(result));
-                            if (result == 0) {
-                                switch1.setChecked(false);
-                            }
-                            if (result == 1) {
-                                switch1.setChecked(true);
-                            }
+                            TriggerQuery();
                         } else {
                             String error = jsonObject.optString("error");
                             String messageInTable = response.getErrorDescription(error);
