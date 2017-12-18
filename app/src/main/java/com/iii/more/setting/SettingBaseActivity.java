@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
@@ -145,15 +143,10 @@ public abstract class SettingBaseActivity extends AppCompatActivity {
     }
 
     private void TriggerCreate() {
-        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wInfo = wifiManager.getConnectionInfo();
-        String mac_address = wInfo.getMacAddress();
-
         Table.Request request = new Table.Request(Table.device_create_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)
             .add("device_os", Table.device_os)
-            .add("mac_address", mac_address)
             .build();
         request.formBody = formBody;
         new Core().TriggerApiTask(request);

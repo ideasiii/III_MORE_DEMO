@@ -52,7 +52,7 @@
             android:orientation="vertical">
 
             <CheckedTextView
-                android:id="@+id/ctv2"
+                android:id="@+id/ctv3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
@@ -84,7 +84,7 @@
             android:orientation="vertical">
 
             <CheckedTextView
-                android:id="@+id/ctv3"
+                android:id="@+id/ctv2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
