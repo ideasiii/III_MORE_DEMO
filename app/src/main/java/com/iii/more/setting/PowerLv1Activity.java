@@ -83,6 +83,7 @@ public class PowerLv1Activity extends SettingBaseActivity {
 
     @Override
     public void onEventBus(Table.Response response) {
+        super.onEventBus(response);
         Log.e(TAG, response.getPath());
         Log.e(TAG, String.valueOf(response.httpCode));
         Log.e(TAG, response.httpBody);
