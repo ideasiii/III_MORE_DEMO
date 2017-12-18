@@ -15,6 +15,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
+import com.iii.more.game.module.ViewPagerLayout;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
@@ -57,6 +58,7 @@ public class ZooActivity extends Activity
     private int nTimeoutAnimal = 4;
     RelativeLayout.LayoutParams layoutParamsExView = null;
     private FoodListLayout foodListLayout = null;
+    private TrafficListLayout trafficListLayout = null;
     private ImageView imgvFoodEat = null;
     
     @Override
@@ -134,6 +136,9 @@ public class ZooActivity extends Activity
         
         imgvFoodEat = new ImageView(this);
         imgvFoodEat.setLayoutParams(layoutParamsExView);
+        
+        trafficListLayout = new TrafficListLayout(this, handlerScenarize);
+        trafficListLayout.setLayoutParams(layoutParamsExView);
     }
     
     @Override
@@ -188,7 +193,8 @@ public class ZooActivity extends Activity
     
     public void Scenarize(int nIndex, Object object)
     {
-        Logs.showTrace("############################ Scenarize Index:" + nIndex + "############################");
+        Logs.showTrace("############################ Scenarize Index:" + nIndex +
+            "############################");
         String strTTS = "";
         String strFaceImg = "";
         
@@ -371,6 +377,25 @@ public class ZooActivity extends Activity
                 Glide.with(this).load((int) object).diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .into(imgvFoodEat);
                 robotHead.addView(imgvFoodEat);
+            }
+            
+            if (SCEN.SCEN_INDEX_CAR_OUTSIDE == nIndex)
+            {
+                robotHead.addView(trafficListLayout);
+                trafficListLayout.startSlideShow(3, false);
+                trafficListLayout.setOnSlideShowListener(new ViewPagerLayout.OnSlideShowListener()
+                {
+                    @Override
+                    public void onShow(int nPage, ViewPagerLayout.SLIDE_STATUS slideStatus)
+                    {
+                        switch (slideStatus)
+                        {
+                            case END:
+                                handlerScenarize.sendEmptyMessage(GLOBAL.scenarizeCurr.ScenarizeNext);
+                                break;
+                        }
+                    }
+                });
             }
             
             if (SCEN.SCEN_INDEX_MRT_MAP == nIndex)

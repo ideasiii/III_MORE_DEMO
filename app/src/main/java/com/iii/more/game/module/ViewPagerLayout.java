@@ -1,21 +1,21 @@
 package com.iii.more.game.module;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.iii.more.main.R;
-
 
 /**
  * Created by Jugo on 2017/12/7
@@ -23,13 +23,46 @@ import com.iii.more.main.R;
 
 public class ViewPagerLayout extends RelativeLayout
 {
+    public static enum SLIDE_STATUS
+    {
+        START,
+        RUN,
+        STOP,
+        FIRST,
+        END;
+    }
+    
     private Context theContext = null;
     private ViewPager viewPager = null;
     private ViewPagerAdapter viewPagerAdapter = null;
     private boolean mbPagingEnable = true;
     private ImageView imgForward = null;
     private ImageView imgBack = null;
+    private boolean mbRepeat = false;
+    private final int MSG_SLIDE_SHOW = 1;
+    private int mnSecond = 3000;
+    private OnPageChangeListener onPageChangeListener = null;
+    private OnSlideShowListener onSlideShowListener = null;
     
+    public static interface OnSlideShowListener
+    {
+        void onShow(int nPage, SLIDE_STATUS slideStatus);
+    }
+    
+    public void setOnSlideShowListener(OnSlideShowListener listener)
+    {
+        onSlideShowListener = listener;
+    }
+    
+    public static interface OnPageChangeListener
+    {
+        void onPageChanged(int nCurrent);
+    }
+    
+    public void setOnPageChangeListener(OnPageChangeListener listener)
+    {
+        onPageChangeListener = listener;
+    }
     
     public ViewPagerLayout(Context context)
     {
@@ -280,4 +313,74 @@ public class ViewPagerLayout extends RelativeLayout
             return !(0 > position || getCount() <= position);
         }
     }
+    
+    public void startSlideShow(int nSecond, boolean bRepeat)
+    {
+        mnSecond = nSecond * 1000;
+        mbRepeat = bRepeat;
+        handler.sendEmptyMessageDelayed(MSG_SLIDE_SHOW, mnSecond);
+        if (null != onSlideShowListener)
+        {
+            onSlideShowListener.onShow(0, SLIDE_STATUS.START);
+        }
+    }
+    
+    public void stopSlideShow()
+    {
+        mnSecond = 3000;
+        mbRepeat = false;
+        handler.removeMessages(MSG_SLIDE_SHOW);
+        if (null != onSlideShowListener)
+        {
+            onSlideShowListener.onShow(0, SLIDE_STATUS.STOP);
+        }
+    }
+    
+    @SuppressLint("HandlerLeak")
+    private Handler handler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg)
+        {
+            if (MSG_SLIDE_SHOW == msg.what)
+            {
+                int nPage = getCurrentPage();
+                int nCount = getPageCount();
+                
+                if ((nPage + 1) >= nCount) // end
+                {
+                    if (null != onSlideShowListener)
+                    {
+                        onSlideShowListener.onShow(0, SLIDE_STATUS.END);
+                    }
+                    
+                    if (mbRepeat)
+                    {
+                        showPage(0);
+                        if (null != onPageChangeListener)
+                        {
+                            onPageChangeListener.onPageChanged(0);
+                        }
+                        
+                        if (null != onSlideShowListener)
+                        {
+                            onSlideShowListener.onShow(0, SLIDE_STATUS.FIRST);
+                        }
+                        
+                        sendEmptyMessageDelayed(MSG_SLIDE_SHOW, mnSecond);
+                    }
+                }
+                else
+                {
+                    ++nPage;
+                    showPage(nPage);
+                    if (null != onSlideShowListener)
+                    {
+                        onSlideShowListener.onShow(0, SLIDE_STATUS.RUN);
+                    }
+                    sendEmptyMessageDelayed(MSG_SLIDE_SHOW, mnSecond);
+                }
+            }
+        }
+    };
 }

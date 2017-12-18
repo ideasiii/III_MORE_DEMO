@@ -21,12 +21,14 @@ import android.widget.ImageView;
 public class FoodListLayout extends ViewPagerLayout
 {
     private Handler handlerScenarize = null;
-    private Context theContext = null;
     
     private enum FOOD_ITEM
     {
-        冰淇淋(R.drawable.food_cream_eat), 甜甜圈(R.drawable.food_donut_eat), 漢堡(R.drawable
-        .food_hamb_eat), 棒棒糖(R.drawable.food_lollipops_eat), 蛋糕(R.drawable.food_cake_eat);
+        冰淇淋(R.drawable.food_cream_eat),
+        甜甜圈(R.drawable.food_donut_eat),
+        漢堡(R.drawable.food_hamb_eat),
+        棒棒糖(R.drawable.food_lollipops_eat),
+        蛋糕(R.drawable.food_cake_eat);
         private int value;
         
         FOOD_ITEM(int value)
@@ -73,7 +75,6 @@ public class FoodListLayout extends ViewPagerLayout
     
     void init(Context context)
     {
-        theContext = context;
         for (FOOD_ITEM aid : FOOD_ITEM.values())
         {
             ImageView imageView = new ImageView(context);
