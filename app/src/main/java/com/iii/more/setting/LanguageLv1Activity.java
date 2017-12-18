@@ -97,45 +97,45 @@ public class LanguageLv1Activity extends SettingBaseActivity {
             }
         });
         ctv3 = (CheckedTextView) findViewById(R.id.ctv3);
-        ctv3.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v)
-            {
-                if( ctv1.isChecked() ) {
-                    ctv1.toggle();
-                }
-                if( ctv2.isChecked() ) {
-                    ctv2.toggle();
-                }
-                if( ctv3.isChecked() == false ) {
-                    ctv3.toggle();
-                    LanguageId = 2;
-                    TriggerSetting();
-                }
-                if( ctv4.isChecked() ) {
-                    ctv4.toggle();
-                }
-            }
-        });
+//        ctv3.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v)
+//            {
+//                if( ctv1.isChecked() ) {
+//                    ctv1.toggle();
+//                }
+//                if( ctv2.isChecked() ) {
+//                    ctv2.toggle();
+//                }
+//                if( ctv3.isChecked() == false ) {
+//                    ctv3.toggle();
+//                    LanguageId = 2;
+//                    TriggerSetting();
+//                }
+//                if( ctv4.isChecked() ) {
+//                    ctv4.toggle();
+//                }
+//            }
+//        });
         ctv4 = (CheckedTextView) findViewById(R.id.ctv4);
-        ctv4.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v)
-            {
-                if( ctv1.isChecked() ) {
-                    ctv1.toggle();
-                }
-                if( ctv2.isChecked() ) {
-                    ctv2.toggle();
-                }
-                if( ctv3.isChecked() ) {
-                    ctv3.toggle();
-                }
-                if( ctv4.isChecked() == false ) {
-                    ctv4.toggle();
-                    LanguageId = 3;
-                    TriggerSetting();
-                }
-            }
-        });
+//        ctv4.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v)
+//            {
+//                if( ctv1.isChecked() ) {
+//                    ctv1.toggle();
+//                }
+//                if( ctv2.isChecked() ) {
+//                    ctv2.toggle();
+//                }
+//                if( ctv3.isChecked() ) {
+//                    ctv3.toggle();
+//                }
+//                if( ctv4.isChecked() == false ) {
+//                    ctv4.toggle();
+//                    LanguageId = 3;
+//                    TriggerSetting();
+//                }
+//            }
+//        });
         TriggerQuery();
     }
     private void TriggerQuery() {
@@ -189,7 +189,15 @@ public class LanguageLv1Activity extends SettingBaseActivity {
                             String error = jsonObject.optString("error");
                             String message = jsonObject.optString("message");
                             String messageInTable = response.getErrorDescription(error);
-                            Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
+                            if( error.equals("ER0100") ) {
+                                LanguageId = 0;
+                                ctv1.setChecked(true);
+                                ctv2.setChecked(false);
+                                ctv3.setChecked(false);
+                                ctv4.setChecked(false);
+                                TriggerSetting();
+                            }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
