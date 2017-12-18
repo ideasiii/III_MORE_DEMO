@@ -67,7 +67,7 @@ public abstract class SettingBaseActivity extends AppCompatActivity {
         mActivity = this;
 
         if (PrefSettings == null) {
-            TriggerCreate();
+            TriggerGetInfo();
             PrefSettings = mCtx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             PrefEditor = PrefSettings.edit();
         }
@@ -94,6 +94,24 @@ public abstract class SettingBaseActivity extends AppCompatActivity {
         Log.e(TAG, response.httpBody);
         if (response.httpCode == HTTP_SUCCESS) {
             switch (response.function_id) {
+                case Table.device_info_id: {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.httpBody);
+                        boolean success = jsonObject.optBoolean("success");
+                        if (success) {
+
+                        } else {
+                            TriggerCreate();
+                            String error = jsonObject.optString("error");
+                            String message = jsonObject.optString("message");
+                            String messageInTable = response.getErrorDescription(error);
+                            Log.e(TAG, response.getPath() + " " + messageInTable);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
                 case Table.device_create_id: {
                     try {
                         JSONObject jsonObject = new JSONObject(response.httpBody);
@@ -114,18 +132,27 @@ public abstract class SettingBaseActivity extends AppCompatActivity {
         }
     }
 
+    private void TriggerGetInfo() {
+        Table.device_id = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+        Table.device_os = Build.VERSION.RELEASE;
+
+        Table.Request request = new Table.Request(Table.device_info_id);
+        FormBody formBody = new FormBody.Builder()
+            .add("device_id", Table.device_id)
+            .build();
+        request.formBody = formBody;
+        new Core().TriggerApiTask(request);
+    }
+
     private void TriggerCreate() {
-        String android_id = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
-        String device_os = Build.VERSION.RELEASE;
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wInfo = wifiManager.getConnectionInfo();
         String mac_address = wInfo.getMacAddress();
 
-        Table.device_id = android_id;
         Table.Request request = new Table.Request(Table.device_create_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)
-            .add("device_os", device_os)
+            .add("device_os", Table.device_os)
             .add("mac_address", mac_address)
             .build();
         request.formBody = formBody;

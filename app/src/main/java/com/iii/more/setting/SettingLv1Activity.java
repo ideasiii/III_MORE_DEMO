@@ -36,6 +36,7 @@ public class SettingLv1Activity extends SettingBaseActivity {
     LinearLayout llBought;
     LinearLayout llLanguage;
     LinearLayout llPower;
+    LinearLayout llReset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,19 +104,18 @@ public class SettingLv1Activity extends SettingBaseActivity {
                 startActivity(i);
             }
         });
+
+        llReset = (LinearLayout) findViewById(R.id.llReset);
+        llReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TriggerReset();
+            }
+        });
     }
 
-    private void TriggerCreate() {
-        Table.Request request = new Table.Request(Table.device_info_id);
-        FormBody formBody = new FormBody.Builder()
-            .add("device_id", Table.device_id)
-            .build();
-        request.formBody = formBody;
-        new Core().TriggerApiTask(request);
-    }
-
-    private void TriggerGetInfo() {
-        Table.Request request = new Table.Request(Table.device_info_id);
+    private void TriggerReset() {
+        Table.Request request = new Table.Request(Table.setting_reset_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)
             .build();
@@ -131,43 +131,21 @@ public class SettingLv1Activity extends SettingBaseActivity {
         Log.e(TAG, response.httpBody);
         if (response.httpCode == HTTP_SUCCESS) {
             switch (response.function_id) {
-                case Table.device_info_id: {
+                case Table.setting_reset_id: {
                     try {
                         JSONObject jsonObject = new JSONObject(response.httpBody);
                         boolean success = jsonObject.optBoolean("success");
                         if (success) {
-                            String mac_address = jsonObject.optString("mac_address");
-                            String device_os = jsonObject.optString("device_os");
-                            Log.d(TAG, mac_address);
-                            Log.d(TAG, device_os);
+                            Toast.makeText(mCtx, response.getPath() + " SUCCESS", Toast.LENGTH_SHORT).show();
                         } else {
                             String error = jsonObject.optString("error");
                             String message = jsonObject.optString("message");
                             String messageInTable = response.getErrorDescription(error);
-                            Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
-                break;
-                case Table.device_create_id: {
-                    try {
-                        JSONObject jsonObject = new JSONObject(response.httpBody);
-                        boolean success = jsonObject.optBoolean("success");
-                        if (success) {
-                            // TODO success parser
-                        } else {
-                            String error = jsonObject.optString("error");
-                            String message = jsonObject.optString("message");
-                            String messageInTable = response.getErrorDescription(error);
-                            Toast.makeText(mCtx, error + "\n" + messageInTable, Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
             }
         }
     }

@@ -32,6 +32,7 @@ public class Table {
 //<editor-fold desc="for server parameter">
 
     public static String device_id = "readytest999";
+    public static String device_os = "n/a";
 
     private static HashMap<String, String> errorMap;
 
