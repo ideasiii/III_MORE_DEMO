@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/inc_setting_header"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_item_height"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/setting_item_height"
+                android:layout_height="@dimen/setting_item_height"
+                android:padding="5dp"
+                android:src="@drawable/grey_circle_fb_256"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:maxLines="1"
+                    tools:text="giormsgd@gmail.com"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_gravity="top"
+                    android:layout_weight="1"
+                    tools:text="已付費會員"/>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="@dimen/setting_item_del_width"
+                android:layout_height="@dimen/setting_item_height"
+                android:background="@color/setting_main"
+                android:padding="15dp"
+                android:src="@drawable/ic_mode_edit_white_24dp"/>
+
+            <ImageView
+                android:layout_width="@dimen/setting_item_del_width"
+                android:layout_height="@dimen/setting_item_height"
+                android:background="#db4437"
+                android:padding="15dp"
+                android:src="@drawable/ic_exit_to_app_white_24dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/setting_div"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <include layout="@layout/inc_setting_footer"/>
+
+</LinearLayout>
