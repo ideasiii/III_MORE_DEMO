@@ -191,6 +191,10 @@ public class WebMediaPlayerHandler extends BaseHandler
             }
             mMediaPlayer.start();
             
+            HashMap<String, String> message = new HashMap<String, String>();
+            message.put("message", "success");
+            callBackMessage(ResponseCode.ERR_SUCCESS, WebMediaPlayerParameters.CLASS_WEB_MEDIA_PLAYER, WebMediaPlayerParameters.RESUME_PLAY, message);
+    
         }
     }
     

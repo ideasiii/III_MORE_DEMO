@@ -1,13 +1,11 @@
 package com.iii.more.screen.view.display;
 
-import android.support.annotation.ColorInt;
-
 import org.json.JSONObject;
 
 import sdk.ideas.common.Logs;
 
 /**
- * Created by joe on 2017/7/12.
+ * Created by joe on 2017/7/12
  */
 
 public class DisplayElement
@@ -20,7 +18,7 @@ public class DisplayElement
     public JSONObject animation = null;
     public JSONObject text = null;
     
-    public DisplayElement(int timeDuring, int nextTime, String imageURL,@ColorInt int backgroundColor, String description, JSONObject animation, JSONObject text)
+    public DisplayElement(int timeDuring, int nextTime, String imageURL,  int backgroundColor, String description, JSONObject animation, JSONObject text)
     {
         this.animation = animation;
         this.backgroundColor = backgroundColor;

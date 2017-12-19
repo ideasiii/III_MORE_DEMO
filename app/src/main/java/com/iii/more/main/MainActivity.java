@@ -614,17 +614,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         }
         else if (message.get("fabID").equals(ID_FAB_SETTING_BUTTON))
         {
-            //end emotion
-            /*new Thread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    ((MainApplication) MainActivity.this.getApplication()).stopFaceEmotion();
-                }
-            }).start();*/
-    
-            //((MainApplication) this.getApplication()).stopFaceEmotion();
             
             //end service
             mLogicHandler.setMode(LogicParameters.MODE_UNKNOWN);
@@ -662,12 +651,12 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 }
             },1500);
             
-            
-            
-           
-            
         }
     }
+    
+    
+    
+    
     
     
     private void showAlertDialogEnterBLEReadPenID()
@@ -944,7 +933,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     }
                     else
                     {
-                        if (!mLogicHandler.isPauseStoryMode())
+                        if (mLogicHandler.getIsPlayingStory())
                         {
                             isBlockFaceEmotionListener = true;
                             //pause story

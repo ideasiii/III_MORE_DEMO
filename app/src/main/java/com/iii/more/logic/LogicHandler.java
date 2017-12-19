@@ -47,18 +47,19 @@ public class LogicHandler extends BaseHandler
     private int mModeNow = MODE_UNKNOWN;
     
     
-    private boolean isPauseStoryMode = false;
+    private boolean isPlayingStory = false;
+    
     private CacheStory mCacheStory = null;
     
     
-    public boolean isPauseStoryMode()
+    public boolean getIsPlayingStory()
     {
-        return isPauseStoryMode;
+        return isPlayingStory;
     }
     
-    private void setPauseStoryMode(boolean storyMode)
+    private void setIsPlayingStory(boolean isPlayingStory)
     {
-        isPauseStoryMode = storyMode;
+        this.isPlayingStory = isPlayingStory;
     }
     
     
@@ -72,9 +73,9 @@ public class LogicHandler extends BaseHandler
     {
         mModeNow = mode;
     }
-
+    
     private Handler selfHandler = new SelfHandler(this);
-
+    
     private void handleMessages(Message msg)
     {
         switch (msg.what)
@@ -100,13 +101,15 @@ public class LogicHandler extends BaseHandler
             {
                 case WebMediaPlayerParameters.COMPLETE_PLAY:
                     mWebMediaPlayerHandler.stopPlayMediaStream();
+                    setIsPlayingStory(false);
                     // mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                     break;
-                case WebMediaPlayerParameters.START_PLAY:
                     
+                case WebMediaPlayerParameters.START_PLAY:
+                case WebMediaPlayerParameters.RESUME_PLAY:
                     //callback to MainActivity to start display
                     // mDisplayHandler.startDisplay();
-                    
+                    setIsPlayingStory(true);
                     break;
                 case WebMediaPlayerParameters.STOP_PLAY:
                     break;
@@ -130,12 +133,12 @@ public class LogicHandler extends BaseHandler
                     //###save storyPauseSecond into logicHandler cache
                     mCacheStory = new CacheStory(storyPauseSecond);
                     //###set logicHandler cache is true
-                    setPauseStoryMode(true);
+                    setIsPlayingStory(false);
                     //###callback to mainActivity to let display know what happened
                     HashMap<String, String> message3 = new HashMap<>();
                     message3.put("message", strStoryPauseSecond);
                     callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters
-                            .METHOD_STORY_PAUSE, message3);
+                        .METHOD_STORY_PAUSE, message3);
                     break;
                 default:
                     break;
@@ -152,7 +155,7 @@ public class LogicHandler extends BaseHandler
     {
         final HashMap<String, String> message = (HashMap<String, String>) msg.obj;
         if (msg.arg1 == ResponseCode.ERR_SUCCESS && msg.arg2 == ResponseCode
-                .METHOD_RETURN_TEXT_VOICE_RECOGNIZER)
+            .METHOD_RETURN_TEXT_VOICE_RECOGNIZER)
         {
             mVoiceRecognition.stopListen();
             
@@ -164,7 +167,7 @@ public class LogicHandler extends BaseHandler
                 HashMap<String, String> returnMessage = new HashMap<>();
                 returnMessage.put("message", message.get("message"));
                 callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters
-                        .METHOD_VOICE, returnMessage);
+                    .METHOD_VOICE, returnMessage);
             }
         }
         
@@ -193,7 +196,7 @@ public class LogicHandler extends BaseHandler
                         public void run()
                         {
                             // ### resume story stream
-                            setPauseStoryMode(false);
+                            setIsPlayingStory(true);
                             
                             // ###callback MainActivity display streaming
                             if (null != mCacheStory)
@@ -201,7 +204,7 @@ public class LogicHandler extends BaseHandler
                                 HashMap<String, String> message4 = new HashMap<String, String>();
                                 message4.put("message", String.valueOf(mCacheStory.pauseStorySecond));
                                 callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC,
-                                        LogicParameters.METHOD_STORY_RESUME, message4);
+                                    LogicParameters.METHOD_STORY_RESUME, message4);
                                 
                                 resumeStoryStreaming();
                             }
@@ -227,7 +230,7 @@ public class LogicHandler extends BaseHandler
         {
             case TTSParameters.ID_SERVICE_IO_EXCEPTION:
                 ttsService(TTSParameters.ID_SERVICE_IO_EXCEPTION, TTSParameters
-                        .STRING_SERVICE_IO_EXCEPTION, "zh");
+                    .STRING_SERVICE_IO_EXCEPTION, "zh");
                 break;
             default:
                 ttsService(TTSParameters.ID_SERVICE_UNKNOWN, TTSParameters.STRING_SERVICE_UNKNOWN, "zh");
@@ -254,7 +257,7 @@ public class LogicHandler extends BaseHandler
             mWebMediaPlayerHandler = new WebMediaPlayerHandler(mContext);
             mWebMediaPlayerHandler.setHandler(selfHandler);
         }
-
+        
         bindTTSListenersToMainApplication();
     }
     
@@ -269,7 +272,7 @@ public class LogicHandler extends BaseHandler
         {
             MainApplication app = (MainApplication) mContext.getApplicationContext();
             ttsService(TTSParameters.ID_SERVICE_STORY_BEGIN, app.getName(Parameters.ID_CHILD_NAME) +
-                    TTSParameters.STRING_SERVICE_STORY_BEGIN, "zh");
+                TTSParameters.STRING_SERVICE_STORY_BEGIN, "zh");
         }
         
     }
@@ -317,11 +320,11 @@ public class LogicHandler extends BaseHandler
                         break;
                     case SemanticWordCMPParameters.TYPE_RESPONSE_LOCAL:
                         if (mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_HOST) &&
-                                mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_FILE))
+                            mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_FILE))
                         {
                             mWebMediaPlayerHandler.setHostAndFilePath(mActivityJson.getString
-                                    (SemanticWordCMPParameters.STRING_JSON_KEY_HOST), mActivityJson
-                                    .getString(SemanticWordCMPParameters.STRING_JSON_KEY_FILE));
+                                (SemanticWordCMPParameters.STRING_JSON_KEY_HOST), mActivityJson.getString
+                                (SemanticWordCMPParameters.STRING_JSON_KEY_FILE));
                             mWebMediaPlayerHandler.startPlayMediaStream();
                             
                         }
@@ -334,11 +337,11 @@ public class LogicHandler extends BaseHandler
                         break;
                     case SemanticWordCMPParameters.TYPE_RESPONSE_TTS:
                         if (mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_LANG) &&
-                                mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_TTS))
+                            mActivityJson.has(SemanticWordCMPParameters.STRING_JSON_KEY_TTS))
                         {
                             ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, mActivityJson.getString
-                                    (SemanticWordCMPParameters.STRING_JSON_KEY_TTS), mActivityJson
-                                    .getString(SemanticWordCMPParameters.STRING_JSON_KEY_LANG));
+                                (SemanticWordCMPParameters.STRING_JSON_KEY_TTS), mActivityJson.getString
+                                (SemanticWordCMPParameters.STRING_JSON_KEY_LANG));
                         }
                         else
                         {
@@ -414,7 +417,6 @@ public class LogicHandler extends BaseHandler
         mainApp.setTTSEventListener(mTTSEventListener);
     }
     
-  
     
     public void unBindTTSListenersToMainApplication()
     {
@@ -432,16 +434,16 @@ public class LogicHandler extends BaseHandler
             this.pauseStorySecond = pauseStorySecond;
         }
     }
-
+    
     private static class SelfHandler extends Handler
     {
         private final WeakReference<LogicHandler> mWeakSelf;
-
+        
         SelfHandler(LogicHandler lh)
         {
             mWeakSelf = new WeakReference<>(lh);
         }
-
+        
         @Override
         public void handleMessage(Message msg)
         {
@@ -450,14 +452,14 @@ public class LogicHandler extends BaseHandler
             {
                 return;
             }
-
+            
             Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) + " " +
-                    "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "From: " + String.valueOf(msg.arg2) +
-                    " " + "Message: " + msg.obj);
+                "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "From: " + String.valueOf(msg.arg2)
+                + " " + "Message: " + msg.obj);
             self.handleMessages(msg);
         }
     }
-
+    
     private TTSEventListener mTTSEventListener = new TTSEventListener()
     {
         @Override
@@ -541,7 +543,7 @@ public class LogicHandler extends BaseHandler
                     
                     data.put("ttsID", TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE);
                     callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters
-                            .METHOD_TTS, data);
+                        .METHOD_TTS, data);
                     break;
                 
                 default:
