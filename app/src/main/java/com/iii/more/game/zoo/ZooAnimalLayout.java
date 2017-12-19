@@ -10,7 +10,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.bumptech.glide.request.RequestOptions;
 import com.iii.more.game.module.ViewPagerLayout;
 import com.iii.more.main.R;
 
@@ -30,7 +30,11 @@ public class ZooAnimalLayout extends ViewPagerLayout
     
     public static enum ANIMAL_AREA
     {
-        台灣動物區(1), 鳥園(2), 非洲動物區(3), 可愛動物區(4), 熱帶雨林動物區(5);
+        台灣動物區(1),
+        鳥園(2),
+        非洲動物區(3),
+        可愛動物區(4),
+        熱帶雨林動物區(5);
         private int value;
         
         private ANIMAL_AREA(int value)
@@ -46,7 +50,11 @@ public class ZooAnimalLayout extends ViewPagerLayout
     
     private enum ANIMAL_BIRD
     {
-        鳥園(0), 貓頭鷹(1), 老鷹(2), 鴿子(3), 鸚鵡(4);
+        鳥園(0),
+        貓頭鷹(1),
+        老鷹(2),
+        鴿子(3),
+        鸚鵡(4);
         private int value;
         
         ANIMAL_BIRD(int value)
@@ -62,7 +70,9 @@ public class ZooAnimalLayout extends ViewPagerLayout
     
     private enum ANIMAL_TAIWAN
     {
-        台灣動物區(0), 台灣獼猴(1), 台灣黑熊(2);
+        台灣動物區(0),
+        台灣獼猴(1),
+        台灣黑熊(2);
         private int value;
         
         ANIMAL_TAIWAN(int value)
@@ -78,7 +88,12 @@ public class ZooAnimalLayout extends ViewPagerLayout
     
     private enum ANIMAL_CUT
     {
-        可愛動物區(0), 牛(1), 小狗(2), 馬(3), 小豬(4), 綿羊(5);
+        可愛動物區(0),
+        牛(1),
+        小狗(2),
+        馬(3),
+        小豬(4),
+        綿羊(5);
         private int value;
         
         ANIMAL_CUT(int value)
@@ -95,7 +110,10 @@ public class ZooAnimalLayout extends ViewPagerLayout
     
     private enum ANIMAL_RAIN
     {
-        熱帶雨林動物區(0), 鱷魚(1), 花豹(2), 孟加拉虎(3);
+        熱帶雨林動物區(0),
+        鱷魚(1),
+        花豹(2),
+        孟加拉虎(3);
         private int value;
         
         ANIMAL_RAIN(int value)
@@ -111,7 +129,10 @@ public class ZooAnimalLayout extends ViewPagerLayout
     
     private enum ANIMAL_AFFRICA
     {
-        非洲動物區(0), 大象(1), 猩猩(2), 獅子(3);
+        非洲動物區(0),
+        大象(1),
+        猩猩(2),
+        獅子(3);
         private int value;
         
         ANIMAL_AFFRICA(int value)
@@ -203,9 +224,11 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.taiwan_bear;
                             break;
                     }
-                 
-                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        .into(animal.image);
+
+//                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
+//                        .into(animal.image);
+                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
+                        (DiskCacheStrategy.NONE)).into(animal.image);
                     addPage(animal.image, animal.name);
                 }
                 break;
@@ -234,9 +257,11 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.bird_parrot;
                             break;
                     }
-                    
-                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        .into(animal.image);
+
+//                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
+//                        .into(animal.image);
+                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
+                        (DiskCacheStrategy.NONE)).into(animal.image);
                     addPage(animal.image, animal.name);
                 }
                 break;
@@ -268,9 +293,11 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.cut_sheep;
                             break;
                     }
-                    
-                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        .into(animal.image);
+
+//                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
+//                        .into(animal.image);
+                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
+                        (DiskCacheStrategy.NONE)).into(animal.image);
                     addPage(animal.image, animal.name);
                 }
                 break;
@@ -296,9 +323,11 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.affica_lion;
                             break;
                     }
-                    
-                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        .into(animal.image);
+
+//                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
+//                        .into(animal.image);
+                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
+                        (DiskCacheStrategy.NONE)).into(animal.image);
                     addPage(animal.image, animal.name);
                 }
                 break;
@@ -324,9 +353,11 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.rain_tiger;
                             break;
                     }
-                    
-                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        .into(animal.image);
+
+//                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
+//                        .into(animal.image);
+                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
+                        (DiskCacheStrategy.NONE)).into(animal.image);
                     addPage(animal.image, animal.name);
                 }
                 break;

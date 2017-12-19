@@ -79,7 +79,7 @@ public class TrafficListLayout extends ViewPagerLayout
 //            Glide.with(context).load(aid.getValue()).apply(diskCacheStrategy(DiskCacheStrategy
 //                .SOURCE))
 //                .into(imageView);
-            Glide.with(this)
+            Glide.with(context)
                 .load(aid.getValue())
                 .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
                 .into(imageView);
