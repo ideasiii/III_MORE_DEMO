@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.iii.more.game.module.ViewPagerLayout;
 import com.iii.more.main.R;
 
@@ -24,8 +25,8 @@ public class TrafficListLayout extends ViewPagerLayout
     //汽車、摩托車、救護車、挖土機
     private enum TRAFFIC_ITEM
     {
-        汽車(R.drawable.car_car),
-        摩托車(R.drawable.bird_gugu),
+        汽車(R.drawable.bird_pigeon),
+        摩托車(R.drawable.car_car),
         救護車(R.drawable.bird_parrot),
         挖土機(R.drawable.bird_pigeon);
         private int value;
@@ -75,7 +76,12 @@ public class TrafficListLayout extends ViewPagerLayout
         for (TRAFFIC_ITEM aid : TRAFFIC_ITEM.values())
         {
             ImageView imageView = new ImageView(context);
-            Glide.with(context).load(aid.getValue()).diskCacheStrategy(DiskCacheStrategy.SOURCE)
+//            Glide.with(context).load(aid.getValue()).apply(diskCacheStrategy(DiskCacheStrategy
+//                .SOURCE))
+//                .into(imageView);
+            Glide.with(this)
+                .load(aid.getValue())
+                .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
                 .into(imageView);
             addPage(imageView, aid.name());
         }
