@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
@@ -376,7 +377,11 @@ public class ZooActivity extends Activity
             if (SCEN.SCEN_INDEX_FOOD_EAT == nIndex)
             {
                 robotHead.removeView(foodListLayout);
-                Glide.with(this).load((int) object).diskCacheStrategy(DiskCacheStrategy.SOURCE)
+//                Glide.with(this).load((int) object).diskCacheStrategy(DiskCacheStrategy.SOURCE)
+//                    .into(imgvFoodEat);
+                Glide.with(this)
+                    .load((int) object)
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
                     .into(imgvFoodEat);
                 robotHead.addView(imgvFoodEat);
             }
@@ -385,7 +390,7 @@ public class ZooActivity extends Activity
             {
                 robotHead.addView(trafficListLayout);
                 trafficListLayout.startSlideShow(3, false);
-             /*   trafficListLayout.setOnSlideShowListener(new ViewPagerLayout.OnSlideShowListener()
+                trafficListLayout.setOnSlideShowListener(new ViewPagerLayout.OnSlideShowListener()
                 {
                     @Override
                     public void onShow(int nPage, ViewPagerLayout.SLIDE_STATUS slideStatus)
@@ -397,7 +402,7 @@ public class ZooActivity extends Activity
                                 break;
                         }
                     }
-                });*/
+                });
             }
             
             if (SCEN.SCEN_INDEX_MRT_MAP == nIndex)
