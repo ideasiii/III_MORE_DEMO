@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -24,9 +25,9 @@ public class TrafficListLayout extends ViewPagerLayout
     private enum TRAFFIC_ITEM
     {
         汽車(R.drawable.car_car),
-        摩托車(R.drawable.car_motor),
-        救護車(R.drawable.car_emblance),
-        挖土機(R.drawable.car_exmal);
+        摩托車(R.drawable.bird_gugu),
+        救護車(R.drawable.bird_parrot),
+        挖土機(R.drawable.bird_pigeon);
         private int value;
         
         TRAFFIC_ITEM(int value)
@@ -66,6 +67,7 @@ public class TrafficListLayout extends ViewPagerLayout
         handlerScenarize = handler;
         init(context);
         setPagingEnable(false);
+        showArrow(false);
     }
     
     void init(Context context)
@@ -73,8 +75,6 @@ public class TrafficListLayout extends ViewPagerLayout
         for (TRAFFIC_ITEM aid : TRAFFIC_ITEM.values())
         {
             ImageView imageView = new ImageView(context);
-            imageView.setImageResource(aid.getValue());
-            //imageView.setTag(aid.getValue());
             Glide.with(context).load(aid.getValue()).diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(imageView);
             addPage(imageView, aid.name());

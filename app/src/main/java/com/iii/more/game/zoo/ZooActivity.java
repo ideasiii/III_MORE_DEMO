@@ -88,7 +88,7 @@ public class ZooActivity extends Activity
         faceEmotionEventHandler = new FaceEmotionEventHandler(handlerScenarize);
         
         scenarizeHandler = new ScenarizeHandler(handlerScenarize);
-        scenarizeHandler.createScenarize(GLOBAL.scenarize);
+        
         
         // 註冊 Sensor 感應 From Application
         application.setCockpitSensorEventListener(scenarizeHandler.sensorEventHandler
@@ -161,6 +161,7 @@ public class ZooActivity extends Activity
         mVoiceRecognition.setLocale(Locale.TAIWAN);
         GLOBAL.ChildName = application.getName(Parameters.ID_CHILD_NAME);
         mnZooAreaCount = 0;
+        scenarizeHandler.createScenarize(GLOBAL.scenarize);
         Scenarize(SCEN.SCEN_INDEX_START, null);
     }
     
@@ -237,6 +238,7 @@ public class ZooActivity extends Activity
             JSONObject jsonScenarize = GLOBAL.scenarize.get(nIndex);
             Logs.showTrace("[ZooActivity] Scenarize: " + jsonScenarize.toString());
             GLOBAL.scenarizeCurr.ScenarizeNext = jsonScenarize.getInt("next");
+            robotHead.bringToFront();
             robotHead.showFaceImg(jsonScenarize.getBoolean("face_show"));
             robotHead.showObjectImg(jsonScenarize.getBoolean("object_show"));
             robotHead.setFace(jsonScenarize.getInt("face_id"), (ImageView.ScaleType)
@@ -383,7 +385,7 @@ public class ZooActivity extends Activity
             {
                 robotHead.addView(trafficListLayout);
                 trafficListLayout.startSlideShow(3, false);
-                trafficListLayout.setOnSlideShowListener(new ViewPagerLayout.OnSlideShowListener()
+             /*   trafficListLayout.setOnSlideShowListener(new ViewPagerLayout.OnSlideShowListener()
                 {
                     @Override
                     public void onShow(int nPage, ViewPagerLayout.SLIDE_STATUS slideStatus)
@@ -395,7 +397,7 @@ public class ZooActivity extends Activity
                                 break;
                         }
                     }
-                });
+                });*/
             }
             
             if (SCEN.SCEN_INDEX_MRT_MAP == nIndex)

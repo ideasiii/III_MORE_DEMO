@@ -46,7 +46,7 @@ public class ScenarizeStart extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE, "哈囉，" + GLOBAL.ChildName + "今天我們一起去動物園玩！牽著我的手，出發囉！");
+            FRONT.OBJECT, "哈囉，" + GLOBAL.ChildName + "今天我們一起去動物園玩！牽著我的手，出發囉！");
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_HOLD_HAND,

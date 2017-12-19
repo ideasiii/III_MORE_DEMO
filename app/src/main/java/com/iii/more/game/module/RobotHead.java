@@ -24,8 +24,8 @@ public class RobotHead extends RelativeLayout
 {
     private static int mCurX = 0;
     private static int mCurY = 0;
-    private ImageView imgFace = null;
-    private ImageView imgObject = null;
+    private static ImageView imgFace = null;
+    private static ImageView imgObject = null;
     private OnDroppedListener onDroppedListener = null;
     
     public interface OnDroppedListener
@@ -96,6 +96,7 @@ public class RobotHead extends RelativeLayout
         
         addView(imgObject);
         addView(imgFace);
+        Logs.showTrace("[zoo] RobotHead init ");
     }
     
     public ImageView getImgObject()
@@ -107,7 +108,7 @@ public class RobotHead extends RelativeLayout
     {
         imgFace.setImageResource(nResId);
         imgFace.setScaleType(is);
-        imgFace.requestLayout();
+       // imgFace.requestLayout();
         Logs.showTrace("[zoo] RobotHead set Face image:" + nResId);
     }
     
@@ -115,7 +116,7 @@ public class RobotHead extends RelativeLayout
     {
         imgObject.setImageResource(nResId);
         imgObject.setScaleType(is);
-        imgObject.requestLayout();
+      //  imgObject.requestLayout();
         Logs.showTrace("[zoo] RobotHead set object image:" + nResId);
     }
     
