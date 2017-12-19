@@ -9,13 +9,13 @@ android {
         }
     }
     compileSdkVersion 27
-    buildToolsVersion "26.0.2"
+    buildToolsVersion "27.0.2"
     defaultConfig {
         applicationId "com.iii.more.main"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 7
-        versionName "1.6"
+        versionCode 8
+        versionName "1.7"
         multiDexEnabled true
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
