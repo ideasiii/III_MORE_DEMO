@@ -60,7 +60,6 @@ class TTSEventHandler
                 return;
             }
             
-            
             if (GLOBAL.scenarize.indexOfKey(nIndex) < 0)
             {
                 Logs.showError("[TTSEventHandler] onUtteranceDone invalid Index:" + nIndex);

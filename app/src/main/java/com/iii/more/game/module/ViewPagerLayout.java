@@ -17,6 +17,8 @@ import android.widget.RelativeLayout;
 
 import com.iii.more.main.R;
 
+import sdk.ideas.common.Logs;
+
 /**
  * Created by Jugo on 2017/12/7
  */
@@ -165,6 +167,11 @@ public class ViewPagerLayout extends RelativeLayout
             return;
         }
         viewPager.setCurrentItem(position, true);
+        
+        if (null != onSlideShowListener)
+        {
+            onSlideShowListener.onShow(position, SLIDE_STATUS.RUN);
+        }
     }
     
     public void removePage(int position)
@@ -265,6 +272,10 @@ public class ViewPagerLayout extends RelativeLayout
         
         public String getTitle(int position)
         {
+            if (null == Pages.get(position))
+            {
+                return null;
+            }
             return Pages.get(position).strTitle;
         }
         
@@ -351,7 +362,7 @@ public class ViewPagerLayout extends RelativeLayout
                 {
                     if (null != onSlideShowListener)
                     {
-                        onSlideShowListener.onShow(0, SLIDE_STATUS.END);
+                        onSlideShowListener.onShow(-1, SLIDE_STATUS.END);
                     }
                     
                     if (mbRepeat)
@@ -374,10 +385,6 @@ public class ViewPagerLayout extends RelativeLayout
                 {
                     ++nPage;
                     showPage(nPage);
-                    if (null != onSlideShowListener)
-                    {
-                        onSlideShowListener.onShow(0, SLIDE_STATUS.RUN);
-                    }
                     sendEmptyMessageDelayed(MSG_SLIDE_SHOW, mnSecond);
                 }
             }

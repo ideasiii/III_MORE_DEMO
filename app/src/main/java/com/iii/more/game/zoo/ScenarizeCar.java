@@ -66,7 +66,7 @@ public class ScenarizeCar extends ScenarizeBase
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_CAR_OUTSIDE,
-            SCEN.SCEN_INDEX_NO_ACTION,
+            SCEN.SCEN_INDEX_ZOO_DOOR,
             NEXT_TRIGER.SLIDE_END,
             true,
             false,

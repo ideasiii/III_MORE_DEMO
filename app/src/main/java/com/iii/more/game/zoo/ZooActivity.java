@@ -59,7 +59,7 @@ public class ZooActivity extends Activity
     private int nTimeoutAnimal = 4;
     RelativeLayout.LayoutParams layoutParamsExView = null;
     private FoodListLayout foodListLayout = null;
-    private TrafficListLayout trafficListLayout = null;
+    private static TrafficListLayout trafficListLayout = null;
     private ImageView imgvFoodEat = null;
     
     @Override
@@ -377,32 +377,16 @@ public class ZooActivity extends Activity
             if (SCEN.SCEN_INDEX_FOOD_EAT == nIndex)
             {
                 robotHead.removeView(foodListLayout);
-//                Glide.with(this).load((int) object).diskCacheStrategy(DiskCacheStrategy.SOURCE)
-//                    .into(imgvFoodEat);
-                Glide.with(this)
-                    .load((int) object)
-                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
-                    .into(imgvFoodEat);
+                Glide.with(this).load((int) object).apply(RequestOptions.diskCacheStrategyOf
+                    (DiskCacheStrategy.NONE)).into(imgvFoodEat);
                 robotHead.addView(imgvFoodEat);
             }
             
             if (SCEN.SCEN_INDEX_CAR_OUTSIDE == nIndex)
             {
                 robotHead.addView(trafficListLayout);
+                trafficListLayout.setNextScenarize(GLOBAL.scenarizeCurr.ScenarizeNext);
                 trafficListLayout.startSlideShow(3, false);
-                trafficListLayout.setOnSlideShowListener(new ViewPagerLayout.OnSlideShowListener()
-                {
-                    @Override
-                    public void onShow(int nPage, ViewPagerLayout.SLIDE_STATUS slideStatus)
-                    {
-                        switch (slideStatus)
-                        {
-                            case END:
-                                handlerScenarize.sendEmptyMessage(GLOBAL.scenarizeCurr.ScenarizeNext);
-                                break;
-                        }
-                    }
-                });
             }
             
             if (SCEN.SCEN_INDEX_MRT_MAP == nIndex)

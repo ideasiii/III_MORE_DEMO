@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.SparseArray;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -224,9 +223,6 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.taiwan_bear;
                             break;
                     }
-
-//                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
-//                        .into(animal.image);
                     Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
                         (DiskCacheStrategy.NONE)).into(animal.image);
                     addPage(animal.image, animal.name);
@@ -257,9 +253,6 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.bird_parrot;
                             break;
                     }
-
-//                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
-//                        .into(animal.image);
                     Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
                         (DiskCacheStrategy.NONE)).into(animal.image);
                     addPage(animal.image, animal.name);
@@ -293,9 +286,6 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.cut_sheep;
                             break;
                     }
-
-//                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
-//                        .into(animal.image);
                     Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
                         (DiskCacheStrategy.NONE)).into(animal.image);
                     addPage(animal.image, animal.name);
@@ -323,9 +313,6 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.affica_lion;
                             break;
                     }
-
-//                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
-//                        .into(animal.image);
                     Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
                         (DiskCacheStrategy.NONE)).into(animal.image);
                     addPage(animal.image, animal.name);
@@ -353,9 +340,6 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.rain_tiger;
                             break;
                     }
-
-//                    Glide.with(theContext).load(nr).diskCacheStrategy(DiskCacheStrategy.SOURCE)
-//                        .into(animal.image);
                     Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
                         (DiskCacheStrategy.NONE)).into(animal.image);
                     addPage(animal.image, animal.name);
