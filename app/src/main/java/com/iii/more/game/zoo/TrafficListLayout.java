@@ -97,11 +97,9 @@ public class TrafficListLayout extends ViewPagerLayout
         @Override
         public void onShow(int nPage, SLIDE_STATUS slideStatus)
         {
-            
-            
             if (slideStatus == SLIDE_STATUS.END)
             {
-                
+                handlerScenarize.sendEmptyMessage(mnNext);
                 return;
             }
             
