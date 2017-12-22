@@ -48,6 +48,8 @@ class CockpitListenerBridge
     {
         /** 當收到要假造偵測到臉部情緒的指令時的 callback */
         void onFaceEmotionDetected(String emotionName);
+
+        void onSetParameter(String action);
     }
 
     CockpitListenerBridge(Context context)
@@ -200,8 +202,10 @@ class CockpitListenerBridge
                     mUseBloodySensorEventSound = !mUseBloodySensorEventSound;
                     break;
                 default:
-                    Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " +
-                        "parameter unknown action = `" + action);
+                    if (null != mTellMeWhatToDo)
+                    {
+                        mTellMeWhatToDo.onSetParameter(action);
+                    }
             }
         }
         catch (JSONException e)
