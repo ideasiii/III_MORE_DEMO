@@ -61,6 +61,8 @@ public class ZooActivity extends Activity
     private FoodListLayout foodListLayout = null;
     private static TrafficListLayout trafficListLayout = null;
     private ImageView imgvFoodEat = null;
+    private CarFixLayout carFixLayout = null;
+    
     
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -140,6 +142,9 @@ public class ZooActivity extends Activity
         
         trafficListLayout = new TrafficListLayout(this, handlerScenarize);
         trafficListLayout.setLayoutParams(layoutParamsExView);
+        
+        carFixLayout = new CarFixLayout(this);
+        carFixLayout.setLayoutParams(layoutParamsExView);
     }
     
     @Override
@@ -247,16 +252,17 @@ public class ZooActivity extends Activity
             robotHead.setObjectImg(jsonScenarize.getInt("object_id"), (ImageView.ScaleType)
                 jsonScenarize.get("object_scale_type"));
             strFaceImg = jsonScenarize.getString("face_image");
-            ScenarizeHandler.FRONT front = (ScenarizeHandler.FRONT) jsonScenarize.get("front");
-            switch (front)
-            {
-                case FACE:
-                    robotHead.bringFaceImgtoFront();
-                    break;
-                case OBJECT:
-                    robotHead.bringObjImgtoFront();
-                    break;
-            }
+            robotHead.bringObjImgtoFront();
+//            ScenarizeHandler.FRONT front = (ScenarizeHandler.FRONT) jsonScenarize.get("front");
+//            switch (front)
+//            {
+//                case FACE:
+//                    robotHead.bringFaceImgtoFront();
+//                    break;
+//                case OBJECT:
+//                    robotHead.bringObjImgtoFront();
+//                    break;
+//            }
             
             strTTS = jsonScenarize.getString("tts_text");
             if (SCEN.SCEN_INDEX_BUS_INSIDE == nIndex)
@@ -389,9 +395,16 @@ public class ZooActivity extends Activity
                 trafficListLayout.startSlideShow(3, false);
             }
             
-            if(SCEN.SCEN_INDEX_ZOO_DOOR == nIndex)
+            if (SCEN.SCEN_INDEX_CAR_FIX == nIndex)
             {
                 robotHead.removeView(trafficListLayout);
+                robotHead.addView(carFixLayout);
+            }
+            
+            if (SCEN.SCEN_INDEX_ZOO_DOOR == nIndex)
+            {
+                robotHead.removeView(carFixLayout);
+              //  robotHead.removeView(trafficListLayout);
             }
             
             if (SCEN.SCEN_INDEX_MRT_MAP == nIndex)

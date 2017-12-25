@@ -66,7 +66,7 @@ public class ScenarizeCar extends ScenarizeBase
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_CAR_OUTSIDE,
-            SCEN.SCEN_INDEX_ZOO_DOOR,
+            SCEN.SCEN_INDEX_CAR_FIX,
             NEXT_TRIGER.SLIDE_END,
             true,
             false,
@@ -77,5 +77,19 @@ public class ScenarizeCar extends ScenarizeBase
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
             "");
+    
+        setScenarize(scenarize,
+            SCEN.SCEN_INDEX_CAR_FIX,
+            SCEN.SCEN_INDEX_ZOO_DOOR,
+            NEXT_TRIGER.SLIDE_END,
+            true,
+            false,
+            R.drawable.noeye,
+            R.drawable.car_run,
+            "noeye.png",
+            ImageView.ScaleType.CENTER_CROP,
+            ImageView.ScaleType.CENTER_INSIDE,
+            FRONT.FACE,
+            "車子故障了，請幫忙修補輪胎");
     }
 }
