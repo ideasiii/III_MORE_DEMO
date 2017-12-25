@@ -389,6 +389,11 @@ public class ZooActivity extends Activity
                 trafficListLayout.startSlideShow(3, false);
             }
             
+            if(SCEN.SCEN_INDEX_ZOO_DOOR == nIndex)
+            {
+                robotHead.removeView(trafficListLayout);
+            }
+            
             if (SCEN.SCEN_INDEX_MRT_MAP == nIndex)
             {
                 robotHead.addView(mrtMap);
