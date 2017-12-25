@@ -283,7 +283,7 @@ public class InitActivity extends AppCompatActivity
         /* Build App time Start*/
         TextView apkBuildDateView = (TextView) findViewById(R.id.apk_build_date_text_view);
         String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(BuildConfig
-            .buildTime);
+            .BUILD_TIME);
         apkBuildDateView.setText("Built on " + formattedBuildDateText);
         /* Build App time end*/
         
@@ -325,7 +325,7 @@ public class InitActivity extends AppCompatActivity
     private void setTaskDescriptionLabelToBuildDate()
     {
         String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(BuildConfig
-            .buildTime);
+            .BUILD_TIME);
         
         ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription
             (formattedBuildDateText);

@@ -53,7 +53,8 @@ public class MainApplication extends Application
     private OtgCockpitService mOtgCockpitService;
     
     private Tracker mTracker = new Tracker(this);
-    private TextToSpeechHandler mTtsHandler = new TextToSpeechHandler(this);
+    private TextToSpeechHandler mGoogleTtsHandler = new TextToSpeechHandler(this);
+    private CReaderAdapter mCyberonTtsAdapter = new CReaderAdapter(this);
     private CockpitListenerBridge mCockpitListenerBridge = new CockpitListenerBridge(this);
     
     private FaceEmotionEventListener mFaceEmotionEventListener = null;
@@ -62,7 +63,9 @@ public class MainApplication extends Application
     private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
     private EmotionHandler mEmotionHandler = null;
     private static boolean isFaceEmotionStart = false;
-    
+
+    private boolean mUseCReaderTTS = false;
+
     // 方便讓遙控器控制端辨識的名稱
     private String mInternetCockpitFriendlyName;
     
@@ -185,8 +188,13 @@ public class MainApplication extends Application
      */
     public void initTTS()
     {
-        mTtsHandler.setHandler(mSelfHandler);
-        mTtsHandler.init();
+        mGoogleTtsHandler.setHandler(mSelfHandler);
+        mGoogleTtsHandler.init();
+
+        mCyberonTtsAdapter.setHandler(mSelfHandler);
+
+        Logs.showTrace("Cyberon TTS is not initialized for now");
+        mCyberonTtsAdapter.init();
     }
     
     /**
@@ -194,8 +202,16 @@ public class MainApplication extends Application
      */
     public void setTTSPitch(float pitch, float rate)
     {
-        mTtsHandler.setPitch(pitch);
-        mTtsHandler.setSpeechRate(rate);
+        if (mUseCReaderTTS)
+        {
+            mCyberonTtsAdapter.setPitch(pitch);
+            mCyberonTtsAdapter.setSpeechRate(rate);
+        }
+        else
+        {
+            mGoogleTtsHandler.setPitch(pitch);
+            mGoogleTtsHandler.setSpeechRate(rate);
+        }
     }
     
     /**
@@ -203,7 +219,14 @@ public class MainApplication extends Application
      */
     public void setTTSLanguage(Locale language)
     {
-        mTtsHandler.setLocale(language);
+        if (mUseCReaderTTS)
+        {
+            mCyberonTtsAdapter.setLanguage(language);
+        }
+        else
+        {
+            mGoogleTtsHandler.setLocale(language);
+        }
     }
     
     /**
@@ -211,7 +234,7 @@ public class MainApplication extends Application
      */
     public Locale getTTSLanguage()
     {
-        return mTtsHandler.getLocale();
+        return mUseCReaderTTS ? mCyberonTtsAdapter.getLanguage() : mGoogleTtsHandler.getLocale();
     }
     
     /**
@@ -219,8 +242,14 @@ public class MainApplication extends Application
      */
     public void playTTS(String text, String textId)
     {
-        Logs.showTrace("[MainApplication] playTTS()");
-        mTtsHandler.textToSpeech(text, textId);
+        if (mUseCReaderTTS)
+        {
+            mCyberonTtsAdapter.speak(text, textId);
+        }
+        else
+        {
+            mGoogleTtsHandler.textToSpeech(text, textId);
+        }
     }
     
     /**
@@ -237,8 +266,14 @@ public class MainApplication extends Application
      */
     public void stopTTS()
     {
-        Logs.showTrace("[MainApplication] stopTTS()");
-        mTtsHandler.stop();
+        if (mUseCReaderTTS)
+        {
+            mCyberonTtsAdapter.stop();
+        }
+        else
+        {
+            mGoogleTtsHandler.stop();
+        }
     }
     
     /**
@@ -284,6 +319,20 @@ public class MainApplication extends Application
                     Message m = mSelfHandler.obtainMessage(FaceEmotionInterruptParameters
                         .CLASS_FACE_EMOTION_INTERRUPT, 0, 0, faceEmotionEvent);
                     mSelfHandler.sendMessage(m);
+                }
+            }
+
+            @Override
+            public void onSetParameter(String action)
+            {
+                switch (action)
+                {
+                    case "switchTtsEngine":
+                        mUseCReaderTTS = !mUseCReaderTTS;
+                        break;
+                    default:
+                        Logs.showTrace("[MainApplication] mCockpitListenerBridge " +
+                            "onSetParameter() unknown action = `" + action);
                 }
             }
         });
@@ -393,7 +442,6 @@ public class MainApplication extends Application
                 mOtgCockpitService = null;
             }
             
-            
             if (mCockpitService != null)
             {
                 mCockpitService.setHandler(null);
@@ -438,6 +486,9 @@ public class MainApplication extends Application
                     break;
                 case CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER:
                     app.handleTTSMessage(msg);
+                    break;
+                case CReaderAdapter.MSG_WHAT:
+                    app.handleCReaderMessage(msg);
                     break;
                 default:
                     Logs.showTrace("[MainApplication] [SelfHandler] unhandled msg.what: " + msg.what);
@@ -561,7 +612,7 @@ public class MainApplication extends Application
                 break;
             case ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION:
                 //deal with not found Google TTS Exception
-                //mTtsHandler.downloadTTS();
+                //mGoogleTtsHandler.downloadTTS();
                 
                 //deal with ACCESSIBILITY page can not open Exception
                 //Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
@@ -573,7 +624,7 @@ public class MainApplication extends Application
                 }
                 break;
             case ResponseCode.ERR_UNKNOWN:
-                Logs.showError("[MainApplication] handleTTSMessage() unknown error occured");
+                Logs.showError("[MainApplication] handleTTSMessage() unknown error occurred");
                 if (null != mTtsEventListener)
                 {
                     HashMap<String, String> data = (HashMap<String, String>) msg.obj;
@@ -585,7 +636,54 @@ public class MainApplication extends Application
             default:
                 Logs.showError("[MainApplication] handleTTSMessage() unknown msg.arg2: " + msg.arg2);
         }
-        
+    }
+
+    private void handleCReaderMessage(Message msg)
+    {
+        switch (msg.arg1)
+        {
+            case CReaderAdapter.Event.INIT_OK:
+                Logs.showTrace("handleCReaderMessage() INIT_OK");
+                if (null != mTtsEventListener)
+                {
+                    mTtsEventListener.onInitSuccess();
+                }
+                break;
+            case CReaderAdapter.Event.INIT_FAILED:
+                Logs.showTrace("handleCReaderMessage() INIT_FAILED");
+                if (null != mTtsEventListener)
+                {
+                    HashMap<String, String> m = (HashMap<String, String>) msg.obj;
+                    int status = Integer.valueOf(m.get("nRes"));
+                    String msgText = m.get("message");
+                    mTtsEventListener.onInitFailed(status, msgText);
+                }
+                break;
+            case CReaderAdapter.Event.UTTERANCE_START:
+                Logs.showTrace("handleCReaderMessage() UTTERANCE_START");
+                if (null != mTtsEventListener)
+                {
+                    HashMap<String, String> m = (HashMap<String, String>) msg.obj;
+                    mTtsEventListener.onUtteranceStart(m.get("utteranceId"));
+                }
+                break;
+            case CReaderAdapter.Event.UTTERANCE_STOP:
+                Logs.showTrace("handleCReaderMessage() UTTERANCE_STOP");
+                if (null != mTtsEventListener)
+                {
+                }
+                break;
+            case CReaderAdapter.Event.UTTERANCE_DONE:
+                Logs.showTrace("handleCReaderMessage() UTTERANCE_DONE");
+                if (null != mTtsEventListener)
+                {
+                    HashMap<String, String> m = (HashMap<String, String>) msg.obj;
+                    mTtsEventListener.onUtteranceDone(m.get("utteranceId"));
+                }
+                break;
+            default:
+                Logs.showError("handleCReaderMessage() unknown msg.arg2: " + msg.arg2);
+        }
     }
     
     /**
