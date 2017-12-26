@@ -116,7 +116,7 @@ public class OtgCockpitService extends CockpitService
                 int deviceVID = mUsbDevice.getVendorId();
                 int devicePID = mUsbDevice.getProductId();
 
-                if (deviceVID != 0x1d6b && (devicePID != 0x0001 || devicePID != 0x0002 || devicePID != 0x0003))
+                if (deviceVID != 0x1d6b && devicePID != 0x0001 && devicePID != 0x0002 && devicePID != 0x0003)
                 {
                     Log.d(LOG_TAG, "found device");
                     requestUserPermission();
