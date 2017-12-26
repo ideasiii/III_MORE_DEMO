@@ -93,20 +93,6 @@ public class ScenarizeCar extends ScenarizeBase
             "車子故障了，請幫忙修補輪胎");
     
         setScenarize(scenarize,
-            SCEN.SCEN_INDEX_CAR_FIX_FAIL,
-            SCEN.SCEN_INDEX_CAR_FIX,
-            NEXT_TRIGER.TTS_TEXT,
-            true,
-            false,
-            R.drawable.noeye,
-            R.drawable.car_run,
-            "noeye.png",
-            ImageView.ScaleType.CENTER_CROP,
-            ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
-            "不是這個，再試試看別的");
-    
-        setScenarize(scenarize,
             SCEN.SCEN_INDEX_CAR_FIX_SUCCESS,
             SCEN.SCEN_INDEX_ZOO_DOOR,
             NEXT_TRIGER.TTS_TEXT,

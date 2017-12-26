@@ -401,6 +401,11 @@ public class ZooActivity extends Activity
                 robotHead.addView(carFixLayout);
             }
             
+            if (SCEN.SCEN_INDEX_CAR_FIX_SUCCESS == nIndex)
+            {
+                robotHead.removeView(carFixLayout);
+            }
+            
             if (SCEN.SCEN_INDEX_ZOO_DOOR == nIndex)
             {
                 robotHead.removeView(carFixLayout);

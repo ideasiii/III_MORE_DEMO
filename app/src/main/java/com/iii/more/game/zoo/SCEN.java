@@ -36,7 +36,6 @@ abstract class SCEN
     public static final int SCEN_INDEX_CAR_START = 151;         // 握著我的手轉一下，要發動囉！
     public static final int SCEN_INDEX_CAR_FIX = 152;           // 車子故障了，請幫忙修補輪胎
     public static final int SCEN_INDEX_CAR_FIX_SUCCESS = 153;   // 太好了，車子修好了，謝謝你的幫忙
-    public static final int SCEN_INDEX_CAR_FIX_FAIL = 154;      // 不是這個，再試試看別的
     public static final int SCEN_INDEX_GAME_OVER = 666;
     public static final int SCEN_INDEX_FINISH = 999;
     public static final int SENSOR_FACE_EMOTION = 1005;
