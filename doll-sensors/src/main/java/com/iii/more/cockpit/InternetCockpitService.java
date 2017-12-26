@@ -16,6 +16,9 @@ import org.json.JSONObject;
  */
 public class InternetCockpitService extends CockpitService
 {
+    /** used in Handler to distinguish us from other subclass of CockpitService...... */
+    public static final int MSG_ARG1 = 1369753497;
+
     private static final String LOG_TAG = "InternetCockpitService";
 
     /** paper 內容的類型 */
@@ -86,7 +89,7 @@ public class InternetCockpitService extends CockpitService
             e.printStackTrace();
             if (mHandler != null)
             {
-                mHandler.obtainMessage(MSG_WHAT, EVENT_PROTOCOL_NOT_SUPPORTED, 0).sendToTarget();
+                mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_PROTOCOL_NOT_SUPPORTED).sendToTarget();
             }
         }
     }
@@ -152,7 +155,7 @@ public class InternetCockpitService extends CockpitService
         {
             if (mHandler != null)
             {
-                mHandler.obtainMessage(MSG_WHAT, EVENT_PERMISSION_GRANTED, 0).sendToTarget();
+                mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_PERMISSION_GRANTED).sendToTarget();
             }
         }
 
@@ -167,7 +170,7 @@ public class InternetCockpitService extends CockpitService
 
             if (mHandler != null)
             {
-                mHandler.obtainMessage(MSG_WHAT, EVENT_DISCONNECTED, 0).sendToTarget();
+                mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_DISCONNECTED).sendToTarget();
             }
 
             scheduleReconnect();
@@ -178,7 +181,7 @@ public class InternetCockpitService extends CockpitService
         {
             if (mHandler != null)
             {
-                mHandler.obtainMessage(MSG_WHAT, EVENT_READY, 0).sendToTarget();
+                mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_READY).sendToTarget();
             }
         }
 
@@ -187,7 +190,7 @@ public class InternetCockpitService extends CockpitService
         {
             if (mHandler != null)
             {
-                mHandler.obtainMessage(MSG_WHAT, EVENT_PROTOCOL_NOT_SUPPORTED, 0).sendToTarget();
+                mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_PROTOCOL_NOT_SUPPORTED).sendToTarget();
             }
         }
 
@@ -202,13 +205,13 @@ public class InternetCockpitService extends CockpitService
             switch (type)
             {
                 case PaperType.TEXT:
-                    mHandler.obtainMessage(MSG_WHAT, EVENT_DATA_TEXT, 0, text).sendToTarget();
+                    mHandler.obtainMessage(CockpitService.MSG_WHAT, MSG_ARG1, EVENT_DATA_TEXT, text).sendToTarget();
                     break;
                 case PaperType.FILM_MAKING:
                     try
                     {
                         JSONObject json = new JSONObject(text);
-                        mHandler.obtainMessage(MSG_WHAT, EVENT_DATA_FILM_MAKING, 0, json).sendToTarget();
+                        mHandler.obtainMessage(CockpitService.MSG_WHAT, MSG_ARG1, EVENT_DATA_FILM_MAKING, json).sendToTarget();
                     }
                     catch (JSONException e)
                     {
@@ -216,13 +219,13 @@ public class InternetCockpitService extends CockpitService
                     }
                     break;
                 case PaperType.FACE_EMOTION_DETECTED:
-                    mHandler.obtainMessage(MSG_WHAT, EVENT_DATA_FACE_EMOTION, 0, text).sendToTarget();
+                    mHandler.obtainMessage(CockpitService.MSG_WHAT, MSG_ARG1, EVENT_DATA_FACE_EMOTION, text).sendToTarget();
                     break;
                 case PaperType.PARAMETERS:
                     try
                     {
                         JSONObject json = new JSONObject(text);
-                        mHandler.obtainMessage(MSG_WHAT, EVENT_DATA_PARAMETERS, 0, json).sendToTarget();
+                        mHandler.obtainMessage(CockpitService.MSG_WHAT, MSG_ARG1, EVENT_DATA_PARAMETERS, json).sendToTarget();
                     }
                     catch (JSONException e)
                     {

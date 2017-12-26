@@ -321,7 +321,8 @@ public class InitActivity extends AppCompatActivity
             mAlertDialogHandler.show();
         }
     }
-    
+
+    // 將 app 切換頁內，本 app 的顯示名稱換成 build date
     private void setTaskDescriptionLabelToBuildDate()
     {
         String formattedBuildDateText = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(BuildConfig

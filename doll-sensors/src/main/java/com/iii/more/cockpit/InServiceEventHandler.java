@@ -9,9 +9,9 @@ import java.lang.ref.WeakReference;
 /**
  * 處理只會在 service 內流轉的事件的 handler
  */
-public class InServiceEventHandler extends Handler
+class InServiceEventHandler extends Handler
 {
-    public static final int EVENT_NEED_RECONNECT = 13248;
+    static final int EVENT_NEED_RECONNECT = 13248;
 
     private final WeakReference<CockpitService> mWeakService;
     private final String mLogTag;

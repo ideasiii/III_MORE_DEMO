@@ -16,21 +16,20 @@ import java.util.Map;
 /**
  * 讓 Cyberon CReader 能與 Google TTS 使用上盡量貼近的 adapter
  */
-public class CReaderAdapter
+class CReaderAdapter
 {
-    public static final int MSG_WHAT = 842143816;
+    static final int MSG_WHAT = 842143816;
 
-    public static class Event
+    static class Event
     {
-        public static final int INIT_FAILED = 0;
-        public static final int INIT_OK = 1;
-        public static final int UTTERANCE_START = 2;
-        public static final int UTTERANCE_DONE = 3;
-        public static final int UTTERANCE_STOP = 4;
+        static final int INIT_FAILED = 0;
+        static final int INIT_OK = 1;
+        static final int UTTERANCE_START = 2;
+        static final int UTTERANCE_DONE = 3;
+        static final int UTTERANCE_STOP = 4;
     }
 
     private static final String LOG_TAG = "CReaderAdapter";
-    private static final String VOICE_NAME = CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_FEMALE_VOICE_NAME;
     private static final Map<String, Short> langIdLocaleMap;
     private static final ClassConstantValueReverseLookup statusRevLookup;
     private static final ClassConstantValueReverseLookup errorCodeRevLookup;
@@ -41,6 +40,7 @@ public class CReaderAdapter
     private Handler mHandler;
 
     private Locale mLocale = Locale.TAIWAN;
+    private String mVoiceName = CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_FEMALE_VOICE_NAME;
 
     // 要切換但尚未切換的語言，當執行 TextToSpeech() 方法時會檢查是否需重新產生一個不同語言的 TTS 物件
     private Locale mPostponedChangingLocale = null;
@@ -63,12 +63,12 @@ public class CReaderAdapter
     // 是否已完成初始化
     private boolean mDoneInitialization = false;
 
-    public CReaderAdapter(Context context)
+    CReaderAdapter(Context context)
     {
         this(context, Locale.TAIWAN);
     }
 
-    public CReaderAdapter(Context context, Locale locale)
+    CReaderAdapter(Context context, Locale locale)
     {
         mContext = context;
         mLocale = locale;
@@ -146,6 +146,11 @@ public class CReaderAdapter
         {
             mPostponedChangingLocale = loc;
         }
+    }
+
+    public void setVoiceName(String name)
+    {
+        mVoiceName = name;
     }
 
     public void setPitch(float pitch)
@@ -256,7 +261,6 @@ public class CReaderAdapter
             mPostponedChangingLocale = null;
         }
 
-        // TODO put everything inside APK, then copy to data dir when running
         String strDataPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/cyberon/CReader";
         short langId = langIdLocaleMap.get(mLocale.toLanguageTag());
         String strLibPath = com.cyberon.utility.ToolKit.getNativeLibPath(mContext);
@@ -266,7 +270,7 @@ public class CReaderAdapter
 
         mCReader = new CReaderPlayer();
         HashMap<String, String> message = new HashMap<>();
-        int nRes = mCReader.init(mContext, langId, strLibPath, strDataPath, VOICE_NAME);
+        int nRes = mCReader.init(mContext, langId, strLibPath, strDataPath, mVoiceName);
         if (nRes != CReaderPlayer.ErrorCodeConstant.CREADER_RET_OK)
         {
             Log.d(LOG_TAG, "init() init fail");

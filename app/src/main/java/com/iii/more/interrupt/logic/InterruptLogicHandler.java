@@ -109,53 +109,74 @@ public class InterruptLogicHandler extends BaseHandler
 
     public void startEventDataAnalysis(@NonNull String deviceEventData)
     {
+        HashMap<String, String> res = eventDataAnalysisSync(deviceEventData);
+        if (res != null)
+        {
+            callBackMessage(ResponseCode.ERR_SUCCESS, InterruptLogicParameters.CLASS_INTERRUPT_LOGIC,
+                InterruptLogicParameters.METHOD_LOGIC_RESPONSE, res);
+        }
+    }
+
+    /**
+     * Synchronous version of startEventDataAnalysis() which returns result directly,
+     * not going through android.os.Handler
+     */
+    public HashMap<String, String> eventDataAnalysisSync(@NonNull String deviceEventData)
+    {
         Logs.showTrace("[InterruptLogicHandler] device event data: " + deviceEventData);
 
         if (null == deviceEventData || deviceEventData.length() < 1)
         {
             Logs.showTrace("[InterruptLogicHandler] startEventDataAnalysis() no mEventData");
-            return;
+            return null;
         }
 
         HashMap<String, String> eventHashMapData = convertToHashMapData(deviceEventData);
+        HashMap<String, String> result;
+
         if (null == eventHashMapData)
         {
             Logs.showTrace("[InterruptLogicHandler] startEventDataAnalysis() no eventHashMapData");
-            return;
-        }
-
-        Logs.showTrace("[InterruptLogicHandler] Get event HashMap: " + eventHashMapData);
-
-        HashMap<String, String> result = logicJudgement(eventHashMapData);
-        if (null != result)
-        {
-            Logs.showTrace("[InterruptLogicHandler] result TRIGGER_RESULT:" +
-                    result.get(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT));
-            Logs.showTrace("[InterruptLogicHandler] result DESCRIPTION:" +
-                    result.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION));
-
-            callBackMessage(ResponseCode.ERR_SUCCESS, InterruptLogicParameters.CLASS_INTERRUPT_LOGIC,
-                    InterruptLogicParameters.METHOD_LOGIC_RESPONSE, makeDisplayJson(result));
+            return null;
         }
         else if (eventHashMapData.containsKey(InterruptLogicParameters.STRING_RFID))
         {
-            // TODO RFID tag is not part of Task Composer rules, just return what it read
+            // TODO RFID tag is included in Task Composer rules, just return raw data
             String rfidValue = eventHashMapData.get(InterruptLogicParameters.STRING_RFID);
             Long rfidInteger = Long.parseLong(rfidValue);
 
+            // why not "0".equals(rfidValue)?
+            // because we cannot predict whether the zero value from sensor is written in "0" or "0000000000"
             if (0 != rfidInteger)
             {
+                Logs.showTrace("[InterruptLogicHandler] intercepted reading from RFID sensor," +
+                    "skip calling logicJudgement()");
+
                 result = new HashMap<>();
                 result.put(InterruptLogicParameters.JSON_STRING_DESCRIPTION, "RFID");
                 Logs.showTrace("[InterruptLogicHandler] RFID data@@: " + rfidValue);
                 result.put(InterruptLogicParameters.JSON_STRING_TAG, rfidValue);
 
-                callBackMessage(ResponseCode.ERR_SUCCESS, InterruptLogicParameters.CLASS_INTERRUPT_LOGIC,
-                        InterruptLogicParameters.METHOD_LOGIC_RESPONSE, result);
+                return result;
             }
         }
+
+        Logs.showTrace("[InterruptLogicHandler] Get event HashMap: " + eventHashMapData);
+
+        result = logicJudgement(eventHashMapData);
+        if (null != result)
+        {
+            Logs.showTrace("[InterruptLogicHandler] result TRIGGER_RESULT:" +
+                result.get(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT));
+            Logs.showTrace("[InterruptLogicHandler] result DESCRIPTION:" +
+                result.get(InterruptLogicParameters.JSON_STRING_DESCRIPTION));
+
+            return makeDisplayJson(result);
+        }
+
+        return null;
     }
-    
+
     private HashMap<String, String> makeDisplayJson(HashMap<String, String> inputHashMap)
     {
         HashMap<String, String> message = new HashMap<>();
