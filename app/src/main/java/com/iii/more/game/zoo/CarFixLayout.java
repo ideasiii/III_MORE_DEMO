@@ -2,6 +2,7 @@ package com.iii.more.game.zoo;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Message;
 import android.provider.ContactsContract;
 import android.util.AttributeSet;
 import android.view.View;
@@ -24,6 +25,13 @@ public class CarFixLayout extends DragDropLayout
     private ImageView DragItemCircle = null;
     private ImageView DragItemTriangle = null;
     private ImageView DragItemCube = null;
+    
+    public CarFixLayout(Context context, Handler handler)
+    {
+        super(context);
+        init(context);
+        handlerScenarize = handler;
+    }
     
     public CarFixLayout(Context context)
     {
@@ -85,23 +93,23 @@ public class CarFixLayout extends DragDropLayout
         public void onDropped(View view, int x, int y)
         {
             String strTag = (String) view.getTag();
-            Logs.showTrace("[zoo][CarFixLayout] onDropped View tag=" + view.getTag() + " x=" + x
-                + " y=" + y);
+            
+            Logs.showTrace("[zoo][CarFixLayout] onDropped View tag=" + strTag + " x=" + x + " y="
+                + y);
             if (null != strTag)
             {
                 if (0 == strTag.compareTo("wheel_circle"))
                 {
-                    Logs.showTrace("[CarFixLayout] Fix Car wheel circle");
+                  //  handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_CAR_FIX_SUCCESS);
                 }
                 
-                if (0 == strTag.compareTo("wheel_cube"))
+                if (0 == strTag.compareTo("wheel_cube") || 0 == strTag.compareTo("wheel_triangle"))
                 {
-                    Logs.showTrace("[CarFixLayout] Fix Car wheel cube");
-                }
-                
-                if (0 == strTag.compareTo("wheel_triangle"))
-                {
-                    Logs.showTrace("[CarFixLayout] Fix Car wheel triangle");
+                    Message message = new Message();
+                    message.what = SCEN.MSG_TTS_PLAY;
+                    message.obj = "不是這個，再試試看別的";
+                    handlerScenarize.sendMessage(message);
+                    view.setVisibility(View.VISIBLE);
                 }
             }
         }

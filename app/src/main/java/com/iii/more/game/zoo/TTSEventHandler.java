@@ -86,6 +86,7 @@ class TTSEventHandler
                 case SCEN.SCEN_INDEX_FOOD_STORE:          // 我們來吃東西休息一下吧！
                 case SCEN.SCEN_INDEX_TRAFFIC_CARD_MRT:
                 case SCEN.SCEN_INDEX_CAR_RUN:
+                case SCEN.SCEN_INDEX_CAR_FIX_SUCCESS:     // 太好了，車子修好了，謝謝你的幫忙
                     handlerScenarize.sendEmptyMessage(nNext);
                     break;
                 case SCEN.SCEN_INDEX_FOOD_EAT:

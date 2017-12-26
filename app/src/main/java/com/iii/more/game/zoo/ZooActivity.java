@@ -143,7 +143,7 @@ public class ZooActivity extends Activity
         trafficListLayout = new TrafficListLayout(this, handlerScenarize);
         trafficListLayout.setLayoutParams(layoutParamsExView);
         
-        carFixLayout = new CarFixLayout(this);
+        carFixLayout = new CarFixLayout(this, handlerScenarize);
         carFixLayout.setLayoutParams(layoutParamsExView);
     }
     
@@ -404,7 +404,7 @@ public class ZooActivity extends Activity
             if (SCEN.SCEN_INDEX_ZOO_DOOR == nIndex)
             {
                 robotHead.removeView(carFixLayout);
-              //  robotHead.removeView(trafficListLayout);
+                //  robotHead.removeView(trafficListLayout);
             }
             
             if (SCEN.SCEN_INDEX_MRT_MAP == nIndex)
