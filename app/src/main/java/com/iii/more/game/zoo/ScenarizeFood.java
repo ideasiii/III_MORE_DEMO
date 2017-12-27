@@ -12,6 +12,14 @@ import org.json.JSONObject;
  * Created by Jugo on 2017/12/14
  */
 
+/**
+ * 腳本: 我們來吃東西休息一下吧！選一個吧!
+ 
+ Ø   今天你想吃什麼呢? 點一下你想吃的東西喔!
+ 
+ Ø   哇!!每一種都好好吃的樣子喔~~你要選哪一個呢?
+ */
+
 public class ScenarizeFood extends ScenarizeBase
 {
     public ScenarizeFood(Handler handler)
@@ -34,7 +42,7 @@ public class ScenarizeFood extends ScenarizeBase
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
-            "我們來吃東西休息一下吧！");
+            "我們來吃東西休息一下吧！選一個吧");
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_FOOD_CHOICE,
@@ -48,7 +56,7 @@ public class ScenarizeFood extends ScenarizeBase
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
-            "請選擇你要吃的食物");
+            "今天你想吃什麼呢? 點一下你想吃的東西喔");
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_FOOD_EAT,

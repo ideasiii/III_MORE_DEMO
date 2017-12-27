@@ -12,6 +12,21 @@ import org.json.JSONObject;
  * Created by Jugo on 2017/12/14
  */
 
+/**
+ * 腳本: 坐公車時要記得使用悠遊卡付錢喔!!這樣才是好寶寶! 請刷悠遊卡。
+ 
+ Ø   來，把悠遊卡放到我的盤子上就可以囉!
+ 
+ Ø   剛剛悠遊卡沒有刷成功，這樣沒辦法坐公車耶!我們再試一次好嗎?
+ */
+
+/**
+ * 腳本: 請你幫忙讓大家都有座位坐。要把人放到位置上喔~
+ 
+ Ø   公車快要開囉~~還有人沒有位子坐，這樣很危險喔!!
+ 
+ Ø   小朋友再檢查一次喔!!要記得讓大家都有位子坐喔!
+ */
 public class ScenarizeBus extends ScenarizeBase
 {
     public ScenarizeBus(Handler handler)
@@ -61,7 +76,7 @@ public class ScenarizeBus extends ScenarizeBase
             ImageView.ScaleType.CENTER_INSIDE,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
-            "請你幫忙讓大家都有座位坐");
+            "請你幫忙讓大家都有座位坐。要把人放到位置上喔");
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_DROP_CUSTOM,
