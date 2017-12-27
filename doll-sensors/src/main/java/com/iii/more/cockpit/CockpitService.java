@@ -134,7 +134,7 @@ public abstract class CockpitService extends Service
     /**
      * Starts service (if not started yet) and then binds context to the service.
      */
-    public static void startThenBindService(Context context, Class<?> service, ServiceConnection serviceConnection, Bundle extras)
+    public static void startThenBindService(Context context, Class<? extends CockpitService> service, ServiceConnection serviceConnection, Bundle extras)
     {
         java.lang.reflect.Method method;
         boolean isServiceSpawned;

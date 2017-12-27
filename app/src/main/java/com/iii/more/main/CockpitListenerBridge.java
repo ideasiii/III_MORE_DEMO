@@ -1,7 +1,6 @@
 package com.iii.more.main;
 
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.os.Message;
 
 import com.iii.more.cockpit.CockpitService;
@@ -22,7 +21,7 @@ import java.util.Map;
 import sdk.ideas.common.Logs;
 
 /**
- * 將 CockpitService 丟來的訊息盡量丟給內部的 listener 處理
+ * 將 CockpitService 丟來的訊息盡量委託給內部的 listener 處理
  * 如果必須丟回給 MainApplication 處理，則使用 TellMeWhatToDo 介面的方法委託出去
  */
 class CockpitListenerBridge
@@ -30,10 +29,6 @@ class CockpitListenerBridge
     private CockpitConnectionEventListener mCockpitConnectionEventListener;
     private CockpitSensorEventListener mCockpitSensorEventListener;
     private CockpitFilmMakingEventListener mCockpitFilmMakingEventListener;
-
-    private MediaPlayer mRfidScannedSoundPlayer;
-    private MediaPlayer mNormalSensorEventSoundPlayer;
-    private MediaPlayer mBloodySensorEventSoundPlayer;
 
     private boolean mPlaySoundOnRfidScanned = true;
     private boolean mPlaySoundOnSensorEvent = true;
