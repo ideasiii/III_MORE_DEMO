@@ -16,7 +16,10 @@ import org.json.JSONObject;
  */
 public class InternetCockpitService extends CockpitService
 {
-    /** used in Handler to distinguish us from other subclass of CockpitService...... */
+    /**
+     * msg.arg1 in Handler.onMessage() to distinguish us
+     * from other subclass of CockpitService......
+     */
     public static final int MSG_ARG1 = 1369753497;
 
     private static final String LOG_TAG = "InternetCockpitService";
@@ -205,13 +208,13 @@ public class InternetCockpitService extends CockpitService
             switch (type)
             {
                 case PaperType.TEXT:
-                    mHandler.obtainMessage(CockpitService.MSG_WHAT, MSG_ARG1, EVENT_DATA_TEXT, text).sendToTarget();
+                    mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_DATA_TEXT, text).sendToTarget();
                     break;
                 case PaperType.FILM_MAKING:
                     try
                     {
                         JSONObject json = new JSONObject(text);
-                        mHandler.obtainMessage(CockpitService.MSG_WHAT, MSG_ARG1, EVENT_DATA_FILM_MAKING, json).sendToTarget();
+                        mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_DATA_FILM_MAKING, json).sendToTarget();
                     }
                     catch (JSONException e)
                     {
@@ -219,13 +222,13 @@ public class InternetCockpitService extends CockpitService
                     }
                     break;
                 case PaperType.FACE_EMOTION_DETECTED:
-                    mHandler.obtainMessage(CockpitService.MSG_WHAT, MSG_ARG1, EVENT_DATA_FACE_EMOTION, text).sendToTarget();
+                    mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_DATA_FACE_EMOTION, text).sendToTarget();
                     break;
                 case PaperType.PARAMETERS:
                     try
                     {
                         JSONObject json = new JSONObject(text);
-                        mHandler.obtainMessage(CockpitService.MSG_WHAT, MSG_ARG1, EVENT_DATA_PARAMETERS, json).sendToTarget();
+                        mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_DATA_PARAMETERS, json).sendToTarget();
                     }
                     catch (JSONException e)
                     {

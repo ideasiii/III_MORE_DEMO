@@ -125,7 +125,7 @@ public class InterruptLogicHandler extends BaseHandler
     {
         Logs.showTrace("[InterruptLogicHandler] device event data: " + deviceEventData);
 
-        if (null == deviceEventData || deviceEventData.length() < 1)
+        if (deviceEventData.length() < 1)
         {
             Logs.showTrace("[InterruptLogicHandler] startEventDataAnalysis() no mEventData");
             return null;
@@ -141,7 +141,7 @@ public class InterruptLogicHandler extends BaseHandler
         }
         else if (eventHashMapData.containsKey(InterruptLogicParameters.STRING_RFID))
         {
-            // TODO RFID tag is included in Task Composer rules, just return raw data
+            // RFID tag is not included in Task Composer rules, just return raw data
             String rfidValue = eventHashMapData.get(InterruptLogicParameters.STRING_RFID);
             Long rfidInteger = Long.parseLong(rfidValue);
 

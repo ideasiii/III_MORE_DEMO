@@ -23,7 +23,10 @@ import java.util.Map;
  */
 public class OtgCockpitService extends CockpitService
 {
-    /** used in Handler to distinguish us from other subclass of CockpitService...... */
+    /**
+     * msg.arg1 in Handler.onMessage() to distinguish us
+     * from other subclass of CockpitService......
+     */
     public static final int MSG_ARG1 = 621561778;
 
     private static final String LOG_TAG = "OtgCockpitService";

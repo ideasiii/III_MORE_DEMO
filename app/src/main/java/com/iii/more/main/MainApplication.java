@@ -3,6 +3,7 @@ package com.iii.more.main;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -51,24 +52,24 @@ public class MainApplication extends Application
     private CockpitService mCockpitService;
     private InternetCockpitService mInternetCockpitService;
     private OtgCockpitService mOtgCockpitService;
-    
-    private Tracker mTracker = new Tracker(this);
+    private CockpitListenerBridge mCockpitListenerBridge = new CockpitListenerBridge(this);
+
     private TextToSpeechHandler mGoogleTtsHandler = new TextToSpeechHandler(this);
     private CReaderAdapter mCyberonTtsAdapter = new CReaderAdapter(this);
-    private CockpitListenerBridge mCockpitListenerBridge = new CockpitListenerBridge(this);
-    
-    private FaceEmotionEventListener mFaceEmotionEventListener = null;
     private TTSEventListener mTtsEventListener;
-    
+    private boolean mUseCReaderTTS = false;
+
+    private FaceEmotionEventListener mFaceEmotionEventListener = null;
     private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
     private EmotionHandler mEmotionHandler = null;
     private static boolean isFaceEmotionStart = false;
 
-    private boolean mUseCReaderTTS = false;
+    private Tracker mTracker = new Tracker(this);
+    private SoundEffectsPool mSoundEffectsPool = new SoundEffectsPool(this);
 
     // 方便讓遙控器控制端辨識的名稱
     private String mInternetCockpitFriendlyName;
-    
+
     public MainApplication()
     {
     }
@@ -82,6 +83,16 @@ public class MainApplication extends Application
         initInterruptLogic();
         initFaceEmotionInterrupt();
         initTTS();
+    }
+
+    /**
+     * An alias of (MainApplication)context.getApplicationContext()
+     * @param context Context to get MainApplication object
+     * @return An MainApplication instance
+     */
+    public static MainApplication getApp(Context context)
+    {
+        return (MainApplication)context.getApplicationContext();
     }
     
     /**
@@ -275,7 +286,12 @@ public class MainApplication extends Application
             mGoogleTtsHandler.stop();
         }
     }
-    
+
+    public void replaySoundEffect(final int resId)
+    {
+        mSoundEffectsPool.replay(resId);
+    }
+
     /**
      * 取得要傳送給 InternetCockpit 伺服器的識別名稱
      */
@@ -495,9 +511,7 @@ public class MainApplication extends Application
             }
         }
     }
-    
-    //
-    //### pending to write
+
     private void handleMessageFaceEmotionInterruptMessage(Message msg)
     {
         HashMap<String, String> message = (HashMap<String, String>) msg.obj;
@@ -538,7 +552,6 @@ public class MainApplication extends Application
     
     private void handleMessageFaceEmotionMessage(Message msg)
     {
-        
         if (msg.arg2 == EmotionParameters.METHOD_EMOTION_DETECT)
         {
             HashMap<String, String> emotionHashMap = (HashMap<String, String>) msg.obj;
@@ -669,9 +682,9 @@ public class MainApplication extends Application
                 break;
             case CReaderAdapter.Event.UTTERANCE_STOP:
                 Logs.showTrace("handleCReaderMessage() UTTERANCE_STOP");
-                if (null != mTtsEventListener)
+                /*if (null != mTtsEventListener)
                 {
-                }
+                }*/
                 break;
             case CReaderAdapter.Event.UTTERANCE_DONE:
                 Logs.showTrace("handleCReaderMessage() UTTERANCE_DONE");

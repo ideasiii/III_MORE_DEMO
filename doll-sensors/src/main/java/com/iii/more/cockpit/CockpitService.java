@@ -20,7 +20,7 @@ public abstract class CockpitService extends Service
 {
     private static final String LOG_TAG = "CockpitService";
 
-    // msg.what in Handler.onMessage()
+    /** msg.what in Handler.onMessage() */
     public static final int MSG_WHAT = 2147483647;
 
     // Handler.handleMessage() 的 msg.what 可能的值

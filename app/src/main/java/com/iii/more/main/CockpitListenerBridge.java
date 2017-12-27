@@ -254,7 +254,7 @@ class CockpitListenerBridge
 
             String action = j.getString("action");
             String text = j.getString("text");
-            Logs.showTrace("handleCockpitServiceMessage() " +
+            Logs.showTrace("handleCockpitServiceFilmMakingEvents() " +
                     "film making action = `" + action + "`, text = `" + text + "`");
 
             switch (action)
@@ -267,7 +267,7 @@ class CockpitListenerBridge
                     mCockpitFilmMakingEventListener.onEmotionImage(sender, text);
                     break;
                 default:
-                    Logs.showTrace("handleCockpitServiceMessage() " +
+                    Logs.showTrace("handleCockpitServiceFilmMakingEvents() " +
                             "film making unknown action = `" + action);
                     break;
             }
@@ -289,40 +289,40 @@ class CockpitListenerBridge
         Class<? extends CockpitService> sender = findOriginCockpit(msg);
         if (sender == null)
         {
-            Logs.showTrace("handleCockpitServiceMessage() unknown sender: " + msg.arg1);
+            Logs.showTrace("handleCockpitServiceConnectionEvents() unknown sender: " + msg.arg1);
             return;
         }
 
         switch (msg.arg1)
         {
             case CockpitService.EVENT_NO_DEVICE:
-                Logs.showTrace("handleCockpitServiceMessage() onNoDevice()");
+                Logs.showTrace("handleCockpitServiceConnectionEvents() onNoDevice()");
                 mCockpitConnectionEventListener.onNoDevice(sender);
                 break;
             case CockpitService.EVENT_READY:
-                Logs.showTrace("handleCockpitServiceMessage() onReady()");
+                Logs.showTrace("handleCockpitServiceConnectionEvents() onReady()");
                 mCockpitConnectionEventListener.onReady(sender);
                 break;
             case CockpitService.EVENT_PROTOCOL_NOT_SUPPORTED:
             case CockpitService.EVENT_CDC_DRIVER_NOT_WORKING:
             case CockpitService.EVENT_USB_DEVICE_NOT_WORKING:
-                Logs.showTrace("handleCockpitServiceMessage() onProtocolNotSupported()");
+                Logs.showTrace("handleCockpitServiceConnectionEvents() onProtocolNotSupported()");
                 mCockpitConnectionEventListener.onProtocolNotSupported(sender);
                 break;
             case CockpitService.EVENT_PERMISSION_GRANTED:
-                Logs.showTrace("handleCockpitServiceMessage() onPermissionGranted()");
+                Logs.showTrace("handleCockpitServiceConnectionEvents() onPermissionGranted()");
                 mCockpitConnectionEventListener.onPermissionGranted(sender);
                 break;
             case CockpitService.EVENT_PERMISSION_NOT_GRANTED:
-                Logs.showTrace("handleCockpitServiceMessage() onPermissionNotGranted()");
+                Logs.showTrace("handleCockpitServiceConnectionEvents() onPermissionNotGranted()");
                 mCockpitConnectionEventListener.onPermissionNotGranted(sender);
                 break;
             case CockpitService.EVENT_DISCONNECTED:
-                Logs.showTrace("handleCockpitServiceMessage() onDisconnected()");
+                Logs.showTrace("handleCockpitServiceConnectionEvents() onDisconnected()");
                 mCockpitConnectionEventListener.onDisconnected(sender);
                 break;
             default:
-                Logs.showTrace("handleCockpitServiceMessage() unhandled msg.arg1: " + msg.arg1);
+                Logs.showTrace("handleCockpitServiceConnectionEvents() unhandled msg.arg1: " + msg.arg1);
         }
     }
 
@@ -348,17 +348,8 @@ class CockpitListenerBridge
     /** 播放 RFID 偵測事件音效 */
     private void playRfidEventSound()
     {
-        if (!mPlaySoundOnRfidScanned)
-        {
-            return;
-        }
-
-        if (mRfidScannedSoundPlayer == null)
-        {
-            mRfidScannedSoundPlayer = MediaPlayer.create(mContext, R.raw.rfid_scanned);
-        }
-
-        replayMediaPlayer(mRfidScannedSoundPlayer);
+        MainApplication app = MainApplication.getApp(mContext);
+        app.replaySoundEffect(R.raw.rfid_scanned);
     }
 
     /** 播放 sensor 事件音效 */
@@ -369,48 +360,15 @@ class CockpitListenerBridge
             return;
         }
 
+        MainApplication app = MainApplication.getApp(mContext);
+
         if (mUseBloodySensorEventSound)
         {
-            playR18SensorEventSound();
+            app.replaySoundEffect(R.raw.shake_hand_bloody);
         }
         else
         {
-            playNormalSensorEventSound();
-        }
-    }
-
-    /** 播放一般的 sensor 事件音效 */
-    private void playNormalSensorEventSound()
-    {
-        if (mNormalSensorEventSoundPlayer == null)
-        {
-            mNormalSensorEventSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand);
-        }
-
-        replayMediaPlayer(mNormalSensorEventSoundPlayer);
-    }
-
-    /** 播放很奇怪的 sensor 事件音效 */
-    private void playR18SensorEventSound()
-    {
-        if (mBloodySensorEventSoundPlayer == null)
-        {
-            mBloodySensorEventSoundPlayer = MediaPlayer.create(mContext, R.raw.shake_hand_bloody);
-        }
-
-        replayMediaPlayer(mBloodySensorEventSoundPlayer);
-    }
-
-    /** 將 MediaPlayer 重頭播放 */
-    private static void replayMediaPlayer(MediaPlayer mp)
-    {
-        if (mp.isPlaying())
-        {
-            mp.seekTo(0);
-        }
-        else
-        {
-            mp.start();
+            app.replaySoundEffect(R.raw.shake_hand);
         }
     }
 }
