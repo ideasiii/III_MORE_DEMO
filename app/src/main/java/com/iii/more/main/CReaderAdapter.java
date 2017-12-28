@@ -74,7 +74,7 @@ class CReaderAdapter
         mLocale = locale;
 
         setPitch(100);
-        setSpeechRate(75);
+        setSpeechRate(100);
         setVolume(300);
     }
 

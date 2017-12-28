@@ -47,6 +47,10 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 public class MainApplication extends Application
 {
+    private static final byte CURRENT_USING_TTS_GOOGLE = 1;
+    private static final byte CURRENT_USING_TTS_CYBERON_KID_FEMALE = 2;
+    private static final byte CURRENT_USING_TTS_CYBERON_KID_MALE = 3;
+
     private final SelfHandler mSelfHandler = new SelfHandler(this);
 
     private CockpitService mCockpitService;
@@ -55,9 +59,12 @@ public class MainApplication extends Application
     private CockpitListenerBridge mCockpitListenerBridge = new CockpitListenerBridge(this);
 
     private TextToSpeechHandler mGoogleTtsHandler = new TextToSpeechHandler(this);
-    private CReaderAdapter mCyberonTtsAdapter = new CReaderAdapter(this);
+    private CReaderAdapter mCyberonTtsAdapter_KidFemale = new CReaderAdapter(this); // 賽微 TTS: 女性
+    private CReaderAdapter mCyberonTtsAdapter_KidMale = new CReaderAdapter(this); // 賽微 TTS: 男性
+
     private TTSEventListenerBridge mTTSEventListenerBridge = new TTSEventListenerBridge(this);
-    private boolean mUseCReaderTTS = false;
+    // 目前正在使用的 TTS 語音的編號
+    private byte mCurrentUsingTts = 1;
 
     private FaceEmotionEventListener mFaceEmotionEventListener = null;
     private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
@@ -196,14 +203,18 @@ public class MainApplication extends Application
         mGoogleTtsHandler.setHandler(mSelfHandler);
         mGoogleTtsHandler.init();
 
-        mCyberonTtsAdapter.setHandler(mSelfHandler);
-        mCyberonTtsAdapter.setVoiceName(
+        mCyberonTtsAdapter_KidFemale.setHandler(mSelfHandler);
+        mCyberonTtsAdapter_KidFemale.setVoiceName(
             CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_FEMALE_VOICE_NAME);
-        /*mCyberonTtsAdapter.setVoiceName(
-            CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_FEMALE_VOICE_NAME);
-        mCyberonTtsAdapter.setVoiceName(
-            CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_MALE_VOICE_NAME);*/
-        mCyberonTtsAdapter.init();
+        mCyberonTtsAdapter_KidFemale.setSpeechRate(85);
+        mCyberonTtsAdapter_KidFemale.init();
+
+        mCyberonTtsAdapter_KidMale.setHandler(mSelfHandler);
+        mCyberonTtsAdapter_KidMale.setVoiceName(
+            CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_MALE_VOICE_NAME);
+        mCyberonTtsAdapter_KidMale.setPitch(85);
+        mCyberonTtsAdapter_KidFemale.setSpeechRate(85);
+        mCyberonTtsAdapter_KidMale.init();
     }
 
     /**
@@ -211,15 +222,22 @@ public class MainApplication extends Application
      */
     public void setTTSPitch(float pitch, float rate)
     {
-        if (mUseCReaderTTS)
+        switch (mCurrentUsingTts)
         {
-            mCyberonTtsAdapter.setPitch(pitch);
-            mCyberonTtsAdapter.setSpeechRate(rate);
-        }
-        else
-        {
-            mGoogleTtsHandler.setPitch(pitch);
-            mGoogleTtsHandler.setSpeechRate(rate);
+            case CURRENT_USING_TTS_GOOGLE:
+                mGoogleTtsHandler.setPitch(pitch);
+                mGoogleTtsHandler.setSpeechRate(rate);
+                break;
+            case CURRENT_USING_TTS_CYBERON_KID_FEMALE:
+                mCyberonTtsAdapter_KidFemale.setPitch(pitch);
+                mCyberonTtsAdapter_KidFemale.setSpeechRate(rate);
+                break;
+            case CURRENT_USING_TTS_CYBERON_KID_MALE:
+                mCyberonTtsAdapter_KidMale.setPitch(pitch);
+                mCyberonTtsAdapter_KidMale.setSpeechRate(rate);
+                break;
+            default:
+                Logs.showTrace("Unknown mCurrentUsingTts: " + mCurrentUsingTts);
         }
     }
 
@@ -228,13 +246,19 @@ public class MainApplication extends Application
      */
     public void setTTSLanguage(Locale language)
     {
-        if (mUseCReaderTTS)
+        switch (mCurrentUsingTts)
         {
-            mCyberonTtsAdapter.setLanguage(language);
-        }
-        else
-        {
-            mGoogleTtsHandler.setLocale(language);
+            case CURRENT_USING_TTS_GOOGLE:
+                mGoogleTtsHandler.setLocale(language);
+                break;
+            case CURRENT_USING_TTS_CYBERON_KID_FEMALE:
+                mCyberonTtsAdapter_KidFemale.setLanguage(language);
+                break;
+            case CURRENT_USING_TTS_CYBERON_KID_MALE:
+                mCyberonTtsAdapter_KidMale.setLanguage(language);
+                break;
+            default:
+                Logs.showTrace("Unknown mCurrentUsingTts: " + mCurrentUsingTts);
         }
     }
 
@@ -243,7 +267,18 @@ public class MainApplication extends Application
      */
     public Locale getTTSLanguage()
     {
-        return mUseCReaderTTS ? mCyberonTtsAdapter.getLanguage() : mGoogleTtsHandler.getLocale();
+        switch (mCurrentUsingTts)
+        {
+            case CURRENT_USING_TTS_GOOGLE:
+                return mGoogleTtsHandler.getLocale();
+            case CURRENT_USING_TTS_CYBERON_KID_FEMALE:
+                return mCyberonTtsAdapter_KidFemale.getLanguage();
+            case CURRENT_USING_TTS_CYBERON_KID_MALE:
+                return mCyberonTtsAdapter_KidMale.getLanguage();
+            default:
+                Logs.showTrace("Unknown mCurrentUsingTts: " + mCurrentUsingTts);
+                return null;
+        }
     }
 
     /**
@@ -251,13 +286,19 @@ public class MainApplication extends Application
      */
     public void playTTS(String text, String textId)
     {
-        if (mUseCReaderTTS)
+        switch (mCurrentUsingTts)
         {
-            mCyberonTtsAdapter.speak(text, textId);
-        }
-        else
-        {
-            mGoogleTtsHandler.textToSpeech(text, textId);
+            case CURRENT_USING_TTS_GOOGLE:
+                mGoogleTtsHandler.textToSpeech(text, textId);
+                break;
+            case CURRENT_USING_TTS_CYBERON_KID_FEMALE:
+                mCyberonTtsAdapter_KidFemale.speak(text, textId);
+                break;
+            case CURRENT_USING_TTS_CYBERON_KID_MALE:
+                mCyberonTtsAdapter_KidMale.speak(text, textId);
+                break;
+            default:
+                Logs.showTrace("Unknown mCurrentUsingTts: " + mCurrentUsingTts);
         }
     }
 
@@ -275,14 +316,9 @@ public class MainApplication extends Application
      */
     public void stopTTS()
     {
-        if (mUseCReaderTTS)
-        {
-            mCyberonTtsAdapter.stop();
-        }
-        else
-        {
-            mGoogleTtsHandler.stop();
-        }
+        mGoogleTtsHandler.stop();
+        mCyberonTtsAdapter_KidFemale.stop();
+        mCyberonTtsAdapter_KidMale.stop();
     }
 
     public void replaySoundEffect(final int resId)
@@ -341,10 +377,11 @@ public class MainApplication extends Application
                 switch (action)
                 {
                     case "switchTtsEngine":
-                        mUseCReaderTTS = !mUseCReaderTTS;
+                        mCurrentUsingTts = (byte)((mCurrentUsingTts+1) % 3 + 1);
+                        Logs.showTrace("switchTtsEngine, mCurrentUsingTts = `" + mCurrentUsingTts);
                         break;
                     default:
-                        Logs.showTrace("[MainApplication] mCockpitListenerBridge " +
+                        Logs.showTrace("mCockpitListenerBridge " +
                             "onSetParameter() unknown action = `" + action);
                 }
             }
