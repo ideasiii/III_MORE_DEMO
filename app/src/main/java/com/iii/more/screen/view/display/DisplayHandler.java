@@ -47,8 +47,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
     private ArrayDeque<DisplayElement> mDisplayQueue = null;
     private ArrayDeque<DisplayElement> mSaveDisplayQueue = null;
     private DisplayElement theLastDisplayElement = null;
-
-   
+    private DisplayElement theFinalDisplayElement = null;
     
     public DisplayHandler(@NonNull Context context)
     {
@@ -64,7 +63,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         mDisplayHandler = new Handler(Looper.getMainLooper());
         mDisplayRunnable = new DisplayRunnable();
     }
-
+    
     public void pauseDisplaying(int seconds)
     {
         Logs.showTrace("[DisplayHandler] pauseDisplaying in: " + String.valueOf(seconds));
@@ -80,42 +79,59 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
             mSaveDisplayQueue.clear();
         }
         
-        Logs.showTrace("[DisplayHandler] theLastDisplayElement.timeDuring: " + String.valueOf
-                (theLastDisplayElement.timeDuring));
-        
-        DisplayElement tmp = mDisplayQueue.poll();
-        theLastDisplayElement.nextTime = tmp.timeDuring - seconds;
-        
-        if (theLastDisplayElement.nextTime < -1)
+        if (null == theLastDisplayElement)
         {
-            theLastDisplayElement.nextTime = -1;
+            Logs.showError("[DisplayHandler] theLastDisplayElement is null");
         }
-        
-        Logs.showTrace("[DisplayHandler]####theLastDisplayElement#####");
-        theLastDisplayElement.print();
-        
-        
-        mSaveDisplayQueue.add(theLastDisplayElement);
-        mSaveDisplayQueue.add(tmp);
-        
-        Logs.showTrace("[DisplayHandler] total mDisplayQueue Data size:" + String.valueOf(mDisplayQueue
-                .size()));
-        while (true)
+        else
         {
-            DisplayElement tmp2 = mDisplayQueue.poll();
-            if (null == tmp2)
+            Logs.showTrace("[DisplayHandler] theLastDisplayElement.timeDuring: " + String.valueOf
+                (theLastDisplayElement.timeDuring));
+            
+            Logs.showTrace("[DisplayHandler] mDisplayQueue size: " + String.valueOf(mDisplayQueue.size()));
+            DisplayElement tmp = mDisplayQueue.poll();
+            if (null != tmp)
             {
-                break;
+                theLastDisplayElement.nextTime = tmp.timeDuring - seconds;
+                
+                if (theLastDisplayElement.nextTime < -1)
+                {
+                    theLastDisplayElement.nextTime = -1;
+                }
+                
+                Logs.showTrace("[DisplayHandler]####theLastDisplayElement#####");
+                theLastDisplayElement.print();
+                
+                
+                mSaveDisplayQueue.add(theLastDisplayElement);
+                mSaveDisplayQueue.add(tmp);
+                
+                Logs.showTrace("[DisplayHandler] total mDisplayQueue Data size:" + String.valueOf
+                    (mDisplayQueue.size()));
+                while (true)
+                {
+                    DisplayElement tmp2 = mDisplayQueue.poll();
+                    if (null == tmp2)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        mSaveDisplayQueue.add(tmp2);
+                        tmp2.print();
+                    }
+                }
+                Logs.showTrace("[DisplayHandler] total mSaveDisplayQueue Data size:" + String.valueOf
+                    (mSaveDisplayQueue.size()));
             }
             else
             {
-                mSaveDisplayQueue.add(tmp2);
-                tmp2.print();
+                Logs.showError("[DisplayHandler] tmp is null!");
+                Logs.showError("[DisplayHandler] get the final element" );
+               
+                mSaveDisplayQueue.add(theFinalDisplayElement);
             }
         }
-        Logs.showTrace("[DisplayHandler] total mSaveDisplayQueue Data size:" + String.valueOf
-                (mSaveDisplayQueue.size()));
-        
         
     }
     
@@ -189,7 +205,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
                 {
                     
                     ViewHandler.setBackgroundColor(mContext.getResources().getColor(DisplayParameters
-                            .DEFAULT_BACKGROUND_COLOR), mHashMapViews.get(key));
+                        .DEFAULT_BACKGROUND_COLOR), mHashMapViews.get(key));
                 }
             }
         }
@@ -221,12 +237,12 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         try
         {
             if (displayJson.has(DisplayParameters.STRING_JSON_KEY_ENABLE) && displayJson.getInt
-                    (DisplayParameters.STRING_JSON_KEY_ENABLE) == 1)
+                (DisplayParameters.STRING_JSON_KEY_ENABLE) == 1)
             {
                 if (displayJson.has(DisplayParameters.STRING_JSON_KEY_SHOW))
                 {
                     this.mDisplayJsonArray = sortJsonArray(displayJson.getJSONArray(DisplayParameters
-                            .STRING_JSON_KEY_SHOW));
+                        .STRING_JSON_KEY_SHOW));
                     if (this.mDisplayJsonArray == null)
                     {
                         return false;
@@ -274,7 +290,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
                         try
                         {
                             return (a.getInt(DisplayParameters.STRING_JSON_KEY_TIME) - b.getInt
-                                    (DisplayParameters.STRING_JSON_KEY_TIME));
+                                (DisplayParameters.STRING_JSON_KEY_TIME));
                         }
                         catch (JSONException e)
                         {
@@ -310,18 +326,18 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
             if (i + 1 != mDisplayJsonArray.length())
             {
                 time = mDisplayJsonArray.getJSONObject(i + 1).getInt(DisplayParameters
-                        .STRING_JSON_KEY_TIME) - mDisplayJsonArray.getJSONObject(i).getInt
-                        (DisplayParameters.STRING_JSON_KEY_TIME);
+                    .STRING_JSON_KEY_TIME) - mDisplayJsonArray.getJSONObject(i).getInt(DisplayParameters
+                    .STRING_JSON_KEY_TIME);
             }
             DisplayElement tmp = new DisplayElement(mDisplayJsonArray.getJSONObject(i).getInt
-                    (DisplayParameters.STRING_JSON_KEY_TIME), time, mDisplayJsonArray.getJSONObject(i)
-                    .getString(DisplayParameters.STRING_JSON_KEY_HOST) + "/" + mDisplayJsonArray
-                    .getJSONObject(i).getString(DisplayParameters.STRING_JSON_KEY_FILE), Color.parseColor
-                    (mDisplayJsonArray.getJSONObject(i).getString(DisplayParameters.STRING_JSON_KEY_COLOR))
-                    , mDisplayJsonArray.getJSONObject(i).getString(DisplayParameters
-                    .STRING_JSON_KEY_DESCRIPTION), mDisplayJsonArray.getJSONObject(i).getJSONObject
-                    (DisplayParameters.STRING_JSON_KEY_ANIMATION), mDisplayJsonArray.getJSONObject(i)
-                    .getJSONObject(DisplayParameters.STRING_JSON_KEY_TEXT));
+                (DisplayParameters.STRING_JSON_KEY_TIME), time, mDisplayJsonArray.getJSONObject(i)
+                .getString(DisplayParameters.STRING_JSON_KEY_HOST) + "/" + mDisplayJsonArray.getJSONObject
+                (i).getString(DisplayParameters.STRING_JSON_KEY_FILE), Color.parseColor(mDisplayJsonArray
+                .getJSONObject(i).getString(DisplayParameters.STRING_JSON_KEY_COLOR)), mDisplayJsonArray
+                .getJSONObject(i).getString(DisplayParameters.STRING_JSON_KEY_DESCRIPTION),
+                mDisplayJsonArray.getJSONObject(i).getJSONObject(DisplayParameters
+                    .STRING_JSON_KEY_ANIMATION), mDisplayJsonArray.getJSONObject(i).getJSONObject
+                (DisplayParameters.STRING_JSON_KEY_TEXT));
             
             mDisplayQueue.add(tmp);
             
@@ -342,6 +358,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
     
     public void startDisplay()
     {
+        theFinalDisplayElement = null;
         toDo();
     }
     
@@ -349,23 +366,30 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
     {
         if (null != mDisplayQueue)
         {
+            Logs.showTrace("[DisplayHandler]in toDo function total mDisplayQueue Data size:" + String.valueOf
+                (mDisplayQueue.size()));
+            
             DisplayElement display = mDisplayQueue.poll();
             theLastDisplayElement = display;
             
             if (null != display)
             {
                 //set next time
+                Logs.showTrace("[DisplayHandler]###set next time");
                 if (display.nextTime != -1)
                 {
                     mDisplayHandler.postDelayed(mDisplayRunnable, display.nextTime);
                 }
-                
+                else
+                {
+                    theFinalDisplayElement = display;
+                }
                 
                 mAnimationHandler.setAnimateJsonBehavior(display.animation);
                 mAnimationHandler.startAnimate();
                 
                 ViewHandler.setBackgroundColor(display.backgroundColor, mHashMapViews.get(DisplayParameters
-                        .RELATIVE_LAYOUT_ID));
+                    .RELATIVE_LAYOUT_ID));
                 
                 int drawableId;
                 
@@ -378,45 +402,43 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
                     if (mHashMapViews.get(DisplayParameters.RELATIVE_LAYOUT_ID) instanceof RelativeLayout)
                     {
                         ViewHandler.setBackgroundColor(mContext.getResources().getColor(R.color
-                                .starfish_background), mHashMapViews.get(DisplayParameters
-                                .RELATIVE_LAYOUT_ID));
+                            .starfish_background), mHashMapViews.get(DisplayParameters.RELATIVE_LAYOUT_ID));
                     }
                     drawableId = convertStarFishImageURLToDrawableID(display.imageURL);
                 }
                 if (drawableId != 0)
                 {
                     Glide.with(mContext).load(drawableId)
-                            //.load(display.imageURL)
-                            .into((ImageView)
-                            mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID));
+                        //.load(display.imageURL)
+                        .into((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID));
                 }
             }
         }
     }
-
+    
     private int convertOctoboImageURLToDrawableID(@NonNull String url)
     {
         String filename = Tools.stripFilenameFromUrl(url);
         Logs.showTrace("convertOctoboImageURLToDrawableID() url = " + url + ", filename = " + filename);
-
+        
         return getDrawableIDFromFileName(filename);
     }
-
+    
     private int convertStarFishImageURLToDrawableID(@NonNull String url)
     {
         String filename = Tools.stripFilenameFromUrl(url);
         Logs.showTrace("convertStarFishImageURLToDrawableID() url = " + url + ", filename = " + filename);
-
+        
         return getDrawableIDFromFileName(filename);
     }
-
+    
     public int getDrawableIDFromFileName(@NonNull String filename)
     {
         if (filename.startsWith("OCTOBO_Expressions-"))
         {
-            filename = "octobo" + filename.substring(filename.lastIndexOf('-')+1, filename.length());
+            filename = "octobo" + filename.substring(filename.lastIndexOf('-') + 1, filename.length());
         }
-
+        
         try
         {
             filename = Tools.removeFileExtension(filename);
@@ -428,7 +450,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
             return 0;
         }
     }
-
+    
     @Override
     public void onClick(View v)
     {
@@ -441,7 +463,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
             message.put("id", String.valueOf(v.getId()));
             
             callBackMessage(ResponseCode.ERR_SUCCESS, DisplayParameters.CLASS_DISPLAY, DisplayParameters
-                    .METHOD_CLICK, message);
+                .METHOD_CLICK, message);
         }
     }
     

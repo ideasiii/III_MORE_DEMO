@@ -345,7 +345,7 @@ class CockpitListenerBridge
     {
         MainApplication app = MainApplication.getApp(mContext);
         app.replaySoundEffect(R.raw.rfid_scanned);
-    }
+}
 
     /** 播放 sensor 事件音效 */
     private void playSensorEventSound()

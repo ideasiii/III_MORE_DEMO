@@ -618,14 +618,14 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             //end service
             mLogicHandler.setMode(LogicParameters.MODE_UNKNOWN);
             mLogicHandler.endAll();
-    
+            
             Logs.showTrace("[MainActivity] %% Hide FAB Setting %%");
             mFABSettingHandler.hide();
-    
+            
             mMenuHandler.hideMenu(mFABMenuHandler.getFabX(), mFABMenuHandler.getFabY(), mFABMenuHandler
                 .getFabRadius());
-           
-            Toast.makeText(this,"進入家長模式",Toast.LENGTH_SHORT).show();
+            
+            Toast.makeText(this, "進入家長模式", Toast.LENGTH_SHORT).show();
             
             // ### pending Ready write
             Logs.showTrace("[MainActivity] %% Enter Ready Setting Page %%");
@@ -634,12 +634,12 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 @Override
                 public void run()
                 {
-                   
+                    
                     mFABMenuHandler.show();
                 }
-            },1000);
-    
-    
+            }, 1000);
+            
+            
             mHandler.postDelayed(new Runnable()
             {
                 @Override
@@ -649,14 +649,10 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     intent.setClass(MainActivity.this, SettingLv1Activity.class);
                     startActivity(intent);
                 }
-            },1500);
+            }, 1500);
             
         }
     }
-    
-    
-    
-    
     
     
     private void showAlertDialogEnterBLEReadPenID()
@@ -944,12 +940,13 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                                 @Override
                                 public void run()
                                 {
-                                    Logs.showTrace("[MainActivity]*** now No TTS HashMap and resume Story Streaming!");
+                                    Logs.showTrace("[MainActivity]*** now No TTS HashMap and resume Story "
+                                        + "Streaming!");
                                     mLogicHandler.resumeStoryStreaming();
                                     mDisplayHandler.resumeDisplaying();
                                     isBlockFaceEmotionListener = false;
                                 }
-                            },3000);
+                            }, 5000);
                         }
                     }
                 }
@@ -1007,36 +1004,15 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     public void onFaceDetectResult(boolean isDetectFace)
     {
         Logs.showTrace("[MainActivity] Face Detect: " + String.valueOf(isDetectFace));
-        
+    
+        MainApplication app = MainApplication.getApp(this);
         if (isDetectFace)
         {
-            playRfidEventSound();
+            app.replaySoundEffect(R.raw.dong);
         }
-        
-    }
-    
-    private void playRfidEventSound()
-    {
-        if (mRfidScannedSoundPlayer == null)
+         else
         {
-            mRfidScannedSoundPlayer = MediaPlayer.create(this, R.raw.rfid_scanned);
-        }
-        
-        replayMediaPlayer(mRfidScannedSoundPlayer);
-    }
-    
-    /**
-     * 將 MediaPlayer 重頭播放
-     */
-    private static void replayMediaPlayer(MediaPlayer mp)
-    {
-        if (mp.isPlaying())
-        {
-            mp.seekTo(0);
-        }
-        else
-        {
-            mp.start();
+            app.replaySoundEffect(R.raw.dongdong);
         }
     }
     
@@ -1076,8 +1052,15 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         {
             if (mLogicHandler.getMode() == LogicParameters.MODE_STORY)
             {
-                //mLogicHandler.pauseStoryStreaming();
-                mLogicHandler.endAll();
+                if (mLogicHandler.getIsPlayingStory())
+                {
+                    mLogicHandler.pauseStoryStreaming();
+                }
+                else
+                {
+                    mLogicHandler.endAll();
+                }
+                
                 mDisplayHandler.resetAllDisplayViews();
                 mLogicHandler.startUpStory(null, null, null);
             }

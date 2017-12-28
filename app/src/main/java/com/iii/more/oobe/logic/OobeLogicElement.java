@@ -26,7 +26,7 @@ public class OobeLogicElement
     private ArrayList<String> regretTTSArrayList = null;
     
     public OobeLogicElement(int state, int wait, int regretTime, String tts, String imageFile, String
-            response, String movie)
+        response, String movie)
     {
         this.wait = wait;
         this.state = state;
@@ -70,10 +70,9 @@ public class OobeLogicElement
         {
             int max = regretTTSArrayList.size();
             Random r = new Random();
-            int getTextId = r.nextInt(max );
+            int getTextId = r.nextInt(max);
             //debug using
             //Logs.showTrace("[OobeLogicElement] regretTTSArrayList.getTextId: " + String.valueOf(getTextId));
-            
             
             return regretTTSArrayList.get(getTextId);
         }
@@ -101,7 +100,6 @@ public class OobeLogicElement
     
     public int getRegret()
     {
-        //Logs.showTrace("[OobeLogicElement]");
         regretTimeCount--;
         Logs.showTrace("[OobeLogicElement] now regret: " + String.valueOf(regretTimeCount));
         return regretTimeCount;
@@ -150,8 +148,7 @@ public class OobeLogicElement
     public void print()
     {
         Logs.showTrace("[OobeLogicHandler] Element: state: " + String.valueOf(state) + " tts:" + tts + " "
-                + "imgFile: " + imageFile + " movie:" + movie);
-        
+            + "imgFile: " + imageFile + " movie:" + movie);
     }
     
     

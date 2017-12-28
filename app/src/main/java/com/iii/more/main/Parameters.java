@@ -13,9 +13,11 @@ public abstract class Parameters
     public static final String STRING_DEFAULT_ROBOT_NAME = "章魚寶";
 
     public static final String TASK_COMPOSER_DATA = "taskcomposerdata";
-
-    static final String CMP_HOST_IP = "54.199.198.94";
-    static final int CMP_HOST_PORT = 2310;
+    public static final String CLOCK_INTENT_DATA = "clockintentdata";
+    
+    
+    public static final String CMP_HOST_IP = "54.199.198.94";
+    public static final int CMP_HOST_PORT = 2310;
     
     // 布偶的藍牙裝置名稱
     static final String DEFAULT_DEVICE_ID = "module_01";

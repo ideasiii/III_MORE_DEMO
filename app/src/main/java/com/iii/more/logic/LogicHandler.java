@@ -112,6 +112,7 @@ public class LogicHandler extends BaseHandler
                     setIsPlayingStory(true);
                     break;
                 case WebMediaPlayerParameters.STOP_PLAY:
+                    setIsPlayingStory(false);
                     break;
                 
                 case WebMediaPlayerParameters.PAUSE_PLAY:
@@ -195,8 +196,6 @@ public class LogicHandler extends BaseHandler
                         @Override
                         public void run()
                         {
-                            // ### resume story stream
-                            setIsPlayingStory(true);
                             
                             // ###callback MainActivity display streaming
                             if (null != mCacheStory)
