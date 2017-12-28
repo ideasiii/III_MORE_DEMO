@@ -148,7 +148,6 @@ public class CReader
 		mCallback = cb;
 	}
 
-	//C SDK callback function
 	@SuppressWarnings("unused")
 	private int runCallbackMethod(int nCallBackType, int lpVoid, byte[] wavBuf, int nSize)
 	{
@@ -256,15 +255,15 @@ public class CReader
 	public static native int GetVersionInfo(String sLicensePath,CReaderVersionInfo oCReaderVersionInfo);
 
 	/**Get support LangID.
-     * @return              Support Language numbers.*/
+     * @return              String of version.*/
 	public static native int GetAvailableLangID(String sDataPath, int[] nArrayLangID, int[] nArrayErr);
 
 	/**Get support Speaker number.
-     * @return              Support speaker numbers.*/
+     * @return              String of version.*/
 	public static native int GetAvailableSpeakerNum(String sDataPath, int nLangID, int[] nArrayErr);
 
 	/**Get support Speaker name.
-     * @return              Speaker name size.*/
+     * @return              String of version.*/
 	public static native int GetAvailableSpeaker(String sLibPath, String sDataPath, int nLangID, int nSpeaker, byte[] szSpeaker, int[] nArrayErr);
 
 	/*static

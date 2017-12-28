@@ -56,6 +56,7 @@ public class CReaderPlayer implements CReader.AudioCallback
 		public static final short LANG_PROTUGUESE_EU           	=27;
 		public static final short LANG_ENGLISH_AU              	=31;
 		public static final short LANG_SPANISH_EU             	=33;   //Spanish  (Europe)
+		public static final short LANG_CHINESE_MINNAN          	=34;
 		public static final short LANG_VIETNAMESE_VIE          	=35;
 		public static final short LANG_BAHASA_IDN              	=38;
 	}
@@ -66,10 +67,12 @@ public class CReaderPlayer implements CReader.AudioCallback
 	public static class VoiceNameConstant
 	{
 		public static final String TRADITIONAL_CHINESE_FEMALE_VOICE_NAME = "Ally_TW";
+		public static final String TRADITIONAL_CHINESE_KID_MALE_VOICE_NAME = "KidM_TW";
+		public static final String TRADITIONAL_CHINESE_KID_FEMALE_VOICE_NAME = "KidF_TW";
 		public static final String TRADITIONAL_CHINESE_MALE_VOICE_NAME = "Andy_TW";
 		public static final String SIMPLIFIED_CHINESE_FEMALE_VOICE_NAME = "Amber_CN";
 		public static final String CANTONESE_FEMALE_VOICE_NAME = "Alice_HK";
-		public static final String ENGLISH_US_FEMALE_VOICE_NAME = "Anita_USA";
+		public static final String ENGLISH_US_FEMALE_VOICE_NAME = "Anita_USA";//"Jacob_USA";
 		public static final String ENGLISH_UK_FEMALE_VOICE_NAME = "Anita_UK";
 		public static final String GERMAN_FEMALE_VOICE_NAME = "Gerda_DE";
 		public static final String FRENCH_FEMALE_VOICE_NAME = "Anna_FR";
@@ -94,6 +97,7 @@ public class CReaderPlayer implements CReader.AudioCallback
 		public static final String PORTUGUESE_EUROPE_FEMALE_VOICE_NAME = "Tatiana_PT";
 		public static final String SWEDISH_FEMALE_VOICE_NAME = "Katherine_SE";
 
+		public static final String MINNAN_FEMALE_VOICE_NAME = "Triss_NAN";
 		public static final String VIETNAMESE_FEMALE_VOICE_NAME = "Tierra_VN";
 		public static final String BAHASA_INDONESIA_FEMALE_VOICE_NAME = "Agatha_ID";
 	}
@@ -934,9 +938,9 @@ public class CReaderPlayer implements CReader.AudioCallback
 		int LangNum = 0;
 		int[] arrayRes = new int[1];
 		//put get Language Speaker here for testing
-		LangNum = CReader.GetAvailableLangID(mLibPath,null,arrayRes);
+		LangNum = CReader.GetAvailableLangID(mDataPath,null,arrayRes);
 		int langArrayID[] = new int[LangNum];
-		CReader.GetAvailableLangID(mLibPath,langArrayID,arrayRes);
+		CReader.GetAvailableLangID(mDataPath,langArrayID,arrayRes);
 
 		//debug
 		/*for(int i=0;i<LangNum;i++)

@@ -73,9 +73,9 @@ class CReaderAdapter
         mContext = context;
         mLocale = locale;
 
-        setPitch(1.0f);
-        setSpeechRate(1.0f);
-        setVolume(3f);
+        setPitch(100);
+        setSpeechRate(75);
+        setVolume(300);
     }
 
     public boolean isTrial()
@@ -175,6 +175,27 @@ class CReaderAdapter
         mPitchForGetter = pitch;
     }
 
+    public void setPitch(int pitch)
+    {
+        // CReader 的 pitch 範圍為 50~200，default 100
+        if (pitch > 200)
+        {
+            pitch = 200;
+        }
+        else if (pitch < 50)
+        {
+            pitch = 50;
+        }
+
+        if (mCReader != null)
+        {
+            mCReader.setPitch(pitch);
+        }
+
+        mPitch = pitch;
+        mPitchForGetter = -1;
+    }
+
     public void setSpeechRate(float speechRate)
     {
         // CReader 的 speed 範圍為 50~200，default 100
@@ -197,25 +218,44 @@ class CReaderAdapter
         mRateForGetter = speechRate;
     }
 
-    public void setVolume(float vol)
+    public void setSpeechRate(int speechRate)
     {
-        // CReader 的 volume 範圍為 0~500，default 100
-        int mappedVal = (int)(vol*100);
-        if (mappedVal > 500)
+        // CReader 的 speed 範圍為 50~200，default 100
+        if (speechRate > 200)
         {
-            mappedVal = 500;
+            speechRate = 200;
         }
-        else if (mappedVal < 0)
+        else if (speechRate < 50)
         {
-            mappedVal = 0;
+            speechRate = 50;
         }
 
         if (mCReader != null)
         {
-            mCReader.setVolume(mappedVal);
+            mCReader.setSpeed(speechRate);
         }
 
-        mVolume = mappedVal;
+        mRate = speechRate;
+        mRateForGetter = -1;
+    }
+
+    public void setVolume(int vol)
+    {
+        if (vol > 500)
+        {
+            vol = 500;
+        }
+        else if (vol < 0)
+        {
+            vol = 0;
+        }
+
+        if (mCReader != null)
+        {
+            mCReader.setVolume(vol);
+        }
+
+        mVolume = vol;
     }
 
     public void stop()
