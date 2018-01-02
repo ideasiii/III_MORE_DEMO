@@ -18,15 +18,34 @@ import sdk.ideas.common.Logs;
 public class FaceEmotionEventHandler
 {
     private Handler handlerScenarize = null;
+    JSONObject jsonRoot = null;
     
     public FaceEmotionEventHandler(Handler handler)
     {
         handlerScenarize = handler;
+        jsonRoot = new JSONObject();
+        try
+        {
+            jsonRoot.put("EMOTION_NAME", "ATTENTION");
+            jsonRoot.put("TTS_TEXT", "你很專心喔，，好棒");
+            jsonRoot.put("TTS_SPEED", "1.0");
+            jsonRoot.put("TTS_PITCH", "1.0");
+        }
+        catch (Exception e)
+        {
+            Logs.showTrace("Exception " + e.getMessage());
+        }
+        
     }
     
     public FaceEmotionEventListener getFaceEmotionEventListener()
     {
         return faceEmotionEventListener;
+    }
+    
+    public JSONObject getEmotion()
+    {
+        return jsonRoot;
     }
     
     private FaceEmotionEventListener faceEmotionEventListener = new FaceEmotionEventListener()
@@ -36,18 +55,28 @@ public class FaceEmotionEventHandler
         public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String,
             String> ttsEmotionData, HashMap<String, String> imageEmotionData, Object extendData)
         {
-            JSONObject jsonRoot = new JSONObject();
             try
             {
                 if (null != faceEmotionData)
                 {
                     jsonRoot.put("EMOTION_NAME", faceEmotionData.get("EMOTION_NAME"));
+                    jsonRoot.put("EMOTION_TIME", System.currentTimeMillis());
                     
                     if (null != ttsEmotionData)
                     {
                         jsonRoot.put("TTS_SPEED", ttsEmotionData.get("TTS_SPEED"));
                         jsonRoot.put("TTS_PITCH", ttsEmotionData.get("TTS_PITCH"));
                         jsonRoot.put("TTS_TEXT", ttsEmotionData.get("TTS_TEXT"));
+                    }
+                    else
+                    {
+                        if (0 == faceEmotionData.get("EMOTION_NAME").compareTo("ATTENTION"))
+                        {
+                            // 幹! 不會來點表情喔
+                            jsonRoot.put("TTS_TEXT", "你很專心喔，，好棒");
+                        }
+                        jsonRoot.put("TTS_SPEED", "1.0");
+                        jsonRoot.put("TTS_PITCH", "1.0");
                     }
                     
                     if (null != imageEmotionData)
@@ -68,7 +97,7 @@ public class FaceEmotionEventHandler
             Message message = new Message();
             message.what = SCEN.SENSOR_FACE_EMOTION;
             message.obj = jsonRoot.toString();
-           // handlerScenarize.sendMessage(message);
+            // handlerScenarize.sendMessage(message);
         }
         
         @Override

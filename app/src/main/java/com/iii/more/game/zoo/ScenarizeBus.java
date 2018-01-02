@@ -79,18 +79,32 @@ public class ScenarizeBus extends ScenarizeBase
             "請你幫忙讓大家都有座位坐。要把人放到位置上喔");
     
         setScenarize(scenarize,
-            SCEN.SCEN_INDEX_DROP_CUSTOM,
+        SCEN.SCEN_INDEX_DROP_CUSTOM,
+        SCEN.SCEN_INDEX_EMOTION_RESP,
+        NEXT_TRIGER.TTS_TEXT,
+        true,
+        false,
+        R.drawable.businside_right,
+        R.drawable.bus,
+        "businside_right.png",
+        ImageView.ScaleType.CENTER_INSIDE,
+        ImageView.ScaleType.CENTER_INSIDE,
+        FRONT.FACE,
+        "好棒！!!我們出發囉！");
+    
+        setScenarize(scenarize,
+            SCEN.SCEN_INDEX_EMOTION_RESP,
             SCEN.SCEN_INDEX_BUS_DRIVE,
             NEXT_TRIGER.TTS_TEXT,
             true,
             false,
-            R.drawable.businside_right,
+            R.drawable.noeye,
             R.drawable.bus,
-            "businside_right.png",
-            ImageView.ScaleType.CENTER_INSIDE,
+            "noeye.png",
+            ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
-            "好棒！!!我們出發囉！");
+            "");
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_BUS_DRIVE,

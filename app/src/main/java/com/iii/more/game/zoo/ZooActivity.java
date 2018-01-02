@@ -80,7 +80,8 @@ public class ZooActivity extends Activity
             public void onDropped(View view, int nX, int nY)
             {
                 GLOBAL.mnDroppedX = nX;
-                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_DROP_CUSTOM);
+                // handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_DROP_CUSTOM);
+                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_EMOTION_RESP);
                 Logs.showTrace("onDropped view: " + view.getTag() + "x: " + String.valueOf(GLOBAL
                     .mnDroppedX));
             }
@@ -409,7 +410,6 @@ public class ZooActivity extends Activity
             if (SCEN.SCEN_INDEX_ZOO_DOOR == nIndex)
             {
                 robotHead.removeView(carFixLayout);
-                //  robotHead.removeView(trafficListLayout);
             }
             
             if (SCEN.SCEN_INDEX_MRT_MAP == nIndex)
@@ -421,6 +421,24 @@ public class ZooActivity extends Activity
             {
                 robotHead.removeView(imgvFoodEat);
             }
+            
+            if (SCEN.SCEN_INDEX_EMOTION_RESP == nIndex)
+            {
+                JSONObject jsonEmotion = faceEmotionEventHandler.getEmotion();
+                Logs.showTrace("[ZooActivity] emotion response: " + jsonEmotion.toString());
+                if (!jsonEmotion.isNull("EMOTION_NAME"))
+                {
+                    try
+                    {
+                        strTTS = (String) jsonEmotion.get("TTS_TEXT");
+                    }
+                    catch (Exception e)
+                    {
+                        Logs.showError("Exception: " + e.getMessage());
+                    }
+                }
+            }
+            
             application.setTTSPitch(1.0f, 1.0f);
             application.playTTS(strTTS, String.valueOf(nIndex));
             
@@ -433,8 +451,6 @@ public class ZooActivity extends Activity
         {
             Logs.showError("[ZooActivity] Scenarize Exception:" + e.toString());
         }
-        
-        
     }
     
     @SuppressLint("HandlerLeak")
