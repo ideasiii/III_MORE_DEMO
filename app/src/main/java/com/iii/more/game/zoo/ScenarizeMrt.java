@@ -52,7 +52,7 @@ public class ScenarizeMrt extends ScenarizeBase
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_MRT_MAP,
-            SCEN.SCEN_INDEX_NO_ACTION,
+            SCEN.SCEN_INDEX_EMOTION_RESP,
             NEXT_TRIGER.UI_TOUCH_UP,
             true,
             false,
@@ -63,5 +63,19 @@ public class ScenarizeMrt extends ScenarizeBase
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
             GLOBAL.ChildName + "請你幫忙畫出坐車的路線圖");
+    
+        setScenarize(scenarize,
+            SCEN.SCEN_INDEX_EMOTION_RESP,
+            SCEN.SCEN_INDEX_CHOICE_ZOO,
+            NEXT_TRIGER.TTS_TEXT,
+            true,
+            false,
+            R.drawable.noeye,
+            R.drawable.bus,
+            "noeye.png",
+            ImageView.ScaleType.CENTER_CROP,
+            ImageView.ScaleType.CENTER_INSIDE,
+            FRONT.FACE,
+            "");
     }
 }

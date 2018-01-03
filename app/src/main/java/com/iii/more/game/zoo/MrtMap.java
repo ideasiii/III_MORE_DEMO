@@ -95,7 +95,7 @@ public class MrtMap extends RelativeLayout
                     if (ZOO_X <= nX && ZOO_Y <= nY)
                     {
                         Logs.showTrace("[MrtMap] onTouch ZOO OK");
-                        handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_CHOICE_ZOO);
+                        handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_EMOTION_RESP);
                     }
                     else
                     {
