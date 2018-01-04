@@ -60,8 +60,8 @@ public class MainApplication extends Application
     private CockpitListenerBridge mCockpitListenerBridge = new CockpitListenerBridge(this);
 
     private TextToSpeechHandler mGoogleTtsHandler = new TextToSpeechHandler(this);
-    private CReaderAdapter mCyberonTtsAdapter_KidFemale = new CReaderAdapter(this); // 賽微 TTS: 女性
-    private CReaderAdapter mCyberonTtsAdapter_KidMale = new CReaderAdapter(this); // 賽微 TTS: 男性
+    private CReaderAdapter mCyberonTtsAdapter_KidFemale; // 賽微 TTS: 女性
+    private CReaderAdapter mCyberonTtsAdapter_KidMale; // 賽微 TTS: 男性
 
     private TTSEventListenerBridge mTTSEventListenerBridge = new TTSEventListenerBridge(this);
     // 目前正在使用的 TTS 語音的編號
