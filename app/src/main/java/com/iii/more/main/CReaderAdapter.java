@@ -1,7 +1,6 @@
 package com.iii.more.main;
 
 import android.content.Context;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
@@ -38,6 +37,7 @@ class CReaderAdapter
     private Context mContext;
     private CReaderPlayer mCReader;
     private Handler mHandler;
+    private String mDataDir;
 
     private Locale mLocale = Locale.TAIWAN;
     private String mVoiceName = CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_FEMALE_VOICE_NAME;
@@ -63,15 +63,16 @@ class CReaderAdapter
     // 是否已完成初始化
     private boolean mDoneInitialization = false;
 
-    CReaderAdapter(Context context)
+    CReaderAdapter(Context context, String dataDir)
     {
-        this(context, Locale.TAIWAN);
+        this(context, dataDir, Locale.TAIWAN);
     }
 
-    CReaderAdapter(Context context, Locale locale)
+    CReaderAdapter(Context context, String dataDir, Locale locale)
     {
         mContext = context;
         mLocale = locale;
+        mDataDir = dataDir;
 
         setPitch(100);
         setSpeechRate(100);
@@ -301,16 +302,15 @@ class CReaderAdapter
             mPostponedChangingLocale = null;
         }
 
-        String strDataPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/cyberon/CReader";
         short langId = langIdLocaleMap.get(mLocale.toLanguageTag());
         String strLibPath = com.cyberon.utility.ToolKit.getNativeLibPath(mContext);
 
         Log.d(LOG_TAG, "init() strLibPath=" + strLibPath);
-        Log.d(LOG_TAG, "init() strDataPath=" + strDataPath);
+        Log.d(LOG_TAG, "init() strDataPath=" + mDataDir);
 
         mCReader = new CReaderPlayer();
         HashMap<String, String> message = new HashMap<>();
-        int nRes = mCReader.init(mContext, langId, strLibPath, strDataPath, mVoiceName);
+        int nRes = mCReader.init(mContext, langId, strLibPath, mDataDir, mVoiceName);
         if (nRes != CReaderPlayer.ErrorCodeConstant.CREADER_RET_OK)
         {
             Log.d(LOG_TAG, "init() init fail");

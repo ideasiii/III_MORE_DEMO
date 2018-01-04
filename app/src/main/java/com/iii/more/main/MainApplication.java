@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -94,8 +95,8 @@ public class MainApplication extends Application
 
     /**
      * An alias of (MainApplication)context.getApplicationContext()
-     * @param context Context to get MainApplication object
-     * @return An MainApplication instance
+     * @param context Context having access to getApplicationContext()
+     * @return MainApplication instance
      */
     public static MainApplication getApp(Context context)
     {
@@ -202,6 +203,23 @@ public class MainApplication extends Application
     {
         mGoogleTtsHandler.setHandler(mSelfHandler);
         mGoogleTtsHandler.init();
+
+        String cReaderDataDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/cyberon/CReader";
+
+        mCyberonTtsAdapter_KidFemale = new CReaderAdapter(this, cReaderDataDir);
+        mCyberonTtsAdapter_KidFemale.setHandler(mSelfHandler);
+        mCyberonTtsAdapter_KidFemale.setVoiceName(
+            CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_FEMALE_VOICE_NAME);
+        mCyberonTtsAdapter_KidFemale.setSpeechRate(85);
+        mCyberonTtsAdapter_KidFemale.init();
+
+        mCyberonTtsAdapter_KidMale = new CReaderAdapter(this, cReaderDataDir);
+        mCyberonTtsAdapter_KidMale.setHandler(mSelfHandler);
+        mCyberonTtsAdapter_KidMale.setVoiceName(
+            CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_MALE_VOICE_NAME);
+        mCyberonTtsAdapter_KidMale.setPitch(85);
+        mCyberonTtsAdapter_KidFemale.setSpeechRate(85);
+        mCyberonTtsAdapter_KidMale.init();
 
         mCyberonTtsAdapter_KidFemale.setHandler(mSelfHandler);
         mCyberonTtsAdapter_KidFemale.setVoiceName(

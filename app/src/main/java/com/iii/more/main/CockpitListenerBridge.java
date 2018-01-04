@@ -143,9 +143,9 @@ class CockpitListenerBridge
         switch (msg.arg2)
         {
             case InterruptLogicParameters.METHOD_LOGIC_RESPONSE:
-                // 非同步的 event 沒辦法知道這是哪個 CockpitService 的輸入所導出的分析結果
+                // 非同步的 event 沒辦法知道這是哪個子 CockpitService 的輸入所導出的分析結果
                 HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-                delegateInterruptLogicResponse(null, message);
+                delegateInterruptLogicResponse(CockpitService.class, message);
                 break;
             default:
                 Logs.showTrace("handleInterruptLogicMessage() unknown msg.arg2: " + msg.arg2);
@@ -337,7 +337,7 @@ class CockpitListenerBridge
                 return InternetCockpitService.class;
         }
 
-        return null;
+        return CockpitService.class;
     }
 
     /** 播放 RFID 偵測事件音效 */
