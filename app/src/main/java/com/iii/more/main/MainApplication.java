@@ -60,8 +60,8 @@ public class MainApplication extends Application
     private CockpitListenerBridge mCockpitListenerBridge = new CockpitListenerBridge(this);
 
     private TextToSpeechHandler mGoogleTtsHandler = new TextToSpeechHandler(this);
-    private CReaderAdapter mCyberonTtsAdapter_KidFemale; // 賽微 TTS: 女性
-    private CReaderAdapter mCyberonTtsAdapter_KidMale; // 賽微 TTS: 男性
+    private CReaderAdapter mCyberonTtsAdapter_KidMale; // 賽微 TTS: 女性
+    private CReaderAdapter mCyberonTtsAdapter_KidFemale; // 賽微 TTS: 男性
 
     private TTSEventListenerBridge mTTSEventListenerBridge = new TTSEventListenerBridge(this);
     // 目前正在使用的 TTS 語音的編號
@@ -204,35 +204,32 @@ public class MainApplication extends Application
         mGoogleTtsHandler.setHandler(mSelfHandler);
         mGoogleTtsHandler.init();
 
-        String cReaderDataDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/cyberon/CReader";
+        final MainApplication self = getApp(this);
+        final String cReaderDataRoot = getFilesDir().getAbsolutePath() + "/cyberon/CReader";
 
-        mCyberonTtsAdapter_KidFemale = new CReaderAdapter(this, cReaderDataDir);
-        mCyberonTtsAdapter_KidFemale.setHandler(mSelfHandler);
-        mCyberonTtsAdapter_KidFemale.setVoiceName(
-            CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_FEMALE_VOICE_NAME);
-        mCyberonTtsAdapter_KidFemale.setSpeechRate(85);
-        mCyberonTtsAdapter_KidFemale.init();
+        new Thread()
+        {
+            @Override
+            public void run()
+            {
+                CyberonAssetsExtractor.extract(getAssets(), getFilesDir().getAbsolutePath());
 
-        mCyberonTtsAdapter_KidMale = new CReaderAdapter(this, cReaderDataDir);
-        mCyberonTtsAdapter_KidMale.setHandler(mSelfHandler);
-        mCyberonTtsAdapter_KidMale.setVoiceName(
-            CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_MALE_VOICE_NAME);
-        mCyberonTtsAdapter_KidMale.setPitch(85);
-        mCyberonTtsAdapter_KidFemale.setSpeechRate(85);
-        mCyberonTtsAdapter_KidMale.init();
+                mCyberonTtsAdapter_KidMale = new CReaderAdapter(self, cReaderDataRoot);
+                mCyberonTtsAdapter_KidMale.setHandler(mSelfHandler);
+                mCyberonTtsAdapter_KidMale.setVoiceName(
+                    CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_FEMALE_VOICE_NAME);
+                mCyberonTtsAdapter_KidMale.setSpeechRate(85);
+                mCyberonTtsAdapter_KidMale.init();
 
-        mCyberonTtsAdapter_KidFemale.setHandler(mSelfHandler);
-        mCyberonTtsAdapter_KidFemale.setVoiceName(
-            CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_FEMALE_VOICE_NAME);
-        mCyberonTtsAdapter_KidFemale.setSpeechRate(85);
-        mCyberonTtsAdapter_KidFemale.init();
-
-        mCyberonTtsAdapter_KidMale.setHandler(mSelfHandler);
-        mCyberonTtsAdapter_KidMale.setVoiceName(
-            CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_MALE_VOICE_NAME);
-        mCyberonTtsAdapter_KidMale.setPitch(85);
-        mCyberonTtsAdapter_KidFemale.setSpeechRate(85);
-        mCyberonTtsAdapter_KidMale.init();
+                mCyberonTtsAdapter_KidFemale = new CReaderAdapter(self, cReaderDataRoot);
+                mCyberonTtsAdapter_KidFemale.setHandler(mSelfHandler);
+                mCyberonTtsAdapter_KidFemale.setVoiceName(
+                    CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_MALE_VOICE_NAME);
+                mCyberonTtsAdapter_KidFemale.setPitch(85);
+                mCyberonTtsAdapter_KidMale.setSpeechRate(85);
+                mCyberonTtsAdapter_KidFemale.init();
+            }
+        }.start();
     }
 
     /**
@@ -335,8 +332,8 @@ public class MainApplication extends Application
     public void stopTTS()
     {
         mGoogleTtsHandler.stop();
-        mCyberonTtsAdapter_KidFemale.stop();
         mCyberonTtsAdapter_KidMale.stop();
+        mCyberonTtsAdapter_KidFemale.stop();
     }
 
     public void replaySoundEffect(final int resId)
@@ -395,7 +392,7 @@ public class MainApplication extends Application
                 switch (action)
                 {
                     case "switchTtsEngine":
-                        mCurrentUsingTts = (byte)((mCurrentUsingTts+1) % 3 + 1);
+                        mCurrentUsingTts = (byte)((mCurrentUsingTts % 3) + 1);
                         Logs.showTrace("switchTtsEngine, mCurrentUsingTts = `" + mCurrentUsingTts);
                         break;
                     default:
@@ -415,7 +412,7 @@ public class MainApplication extends Application
      */
     private void initFaceEmotionInterrupt()
     {
-        String interruptEmotionBehaviorDataArrayInput = "";
+        String interruptEmotionBehaviorDataArrayInput;
         try
         {
             SharedPreferences prefs = getDefaultSharedPreferences(getApplicationContext());
