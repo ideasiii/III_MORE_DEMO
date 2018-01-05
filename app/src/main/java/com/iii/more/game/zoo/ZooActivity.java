@@ -1,3 +1,8 @@
+/**
+ * 圖檔連結
+ * https://docs.google.com/document/d/10m8E-TKE4rBdH_fNxfXXoUVe6wg6WdDRrrvTX2BbfDQ/edit
+ */
+
 package com.iii.more.game.zoo;
 
 
@@ -89,7 +94,7 @@ public class ZooActivity extends Activity
         application = (MainApplication) getApplication();
         
         ttsEventHandler = new TTSEventHandler(handlerScenarize);
-        faceEmotionEventHandler = new FaceEmotionEventHandler(handlerScenarize);
+        faceEmotionEventHandler = new FaceEmotionEventHandler(this, handlerScenarize);
         
         scenarizeHandler = new ScenarizeHandler(handlerScenarize);
         
@@ -100,8 +105,8 @@ public class ZooActivity extends Activity
         // 註冊TTS Listener
         application.setTTSEventListener(ttsEventHandler.getTTSEventListener());
         // 註冊FaceEmotionEventListener
-        application.setFaceEmotionEventListener(faceEmotionEventHandler
-            .getFaceEmotionEventListener());
+        // application.setFaceEmotionEventListener(faceEmotionEventHandler
+        // .getFaceEmotionEventListener());
         
         robotHead.setObjectImg(R.drawable.busy, ImageView.ScaleType.CENTER_INSIDE);
         robotHead.showObjectImg(true);
@@ -254,6 +259,15 @@ public class ZooActivity extends Activity
                 jsonScenarize.get("object_scale_type"));
             strFaceImg = jsonScenarize.getString("face_image");
             robotHead.bringObjImgtoFront();
+            if ((boolean) jsonScenarize.get("emotion"))
+            {
+                application.setFaceEmotionEventListener(faceEmotionEventHandler
+                    .getFaceEmotionEventListener());
+            }
+            else
+            {
+                application.setFaceEmotionEventListener(null);
+            }
 //            ScenarizeHandler.FRONT front = (ScenarizeHandler.FRONT) jsonScenarize.get("front");
 //            switch (front)
 //            {
@@ -422,7 +436,8 @@ public class ZooActivity extends Activity
                 robotHead.removeView(imgvFoodEat);
             }
             
-            if (SCEN.SCEN_INDEX_EMOTION_RESP == nIndex)
+            if (SCEN.SCEN_INDEX_BUS_EMOTION_RESP == nIndex || SCEN.SCEN_INDEX_MRT_EMOTION_RESP ==
+                nIndex || SCEN.SCEN_INDEX_CAR_EMOTION_RESP == nIndex)
             {
                 JSONObject jsonEmotion = faceEmotionEventHandler.getEmotion();
                 Logs.showTrace("[ZooActivity] emotion response: " + jsonEmotion.toString());
@@ -431,6 +446,8 @@ public class ZooActivity extends Activity
                     try
                     {
                         strTTS = (String) jsonEmotion.get("TTS_TEXT");
+                        robotHead.setFace((int) jsonEmotion.get("IMG_FILE_RES_ID"), ImageView
+                            .ScaleType.CENTER_CROP);
                     }
                     catch (Exception e)
                     {

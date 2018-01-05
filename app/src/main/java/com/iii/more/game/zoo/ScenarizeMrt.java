@@ -8,6 +8,8 @@ import com.iii.more.main.R;
 
 import org.json.JSONObject;
 
+import sdk.ideas.common.Logs;
+
 /**
  * Created by Jugo on 2017/12/14
  */
@@ -52,7 +54,7 @@ public class ScenarizeMrt extends ScenarizeBase
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_MRT_MAP,
-            SCEN.SCEN_INDEX_EMOTION_RESP,
+            SCEN.SCEN_INDEX_MRT_EMOTION_RESP,
             NEXT_TRIGER.UI_TOUCH_UP,
             true,
             false,
@@ -63,9 +65,17 @@ public class ScenarizeMrt extends ScenarizeBase
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
             GLOBAL.ChildName + "請你幫忙畫出坐車的路線圖");
+        try
+        {
+            getScenarize(SCEN.SCEN_INDEX_MRT_MAP).put("emotion", true);
+        }
+        catch(Exception e)
+        {
+            Logs.showError("[ScenarizeBus] Exception: " + e.getMessage());
+        }
     
         setScenarize(scenarize,
-            SCEN.SCEN_INDEX_EMOTION_RESP,
+            SCEN.SCEN_INDEX_MRT_EMOTION_RESP,
             SCEN.SCEN_INDEX_CHOICE_ZOO,
             NEXT_TRIGER.TTS_TEXT,
             true,

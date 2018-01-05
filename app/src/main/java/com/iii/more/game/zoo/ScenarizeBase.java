@@ -14,6 +14,7 @@ import sdk.ideas.common.Logs;
 
 public abstract class ScenarizeBase extends ScenarizeDefine
 {
+    private SparseArray<JSONObject> theScenarize = null;
     private Handler handlerScenarize = null;
     public static SensorEventHandler sensorEventHandler = null;
     
@@ -44,13 +45,19 @@ public abstract class ScenarizeBase extends ScenarizeDefine
                 ("face_show", face_show).put("object_show", object_show).put("face_id", face_id)
                 .put("object_id", object_id).put("face_image", face_image).put("face_scale_type",
                     scaleType).put("object_scale_type", scaleTypeObj).put("front", front).put
-                    ("tts_text", tts_text).put("next_triger", nextTriger));
+                    ("tts_text", tts_text).put("next_triger", nextTriger).put("emotion", false));
             
             sensorEventHandler.addSensorEvent(index, next, nextTriger);
+            theScenarize = scenarize;
         }
         catch (Exception e)
         {
             Logs.showError("[ScenarizeHandler] setScenarize Exception:" + e.getMessage());
         }
+    }
+    
+    protected JSONObject getScenarize(final int nIndex)
+    {
+        return theScenarize.get(nIndex);
     }
 }

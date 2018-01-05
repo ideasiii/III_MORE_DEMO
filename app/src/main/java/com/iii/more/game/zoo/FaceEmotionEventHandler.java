@@ -1,8 +1,10 @@
 package com.iii.more.game.zoo;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 
+import com.iii.more.game.module.Utility;
 import com.iii.more.main.listeners.FaceEmotionEventListener;
 
 import org.json.JSONObject;
@@ -17,17 +19,21 @@ import sdk.ideas.common.Logs;
 
 public class FaceEmotionEventHandler
 {
+    private Context theContext = null;
     private Handler handlerScenarize = null;
     JSONObject jsonRoot = null;
     
-    public FaceEmotionEventHandler(Handler handler)
+    public FaceEmotionEventHandler(Context context, Handler handler)
     {
+        theContext = context;
         handlerScenarize = handler;
         jsonRoot = new JSONObject();
         try
         {
+            jsonRoot.put("IMG_FILE_RES_ID", Utility.getResourceId(theContext, "octobo16",
+                "drawable"));
             jsonRoot.put("EMOTION_NAME", "ATTENTION");
-            jsonRoot.put("TTS_TEXT", "你很專心喔，，好棒");
+            jsonRoot.put("TTS_TEXT", "你很專心喔");
             jsonRoot.put("TTS_SPEED", "1.0");
             jsonRoot.put("TTS_PITCH", "1.0");
         }
@@ -50,6 +56,7 @@ public class FaceEmotionEventHandler
     
     private FaceEmotionEventListener faceEmotionEventListener = new FaceEmotionEventListener()
     {
+        String strImage = null;
         
         @Override
         public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String,
@@ -73,7 +80,7 @@ public class FaceEmotionEventHandler
                         if (0 == faceEmotionData.get("EMOTION_NAME").compareTo("ATTENTION"))
                         {
                             // 幹! 不會來點表情喔
-                            jsonRoot.put("TTS_TEXT", "你很專心喔，，好棒");
+                            jsonRoot.put("TTS_TEXT", "你很不專心喔");
                         }
                         jsonRoot.put("TTS_SPEED", "1.0");
                         jsonRoot.put("TTS_PITCH", "1.0");
@@ -82,6 +89,16 @@ public class FaceEmotionEventHandler
                     if (null != imageEmotionData)
                     {
                         jsonRoot.put("IMG_FILE_NAME", imageEmotionData.get("IMG_FILE_NAME"));
+//                        strImage = imageEmotionData.get("IMG_FILE_NAME").substring
+//                            (imageEmotionData.get("IMG_FILE_NAME").indexOf('-') + 1
+//                                , imageEmotionData.get("IMG_FILE_NAME").lastIndexOf('.'));
+                        strImage = "octobo" + imageEmotionData.get("IMG_FILE_NAME").substring
+                            (imageEmotionData.get("IMG_FILE_NAME").indexOf('-') + 1,
+                                imageEmotionData.get("IMG_FILE_NAME").lastIndexOf('.'));
+                        int nId = Utility.getResourceId(theContext, strImage, "drawable");
+                        Logs.showTrace("[ZooActivity] onFaceEmotionResult image: " + strImage +
+                            " resource id" + nId);
+                        jsonRoot.put("IMG_FILE_RES_ID", nId);
                     }
                     
                     Logs.showTrace("[ZooActivity] onFaceEmotionResult EMOTION_NAME:" + jsonRoot

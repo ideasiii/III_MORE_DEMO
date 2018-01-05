@@ -8,6 +8,8 @@ import com.iii.more.main.R;
 
 import org.json.JSONObject;
 
+import sdk.ideas.common.Logs;
+
 /**
  * Created by Jugo on 2017/12/14
  */
@@ -77,10 +79,18 @@ public class ScenarizeBus extends ScenarizeBase
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
             "請你幫忙讓大家都有座位坐。要把人放到位置上喔");
-    
+    try
+    {
+        getScenarize(SCEN.SCEN_INDEX_BUS_INSIDE).put("emotion", true);
+    }
+    catch(Exception e)
+    {
+        Logs.showError("[ScenarizeBus] Exception: " + e.getMessage());
+    }
+        
         setScenarize(scenarize,
         SCEN.SCEN_INDEX_DROP_CUSTOM,
-        SCEN.SCEN_INDEX_EMOTION_RESP,
+        SCEN.SCEN_INDEX_BUS_EMOTION_RESP,
         NEXT_TRIGER.TTS_TEXT,
         true,
         false,
@@ -93,7 +103,7 @@ public class ScenarizeBus extends ScenarizeBase
         "好棒！!!我們出發囉！");
     
         setScenarize(scenarize,
-            SCEN.SCEN_INDEX_EMOTION_RESP,
+            SCEN.SCEN_INDEX_BUS_EMOTION_RESP,
             SCEN.SCEN_INDEX_BUS_DRIVE,
             NEXT_TRIGER.TTS_TEXT,
             true,

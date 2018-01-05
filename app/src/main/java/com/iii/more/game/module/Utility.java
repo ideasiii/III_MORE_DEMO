@@ -59,4 +59,9 @@ public abstract class Utility
                 });
     }
     
+    public static int getResourceId(Context context, String name, String defType)
+    {
+        return context.getResources().getIdentifier(name, defType, context.getPackageName());
+    }
+    
 }

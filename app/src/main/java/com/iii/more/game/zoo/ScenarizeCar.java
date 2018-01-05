@@ -9,6 +9,8 @@ import org.json.JSONObject;
 
 import android.os.Handler;
 
+import sdk.ideas.common.Logs;
+
 /**
  * Created by Jugo on 2017/12/14
  */
@@ -80,8 +82,8 @@ public class ScenarizeCar extends ScenarizeBase
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_CAR_FIX,
-            SCEN.SCEN_INDEX_NO_ACTION,
-            NEXT_TRIGER.SLIDE_END,
+            SCEN.SCEN_INDEX_CAR_EMOTION_RESP,
+            NEXT_TRIGER.UI_DRAG_DROP,
             true,
             false,
             R.drawable.noeye,
@@ -91,7 +93,29 @@ public class ScenarizeCar extends ScenarizeBase
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
             "車子故障了，請幫忙修補輪胎");
+        try
+        {
+            getScenarize(SCEN.SCEN_INDEX_CAR_FIX).put("emotion", true);
+        }
+        catch(Exception e)
+        {
+            Logs.showError("[ScenarizeBus] Exception: " + e.getMessage());
+        }
     
+        setScenarize(scenarize,
+            SCEN.SCEN_INDEX_CAR_EMOTION_RESP,
+            SCEN.SCEN_INDEX_CAR_FIX_SUCCESS,
+            NEXT_TRIGER.TTS_TEXT,
+            true,
+            false,
+            R.drawable.noeye,
+            R.drawable.bus,
+            "noeye.png",
+            ImageView.ScaleType.CENTER_CROP,
+            ImageView.ScaleType.CENTER_INSIDE,
+            FRONT.FACE,
+            "");
+        
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_CAR_FIX_SUCCESS,
             SCEN.SCEN_INDEX_ZOO_DOOR,
