@@ -439,6 +439,7 @@ public class ZooActivity extends Activity
             if (SCEN.SCEN_INDEX_BUS_EMOTION_RESP == nIndex || SCEN.SCEN_INDEX_MRT_EMOTION_RESP ==
                 nIndex || SCEN.SCEN_INDEX_CAR_EMOTION_RESP == nIndex)
             {
+                robotHead.removeView(mrtMap);
                 JSONObject jsonEmotion = faceEmotionEventHandler.getEmotion();
                 Logs.showTrace("[ZooActivity] emotion response: " + jsonEmotion.toString());
                 if (!jsonEmotion.isNull("EMOTION_NAME"))

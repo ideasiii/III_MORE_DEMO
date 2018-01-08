@@ -87,14 +87,14 @@ class TTSEventHandler
                 case SCEN.SCEN_INDEX_TRAFFIC_CARD_MRT:
                 case SCEN.SCEN_INDEX_CAR_RUN:
                 case SCEN.SCEN_INDEX_CAR_FIX_SUCCESS:     // 太好了，車子修好了，謝謝你的幫忙
+                    handlerScenarize.sendEmptyMessage(nNext);
+                    break;
                 case SCEN.SCEN_INDEX_BUS_EMOTION_RESP:
                 case SCEN.SCEN_INDEX_MRT_EMOTION_RESP:
                 case SCEN.SCEN_INDEX_CAR_EMOTION_RESP:
-                    handlerScenarize.sendEmptyMessage(nNext);
-                    break;
                 case SCEN.SCEN_INDEX_FOOD_EAT:
                 case SCEN.SCEN_INDEX_GAME_OVER:
-                    handlerScenarize.sendEmptyMessageDelayed(nNext, 2000);
+                    handlerScenarize.sendEmptyMessageDelayed(nNext, 1000);
                     break;
             }
         }
