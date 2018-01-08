@@ -86,7 +86,7 @@ public class ZooActivity extends Activity
             {
                 GLOBAL.mnDroppedX = nX;
                 // handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_DROP_CUSTOM);
-                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_EMOTION_RESP);
+                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_BUS_EMOTION_RESP);
                 Logs.showTrace("onDropped view: " + view.getTag() + "x: " + String.valueOf(GLOBAL
                     .mnDroppedX));
             }
