@@ -19,13 +19,17 @@ class CReaderAdapter
 {
     static final int MSG_WHAT = 842143816;
 
+    /** 是否在 TTS speaking 快結束時送出 UTTERANCE_ALMOST_DONE 事件 */
+    private static final boolean EARLY_TRIGGER_DONE_EVENT = true;
+
     static class Event
     {
         static final int INIT_FAILED = 0;
         static final int INIT_OK = 1;
         static final int UTTERANCE_START = 2;
         static final int UTTERANCE_DONE = 3;
-        static final int UTTERANCE_STOP = 4;
+        static final int UTTERANCE_ALMOST_DONE = 4;
+        static final int UTTERANCE_STOP = 5;
     }
 
     private static final String LOG_TAG = "CReaderAdapter";
@@ -53,9 +57,9 @@ class CReaderAdapter
     private int mVolume;
 
     /** 為了讓計量單位與 Google TTS 相近所儲存的音調數值 */
-    private float mPitchForGetter;
+    //private float mPitchForGetter;
     /** 為了讓計量單位與 Google TTS 相近所儲存的語速數值 */
-    private float mRateForGetter;
+    //private float mRateForGetter;
 
     // 尚未成功處理的TTS要求，尚未說完的原因可能有：正在初始化引擎、正在切換語言、正在講...等
     private SpeakBundle mWorkingSpeaking;
@@ -154,7 +158,7 @@ class CReaderAdapter
         mVoiceName = name;
     }
 
-    public void setPitch(float pitch)
+    /*public void setPitch(float pitch)
     {
         // CReader 的 pitch 範圍為 50~200，default 100
         int mappedVal = (int)((pitch-0.5)*120)+70;
@@ -174,7 +178,7 @@ class CReaderAdapter
 
         mPitch = mappedVal;
         mPitchForGetter = pitch;
-    }
+    }*/
 
     public void setPitch(int pitch)
     {
@@ -194,10 +198,10 @@ class CReaderAdapter
         }
 
         mPitch = pitch;
-        mPitchForGetter = -1;
+        //mPitchForGetter = -1;
     }
 
-    public void setSpeechRate(float speechRate)
+    /*public void setSpeechRate(float speechRate)
     {
         // CReader 的 speed 範圍為 50~200，default 100
         int mappedVal = (int)((speechRate-0.5)*60)+70;
@@ -217,7 +221,7 @@ class CReaderAdapter
 
         mRate = mappedVal;
         mRateForGetter = speechRate;
-    }
+    }*/
 
     public void setSpeechRate(int speechRate)
     {
@@ -237,7 +241,7 @@ class CReaderAdapter
         }
 
         mRate = speechRate;
-        mRateForGetter = -1;
+        //mRateForGetter = -1;
     }
 
     public void setVolume(int vol)
@@ -368,11 +372,7 @@ class CReaderAdapter
             stop();
         }
 
-        mWorkingSpeaking = new SpeakBundle();
-        mWorkingSpeaking.text = text;
-        mWorkingSpeaking.utteranceId = utteranceId;
-        mWorkingSpeaking.pitch = mPitch;
-        mWorkingSpeaking.rate = mRate;
+        mWorkingSpeaking = new SpeakBundle(text, utteranceId, mPitch, mRate);
 
         if (mPostponedChangingLocale != null)
         {
@@ -402,6 +402,8 @@ class CReaderAdapter
 
     private ICReaderListener mCReaderListener = new ICReaderListener()
     {
+        private long speakTimeTrace = 0;
+
         public void onCReaderStatusChanged(int nStatus)
         {
             Log.d(LOG_TAG, "onCReaderStatusChanged() status="
@@ -432,6 +434,9 @@ class CReaderAdapter
             }
             else if(nStatus == CReaderPlayer.StatusConstant.CREADER_PLAY_END)
             {
+                Log.d(LOG_TAG, "spoken elapsed: " +  (System.currentTimeMillis()- speakTimeTrace));
+                this.speakTimeTrace = System.currentTimeMillis();
+
                 String text = "unknown???";
                 String utteranceId = "unknown???";
 
@@ -445,6 +450,12 @@ class CReaderAdapter
                 message.put("text", text);
                 message.put("utteranceId", utteranceId);
                 event = Event.UTTERANCE_DONE;
+
+                if (!mWorkingSpeaking.hasEarlyTriggeredDoneEvent)
+                {
+                    // precaution, if early trigger did not work
+                    mHandler.sendMessage(mHandler.obtainMessage(MSG_WHAT, Event.UTTERANCE_ALMOST_DONE, 0, message));
+                }
             }
             else
             {
@@ -461,7 +472,40 @@ class CReaderAdapter
 
         public void onCReaderPlayText(String text)
         {
-            //Log.d(LOG_TAG, "Text callback=" + text);
+            Log.d(LOG_TAG, "spoken elapsed: " +  (System.currentTimeMillis()- speakTimeTrace));
+            this.speakTimeTrace = System.currentTimeMillis();
+
+            if (mWorkingSpeaking == null || text == null)
+            {
+                return;
+            }
+
+            Log.d(LOG_TAG, "onCReaderPlayText() Text callback=" + text);
+
+            mWorkingSpeaking.textSpokenLengthWithoutPunctuation += text.length();
+            Log.d(LOG_TAG, "text.length = " + text.length()
+                + ", total spoken (w/o punctuation) = " + mWorkingSpeaking.textSpokenLengthWithoutPunctuation);
+
+            if (EARLY_TRIGGER_DONE_EVENT
+                && mWorkingSpeaking.textSpokenLengthWithoutPunctuation >= mWorkingSpeaking.textWithoutPunctuation.length())
+            {
+                Log.d(LOG_TAG, "about to finish TTS, trigger UTTERANCE_DONE event");
+
+                String fullText = mWorkingSpeaking.text;
+                String utteranceId = mWorkingSpeaking.utteranceId;
+                mWorkingSpeaking.hasEarlyTriggeredDoneEvent = true;
+
+                HashMap<String, String> message = new HashMap<>();
+                message.put("text", fullText);
+                message.put("utteranceId", utteranceId);
+                int event = Event.UTTERANCE_ALMOST_DONE;
+
+                if (mHandler != null)
+                {
+                    long delayMillis = 100;
+                    mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_WHAT, event, 0, message), delayMillis);
+                }
+            }
         }
 
         public void onCReaderSynthesizeData(byte[] lpData, int nType)
@@ -494,7 +538,8 @@ class CReaderAdapter
         }
     };
 
-    static {
+    static
+    {
         langIdLocaleMap = new HashMap<>();
 
         langIdLocaleMap.put("zh", CReaderPlayer.LangIdConstant.LANG_CHINESE_TRADITIONAL);
@@ -523,9 +568,25 @@ class CReaderAdapter
     private static class SpeakBundle
     {
         String text;
+        String textWithoutPunctuation;
         String utteranceId;
-        float pitch;
-        float rate;
-        byte retryCount = 0;
+        int textSpokenLengthWithoutPunctuation;
+        int pitch;
+        int rate;
+        byte retryCount;
+        boolean hasEarlyTriggeredDoneEvent;
+
+        private SpeakBundle(String text, String utteranceId, int pitch, int rate)
+        {
+            this.text = text;
+            this.utteranceId = utteranceId;
+            this.pitch = pitch;
+            this.rate = rate;
+
+            this.textWithoutPunctuation = Tools.removePunctuations(text).replaceAll("\\s+","");
+            this.textSpokenLengthWithoutPunctuation = 0;
+            this.retryCount = 0;
+            this.hasEarlyTriggeredDoneEvent = false;
+        }
     }
 }

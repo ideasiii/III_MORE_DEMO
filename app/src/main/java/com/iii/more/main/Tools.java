@@ -30,15 +30,15 @@ public abstract class Tools
             if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_STOPPED)
             {
                 available = false;
-                
+
             }
-            
+
             recorder.startRecording();
             if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING)
             {
                 recorder.stop();
                 available = false;
-                
+
             }
             recorder.stop();
         }
@@ -51,7 +51,7 @@ public abstract class Tools
             recorder.release();
             recorder = null;
         }
-        
+
         return available;
     }
 
@@ -81,6 +81,21 @@ public abstract class Tools
     public static String removeFileExtension(String file)
     {
         return file.substring(0, file.lastIndexOf('.'));
+    }
+
+    /**
+     * 移除 s 內的標點符號
+     * @param s 來源字串
+     * @return 移除標點符號後的新字串
+     */
+    public static String removePunctuations(String s)
+    {
+        if (s == null)
+        {
+            return null;
+        }
+
+        return s.replaceAll( "[\\p{P}+~$`^=|>～＋＾<￥｀＝＜＞＄×｜]" , "");
     }
 
     public static int getDrawableId(String name)

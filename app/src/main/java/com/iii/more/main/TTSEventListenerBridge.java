@@ -29,7 +29,7 @@ class TTSEventListenerBridge
     }
 
     /**
-     * 處理來自 TextToSpeechHandler 的事件
+     * 處理來自 TextToSpeechHandler (Google TTS wrapper) 的事件
      */
     void handleTTSMessage(Message msg)
     {
@@ -70,10 +70,15 @@ class TTSEventListenerBridge
     }
 
     /**
-     * 進一步處理來自 TextToSpeechHandler 的事件
+     * 進一步處理來自 TextToSpeechHandler (Google TTS wrapper) 的事件
      */
     private void analysisTTSResponse(HashMap<String, String> message)
     {
+        if (mTtsEventListener == null)
+        {
+            return;
+        }
+
         if (message.containsKey("TextID") && message.containsKey("TextStatus"))
         {
             String utteranceId = message.get("TextID");
@@ -82,30 +87,24 @@ class TTSEventListenerBridge
 
             if (textStatusDone)
             {
-                if (null != mTtsEventListener)
-                {
-                    mTtsEventListener.onUtteranceDone(utteranceId);
-                }
+                // Google TTS has no way to implement early trigger, so we can only
+                // fire two events simultaneously. Hope it won't crush the app
+                mTtsEventListener.onUtteranceAlmostDone(utteranceId);
+                mTtsEventListener.onUtteranceDone(utteranceId);
             }
             else if (textStatusStart)
             {
-                if (null != mTtsEventListener)
-                {
-                    mTtsEventListener.onUtteranceStart(utteranceId);
-                }
+                mTtsEventListener.onUtteranceStart(utteranceId);
             }
         }
         else if (message.get("message").equals("init success"))
         {
-            if (null != mTtsEventListener)
-            {
-                mTtsEventListener.onInitSuccess();
-            }
+            mTtsEventListener.onInitSuccess();
         }
     }
 
     /**
-     * 處理來自 CReaderAdapter 的事件
+     * 處理來自 CReaderAdapter (Cyberon TTS wrapper) 的事件
      */
     void handleCReaderMessage(Message msg)
     {
@@ -142,6 +141,13 @@ class TTSEventListenerBridge
                 {
                 }*/
                 break;
+            case CReaderAdapter.Event.UTTERANCE_ALMOST_DONE:
+                Logs.showTrace("handleCReaderMessage() UTTERANCE_ALMOST_DONE");
+                if (null != mTtsEventListener)
+                {
+                    HashMap<String, String> m = (HashMap<String, String>) msg.obj;
+                    mTtsEventListener.onUtteranceAlmostDone(m.get("utteranceId"));
+                }
             case CReaderAdapter.Event.UTTERANCE_DONE:
                 Logs.showTrace("handleCReaderMessage() UTTERANCE_DONE");
                 if (null != mTtsEventListener)

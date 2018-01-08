@@ -6,7 +6,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -65,7 +64,7 @@ public class MainApplication extends Application
 
     private TTSEventListenerBridge mTTSEventListenerBridge = new TTSEventListenerBridge(this);
     // 目前正在使用的 TTS 語音的編號
-    private byte mCurrentUsingTts = 1;
+    private byte mCurrentUsingTts = CURRENT_USING_TTS_CYBERON_KID_FEMALE;
 
     private FaceEmotionEventListener mFaceEmotionEventListener = null;
     private FaceEmotionInterruptHandler mFaceEmotionInterruptHandler = new FaceEmotionInterruptHandler(this);
@@ -217,16 +216,18 @@ public class MainApplication extends Application
                 mCyberonTtsAdapter_KidMale = new CReaderAdapter(self, cReaderDataRoot);
                 mCyberonTtsAdapter_KidMale.setHandler(mSelfHandler);
                 mCyberonTtsAdapter_KidMale.setVoiceName(
-                    CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_FEMALE_VOICE_NAME);
+                    CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_MALE_VOICE_NAME);
                 mCyberonTtsAdapter_KidMale.setSpeechRate(85);
+                mCyberonTtsAdapter_KidMale.setVolume(500);
                 mCyberonTtsAdapter_KidMale.init();
 
                 mCyberonTtsAdapter_KidFemale = new CReaderAdapter(self, cReaderDataRoot);
                 mCyberonTtsAdapter_KidFemale.setHandler(mSelfHandler);
                 mCyberonTtsAdapter_KidFemale.setVoiceName(
-                    CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_MALE_VOICE_NAME);
-                mCyberonTtsAdapter_KidFemale.setPitch(85);
-                mCyberonTtsAdapter_KidMale.setSpeechRate(85);
+                    CReaderPlayer.VoiceNameConstant.TRADITIONAL_CHINESE_KID_FEMALE_VOICE_NAME);
+                mCyberonTtsAdapter_KidFemale.setPitch(75);
+                mCyberonTtsAdapter_KidFemale.setSpeechRate(80);
+                mCyberonTtsAdapter_KidFemale.setVolume(500);
                 mCyberonTtsAdapter_KidFemale.init();
             }
         }.start();
@@ -237,6 +238,9 @@ public class MainApplication extends Application
      */
     public void setTTSPitch(float pitch, float rate)
     {
+        int cyberonMappedPitch = (int)((pitch-0.5)*120)+70;
+        int cyberonMappedSpeed = (int)((rate-0.5)*60)+70;
+
         switch (mCurrentUsingTts)
         {
             case CURRENT_USING_TTS_GOOGLE:
@@ -244,12 +248,12 @@ public class MainApplication extends Application
                 mGoogleTtsHandler.setSpeechRate(rate);
                 break;
             case CURRENT_USING_TTS_CYBERON_KID_FEMALE:
-                mCyberonTtsAdapter_KidFemale.setPitch(pitch);
-                mCyberonTtsAdapter_KidFemale.setSpeechRate(rate);
+                mCyberonTtsAdapter_KidFemale.setPitch(cyberonMappedPitch);
+                mCyberonTtsAdapter_KidFemale.setSpeechRate(cyberonMappedSpeed);
                 break;
             case CURRENT_USING_TTS_CYBERON_KID_MALE:
-                mCyberonTtsAdapter_KidMale.setPitch(pitch);
-                mCyberonTtsAdapter_KidMale.setSpeechRate(rate);
+                mCyberonTtsAdapter_KidMale.setPitch(cyberonMappedPitch);
+                mCyberonTtsAdapter_KidMale.setSpeechRate(cyberonMappedSpeed);
                 break;
             default:
                 Logs.showTrace("Unknown mCurrentUsingTts: " + mCurrentUsingTts);
@@ -393,7 +397,7 @@ public class MainApplication extends Application
                 {
                     case "switchTtsEngine":
                         mCurrentUsingTts = (byte)((mCurrentUsingTts % 3) + 1);
-                        Logs.showTrace("switchTtsEngine, mCurrentUsingTts = `" + mCurrentUsingTts);
+                        Logs.showTrace("switchTtsEngine, mCurrentUsingTts = " + mCurrentUsingTts);
                         break;
                     default:
                         Logs.showTrace("mCockpitListenerBridge " +
