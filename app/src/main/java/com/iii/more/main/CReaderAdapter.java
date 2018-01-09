@@ -83,6 +83,11 @@ class CReaderAdapter
         setVolume(300);
     }
 
+    public boolean hasInitialized()
+    {
+        return mDoneInitialization;
+    }
+
     public boolean isTrial()
     {
         if (mCReader != null)
@@ -455,7 +460,7 @@ class CReaderAdapter
                     // precaution, if early trigger did not work
                     mHandler.sendMessage(mHandler.obtainMessage(MSG_WHAT, Event.UTTERANCE_ALMOST_DONE, 0, message));
                 }
-    
+
                 mWorkingSpeaking = null;
             }
             else
@@ -487,6 +492,7 @@ class CReaderAdapter
             Log.d(LOG_TAG, "text.length = " + text.length()
                 + ", total spoken (w/o punctuation) = " + mWorkingSpeaking.textSpokenLengthWithoutPunctuation);
 
+            // TODO early event trigger is too early for 2 words, 3 words...
             if (EARLY_TRIGGER_DONE_EVENT
                 && mWorkingSpeaking.textSpokenLengthWithoutPunctuation >= mWorkingSpeaking.textWithoutPunctuation.length())
             {
@@ -503,6 +509,7 @@ class CReaderAdapter
 
                 if (mHandler != null)
                 {
+                    //long delayMillis = 130 * text.length();
                     long delayMillis = 100;
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_WHAT, event, 0, message), delayMillis);
                 }

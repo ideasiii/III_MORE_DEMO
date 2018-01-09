@@ -32,32 +32,40 @@ final class CyberonAssetsExtractor
     private static final String ZIP_VERSION_URL = HOST + "/edubot/cyberon-tts-data/" + ZIP_VERSION_FILENAME;
     private static final String ZIP_URL = HOST + "/edubot/cyberon-tts-data/" + ZIP_FILENAME;
 
-    static void extract(AssetManager assetManager, String dstDir)
+    /**
+     * retrive CReader data files
+     * @return whether newer data is extracted
+     */
+    static boolean extract(AssetManager assetManager, String dstDir)
     {
         // AssetManager.list() is taking too long!!!
         //copyAssetToDataDir(assetManager, "cyberon", dstDir);
 
         //copyAssetToDataDirHardCoded(assetManager, dstDir);
-        downloadDataIfNewer(dstDir);
+        return downloadDataIfNewer(dstDir);
     }
 
-    private static void downloadDataIfNewer(String dstDir)
+    private static boolean downloadDataIfNewer(String dstDir)
     {
         if (!needReDownloadData(dstDir))
         {
             Log.d(LOG_TAG, "zip is latest, skip download");
-            return;
+            return false;
         }
 
         Log.d(LOG_TAG, "zip is not latest, need refresh");
 
-        downloadDataFromServer(ZIP_URL, dstDir);
-
-        File f = new File(dstDir + "/" + TMP_ZIP_VERSION_FILENAME);
-        if (f.exists())
+        boolean dataDownload = downloadDataFromServer(ZIP_URL, dstDir);
+        if (dataDownload)
         {
-            f.renameTo(new File(dstDir + "/" + ZIP_VERSION_FILENAME));
+            File f = new File(dstDir + "/" + TMP_ZIP_VERSION_FILENAME);
+            if (f.exists())
+            {
+                f.renameTo(new File(dstDir + "/" + ZIP_VERSION_FILENAME));
+            }
         }
+
+        return dataDownload;
     }
 
     private static boolean needReDownloadData(String dstDir)
@@ -127,7 +135,13 @@ final class CyberonAssetsExtractor
         }
     }
 
-    private static void downloadDataFromServer(String urlStr, String dstDir)
+    /**
+     *
+     * @param urlStr
+     * @param dstDir
+     * @return whether data is download
+     */
+    private static boolean downloadDataFromServer(String urlStr, String dstDir)
     {
         URL url;
         try
@@ -137,12 +151,15 @@ final class CyberonAssetsExtractor
         catch (MalformedURLException e)
         {
             e.printStackTrace();
-            return;
+            return false;
         }
 
         try
         {
             URLConnection urlConnection = url.openConnection();
+            urlConnection.setConnectTimeout(2000);
+            urlConnection.setReadTimeout(2000);
+
             InputStream webIn = urlConnection.getInputStream();
             ZipInputStream zipIn = new ZipInputStream(webIn);
             ZipEntry zipEntry;
@@ -176,7 +193,10 @@ final class CyberonAssetsExtractor
         catch (IOException e)
         {
             e.printStackTrace();
+            return false;
         }
+
+        return true;
     }
 
     private static void copyAssetToDataDirHardCoded(AssetManager am, String dstDir)
