@@ -33,7 +33,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
+            FRONT.OBJECT,
             "到囉，，讓我們一起來參觀動物吧");
     
         setScenarize(scenarize,
@@ -47,7 +47,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
+            FRONT.OBJECT,
             "請選擇你要參觀的動物區");
     
         setScenarize(scenarize,
@@ -61,7 +61,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
+            FRONT.OBJECT,
             "歡迎參觀台灣動物區");
     
         setScenarize(scenarize,
@@ -75,7 +75,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
+            FRONT.OBJECT,
             "歡迎參觀鳥園");
     
         setScenarize(scenarize,
@@ -89,7 +89,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
+            FRONT.OBJECT,
             "歡迎參觀熱帶雨林動物區");
     
         setScenarize(scenarize,
@@ -103,7 +103,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
+            FRONT.OBJECT,
             "歡迎參觀可愛動物區");
     
         setScenarize(scenarize,
@@ -117,7 +117,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
+            FRONT.OBJECT,
             "歡迎參觀非洲動物區");
     }
 }

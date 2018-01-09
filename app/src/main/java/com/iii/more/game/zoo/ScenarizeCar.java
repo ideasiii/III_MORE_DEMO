@@ -63,7 +63,7 @@ public class ScenarizeCar extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
+            FRONT.OBJECT,
             "噗噗噗噗噗噗噗 你看窗外有好多交通工具");
     
         setScenarize(scenarize,
