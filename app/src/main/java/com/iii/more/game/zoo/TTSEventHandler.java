@@ -78,7 +78,6 @@ class TTSEventHandler
             
             switch (Integer.valueOf(utteranceId))
             {
-                
                 case SCEN.SCEN_INDEX_TRAFFIC_CARD_BUS:
                 case SCEN.SCEN_INDEX_DROP_CUSTOM:          // 好棒！!!我們出發囉！
                 case SCEN.SCEN_INDEX_BUS_DRIVE:            // 公車開始移動

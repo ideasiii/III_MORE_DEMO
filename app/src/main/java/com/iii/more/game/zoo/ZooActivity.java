@@ -208,6 +208,11 @@ public class ZooActivity extends Activity
     {
         Logs.showTrace("############################ Scenarize Index:" + nIndex +
             "############################");
+        if (SCEN.SCEN_INDEX_FINISH == nIndex)
+        {
+            finish();
+        }
+        
         String strTTS = "";
         String strFaceImg = "";
         
@@ -232,10 +237,6 @@ public class ZooActivity extends Activity
             }
         }
         
-        if (SCEN.SCEN_INDEX_FINISH == nIndex)
-        {
-            finish();
-        }
         
         if (GLOBAL.scenarize.indexOfKey(nIndex) < 0)
         {
@@ -464,6 +465,11 @@ public class ZooActivity extends Activity
             trackerHandler.setRobotFace(strFaceImg).setSensor("", "").setScene(String.valueOf
                 (GLOBAL.scenarizeCurr.ScenarizeIndex)).setMicrophone("").setSpeaker("tts",
                 strTTS, "1", "1", "").send();
+    
+            if (SCEN.SCEN_INDEX_GAME_OVER == nIndex)
+            {
+                finish();
+            }
         }
         catch (Exception e)
         {

@@ -14,6 +14,8 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
 
+import sdk.ideas.common.Logs;
+
 /**
  * Created by Jugo on 2017/12/9
  */

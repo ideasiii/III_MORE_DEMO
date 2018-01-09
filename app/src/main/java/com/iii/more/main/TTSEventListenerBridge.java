@@ -148,6 +148,7 @@ class TTSEventListenerBridge
                     HashMap<String, String> m = (HashMap<String, String>) msg.obj;
                     mTtsEventListener.onUtteranceAlmostDone(m.get("utteranceId"));
                 }
+                break;
             case CReaderAdapter.Event.UTTERANCE_DONE:
                 Logs.showTrace("handleCReaderMessage() UTTERANCE_DONE");
                 if (null != mTtsEventListener)
