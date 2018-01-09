@@ -87,8 +87,8 @@ public class MainApplication extends Application
         super.onCreate();
 
         initCockpit();
-        initInterruptLogic();
-        initFaceEmotionInterrupt();
+       // initInterruptLogic();
+       // initFaceEmotionInterrupt();
         initTTS();
     }
 
@@ -414,7 +414,7 @@ public class MainApplication extends Application
     /**
      * 初始化 FaceEmotionInterruptHandler 處理 face emotion 邏輯的部分
      */
-    private void initFaceEmotionInterrupt()
+    public void initFaceEmotionInterrupt()
     {
         String interruptEmotionBehaviorDataArrayInput;
         try
@@ -441,7 +441,7 @@ public class MainApplication extends Application
     /**
      * 初始化 InterruptLogicHandler 處理 sensor 邏輯的部分
      */
-    private void initInterruptLogic()
+    public void initInterruptLogic()
     {
         String interruptLogicBehaviorDataArrayInput;
 

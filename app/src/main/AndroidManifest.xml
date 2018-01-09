@@ -22,7 +22,7 @@
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true"/>
@@ -67,6 +67,17 @@
             android:noHistory="true"
             />
 
+        <receiver android:name="com.iii.more.boot.BootCompleteReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.iii.more.clock.receiver.ClockReceiver" >
+
+
+
+        </receiver>
         <activity
             android:name="com.iii.more.setting.SettingLv1Activity">
         </activity>

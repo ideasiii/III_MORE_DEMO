@@ -180,6 +180,12 @@ public class InitActivity extends AppCompatActivity
                     editor.putString(Parameters.TASK_COMPOSER_DATA, message.get("message"));
                     editor.apply();
                     
+                 
+                    
+                    
+                    //call function
+                    
+                    
                     mInitCheckBoardHandler.setDeviceServerState(InitCheckBoardParameters
                         .STATE_DEVICE_SERVER_INIT_SUCCESS);
                 }
@@ -191,6 +197,13 @@ public class InitActivity extends AppCompatActivity
                         .STATE_DEVICE_SERVER_INIT_SUCCESS);
                     
                 }
+    
+                //call function MainApplication to initFaceEmotionInterrupt and initInterruptLogic
+                MainApplication mApp = (MainApplication)getApplication();
+    
+                mApp.initInterruptLogic();
+                mApp.initFaceEmotionInterrupt();
+                
                 break;
         }
     }

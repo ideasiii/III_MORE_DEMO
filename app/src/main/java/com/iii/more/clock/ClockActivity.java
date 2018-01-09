@@ -1,13 +1,21 @@
 package com.iii.more.clock;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.iii.more.clock.logic.ClockLogicParameters;
+import com.iii.more.clock.setting.AlarmParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 import com.iii.more.main.R;
 
@@ -40,8 +48,8 @@ public class ClockActivity extends AppCompatActivity
     private ClockDisplayHandler mClockDisplayHandler = null;
     private ClockLogicHandler mClockLogicHandler = null;
     
-    private String clockParameters = "";
-    
+    private String mStoryName = "";
+    private int mAlarmType = -1;
     private Handler mHandler = new Handler()
     {
         @Override
@@ -57,9 +65,35 @@ public class ClockActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
-        clockParameters = intent.getExtras().getString(Parameters.CLOCK_INTENT_DATA, "");
-        if (clockParameters.isEmpty())
+        Logs.showTrace("[ClockActivity] onCreate");
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        
+        final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View
+            .SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        getWindow().getDecorView().setSystemUiVisibility(flags);
+        
+        final View decorView = getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
+        {
+            
+            @Override
+            public void onSystemUiVisibilityChange(int visibility)
+            {
+                if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
+                {
+                    decorView.setSystemUiVisibility(flags);
+                }
+            }
+        });
+        
+        Bundle bundle = getIntent().getBundleExtra(ClockParameters.KEY_BUNDLE_NAME);
+        mStoryName = bundle.getString(ClockParameters.KEY_PLAY_STREAM_NAME, "");
+        mAlarmType = bundle.getInt(ClockParameters.KEY_ALARM_TYPE);
+        if (mStoryName.isEmpty())
         {
             finish();
         }
@@ -67,16 +101,47 @@ public class ClockActivity extends AppCompatActivity
         {
             init();
         }
+        Logs.showTrace("[ClockActivity] mAlarmType: " + String.valueOf(mAlarmType));
+        if (mAlarmType == AlarmParameters.TYPE_BRUSH_TEETH)
+        {
+            mClockLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, ClockParameters
+                .STRING_ALARM_TEETH_DATA, "zh");
+        }
+        else if (mAlarmType == AlarmParameters.TYPE_BEFORE_SLEEP)
+        {
+            mClockLogicHandler.ttsService(TTSParameters.ID_SERVICE_TTS_BEGIN, ClockParameters
+                .STRING_ALARM_SLEEP_DATA, "zh");
+        }
         
+        
+    }
+    
+    @SuppressLint("NewApi")
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus)
+    {
+        super.onWindowFocusChanged(hasFocus);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View
+            .SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View
+            .SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View
+            .SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
     
     @Override
     protected void onStart()
     {
-        Logs.showTrace("[ClockActivity] onStart");
-        mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters.getWordID(),
-            SemanticWordCMPParameters.TYPE_REQUEST_STORY, clockParameters);
         super.onStart();
+        
+        Logs.showTrace("[ClockActivity] onStart");
+        
+        
+    }
+    
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        Logs.showTrace("[ClockActivity] onStop");
     }
     
     private void init()
@@ -87,11 +152,23 @@ public class ClockActivity extends AppCompatActivity
         mSemanticWordCMPHandler = new SemanticWordCMPHandler(this);
         mSemanticWordCMPHandler.setHandler(mHandler);
         
+        ImageView mImageView = findViewById(R.id.clock_image_view);
+        RelativeLayout mRelativeLayout = findViewById(R.id.clock_relative_layout);
+        
+        
+        HashMap<Integer, View> hashMapViews = new HashMap<>();
+        hashMapViews.put(DisplayParameters.RELATIVE_LAYOUT_ID, mRelativeLayout);
+        hashMapViews.put(DisplayParameters.IMAGE_VIEW_ID, mImageView);
+        
         mClockDisplayHandler = new ClockDisplayHandler(this);
+        mClockDisplayHandler.setDisplayView(hashMapViews);
+        mClockDisplayHandler.setHandler(mHandler);
         mClockDisplayHandler.init();
         
         mClockLogicHandler = new ClockLogicHandler(this);
-        
+        mClockLogicHandler.setHandler(mHandler);
+        mClockLogicHandler.init();
+        mClockLogicHandler.bindTTSListenersToMainApplication();
     }
     
     
@@ -128,14 +205,22 @@ public class ClockActivity extends AppCompatActivity
                     
                     break;
                 case ClockLogicParameters.METHOD_TTS:
-                    if (message.get("message").equals(TTSParameters.ID_SERVICE_UNKNOWN) || message.get
-                        ("message").equals(TTSParameters.ID_SERVICE_IO_EXCEPTION))
-                    {
-                        //something happened , and jump to MainActivity
-                        Logs.showError("[ClockActivity] something happened!");
-                        
-                    }
+                    
+                    // tts done
+                    mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters.getWordID(),
+                        SemanticWordCMPParameters.TYPE_REQUEST_STORY, mStoryName);
+                    
                     break;
+            }
+        }
+        else
+        {
+            if (message.get("message").equals(TTSParameters.ID_SERVICE_UNKNOWN) || message.get("message")
+                .equals(TTSParameters.ID_SERVICE_IO_EXCEPTION))
+            {
+                //something happened , and jump to MainActivity
+                Logs.showError("[ClockActivity] something happened!");
+                
             }
         }
         
@@ -235,6 +320,7 @@ public class ClockActivity extends AppCompatActivity
     @Override
     protected void onDestroy()
     {
+        Logs.showTrace("[ClockActivity] onDestroy");
         mClockLogicHandler.endAll();
         mClockDisplayHandler.killAll();
         super.onDestroy();

@@ -12,7 +12,9 @@
     <RelativeLayout
         android:id="@+id/clock_relative_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
 
         <ImageView
             android:id="@+id/clock_image_view"

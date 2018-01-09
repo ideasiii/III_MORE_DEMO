@@ -444,7 +444,6 @@ class CReaderAdapter
                 {
                     text = mWorkingSpeaking.text;
                     utteranceId = mWorkingSpeaking.utteranceId;
-                    mWorkingSpeaking = null;
                 }
 
                 message.put("text", text);
@@ -456,6 +455,8 @@ class CReaderAdapter
                     // precaution, if early trigger did not work
                     mHandler.sendMessage(mHandler.obtainMessage(MSG_WHAT, Event.UTTERANCE_ALMOST_DONE, 0, message));
                 }
+    
+                mWorkingSpeaking = null;
             }
             else
             {

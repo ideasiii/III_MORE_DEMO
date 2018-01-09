@@ -175,7 +175,7 @@ public class ClockLogicHandler extends BaseHandler
         }
     }
     
-    private void bindTTSListenersToMainApplication()
+    public void bindTTSListenersToMainApplication()
     {
         
         MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
@@ -214,15 +214,27 @@ public class ClockLogicHandler extends BaseHandler
         @Override
         public void onUtteranceDone(String utteranceId)
         {
+            Logs.showTrace("[ClockLogicHandler] onUtteranceDone");
             if (TTSParameters.ID_SERVICE_IO_EXCEPTION.equals(utteranceId) || TTSParameters
                 .ID_SERVICE_UNKNOWN.equals(utteranceId))
             {
-                Logs.showError("[ClockLogicHandler]get TTS ERROR,call back to clock activity!");
+                Logs.showError("[ClockLogicHandler] get TTS ERROR,call back to clock activity!");
+                // ### call back to activity
+                HashMap<String, String> message = new HashMap<>();
+                message.put("message", utteranceId);
+                callBackMessage(ResponseCode.ERR_IO_EXCEPTION, ClockLogicParameters.CLASS_CLOCK_LOGIC,
+                    ClockLogicParameters.METHOD_TTS, message);
+                
+            }
+            else if (utteranceId.equals(TTSParameters.ID_SERVICE_TTS_BEGIN))
+            {
+                Logs.showTrace("[ClockLogicHandler] onUtteranceDone: ID_SERVICE_TTS_BEGIN");
                 // ### call back to activity
                 HashMap<String, String> message = new HashMap<>();
                 message.put("message", utteranceId);
                 callBackMessage(ResponseCode.ERR_SUCCESS, ClockLogicParameters.CLASS_CLOCK_LOGIC,
                     ClockLogicParameters.METHOD_TTS, message);
+                
                 
             }
         }

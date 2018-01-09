@@ -14,18 +14,27 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <VideoView
-            android:id="@+id/oobe_video_view"
-            android:layout_width="600dp"
-            android:layout_height="600dp"
-            android:layout_alignTop="@+id/oobe_image_view"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="100dp"
-            android:focusable="false"
-            android:visibility="invisible">
+        <LinearLayout
+            android:layout_width="800dp"
+            android:layout_height="650dp"
+            android:layout_marginTop="120dp"
+            android:background="@android:color/black"
+            android:gravity="center"
+            android:orientation="horizontal"
+            >
+
+            <VideoView
+                android:id="@+id/oobe_video_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignTop="@+id/oobe_image_view"
+                android:layout_centerHorizontal="true"
+                android:focusable="false"
+                android:visibility="invisible">
 
 
-        </VideoView>
+            </VideoView>
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/oobe_image_view"
@@ -42,10 +51,6 @@
             android:scaleType="fitXY"
             android:src="@drawable/default_image"
             android:visibility="visible"/>
-
-
-
-
 
 
     </RelativeLayout>

@@ -30,7 +30,7 @@ public class OobeLogicHandler extends BaseHandler
     private WebMediaPlayerHandler mWebMediaPlayerHandler = null;
     private final InClassHandler mHandler = new InClassHandler(this);
     private int oobeState = 0;
-
+    
     public void setState(int state)
     {
         oobeState = state;
@@ -40,7 +40,7 @@ public class OobeLogicHandler extends BaseHandler
     {
         return oobeState;
     }
-
+    
     public OobeLogicHandler(Context context)
     {
         super(context);
@@ -54,7 +54,7 @@ public class OobeLogicHandler extends BaseHandler
         mWebMediaPlayerHandler = new WebMediaPlayerHandler(mContext);
         mWebMediaPlayerHandler.setHandler(mHandler);
     }
-
+    
     // this should be call in onResume() to override existing listeners in MainApplication
     public void bindListenersToMainApplication()
     {
@@ -124,11 +124,12 @@ public class OobeLogicHandler extends BaseHandler
             onError(OobeTTSParameters.ID_SERVICE_IO_EXCEPTION);
         }
     }
-
+    
     private void handleMessageVoiceRecognition(Message msg)
     {
         final HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        if (msg.arg1 == ResponseCode.ERR_SUCCESS && msg.arg2 == ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER)
+        if (msg.arg1 == ResponseCode.ERR_SUCCESS && msg.arg2 == ResponseCode
+            .METHOD_RETURN_TEXT_VOICE_RECOGNIZER)
         {
             mVoiceRecognitionHandler.stopListen();
             
@@ -139,7 +140,8 @@ public class OobeLogicHandler extends BaseHandler
                 //callback activity
                 HashMap<String, String> returnMessage = new HashMap<>();
                 returnMessage.put("message", message.get("message"));
-                callBackMessage(ResponseCode.ERR_SUCCESS, OobeLogicParameters.CLASS_OOBE_LOGIC, OobeLogicParameters.METHOD_VOICE, returnMessage);
+                callBackMessage(ResponseCode.ERR_SUCCESS, OobeLogicParameters.CLASS_OOBE_LOGIC,
+                    OobeLogicParameters.METHOD_VOICE, returnMessage);
             }
         }
         
@@ -159,7 +161,8 @@ public class OobeLogicHandler extends BaseHandler
                 // onError(OobeTTSParameters.ID_SERVICE_UNKNOWN);
                 HashMap<String, String> returnMessage = new HashMap<>();
                 returnMessage.put("message", message.get("message"));
-                callBackMessage(ResponseCode.ERR_SPEECH_ERRORMESSAGE, OobeLogicParameters.CLASS_OOBE_LOGIC, OobeLogicParameters.METHOD_VOICE, returnMessage);
+                callBackMessage(ResponseCode.ERR_SPEECH_ERRORMESSAGE, OobeLogicParameters.CLASS_OOBE_LOGIC,
+                    OobeLogicParameters.METHOD_VOICE, returnMessage);
             }
         }
         else if (msg.arg1 == ResponseCode.ERR_IO_EXCEPTION)
@@ -176,17 +179,19 @@ public class OobeLogicHandler extends BaseHandler
         switch (index)
         {
             case OobeTTSParameters.ID_SERVICE_IO_EXCEPTION:
-                ttsService(OobeTTSParameters.ID_SERVICE_IO_EXCEPTION, OobeTTSParameters.STRING_SERVICE_IO_EXCEPTION, "zh");
+                ttsService(OobeTTSParameters.ID_SERVICE_IO_EXCEPTION, OobeTTSParameters
+                    .STRING_SERVICE_IO_EXCEPTION, "zh");
                 break;
             default:
-                ttsService(OobeTTSParameters.ID_SERVICE_UNKNOWN, OobeTTSParameters.STRING_SERVICE_UNKNOWN, "zh");
+                ttsService(OobeTTSParameters.ID_SERVICE_UNKNOWN, OobeTTSParameters.STRING_SERVICE_UNKNOWN,
+                    "zh");
                 break;
         }
     }
     
     public void playStreaming(String serverURL, String streamFileName)
     {
-        mWebMediaPlayerHandler.setHostAndFilePathNotEncode(serverURL,streamFileName);
+        mWebMediaPlayerHandler.setHostAndFilePathNotEncode(serverURL, streamFileName);
         mWebMediaPlayerHandler.startPlayMediaStream();
     }
     
@@ -204,10 +209,10 @@ public class OobeLogicHandler extends BaseHandler
             default:
                 localeSet = Locale.TAIWAN;
         }
-
+        
         MainApplication mainApp = (MainApplication) mContext.getApplicationContext();
         mainApp.setTTSLanguage(localeSet);
-        mainApp.playTTS(textString, textID,1.0f,0.95f);
+        mainApp.playTTS(textString, textID, 1.0f, 0.95f);
     }
     
     public void killAll()
@@ -227,16 +232,16 @@ public class OobeLogicHandler extends BaseHandler
             mVoiceRecognitionHandler.stopListen();
         }
     }
-
+    
     private static class InClassHandler extends Handler
     {
         private final WeakReference<OobeLogicHandler> mWeakSelf;
-
+        
         InClassHandler(OobeLogicHandler h)
         {
             mWeakSelf = new WeakReference<>(h);
         }
-
+        
         @Override
         public void handleMessage(Message msg)
         {
@@ -247,7 +252,7 @@ public class OobeLogicHandler extends BaseHandler
             }
         }
     }
-
+    
     private TTSEventListener mTTSEventListener = new TTSEventListener()
     {
         @Override
@@ -255,24 +260,24 @@ public class OobeLogicHandler extends BaseHandler
         {
             Logs.showTrace("[OobeLogicHandler] TTS onInitSuccess() is not handled");
         }
-
+        
         @Override
         public void onInitFailed(int status, String message)
         {
             Logs.showError("TTS not init success");
         }
-
+        
         @Override
         public void onUtteranceStart(String utteranceId)
         {
             Logs.showTrace("[OobeLogicHandler] TTS onUtteranceStart()");
         }
-
+        
         @Override
-        public void onUtteranceDone(String utteranceId)
+        public void onUtteranceAlmostDone(String utteranceId)
         {
             Logs.showTrace("[OobeLogicHandler] TTS onUtteranceDone()");
-
+            
             switch (utteranceId)
             {
                 //callback to service something ERROR
@@ -281,10 +286,15 @@ public class OobeLogicHandler extends BaseHandler
                 default:
                     HashMap<String, String> message2 = new HashMap<>();
                     message2.put("TextID", utteranceId);
-
+                    
                     callBackMessage(ResponseCode.ERR_SUCCESS, OobeLogicParameters.CLASS_OOBE_LOGIC,
-                            OobeLogicParameters.METHOD_TTS, message2);
+                        OobeLogicParameters.METHOD_TTS, message2);
             }
+        }
+        
+        @Override
+        public void onUtteranceDone(String utteranceId)
+        {
         }
     };
 }

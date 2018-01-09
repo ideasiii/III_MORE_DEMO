@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.iii.more.ai.HttpAPIHandler;
 import com.iii.more.ai.HttpAPIParameters;
+import com.iii.more.clock.setting.AlarmHandler;
 import com.iii.more.dmp.device.DeviceDMPParameters;
 
 import com.iii.more.bluetooth.ble.ReadPenBLEHandler;
@@ -105,6 +106,9 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     
     //track user behavior
     private MainTracker mMainTracker = null;
+    
+    private AlarmHandler mAlarmHandler = null;
+    
     
     private Handler mHandler = new Handler()
     {
@@ -243,6 +247,10 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         ((MainApplication) getApplication()).setCockpitSensorEventListener(this);
         
         mMainTracker = new MainTracker(this);
+        
+        mAlarmHandler = new AlarmHandler(this);
+        mAlarmHandler.setHandler(mHandler);
+        mAlarmHandler.setAlarmData("");
     }
     
     
@@ -298,7 +306,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             case CMPParameters.CLASS_CMP_SEMANTIC_WORD:
                 handleMessageSWCMP(msg);
                 break;
-            
             case AlertDialogParameters.CLASS_ALERT_DIALOG:
                 handleMessageAlertDialog(msg);
                 break;
@@ -311,15 +318,12 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             case LogicParameters.CLASS_LOGIC:
                 handleMessageLogic(msg);
                 break;
-            
             case ReadPenBLEParameters.CLASS_ReadPenBLE:
                 handleMessageReadPenBLE(msg);
                 break;
-            
             case DisplayParameters.CLASS_DISPLAY:
                 handleMessageDisplay(msg);
                 break;
-            
             case HttpAPIParameters.CLASS_HTTP_API:
                 handleMessageHttpAPI(msg);
                 break;
@@ -510,7 +514,10 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         mainApplication.startFaceEmotion();
         
         mainApplication.setTTSPitch(1.0f, 1.0f);
-        
+    
+        //String alarmTestData = "";
+        //mAlarmHandler.setAlarmData(alarmTestData);
+        //mAlarmHandler.startAll();
     }
     
     private void handleMessageMenu(Message msg)
@@ -1004,13 +1011,13 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     public void onFaceDetectResult(boolean isDetectFace)
     {
         Logs.showTrace("[MainActivity] Face Detect: " + String.valueOf(isDetectFace));
-    
+        
         MainApplication app = MainApplication.getApp(this);
         if (isDetectFace)
         {
             app.replaySoundEffect(R.raw.dong);
         }
-         else
+        else
         {
             app.replaySoundEffect(R.raw.dongdong);
         }

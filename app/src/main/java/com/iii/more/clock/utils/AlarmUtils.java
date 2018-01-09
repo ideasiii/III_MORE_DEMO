@@ -1,4 +1,4 @@
-package com.iii.more.clock.setting;
+package com.iii.more.clock.utils;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -18,7 +18,8 @@ import sdk.ideas.common.Logs;
 
 /**
  * Created file by joe on 2017/12/26
- * reference code: https://stackoverflow.com/questions/4315611/android-get-all-pendingintents-set-with-alarmmanager/4316252#4316252
+ * reference code: https://stackoverflow.com/questions/4315611/android-get-all-pendingintents-set-with
+ * -alarmmanager/4316252#4316252
  * add new data
  */
 
@@ -27,7 +28,8 @@ public abstract class AlarmUtils
     
     private static final String sTagAlarms = ":alarms";
     
-    public static void addAlarm(Context context, Intent intent, int notificationId, Calendar calendar)
+    public static void addAlarm(Context context, Intent intent, int notificationId, Calendar calendar,
+        boolean isRepeat)
     {
         
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -38,9 +40,12 @@ public abstract class AlarmUtils
         {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                    pendingIntent);
-                
+                Logs.showTrace("[AlarmUtils] @@@!!! calendar.getTimeInMillis():" + String.valueOf(calendar
+                    .getTimeInMillis()));
+                //alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                //    pendingIntent);
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 60
+                    * 60 * 1000, pendingIntent);
             }
             else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
             {
@@ -50,6 +55,12 @@ public abstract class AlarmUtils
             {
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
             }
+            if (isRepeat)
+            {
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 7 * 24 * 60
+                    * 60 * 1000, pendingIntent);
+            }
+            
             saveAlarmId(context, notificationId);
         }
         else
@@ -59,15 +70,22 @@ public abstract class AlarmUtils
         
     }
     
-    public static void cancelAlarm(Context context, Intent intent, int notificationId)
+    private static void cancelAlarm(Context context, Intent intent, int notificationId)
     {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationId, intent,
+            PendingIntent.FLAG_CANCEL_CURRENT);
         if (null != alarmManager)
         {
-            alarmManager.cancel(pendingIntent);
-            pendingIntent.cancel();
-            removeAlarmId(context, notificationId);
+            Logs.showTrace("[AlarmUtils]##@@### has:" + String.valueOf(hasAlarm(context, intent,
+                notificationId)));
+            if (hasAlarm(context, intent, notificationId))
+            {
+                
+                alarmManager.cancel(pendingIntent);
+                pendingIntent.cancel();
+                removeAlarmId(context, notificationId);
+            }
         }
         else
         {

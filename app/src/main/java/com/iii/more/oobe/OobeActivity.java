@@ -189,8 +189,8 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                             {
                                 if (mOobeLogicHandler.getState() == 0)
                                 {
-                                    mMainApplication.setName(Parameters.ID_CHILD_NAME, message.get
-                                        ("message"));
+                                    mMainApplication.setName(Parameters.ID_CHILD_NAME,
+                                        replaceScriptNameText(message.get("message")));
                                 }
                                 else if (mOobeLogicHandler.getState() == 2)
                                 {
@@ -404,6 +404,18 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
             mOobeLogicHandler.setState(OobeLogicParameters.DEFAULT_STATE);
             doNext();
         }
+    }
+    
+    public String replaceScriptNameText(String nameText)
+    {
+        String newText = "";
+        if (!nameText.isEmpty())
+        {
+            newText = nameText.replace("我叫做", "");
+            newText = newText.replace("我是", "");
+            newText = newText.replace("我的名字是", "");
+        }
+        return newText;
     }
     
     public String replaceScriptText(String text)
