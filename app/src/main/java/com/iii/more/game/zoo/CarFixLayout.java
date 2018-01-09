@@ -100,7 +100,8 @@ public class CarFixLayout extends DragDropLayout
             {
                 if (0 == strTag.compareTo("wheel_circle"))
                 {
-                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_CAR_FIX_SUCCESS);
+                    //  handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_CAR_FIX_SUCCESS);
+                    handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_CAR_EMOTION_RESP);
                 }
                 
                 if (0 == strTag.compareTo("wheel_cube") || 0 == strTag.compareTo("wheel_triangle"))

@@ -441,6 +441,7 @@ public class ZooActivity extends Activity
                 nIndex || SCEN.SCEN_INDEX_CAR_EMOTION_RESP == nIndex)
             {
                 robotHead.removeView(mrtMap);
+                robotHead.removeView(carFixLayout);
                 JSONObject jsonEmotion = faceEmotionEventHandler.getEmotion();
                 Logs.showTrace("[ZooActivity] emotion response: " + jsonEmotion.toString());
                 if (!jsonEmotion.isNull("EMOTION_NAME"))
@@ -465,7 +466,7 @@ public class ZooActivity extends Activity
             trackerHandler.setRobotFace(strFaceImg).setSensor("", "").setScene(String.valueOf
                 (GLOBAL.scenarizeCurr.ScenarizeIndex)).setMicrophone("").setSpeaker("tts",
                 strTTS, "1", "1", "").send();
-    
+            
             if (SCEN.SCEN_INDEX_GAME_OVER == nIndex)
             {
                 finish();
