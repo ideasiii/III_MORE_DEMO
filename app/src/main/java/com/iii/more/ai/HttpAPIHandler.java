@@ -8,14 +8,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
@@ -32,11 +38,24 @@ public class HttpAPIHandler extends BaseHandler
         super(context);
     }
     
-    public void execute(@NonNull String text)
+    public void executeByGet(@NonNull String text)
     {
-        Thread tmp = new Thread(new HttpRunnable(text));
+        Thread tmp = new Thread(new HttpGetRunnable(text));
         tmp.start();
     }
+    
+    public void executeByPost(@NonNull HashMap<String, String> data)
+    {
+        Thread connect = new Thread(new HttpPostRunnable(HttpAPIParameters.URL_SERVER, data));
+        connect.start();
+    }
+    
+    public void executeByPost(String serverURL, @NonNull HashMap<String, String> data)
+    {
+        Thread connect = new Thread(new HttpPostRunnable(serverURL, data));
+        connect.start();
+    }
+    
     
     private String httpGet(String text)
     {
@@ -78,6 +97,90 @@ public class HttpAPIHandler extends BaseHandler
         
     }
     
+    private String httpPost(String requestURL, HashMap<String, String> postDataParams)
+    {
+        URL url = null;
+        String response = "";
+        try
+        {
+            url = new URL(requestURL);
+            
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            
+            connection.setConnectTimeout(HttpAPIParameters.TIME_OUT_CONNECT);
+            connection.setReadTimeout(HttpAPIParameters.TIME_OUT_READ);
+            
+            connection.setRequestMethod("POST");
+            
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            
+            
+            OutputStream outputStream = connection.getOutputStream();
+            
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream,
+                HttpAPIParameters.FORMAT_TYPE));
+            writer.write(getPostDataString(postDataParams));
+            
+            writer.flush();
+            writer.close();
+            
+            outputStream.close();
+            
+            int responseCode = connection.getResponseCode();
+            
+            if (responseCode == HttpsURLConnection.HTTP_OK)
+            {
+                String line;
+                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                while ((line = br.readLine()) != null)
+                {
+                    response += line;
+                }
+            }
+            else
+            {
+                Logs.showError("[HttpAPIHandler] ERROR HTTP Response Code:" + responseCode);
+                response = "";
+            }
+        }
+        catch (IOException e)
+        {
+            Logs.showError("[HttpAPIHandler] " + e.toString());
+        }
+        
+        return response;
+    }
+    
+    private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException
+    {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<String, String> entry : params.entrySet())
+        {
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                result.append("&");
+            }
+            
+            result.append(URLEncoder.encode(entry.getKey(), HttpAPIParameters.FORMAT_TYPE));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), HttpAPIParameters.FORMAT_TYPE));
+        }
+        
+        return result.toString();
+    }
+    
+    
+    private static String urlEncode(final String strText) throws UnsupportedEncodingException
+    {
+        return URLEncoder.encode(strText, HttpAPIParameters.FORMAT_TYPE);
+    }
+    
     private static String stringModify(String text)
     {
         String finalText = "";
@@ -90,21 +193,17 @@ public class HttpAPIHandler extends BaseHandler
         return finalText;
     }
     
-    private static String urlEncode(final String strText) throws UnsupportedEncodingException
-    {
-        return URLEncoder.encode(strText, HttpAPIParameters.FORMAT_TYPE);
-    }
     
     private static String urlDecode(final String strText) throws UnsupportedEncodingException
     {
         return URLDecoder.decode(strText, HttpAPIParameters.FORMAT_TYPE);
     }
     
-    class HttpRunnable implements Runnable
+    class HttpGetRunnable implements Runnable
     {
         private String text = "";
         
-        public HttpRunnable(String text)
+        public HttpGetRunnable(String text)
         {
             this.text = text;
         }
@@ -123,8 +222,41 @@ public class HttpAPIHandler extends BaseHandler
             {
                 message.put("message", result);
             }
-            callBackMessage(ResponseCode.ERR_SUCCESS, HttpAPIParameters.CLASS_HTTP_API, HttpAPIParameters.METHOD_HTTP_GET_RESPONSE, message);
+            callBackMessage(ResponseCode.ERR_SUCCESS, HttpAPIParameters.CLASS_HTTP_API, HttpAPIParameters
+                .METHOD_HTTP_GET_RESPONSE, message);
             
+        }
+    }
+    
+    private class HttpPostRunnable implements Runnable
+    {
+        private String requestURL = "";
+        private HashMap<String, String> postDataParams = null;
+        
+        private HttpPostRunnable(String requestURL, HashMap<String, String> postDataParams)
+        {
+            this.requestURL = requestURL;
+            this.postDataParams = postDataParams;
+        }
+        
+        @Override
+        public void run()
+        {
+            String responseData = httpPost(requestURL, postDataParams);
+            HashMap<String, String> message = new HashMap<>();
+            
+            if (!responseData.isEmpty())
+            {
+                message.put("message", responseData);
+                callBackMessage(ResponseCode.ERR_SUCCESS, HttpAPIParameters.CLASS_HTTP_API,
+                    HttpAPIParameters.METHOD_HTTP_POST_RESPONSE, message);
+            }
+            else
+            {
+                message.put("message", "IO Exception!");
+                callBackMessage(ResponseCode.ERR_IO_EXCEPTION, HttpAPIParameters.CLASS_HTTP_API,
+                    HttpAPIParameters.METHOD_HTTP_POST_RESPONSE, message);
+            }
         }
     }
     

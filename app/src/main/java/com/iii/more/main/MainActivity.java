@@ -337,8 +337,36 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     
     private void handleMessageHttpAPI(Message msg)
     {
-        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-        mLogicHandler.ttsService(TTSParameters.ID_SERVICE_FRIEND_RESPONSE, message.get("message"), "zh");
+        switch (msg.arg2)
+        {
+            case HttpAPIParameters.METHOD_HTTP_GET_RESPONSE:
+                HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+                mLogicHandler.ttsService(TTSParameters.ID_SERVICE_FRIEND_RESPONSE, message.get("message"),
+                    "zh");
+                break;
+            case HttpAPIParameters.METHOD_HTTP_POST_RESPONSE:
+                if(msg.arg1 == ResponseCode.ERR_SUCCESS)
+                {
+                    //####
+                    // success get http post data and judge what
+                    
+                    
+                    
+                }
+                else
+                {
+                    //####
+                    //io exception handle
+                    
+                    
+                    
+                }
+                
+                
+                
+                break;
+        }
+        
     }
     
     
@@ -433,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                             break;
                         case LogicParameters.MODE_FRIEND:
                             Logs.showTrace("[MainActivity] Send Friend Message to AI Server");
-                            mHttpAPIHandler.execute(message.get("message"));
+                            mHttpAPIHandler.executeByGet(message.get("message"));
                             break;
                         default:
                             
@@ -514,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         mainApplication.startFaceEmotion();
         
         mainApplication.setTTSPitch(1.0f, 1.0f);
-    
+        
         //String alarmTestData = "";
         //mAlarmHandler.setAlarmData(alarmTestData);
         //mAlarmHandler.startAll();
@@ -869,15 +897,25 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String, String>
         ttsHashMap, HashMap<String, String> imageHashMap, Object extendData)
     {
+        HashMap<String, String> emotionDetailHashMap = null;
         //debug using start
-        Logs.showTrace("[MainActivity]onFaceEmotionResult faceEmotionData: " + faceEmotionData);
+        if (null != faceEmotionData)
+        {
+            Logs.showTrace("[MainActivity]onFaceEmotionResult faceEmotionData: " + faceEmotionData);
+        }
         if (null != ttsHashMap)
         {
             Logs.showTrace("[MainActivity]onFaceEmotionResult ttsHashMap: " + ttsHashMap);
         }
         if (null != imageHashMap)
         {
-            Logs.showTrace("[MainActivity]onFaceEmotionResult imageHashMap" + imageHashMap);
+            Logs.showTrace("[MainActivity]onFaceEmotionResult imageHashMap: " + imageHashMap);
+        }
+        if (null != extendData)
+        {
+            emotionDetailHashMap = (HashMap<String, String>) extendData;
+            Logs.showTrace("[MainActivity]onFaceEmotionResult extendData: " + emotionDetailHashMap);
+            
         }
         //debug using end
         
@@ -921,39 +959,63 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             {
                 if (null != mLogicHandler)
                 {
-                    if (null != ttsHashMap)
+                    if (Parameters.IS_STORY_MODE_USE_TASK_COMPOSER_EMOTION_TTS)
                     {
-                        isBlockFaceEmotionListener = true;
-                        
-                        //pause story
-                        mLogicHandler.pauseStoryStreaming();
-                        
-                        Logs.showTrace("[MainActivity] tts" + ttsHashMap.get(FaceEmotionInterruptParameters
-                            .STRING_TTS_TEXT));
-                        mLogicHandler.ttsService(TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE,
-                            ttsHashMap.get(FaceEmotionInterruptParameters.STRING_TTS_TEXT), "zh");
-                        
+                        if (null != ttsHashMap)
+                        {
+                            isBlockFaceEmotionListener = true;
+                            
+                            //pause story
+                            mLogicHandler.pauseStoryStreaming();
+                            
+                            //Logs.showTrace("[MainActivity] tts" + ttsHashMap.get
+                            //     (FaceEmotionInterruptParameters.STRING_TTS_TEXT));
+                            mLogicHandler.ttsService(TTSParameters
+                                .ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE, ttsHashMap.get
+                                (FaceEmotionInterruptParameters.STRING_TTS_TEXT), "zh");
+                            
+                        }
+                        else
+                        {
+                            if (mLogicHandler.getIsPlayingStory())
+                            {
+                                isBlockFaceEmotionListener = true;
+                                //pause story
+                                mLogicHandler.pauseStoryStreaming();
+                                Logs.showTrace("[MainActivity]*** now No TTS HashMap and pause Story " +
+                                    "Streaming!");
+                                mHandler.postDelayed(new Runnable()
+                                {
+                                    @Override
+                                    public void run()
+                                    {
+                                        Logs.showTrace("[MainActivity]*** now No TTS HashMap and resume " +
+                                            "Story " + "Streaming!");
+                                        mLogicHandler.resumeStoryStreaming();
+                                        mDisplayHandler.resumeDisplaying();
+                                        isBlockFaceEmotionListener = false;
+                                    }
+                                }, 5000);
+                            }
+                        }
                     }
                     else
                     {
+                        
                         if (mLogicHandler.getIsPlayingStory())
                         {
                             isBlockFaceEmotionListener = true;
-                            //pause story
                             mLogicHandler.pauseStoryStreaming();
-                            Logs.showTrace("[MainActivity]*** now No TTS HashMap and pause Story Streaming!");
-                            mHandler.postDelayed(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    Logs.showTrace("[MainActivity]*** now No TTS HashMap and resume Story "
-                                        + "Streaming!");
-                                    mLogicHandler.resumeStoryStreaming();
-                                    mDisplayHandler.resumeDisplaying();
-                                    isBlockFaceEmotionListener = false;
-                                }
-                            }, 5000);
+                            
+                            //####
+                            // call to http AI API
+                            
+                            
+                            HashMap<String, String> postData = emotionDetailHashMap;
+                            postData.put("STORYNAME", mLogicHandler.getIsPlayingStoryName());
+                            //mHttpAPIHandler.executeByPost(URL,postData);
+                            
+                            
                         }
                     }
                 }

@@ -15,6 +15,8 @@ public abstract class Parameters
     public static final String TASK_COMPOSER_DATA = "taskcomposerdata";
     public static final String CLOCK_INTENT_DATA = "clockintentdata";
     
+    public static final boolean IS_STORY_MODE_USE_TASK_COMPOSER_EMOTION_TTS = true;
+    
     
     public static final String CMP_HOST_IP = "54.199.198.94";
     public static final int CMP_HOST_PORT = 2310;

@@ -37,9 +37,8 @@ public class DeviceHttpServerHandler extends BaseHandler
     }
     
     
-    public void connectToServerByPost()
+    public void connectToServerByPost(HashMap<String, String> postDataParams)
     {
-        HashMap<String, String> postDataParams = new HashMap<String, String>();
         Thread connect = new Thread(new HttpPostRunnable(DeviceHttpServerParameters.URL_SERVER, postDataParams));
         connect.start();
         

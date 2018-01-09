@@ -48,13 +48,27 @@ public class LogicHandler extends BaseHandler
     
     
     private boolean isPlayingStory = false;
-    
+    private String playingStoryName = "";
     private CacheStory mCacheStory = null;
     
     
     public boolean getIsPlayingStory()
     {
         return isPlayingStory;
+    }
+    
+    public String getIsPlayingStoryName()
+    {
+        if (getIsPlayingStory())
+        {
+            return playingStoryName;
+        }
+        else
+        {
+            return "";
+        }
+        
+        
     }
     
     private void setIsPlayingStory(boolean isPlayingStory)
@@ -104,7 +118,7 @@ public class LogicHandler extends BaseHandler
                     setIsPlayingStory(false);
                     // mPocketSphinxHandler.startListenAction(Parameters.DEFAULT_SPHINX_THRESHOLD);
                     break;
-                    
+                
                 case WebMediaPlayerParameters.START_PLAY:
                 case WebMediaPlayerParameters.RESUME_PLAY:
                     //callback to MainActivity to start display
@@ -324,6 +338,8 @@ public class LogicHandler extends BaseHandler
                             mWebMediaPlayerHandler.setHostAndFilePath(mActivityJson.getString
                                 (SemanticWordCMPParameters.STRING_JSON_KEY_HOST), mActivityJson.getString
                                 (SemanticWordCMPParameters.STRING_JSON_KEY_FILE));
+                            playingStoryName = mActivityJson.getString(SemanticWordCMPParameters
+                                .STRING_JSON_KEY_FILE).replace(".mp3", "");
                             mWebMediaPlayerHandler.startPlayMediaStream();
                             
                         }
@@ -453,8 +469,8 @@ public class LogicHandler extends BaseHandler
             }
             
             Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) + " " +
-                "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "From: " + String.valueOf(msg.arg2)
-                + " " + "Message: " + msg.obj);
+                "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "From: " + String
+                .valueOf(msg.arg2) + " " + "Message: " + msg.obj);
             self.handleMessages(msg);
         }
     }

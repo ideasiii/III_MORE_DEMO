@@ -86,6 +86,8 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                         
                         data = new EmotionElement(mEmotionBrainArrayListData.get(i).emotionName,
                             mEmotionBrainArrayListData.get(i).triggerTime);
+                        data.emotionHashMapValue = emotionHashMapData;
+                        
                     }
                     else if (!mEmotionBrainArrayListData.get(i).emotionType.equals("EXPRESSION"))
                     {
@@ -97,6 +99,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                         {
                             data = new EmotionElement(mEmotionBrainArrayListData.get(i).emotionName,
                                 mEmotionBrainArrayListData.get(i).triggerTime);
+                            data.emotionHashMapValue = emotionHashMapData;
                         }
                     }
                     
@@ -140,6 +143,13 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                     {
                         //debug using
                         //emotionBrainElement.print();
+                        
+                        //put all emotion value to message
+                        for (String key : newFaceData.emotionHashMapValue.keySet())
+                        {
+                            message.put(key, newFaceData.emotionHashMapValue.get(key));
+                        }
+                        
                         
                         message.put(FaceEmotionInterruptParameters.STRING_IMG_FILE_NAME,
                             emotionBrainElement.emotionMappingImageName);
@@ -283,6 +293,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         String emotionName = null;
         int emotionTriggerTimeRule = 0;
         int emotionTriggerTime = 0;
+        HashMap<String, String> emotionHashMapValue = new HashMap<>();
         
         EmotionElement(@NonNull String emotionName, int emotionTriggerTimeRule)
         {
@@ -293,7 +304,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         void print()
         {
             Logs.showTrace("[FaceEmotionInterruptHandler][EmotionElement] EmotionName: " + emotionName + " " +
-                "" + "emotionTriggerTime: " + String.valueOf(emotionTriggerTimeRule));
+                "" + "" + "" + "" + "emotionTriggerTime: " + String.valueOf(emotionTriggerTimeRule));
         }
     }
     

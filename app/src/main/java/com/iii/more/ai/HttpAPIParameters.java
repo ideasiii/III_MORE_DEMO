@@ -8,6 +8,8 @@ public abstract class HttpAPIParameters
 {
     public static final int CLASS_HTTP_API = 1587;
     public static final int METHOD_HTTP_GET_RESPONSE = 0;
+    public static final int METHOD_HTTP_POST_RESPONSE = 1;
+    
     
     public static final String URL_SERVER = "https://chatbot.srm.pw/chatbot/?Text=";
     
