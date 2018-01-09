@@ -59,7 +59,7 @@ public class ScenarizeStart extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
+            FRONT.OBJECT,
             "抓緊喔！今天，你想要坐什麼交通工具去呢");
     }
 }

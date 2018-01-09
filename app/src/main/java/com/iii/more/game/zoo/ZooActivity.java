@@ -130,7 +130,7 @@ public class ZooActivity extends Activity
         trackerHandler.setDescription("Edubot Zoo Game");
         
         mrtMap = new MrtMap(this, handlerScenarize);
-        layoutParamsExView = new RelativeLayout.LayoutParams(800, 800);
+        layoutParamsExView = new RelativeLayout.LayoutParams(1000, 1000);
         layoutParamsExView.setMargins((int) 0, (int) 200, (int) 0, (int) 0);
         layoutParamsExView.addRule(RelativeLayout.CENTER_HORIZONTAL);
         mrtMap.setLayoutParams(layoutParamsExView);
@@ -259,7 +259,7 @@ public class ZooActivity extends Activity
             robotHead.setObjectImg(jsonScenarize.getInt("object_id"), (ImageView.ScaleType)
                 jsonScenarize.get("object_scale_type"));
             strFaceImg = jsonScenarize.getString("face_image");
-            robotHead.bringObjImgtoFront();
+            // robotHead.bringObjImgtoFront();
             if ((boolean) jsonScenarize.get("emotion"))
             {
                 application.setFaceEmotionEventListener(faceEmotionEventHandler
@@ -269,16 +269,16 @@ public class ZooActivity extends Activity
             {
                 application.setFaceEmotionEventListener(null);
             }
-//            ScenarizeHandler.FRONT front = (ScenarizeHandler.FRONT) jsonScenarize.get("front");
-//            switch (front)
-//            {
-//                case FACE:
-//                    robotHead.bringFaceImgtoFront();
-//                    break;
-//                case OBJECT:
-//                    robotHead.bringObjImgtoFront();
-//                    break;
-//            }
+            ScenarizeHandler.FRONT front = (ScenarizeHandler.FRONT) jsonScenarize.get("front");
+            switch (front)
+            {
+                case FACE:
+                    robotHead.bringFaceImgtoFront();
+                    break;
+                case OBJECT:
+                    robotHead.bringObjImgtoFront();
+                    break;
+            }
             
             strTTS = jsonScenarize.getString("tts_text");
             if (SCEN.SCEN_INDEX_BUS_INSIDE == nIndex)
