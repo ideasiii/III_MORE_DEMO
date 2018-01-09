@@ -82,9 +82,13 @@ final class CyberonAssetsExtractor
             return true;
         }
 
+        Log.d(LOG_TAG, "try downloading version info from " + ZIP_VERSION_URL);
+
         try
         {
             URLConnection urlConnection = url.openConnection();
+            urlConnection.setConnectTimeout(2000);
+            urlConnection.setReadTimeout(1000);
             InputStream in = urlConnection.getInputStream();
             OutputStream fileOut = new FileOutputStream(dstDir + "/" + TMP_ZIP_VERSION_FILENAME);
             ByteArrayOutputStream memoryOut = new ByteArrayOutputStream();
@@ -126,6 +130,7 @@ final class CyberonAssetsExtractor
 
             in.close();
             int verLocal = Integer.valueOf((new String(buffer, 0, read).trim()));
+            Log.d(LOG_TAG, "remote data version = " + verOnServer + ", local data version = " + verLocal);
             return verLocal < verOnServer;
         }
         catch (Exception e)
@@ -136,10 +141,9 @@ final class CyberonAssetsExtractor
     }
 
     /**
-     *
-     * @param urlStr
-     * @param dstDir
-     * @return whether data is download
+     * data archive and extract to dstDir
+     * @return whether data is download and fully extracted.
+     *         Even false is returned, there may be some files already extracted to dstDir.
      */
     private static boolean downloadDataFromServer(String urlStr, String dstDir)
     {
@@ -153,6 +157,8 @@ final class CyberonAssetsExtractor
             e.printStackTrace();
             return false;
         }
+
+        Log.d(LOG_TAG, "try downloading data archive from " + urlStr);
 
         try
         {

@@ -54,7 +54,6 @@ final class TTSVoicePool
 
         // init CReader using existing data (if exists) to prevent any NullPointerException
         initCReader();
-
         downloadCReaderData();
     }
 
@@ -70,7 +69,7 @@ final class TTSVoicePool
 
                 if (getNewData)
                 {
-                    Log.d(LOG_TAG, "getNewData, reinit CReader");
+                    Log.d(LOG_TAG, "downloaded new data, reinit CReader");
                     initCReader();
                 }
                 else
