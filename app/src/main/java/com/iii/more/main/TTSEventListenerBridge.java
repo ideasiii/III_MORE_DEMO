@@ -87,7 +87,7 @@ class TTSEventListenerBridge
 
             if (textStatusDone)
             {
-                // Google TTS has no way to implement early trigger, so we can only
+                // Google TTS has no way to implement early trigger under API 26, we can only
                 // fire two events simultaneously. Hope it won't crush the app
                 mTtsEventListener.onUtteranceAlmostDone(utteranceId);
                 mTtsEventListener.onUtteranceDone(utteranceId);
@@ -108,54 +108,44 @@ class TTSEventListenerBridge
      */
     void handleCReaderMessage(Message msg)
     {
+        if (mTtsEventListener == null)
+        {
+            Logs.showTrace("mTtsEventListener == null");
+            return;
+        }
+
+        HashMap<String, String> m;
+
         switch (msg.arg1)
         {
             case CReaderAdapter.Event.INIT_OK:
                 Logs.showTrace("handleCReaderMessage() INIT_OK");
-                if (null != mTtsEventListener)
-                {
-                    mTtsEventListener.onInitSuccess();
-                }
+                mTtsEventListener.onInitSuccess();
                 break;
             case CReaderAdapter.Event.INIT_FAILED:
                 Logs.showTrace("handleCReaderMessage() INIT_FAILED");
-                if (null != mTtsEventListener)
-                {
-                    HashMap<String, String> m = (HashMap<String, String>) msg.obj;
-                    int status = Integer.valueOf(m.get("nRes"));
-                    String msgText = m.get("message");
-                    mTtsEventListener.onInitFailed(status, msgText);
-                }
+                m = (HashMap<String, String>) msg.obj;
+                int status = Integer.valueOf(m.get("nRes"));
+                String msgText = m.get("message");
+                mTtsEventListener.onInitFailed(status, msgText);
                 break;
             case CReaderAdapter.Event.UTTERANCE_START:
                 Logs.showTrace("handleCReaderMessage() UTTERANCE_START");
-                if (null != mTtsEventListener)
-                {
-                    HashMap<String, String> m = (HashMap<String, String>) msg.obj;
-                    mTtsEventListener.onUtteranceStart(m.get("utteranceId"));
-                }
+                m = (HashMap<String, String>) msg.obj;
+                mTtsEventListener.onUtteranceStart(m.get("utteranceId"));
                 break;
             case CReaderAdapter.Event.UTTERANCE_STOP:
                 Logs.showTrace("handleCReaderMessage() UTTERANCE_STOP");
-                /*if (null != mTtsEventListener)
-                {
-                }*/
                 break;
             case CReaderAdapter.Event.UTTERANCE_ALMOST_DONE:
                 Logs.showTrace("handleCReaderMessage() UTTERANCE_ALMOST_DONE");
-                if (null != mTtsEventListener)
-                {
-                    HashMap<String, String> m = (HashMap<String, String>) msg.obj;
-                    mTtsEventListener.onUtteranceAlmostDone(m.get("utteranceId"));
-                }
+                m = (HashMap<String, String>) msg.obj;
+                mTtsEventListener.onUtteranceAlmostDone(m.get("utteranceId"));
                 break;
             case CReaderAdapter.Event.UTTERANCE_DONE:
                 Logs.showTrace("handleCReaderMessage() UTTERANCE_DONE");
-                if (null != mTtsEventListener)
-                {
-                    HashMap<String, String> m = (HashMap<String, String>) msg.obj;
-                    mTtsEventListener.onUtteranceDone(m.get("utteranceId"));
-                }
+                m = (HashMap<String, String>) msg.obj;
+                mTtsEventListener.onUtteranceDone(m.get("utteranceId"));
                 break;
             default:
                 Logs.showError("handleCReaderMessage() unknown msg.arg2: " + msg.arg2);

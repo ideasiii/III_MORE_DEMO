@@ -1,5 +1,6 @@
 package com.iii.more.main;
 
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -101,5 +102,17 @@ public abstract class Tools
     public static int getDrawableId(String name)
     {
         return botAppDrawableIdLookup.getValue(name);
+    }
+
+    /**
+     * An alias of (MainApplication)context.getApplicationContext()
+     *
+     * @param context Context having access to getApplicationContext()
+     * @param context Context having access to getApplicationContext()
+     * @return MainApplication instance
+     */
+    public static MainApplication getApp(Context context)
+    {
+        return (MainApplication) context.getApplicationContext();
     }
 }

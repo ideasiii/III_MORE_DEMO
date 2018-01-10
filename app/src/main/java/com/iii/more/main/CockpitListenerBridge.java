@@ -343,7 +343,7 @@ class CockpitListenerBridge
     /** 播放 RFID 偵測事件音效 */
     private void playRfidEventSound()
     {
-        MainApplication app = MainApplication.getApp(mContext);
+        MainApplication app = Tools.getApp(mContext);
         app.replaySoundEffect(R.raw.rfid_scanned);
 }
 
@@ -355,7 +355,7 @@ class CockpitListenerBridge
             return;
         }
 
-        MainApplication app = MainApplication.getApp(mContext);
+        MainApplication app = Tools.getApp(mContext);
 
         if (mUseBloodySensorEventSound)
         {
