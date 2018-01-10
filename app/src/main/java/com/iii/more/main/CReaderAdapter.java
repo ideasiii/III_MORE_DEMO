@@ -510,7 +510,7 @@ class CReaderAdapter
                 if (mHandler != null)
                 {
                     //long delayMillis = 130 * text.length();
-                    long delayMillis = 100;
+                    long delayMillis = 50;
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_WHAT, event, 0, message), delayMillis);
                 }
             }

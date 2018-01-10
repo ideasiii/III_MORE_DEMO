@@ -48,6 +48,11 @@ public abstract class TTSParameters
     public static final String ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE = "d3515c80-e737-454e-899e-9e0af201781";
     public static final String STRING_SERVICE_INTERRUPT_STORY_MODE = "";
     
+    public static final String ID_SERVICE_STORY_MODE_AI_TTS_CONT_STT = "98d44ee5-301b-46c3-bd09-713a577b9517";
+    public static final String ID_SERVICE_STORY_MODE_AI_TTS_RESUME_STORY = "98d44ee5-301b-46c3-bd09-713a577b1795";
+    
+    public static final String TTS_LANGUAGE_CHINESE = "zh";
+    public static final String TTS_LANGUAGE_US = "en";
     
     
 }

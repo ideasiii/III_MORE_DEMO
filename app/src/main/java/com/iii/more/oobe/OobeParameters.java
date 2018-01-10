@@ -29,7 +29,7 @@ public abstract class OobeParameters
             "]}";
     
     
-    public static String [] NO_THESAURUS = {"不","不是","不對","錯"};
+    public static String [] NO_THESAURUS = {"不","不是","不對","錯","部隊"};
     
     public static String ID_RFID_STRIPED_FISH = "112199103115";
 }

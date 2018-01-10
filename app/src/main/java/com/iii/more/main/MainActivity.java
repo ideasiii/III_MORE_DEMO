@@ -51,6 +51,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
 import sdk.ideas.common.Logs;
@@ -337,31 +338,49 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     
     private void handleMessageHttpAPI(Message msg)
     {
+        HashMap<String, String> message = (HashMap<String, String>) msg.obj;
         switch (msg.arg2)
         {
             case HttpAPIParameters.METHOD_HTTP_GET_RESPONSE:
-                HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+                
                 mLogicHandler.ttsService(TTSParameters.ID_SERVICE_FRIEND_RESPONSE, message.get("message"),
                     "zh");
                 break;
             case HttpAPIParameters.METHOD_HTTP_POST_RESPONSE:
-                if(msg.arg1 == ResponseCode.ERR_SUCCESS)
+                if (msg.arg1 == ResponseCode.ERR_SUCCESS)
                 {
                     //####
                     // success get http post data and judge what
+                   JSONObject data = null;
+                    try
+                    {
+                        data = new JSONObject(message.get("message"));
+                        //data.put("TTS", new String(data.getString("TTS").getBytes("UTF-8"), "UTF-8"));
+                        Logs.showTrace("[MainActivity] http post get Data: " + data.toString() /*data.toString()*/);
+                    }
+                    catch (JSONException  e)
+                    {
+                        e.printStackTrace();
+                        
+                    }
                     
-                    
+                  //  if (null != data)
+                    {
+                        mLogicHandler.storyModeAPIAnalysis(message.get("message"));
+                    }
+                    //else
+                    {
+                      //  Logs.showError("[MainActivity] METHOD_HTTP_POST_RESPONSE ERROR");
+                    }
                     
                 }
                 else
                 {
                     //####
                     //io exception handle
-                    
-                    
+                    mLogicHandler.storyModeAPIAnalysis(HttpAPIParameters.ERROR_POST_DEFAULT_RETURN);
                     
                 }
-                
                 
                 
                 break;
@@ -449,11 +468,31 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     switch (mLogicHandler.getMode())
                     {
                         case LogicParameters.MODE_STORY:
-                            Logs.showTrace("[MainActivity] Send Story Message to Jugo Server");
-                            
-                            mSemanticWordCMPHandler.sendSemanticWordCommand(SemanticWordCMPParameters
-                                .getWordID(), SemanticWordCMPParameters.TYPE_REQUEST_STORY, message.get
-                                ("message"));
+                            String sttID = message.get("sttID");
+                            if (null != sttID)
+                            {
+                                if (sttID.equals(STTParameters.ID_FOR_SEMITIC_WORD_USED))
+                                {
+                                    Logs.showTrace("[MainActivity] Send Story Message to Jugo Server");
+                                    
+                                    mSemanticWordCMPHandler.sendSemanticWordCommand
+                                        (SemanticWordCMPParameters.getWordID(), SemanticWordCMPParameters
+                                            .TYPE_REQUEST_STORY, message.get("message"));
+                                }
+                                else if (sttID.equals(STTParameters.ID_FOR_AI_CHART_BOT_USED))
+                                {
+                                    // ####
+                                    // write to send STT to Http Ai API
+                                    HashMap<String, String> postBackData = new HashMap<>();
+                                    postBackData.put("STT", message.get("message"));
+                                    
+                                    if (null != mHttpAPIHandler)
+                                    {
+                                        mHttpAPIHandler.executeByPost("https://chatbot.srm.pw/edubot/",
+                                            postBackData, true);
+                                    }
+                                }
+                            }
                             break;
                         case LogicParameters.MODE_GAME:
                             
@@ -488,7 +527,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 case LogicParameters.METHOD_STORY_RESUME:
                     //### get Story Pause Second  and let displayHandler know next second
                     mDisplayHandler.resumeDisplaying();
-                    
+                    isBlockFaceEmotionListener = false;
                     
                     break;
                 
@@ -503,8 +542,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                             public void run()
                             {
                                 mLogicHandler.resumeStoryStreaming();
-                                mDisplayHandler.resumeDisplaying();
-                                isBlockFaceEmotionListener = false;
                             }
                         }, 3000);
                         
@@ -1011,9 +1048,12 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                             // call to http AI API
                             
                             
-                            HashMap<String, String> postData = emotionDetailHashMap;
+                            HashMap<String, String> postData = new HashMap<>(emotionDetailHashMap);
                             postData.put("STORYNAME", mLogicHandler.getIsPlayingStoryName());
-                            //mHttpAPIHandler.executeByPost(URL,postData);
+                            postData.put("EMOTIONSTATE", faceEmotionData.get(FaceEmotionInterruptParameters
+                                .STRING_EMOTION_NAME));
+                            
+                            mHttpAPIHandler.executeByPost("https://chatbot.srm.pw/edubot/", postData, true);
                             
                             
                         }

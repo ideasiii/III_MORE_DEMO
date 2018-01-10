@@ -33,10 +33,13 @@ import sdk.ideas.common.ResponseCode;
 
 public class HttpAPIHandler extends BaseHandler
 {
+    private int testCounter = 0;
+    
     public HttpAPIHandler(Context context)
     {
         super(context);
     }
+    
     
     public void executeByGet(@NonNull String text)
     {
@@ -44,16 +47,41 @@ public class HttpAPIHandler extends BaseHandler
         tmp.start();
     }
     
-    public void executeByPost(@NonNull HashMap<String, String> data)
+    public void executeByPost(@NonNull HashMap<String, String> data, boolean isJSONFormat)
     {
-        Thread connect = new Thread(new HttpPostRunnable(HttpAPIParameters.URL_SERVER, data));
+        Thread connect = new Thread(new HttpPostRunnable(HttpAPIParameters.URL_SERVER, data, isJSONFormat));
         connect.start();
     }
     
-    public void executeByPost(String serverURL, @NonNull HashMap<String, String> data)
+    public void executeByPost(String serverURL, @NonNull HashMap<String, String> data, boolean isJSONFormat)
     {
-        Thread connect = new Thread(new HttpPostRunnable(serverURL, data));
-        connect.start();
+        Logs.showTrace("[HttpAPIHandler] executeByPost: URL:" + serverURL + "postData: " + data);
+        
+        if (HttpAPIParameters.isTest)
+        {
+            HashMap<String, String> message = new HashMap<>();
+            String responseData = HttpAPIParameters.ERROR_POST_DEFAULT_RETURN;
+            if (testCounter++ >= HttpAPIParameters.TEST_MAX_COUNT)
+            {
+                responseData = HttpAPIParameters.TEST_RESUME_PLAY_POST_DEFAULT_RETURN;
+                testCounter = 0;
+            }
+            else
+            {
+                responseData = HttpAPIParameters.TEST_STT_POST_DEFAULT_RETURN;
+            }
+            if (!responseData.isEmpty())
+            {
+                message.put("message", responseData);
+                callBackMessage(ResponseCode.ERR_SUCCESS, HttpAPIParameters.CLASS_HTTP_API,
+                    HttpAPIParameters.METHOD_HTTP_POST_RESPONSE, message);
+            }
+        }
+        else
+        {
+            Thread connect = new Thread(new HttpPostRunnable(serverURL, data, isJSONFormat));
+            connect.start();
+        }
     }
     
     
@@ -97,7 +125,7 @@ public class HttpAPIHandler extends BaseHandler
         
     }
     
-    private String httpPost(String requestURL, HashMap<String, String> postDataParams)
+    private String httpPost(String requestURL, HashMap<String, String> postDataParams, boolean writeByJSON)
     {
         URL url = null;
         String response = "";
@@ -120,8 +148,15 @@ public class HttpAPIHandler extends BaseHandler
             
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream,
                 HttpAPIParameters.FORMAT_TYPE));
-            writer.write(getPostDataString(postDataParams));
-            
+            if (writeByJSON)
+            {
+                JSONObject postJsonData = new JSONObject(postDataParams);
+                writer.write(postJsonData.toString());
+            }
+            else
+            {
+                writer.write(getPostDataString(postDataParams));
+            }
             writer.flush();
             writer.close();
             
@@ -149,7 +184,9 @@ public class HttpAPIHandler extends BaseHandler
             Logs.showError("[HttpAPIHandler] " + e.toString());
         }
         
+        
         return response;
+        
     }
     
     private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException
@@ -232,17 +269,20 @@ public class HttpAPIHandler extends BaseHandler
     {
         private String requestURL = "";
         private HashMap<String, String> postDataParams = null;
+        private boolean isJSONFormat = false;
         
-        private HttpPostRunnable(String requestURL, HashMap<String, String> postDataParams)
+        private HttpPostRunnable(String requestURL, HashMap<String, String> postDataParams, boolean
+            isJSONFormat)
         {
             this.requestURL = requestURL;
             this.postDataParams = postDataParams;
+            this.isJSONFormat = isJSONFormat;
         }
         
         @Override
         public void run()
         {
-            String responseData = httpPost(requestURL, postDataParams);
+            String responseData = httpPost(requestURL, postDataParams, isJSONFormat);
             HashMap<String, String> message = new HashMap<>();
             
             if (!responseData.isEmpty())

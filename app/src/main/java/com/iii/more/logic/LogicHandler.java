@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
+import com.iii.more.main.STTParameters;
 import com.iii.more.main.listeners.TTSEventListener;
 import com.iii.more.main.TTSParameters;
 import com.iii.more.stream.WebMediaPlayerHandler;
@@ -120,9 +121,14 @@ public class LogicHandler extends BaseHandler
                     break;
                 
                 case WebMediaPlayerParameters.START_PLAY:
+                    setIsPlayingStory(true);
+                    break;
                 case WebMediaPlayerParameters.RESUME_PLAY:
                     //callback to MainActivity to start display
-                    // mDisplayHandler.startDisplay();
+                    HashMap<String, String> message4 = new HashMap<>();
+                    message4.put("message", String.valueOf(mCacheStory.pauseStorySecond));
+                    callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC,
+                        LogicParameters.METHOD_STORY_RESUME, message4);
                     setIsPlayingStory(true);
                     break;
                 case WebMediaPlayerParameters.STOP_PLAY:
@@ -180,6 +186,10 @@ public class LogicHandler extends BaseHandler
             {
                 //callback mainActivity
                 HashMap<String, String> returnMessage = new HashMap<>();
+                if (null != message.get("sttID"))
+                {
+                    returnMessage.put("sttID", message.get("sttID"));
+                }
                 returnMessage.put("message", message.get("message"));
                 callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters
                     .METHOD_VOICE, returnMessage);
@@ -205,7 +215,7 @@ public class LogicHandler extends BaseHandler
                 else
                 {
                     // ### wait 3 second to continue
-                    selfHandler.postDelayed(new Runnable()
+                  /*  selfHandler.postDelayed(new Runnable()
                     {
                         @Override
                         public void run()
@@ -214,7 +224,7 @@ public class LogicHandler extends BaseHandler
                             // ###callback MainActivity display streaming
                             if (null != mCacheStory)
                             {
-                                HashMap<String, String> message4 = new HashMap<String, String>();
+                                HashMap<String, String> message4 = new HashMap<>();
                                 message4.put("message", String.valueOf(mCacheStory.pauseStorySecond));
                                 callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC,
                                     LogicParameters.METHOD_STORY_RESUME, message4);
@@ -222,7 +232,17 @@ public class LogicHandler extends BaseHandler
                                 resumeStoryStreaming();
                             }
                         }
-                    }, 3000);
+                    }, 3000);*/
+                    HashMap<String, String> returnMessage = new HashMap<>();
+                    if (null != message.get("sttID"))
+                    {
+                        returnMessage.put("sttID", message.get("sttID"));
+                    }
+                    returnMessage.put("message", "");
+                    callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC, LogicParameters
+                        .METHOD_VOICE, returnMessage);
+                    
+                    
                 }
             }
         }
@@ -243,10 +263,11 @@ public class LogicHandler extends BaseHandler
         {
             case TTSParameters.ID_SERVICE_IO_EXCEPTION:
                 ttsService(TTSParameters.ID_SERVICE_IO_EXCEPTION, TTSParameters
-                    .STRING_SERVICE_IO_EXCEPTION, "zh");
+                    .STRING_SERVICE_IO_EXCEPTION, TTSParameters.TTS_LANGUAGE_CHINESE);
                 break;
             default:
-                ttsService(TTSParameters.ID_SERVICE_UNKNOWN, TTSParameters.STRING_SERVICE_UNKNOWN, "zh");
+                ttsService(TTSParameters.ID_SERVICE_UNKNOWN, TTSParameters.STRING_SERVICE_UNKNOWN,
+                    TTSParameters.TTS_LANGUAGE_CHINESE);
                 break;
         }
     }
@@ -285,7 +306,7 @@ public class LogicHandler extends BaseHandler
         {
             MainApplication app = (MainApplication) mContext.getApplicationContext();
             ttsService(TTSParameters.ID_SERVICE_STORY_BEGIN, app.getName(Parameters.ID_CHILD_NAME) +
-                TTSParameters.STRING_SERVICE_STORY_BEGIN, "zh");
+                TTSParameters.STRING_SERVICE_STORY_BEGIN, TTSParameters.TTS_LANGUAGE_CHINESE);
         }
         
     }
@@ -302,15 +323,18 @@ public class LogicHandler extends BaseHandler
         {
             case TTSParameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE:
                 mModeNow = MODE_STORY;
-                ttsService(ttsID, TTSParameters.STRING_SERVICE_START_UP_GREETINGS_STORY_MODE, "zh");
+                ttsService(ttsID, TTSParameters.STRING_SERVICE_START_UP_GREETINGS_STORY_MODE, TTSParameters
+                    .TTS_LANGUAGE_CHINESE);
                 break;
             case TTSParameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE:
                 mModeNow = MODE_GAME;
-                ttsService(ttsID, TTSParameters.STRING_SERVICE_START_UP_GREETINGS_GAME_MODE, "zh");
+                ttsService(ttsID, TTSParameters.STRING_SERVICE_START_UP_GREETINGS_GAME_MODE, TTSParameters
+                    .TTS_LANGUAGE_CHINESE);
                 break;
             case TTSParameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE:
                 mModeNow = MODE_FRIEND;
-                ttsService(ttsID, TTSParameters.STRING_SERVICE_START_UP_GREETINGS_FRIEND_MODE, "zh");
+                ttsService(ttsID, TTSParameters.STRING_SERVICE_START_UP_GREETINGS_FRIEND_MODE,
+                    TTSParameters.TTS_LANGUAGE_CHINESE);
                 break;
         }
     }
@@ -395,10 +419,10 @@ public class LogicHandler extends BaseHandler
         Locale localeSet;
         switch (languageString)
         {
-            case "zh":
+            case TTSParameters.TTS_LANGUAGE_CHINESE:
                 localeSet = Locale.TAIWAN;
                 break;
-            case "en":
+            case TTSParameters.TTS_LANGUAGE_US:
                 localeSet = Locale.US;
                 break;
             default:
@@ -410,6 +434,41 @@ public class LogicHandler extends BaseHandler
         app.playTTS(textString, textID);
     }
     
+    public void storyModeAPIAnalysis(String apiResponseStringData)
+    {
+        try
+        {
+            JSONObject apiResponseJsonData = new JSONObject(apiResponseStringData);
+            if (apiResponseJsonData.has("TAG"))
+            {
+                switch (apiResponseJsonData.getInt("TAG"))
+                {
+                    case 0:
+                        
+                        ttsService(TTSParameters.ID_SERVICE_STORY_MODE_AI_TTS_CONT_STT, apiResponseJsonData
+                            .getString("TTS"), TTSParameters.TTS_LANGUAGE_CHINESE);
+                        break;
+                    case 1:
+                        ttsService(TTSParameters.ID_SERVICE_STORY_MODE_AI_TTS_RESUME_STORY,
+                            apiResponseJsonData.getString("TTS"), TTSParameters.TTS_LANGUAGE_CHINESE);
+                        
+                        break;
+                }
+            }
+            else
+            {
+                Logs.showError("[LogicHandler] some ERROR while api AI no TAG");
+                
+                
+            }
+            
+            
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
     
     public void endAll()
     {
@@ -467,10 +526,6 @@ public class LogicHandler extends BaseHandler
             {
                 return;
             }
-            
-            Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What:" + String.valueOf(msg.what) + " " +
-                "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "From: " + String
-                .valueOf(msg.arg2) + " " + "Message: " + msg.obj);
             self.handleMessages(msg);
         }
     }
@@ -502,57 +557,45 @@ public class LogicHandler extends BaseHandler
             
             switch (utteranceId)
             {
-                case TTSParameters.ID_SERVICE_START_UP_GREETINGS:
-                    mVoiceRecognition.startListen();
-                    
-                    break;
-                
-                case TTSParameters.ID_SERVICE_START_UP_GREETINGS_STORY_MODE:
-                    
-                    break;
-                case TTSParameters.ID_SERVICE_START_UP_GREETINGS_FRIEND_MODE:
-                    // XXXXX do friend mode
-                    // link API
-                    
-                    break;
-                
-                case TTSParameters.ID_SERVICE_START_UP_GREETINGS_GAME_MODE:
-                    // XXXXX do game mode
-                    //
-                    
-                    break;
                 
                 case TTSParameters.ID_SERVICE_FRIEND_RESPONSE:
                     
                     break;
                 
-                
-                case TTSParameters.ID_SERVICE_MUSIC_BEGIN:
-                    
-                    
-                    break;
                 case TTSParameters.ID_SERVICE_STORY_BEGIN:
                     
-                    mVoiceRecognition.startListen();
+                    mVoiceRecognition.startListen(STTParameters.ID_FOR_SEMITIC_WORD_USED);
+                    
                     break;
-                case TTSParameters.ID_SERVICE_TTS_BEGIN:
-                       /* HashMap<String, String> data2 = new HashMap<>();
-    
-                        data2.put("ttsID", TTSParameters.ID_SERVICE_TTS_BEGIN);
-                        callBackMessage(ResponseCode.ERR_SUCCESS, LogicParameters.CLASS_LOGIC,
-                        LogicParameters.METHOD_TTS, data2);
-                     */
+                
+                case TTSParameters.ID_SERVICE_STORY_MODE_AI_TTS_CONT_STT:
+                    
+                    mVoiceRecognition.startListen(STTParameters.ID_FOR_AI_CHART_BOT_USED);
+                    
                     break;
+                
+                case TTSParameters.ID_SERVICE_STORY_MODE_AI_TTS_RESUME_STORY:
+                    
+                    // ### resume story
+                    if (null != mCacheStory)
+                    {
+                       
+                        
+                        resumeStoryStreaming();
+                    }
+                    
+                    break;
+                
                 case TTSParameters.ID_SERVICE_UNKNOWN:
                     
                     //callback to service something ERROR
                     
                     break;
                 case TTSParameters.ID_SERVICE_IO_EXCEPTION:
+                    
                     break;
-                case TTSParameters.ID_SERVICE_INIT_SUCCESS:
-                    Logs.showTrace("ID_SERVICE_INIT_SUCCESS");
-                    break;
+                
+                
                 case TTSParameters.ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE:
                     HashMap<String, String> data = new HashMap<>();
                     
