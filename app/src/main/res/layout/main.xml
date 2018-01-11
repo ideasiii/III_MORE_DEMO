@@ -36,6 +36,7 @@
             android:background="@android:color/transparent"
             android:textColor="@color/black"
             android:visibility="gone"/>
+
     </RelativeLayout>
 
 
