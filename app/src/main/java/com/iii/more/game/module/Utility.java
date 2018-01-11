@@ -67,9 +67,9 @@ public abstract class Utility
         return context.getResources().getIdentifier(name, defType, context.getPackageName());
     }
     
-    public static void loadImage(Activity activity, int nResId, ImageView imageView)
+    public static void loadImage(Context context, int nResId, ImageView imageView)
     {
-        Glide.with(activity).load(nResId).apply(RequestOptions.diskCacheStrategyOf
+        Glide.with(context).load(nResId).apply(RequestOptions.diskCacheStrategyOf
             (DiskCacheStrategy.NONE)).into(imageView);
     }
     

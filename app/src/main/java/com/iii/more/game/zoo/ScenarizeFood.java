@@ -40,7 +40,7 @@ public class ScenarizeFood extends ScenarizeBase
             R.drawable.food_store,
             "p_o_noeye.png",
             ImageView.ScaleType.CENTER_CROP,
-            ImageView.ScaleType.CENTER_INSIDE,
+            ImageView.ScaleType.CENTER_CROP,
             FRONT.FACE,
             "我們來吃東西休息一下吧！選一個吧");
     

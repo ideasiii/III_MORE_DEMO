@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.iii.more.game.module.Utility;
 import com.iii.more.game.module.ViewPagerLayout;
 import com.iii.more.main.R;
 
@@ -223,8 +224,9 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.taiwan_bear;
                             break;
                     }
-                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
-                        (DiskCacheStrategy.NONE)).into(animal.image);
+//                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
+//                        (DiskCacheStrategy.NONE)).into(animal.image);
+                    Utility.loadImage(theContext,nr,animal.image);
                     addPage(animal.image, animal.name);
                 }
                 break;
@@ -253,8 +255,9 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.bird_parrot;
                             break;
                     }
-                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
-                        (DiskCacheStrategy.NONE)).into(animal.image);
+//                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
+//                        (DiskCacheStrategy.NONE)).into(animal.image);
+                    Utility.loadImage(theContext,nr,animal.image);
                     addPage(animal.image, animal.name);
                 }
                 break;
@@ -286,8 +289,9 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.cut_sheep;
                             break;
                     }
-                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
-                        (DiskCacheStrategy.NONE)).into(animal.image);
+//                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
+//                        (DiskCacheStrategy.NONE)).into(animal.image);
+                    Utility.loadImage(theContext,nr,animal.image);
                     addPage(animal.image, animal.name);
                 }
                 break;
@@ -313,8 +317,9 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.affica_lion;
                             break;
                     }
-                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
-                        (DiskCacheStrategy.NONE)).into(animal.image);
+//                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
+//                        (DiskCacheStrategy.NONE)).into(animal.image);
+                    Utility.loadImage(theContext,nr,animal.image);
                     addPage(animal.image, animal.name);
                 }
                 break;
@@ -340,8 +345,9 @@ public class ZooAnimalLayout extends ViewPagerLayout
                             nr = R.drawable.rain_tiger;
                             break;
                     }
-                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
-                        (DiskCacheStrategy.NONE)).into(animal.image);
+//                    Glide.with(theContext).load(nr).apply(RequestOptions.diskCacheStrategyOf
+//                        (DiskCacheStrategy.NONE)).into(animal.image);
+                    Utility.loadImage(theContext,nr,animal.image);
                     addPage(animal.image, animal.name);
                 }
                 break;

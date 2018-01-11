@@ -100,7 +100,7 @@ public class ScenarizeBus extends ScenarizeBase
         ImageView.ScaleType.CENTER_INSIDE,
         ImageView.ScaleType.CENTER_INSIDE,
         FRONT.FACE,
-        "好棒！!!我們出發囉！");
+        "");
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_BUS_EMOTION_RESP,
@@ -114,7 +114,7 @@ public class ScenarizeBus extends ScenarizeBase
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
-            "");
+            "好棒！!!我們出發囉！");
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_BUS_DRIVE,

@@ -67,9 +67,8 @@ public class RobotHead extends RelativeLayout
             LayoutParams.MATCH_PARENT);
         this.setPadding(0, 170, 0, 0);
         this.setLayoutParams(layoutParamsP);
-        setBackgroundColor(Color.rgb(160, 201, 236)); //A0C9EC
+        setBackgroundColor(Color.rgb(108, 147, 213));
         
-        setBackgroundResource(R.color.default_app_color);
         imgFace = new ImageView(context);
         imgFace.setScaleType(ImageView.ScaleType.FIT_XY);
         imgFace.setAdjustViewBounds(false);

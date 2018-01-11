@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -84,8 +85,8 @@ public class ZooActivity extends Activity
             public void onDropped(View view, int nX, int nY)
             {
                 GLOBAL.mnDroppedX = nX;
-                // handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_DROP_CUSTOM);
-                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_BUS_EMOTION_RESP);
+                handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_DROP_CUSTOM);
+                //handlerScenarize.sendEmptyMessage(SCEN.SCEN_INDEX_BUS_EMOTION_RESP);
                 Logs.showTrace("onDropped view: " + view.getTag() + "x: " + String.valueOf(GLOBAL
                     .mnDroppedX));
             }
@@ -103,9 +104,6 @@ public class ZooActivity extends Activity
             .getSensorEventListener());
         // 註冊TTS Listener
         application.setTTSEventListener(ttsEventHandler.getTTSEventListener());
-        // 註冊FaceEmotionEventListener
-        // application.setFaceEmotionEventListener(faceEmotionEventHandler
-        // .getFaceEmotionEventListener());
         
         robotHead.setObjectImg(this, R.drawable.busy, ImageView.ScaleType.CENTER_INSIDE);
         robotHead.showObjectImg(true);
@@ -130,7 +128,7 @@ public class ZooActivity extends Activity
         
         mrtMap = new MrtMap(this, handlerScenarize);
         layoutParamsExView = new RelativeLayout.LayoutParams(1000, 1000);
-        layoutParamsExView.setMargins((int) 0, (int) 200, (int) 0, (int) 0);
+        layoutParamsExView.setMargins((int) 0, (int) 150, (int) 0, (int) 0);
         layoutParamsExView.addRule(RelativeLayout.CENTER_HORIZONTAL);
         mrtMap.setLayoutParams(layoutParamsExView);
         
@@ -271,18 +269,10 @@ public class ZooActivity extends Activity
             ScenarizeHandler.FRONT front = (ScenarizeHandler.FRONT) jsonScenarize.get("front");
             
             strTTS = jsonScenarize.getString("tts_text");
-            if (SCEN.SCEN_INDEX_BUS_INSIDE == nIndex)
-            {
-                robotHead.addView(ivMan);
-            }
             
             if (SCEN.SCEN_INDEX_DROP_CUSTOM == nIndex)
             {
                 robotHead.removeView(ivMan);
-            }
-            
-            if (SCEN.SCEN_INDEX_DROP_CUSTOM == nIndex)
-            {
                 if (550 < GLOBAL.mnDroppedX)
                 {
                     robotHead.setFace(this,R.drawable.businside_right, (ImageView.ScaleType)
@@ -447,7 +437,8 @@ public class ZooActivity extends Activity
                     }
                 }
             }
-            
+    
+            robotHead.setBackgroundColor(Color.rgb(108, 147, 213));
             switch (front)
             {
                 case FACE:
@@ -456,6 +447,11 @@ public class ZooActivity extends Activity
                 case OBJECT:
                     robotHead.bringObjImgtoFront();
                     break;
+            }
+    
+            if (SCEN.SCEN_INDEX_BUS_INSIDE == nIndex)
+            {
+                robotHead.addView(ivMan);
             }
             
             application.setTTSPitch(1.0f, 1.0f);

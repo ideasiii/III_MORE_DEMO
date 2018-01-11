@@ -58,7 +58,7 @@ public class ScenarizeStart extends ScenarizeBase
             R.drawable.traffic,
             "p_o_noeye.png",
             ImageView.ScaleType.CENTER_CROP,
-            ImageView.ScaleType.CENTER_INSIDE,
+            ImageView.ScaleType.CENTER_CROP,
             FRONT.OBJECT,
             "抓緊喔！今天，你想要坐什麼交通工具去呢");
     }

@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.iii.more.game.module.Utility;
 import com.iii.more.game.module.ViewPagerLayout;
 import com.iii.more.main.R;
 
@@ -83,8 +84,9 @@ public class TrafficListLayout extends ViewPagerLayout
         for (TRAFFIC_ITEM aid : TRAFFIC_ITEM.values())
         {
             ImageView imageView = new ImageView(context);
-            Glide.with(context).load(aid.getValue()).apply(RequestOptions.diskCacheStrategyOf
-                (DiskCacheStrategy.NONE)).into(imageView);
+//            Glide.with(context).load(aid.getValue()).apply(RequestOptions.diskCacheStrategyOf
+//                (DiskCacheStrategy.NONE)).into(imageView);
+            Utility.loadImage(context,aid.getValue(),imageView);
             addPage(imageView, aid.name());
         }
         start();
