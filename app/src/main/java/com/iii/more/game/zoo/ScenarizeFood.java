@@ -55,7 +55,7 @@ public class ScenarizeFood extends ScenarizeBase
             "p_o_noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
+            FRONT.OBJECT,
             "今天你想吃什麼呢? 點一下你想吃的東西喔");
     
         setScenarize(scenarize,

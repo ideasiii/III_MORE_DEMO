@@ -105,8 +105,7 @@ public class ZooActivity extends Activity
         // 註冊TTS Listener
         application.setTTSEventListener(ttsEventHandler.getTTSEventListener());
         
-        robotHead.setObjectImg(this, R.drawable.busy, ImageView.ScaleType.CENTER_INSIDE);
-        robotHead.showObjectImg(true);
+        robotHead.setFace(this, R.drawable.g_o_speak, ImageView.ScaleType.CENTER_CROP);
         
         ivMan = new ImageView(this);
         ivMan.setTag("MAN");
@@ -126,11 +125,15 @@ public class ZooActivity extends Activity
         trackerHandler.setActivity("game");
         trackerHandler.setDescription("Edubot Zoo Game");
         
-        mrtMap = new MrtMap(this, handlerScenarize);
-        layoutParamsExView = new RelativeLayout.LayoutParams(1000, 1000);
-        layoutParamsExView.setMargins((int) 0, (int) 150, (int) 0, (int) 0);
+        layoutParamsExView = new RelativeLayout.LayoutParams(1200, 1200);
+        //layoutParamsExView.setMargins((int) 0, (int) 0, (int) 0, (int) 0);
         layoutParamsExView.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        mrtMap.setLayoutParams(layoutParamsExView);
+        
+        mrtMap = new MrtMap(this, handlerScenarize);
+        RelativeLayout.LayoutParams layoutParamsMrtMap = new RelativeLayout.LayoutParams(800, 800);
+        layoutParamsMrtMap.setMargins((int) 0, (int) 190, (int) 0, (int) 0);
+        layoutParamsMrtMap.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        mrtMap.setLayoutParams(layoutParamsMrtMap);
         
         zooAreaLayout = new ZooAreaLayout(this, handlerScenarize);
         zooAreaLayout.setLayoutParams(layoutParamsExView);
@@ -171,6 +174,7 @@ public class ZooActivity extends Activity
         GLOBAL.ChildName = application.getName(Parameters.ID_CHILD_NAME);
         mnZooAreaCount = 0;
         scenarizeHandler.createScenarize(GLOBAL.scenarize);
+        robotHead.setFace(this, R.drawable.g_o_speak, ImageView.ScaleType.CENTER_CROP);
         Scenarize(SCEN.SCEN_INDEX_START, null);
     }
     
@@ -184,7 +188,6 @@ public class ZooActivity extends Activity
             mVoiceRecognition.stopListen();
         }
         super.onStop();
-        finish();
     }
     
     @Override
@@ -256,7 +259,7 @@ public class ZooActivity extends Activity
             robotHead.setObjectImg(this, jsonScenarize.getInt("object_id"), (ImageView.ScaleType)
                 jsonScenarize.get("object_scale_type"));
             strFaceImg = jsonScenarize.getString("face_image");
-           
+            
             if ((boolean) jsonScenarize.get("emotion"))
             {
                 application.setFaceEmotionEventListener(faceEmotionEventHandler
@@ -275,13 +278,13 @@ public class ZooActivity extends Activity
                 robotHead.removeView(ivMan);
                 if (550 < GLOBAL.mnDroppedX)
                 {
-                    robotHead.setFace(this,R.drawable.businside_right, (ImageView.ScaleType)
+                    robotHead.setFace(this, R.drawable.businside_right, (ImageView.ScaleType)
                         jsonScenarize.get("face_scale_type"));
                     strFaceImg = "businside_right.png";
                 }
                 else
                 {
-                    robotHead.setFace(this,R.drawable.businside_left, (ImageView.ScaleType)
+                    robotHead.setFace(this, R.drawable.businside_left, (ImageView.ScaleType)
                         jsonScenarize.get("face_scale_type"));
                     strFaceImg = "businside_left.png";
                 }
@@ -428,8 +431,8 @@ public class ZooActivity extends Activity
                     try
                     {
                         strTTS = (String) jsonEmotion.get("TTS_TEXT");
-                        robotHead.setFace(this,(int) jsonEmotion.get("IMG_FILE_RES_ID"), ImageView
-                            .ScaleType.CENTER_CROP);
+                        robotHead.setFace(this, (int) jsonEmotion.get("IMG_FILE_RES_ID"),
+                            ImageView.ScaleType.CENTER_CROP);
                     }
                     catch (Exception e)
                     {
@@ -437,7 +440,7 @@ public class ZooActivity extends Activity
                     }
                 }
             }
-    
+            
             robotHead.setBackgroundColor(Color.rgb(108, 147, 213));
             switch (front)
             {
@@ -448,7 +451,7 @@ public class ZooActivity extends Activity
                     robotHead.bringObjImgtoFront();
                     break;
             }
-    
+            
             if (SCEN.SCEN_INDEX_BUS_INSIDE == nIndex)
             {
                 robotHead.addView(ivMan);
@@ -461,11 +464,6 @@ public class ZooActivity extends Activity
             trackerHandler.setRobotFace(strFaceImg).setSensor("", "").setScene(String.valueOf
                 (GLOBAL.scenarizeCurr.ScenarizeIndex)).setMicrophone("").setSpeaker("tts",
                 strTTS, "1", "1", "").send();
-            
-            if (SCEN.SCEN_INDEX_GAME_OVER == nIndex)
-            {
-                finish();
-            }
         }
         catch (Exception e)
         {
