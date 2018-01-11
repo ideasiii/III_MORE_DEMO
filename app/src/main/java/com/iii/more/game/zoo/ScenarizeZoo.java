@@ -61,7 +61,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.OBJECT,
+            FRONT.FACE,
             "歡迎參觀台灣動物區");
     
         setScenarize(scenarize,
@@ -75,7 +75,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.OBJECT,
+            FRONT.FACE,
             "歡迎參觀鳥園");
     
         setScenarize(scenarize,
@@ -89,7 +89,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.OBJECT,
+            FRONT.FACE,
             "歡迎參觀熱帶雨林動物區");
     
         setScenarize(scenarize,
@@ -103,7 +103,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.OBJECT,
+            FRONT.FACE,
             "歡迎參觀可愛動物區");
     
         setScenarize(scenarize,
@@ -117,7 +117,7 @@ public class ScenarizeZoo extends ScenarizeBase
             "noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.OBJECT,
+            FRONT.FACE,
             "歡迎參觀非洲動物區");
     }
 }

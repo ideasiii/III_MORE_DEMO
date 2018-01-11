@@ -21,7 +21,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
-import com.iii.more.game.module.ViewPagerLayout;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.Parameters;
 import com.iii.more.main.R;
@@ -270,15 +269,6 @@ public class ZooActivity extends Activity
                 application.setFaceEmotionEventListener(null);
             }
             ScenarizeHandler.FRONT front = (ScenarizeHandler.FRONT) jsonScenarize.get("front");
-            switch (front)
-            {
-                case FACE:
-                    robotHead.bringFaceImgtoFront();
-                    break;
-                case OBJECT:
-                    robotHead.bringObjImgtoFront();
-                    break;
-            }
             
             strTTS = jsonScenarize.getString("tts_text");
             if (SCEN.SCEN_INDEX_BUS_INSIDE == nIndex)
@@ -457,6 +447,16 @@ public class ZooActivity extends Activity
                         Logs.showError("Exception: " + e.getMessage());
                     }
                 }
+            }
+    
+            switch (front)
+            {
+                case FACE:
+                    robotHead.bringFaceImgtoFront();
+                    break;
+                case OBJECT:
+                    robotHead.bringObjImgtoFront();
+                    break;
             }
             
             application.setTTSPitch(1.0f, 1.0f);
