@@ -41,6 +41,11 @@ class SensorEventHandler
         listSensorEvent = new SparseArray<SensorEvent>();
     }
     
+    public void setHandler(Handler handler)
+    {
+        handlerScenarize = handler;
+    }
+    
     public void goScenarize(final int nScenarizeIndex)
     {
         handlerScenarize.sendEmptyMessage(nScenarizeIndex);

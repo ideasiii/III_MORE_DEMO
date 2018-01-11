@@ -35,8 +35,10 @@ import android.widget.RelativeLayout;
 
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.WeakHashMap;
 
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
@@ -174,6 +176,7 @@ public class ZooActivity extends Activity
         GLOBAL.ChildName = application.getName(Parameters.ID_CHILD_NAME);
         mnZooAreaCount = 0;
         scenarizeHandler.createScenarize(GLOBAL.scenarize);
+        scenarizeHandler.setHandler(handlerScenarize);
         robotHead.setFace(this, R.drawable.g_o_speak, ImageView.ScaleType.CENTER_CROP);
         Scenarize(SCEN.SCEN_INDEX_START, null);
     }
@@ -368,7 +371,7 @@ public class ZooActivity extends Activity
                 robotHead.addView(zooAnimalLayout);
                 zooAnimalLayout.startSlideShow(nTimeoutAnimal, false);
             }
-            
+           
             if (SCEN.SCEN_INDEX_FOOD_STORE == nIndex)
             {
                 robotHead.removeView(zooAnimalLayout);
@@ -418,7 +421,7 @@ public class ZooActivity extends Activity
             {
                 robotHead.removeView(imgvFoodEat);
             }
-            
+          
             if (SCEN.SCEN_INDEX_BUS_EMOTION_RESP == nIndex || SCEN.SCEN_INDEX_MRT_EMOTION_RESP ==
                 nIndex || SCEN.SCEN_INDEX_CAR_EMOTION_RESP == nIndex)
             {
@@ -440,7 +443,7 @@ public class ZooActivity extends Activity
                     }
                 }
             }
-            
+          
             robotHead.setBackgroundColor(Color.rgb(108, 147, 213));
             switch (front)
             {
@@ -451,7 +454,7 @@ public class ZooActivity extends Activity
                     robotHead.bringObjImgtoFront();
                     break;
             }
-            
+          
             if (SCEN.SCEN_INDEX_BUS_INSIDE == nIndex)
             {
                 robotHead.addView(ivMan);
@@ -459,7 +462,7 @@ public class ZooActivity extends Activity
             
             application.setTTSPitch(1.0f, 1.0f);
             application.playTTS(strTTS, String.valueOf(nIndex));
-            
+          
             // 傳送Tracker Data
             trackerHandler.setRobotFace(strFaceImg).setSensor("", "").setScene(String.valueOf
                 (GLOBAL.scenarizeCurr.ScenarizeIndex)).setMicrophone("").setSpeaker("tts",
@@ -468,18 +471,35 @@ public class ZooActivity extends Activity
         catch (Exception e)
         {
             Logs.showError("[ZooActivity] Scenarize Exception:" + e.toString());
+            e.printStackTrace();
         }
     }
     
-    @SuppressLint("HandlerLeak")
-    private final Handler handlerScenarize = new Handler()
+    private final SelfHandler handlerScenarize = new SelfHandler(this);
+    
+    private static class SelfHandler extends Handler
     {
+        private final WeakReference<ZooActivity> mWeakSelf;
+        
+        private SelfHandler(ZooActivity act)
+        {
+            mWeakSelf = new WeakReference<>(act);
+        }
+        
         @Override
         public void handleMessage(Message msg)
         {
-            Scenarize(msg.what, msg.obj);
+            ZooActivity self = mWeakSelf.get();
+            if (self == null)
+            {
+                return;
+            }
+            
+            self.Scenarize(msg.what, msg.obj);
         }
-    };
+    }
+    
+    ;
     
     @SuppressLint("HandlerLeak")
     private Handler handlerSpeech = new Handler()

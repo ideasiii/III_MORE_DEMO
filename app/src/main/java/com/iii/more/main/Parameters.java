@@ -6,7 +6,7 @@ package com.iii.more.main;
 
 public abstract class Parameters
 {
-    public static final boolean OOBE_DEBUG_ENABLE = BuildConfig.OOBE;
+    public static final boolean OOBE_DEBUG_ENABLE = false;//BuildConfig.OOBE;
     
     public static final String ID_CHILD_NAME = "child_name";
     public static final String ID_ROBOT_NAME = "edubot_name";

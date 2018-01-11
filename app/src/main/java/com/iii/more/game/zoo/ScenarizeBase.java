@@ -27,6 +27,12 @@ public abstract class ScenarizeBase extends ScenarizeDefine
         }
     }
     
+    public void setHandler(Handler handler)
+    {
+        handlerScenarize = handler;
+        sensorEventHandler.setHandler(handler);
+    }
+    
     public void goScenarize(final int nScenarizeIndex)
     {
         handlerScenarize.sendEmptyMessage(nScenarizeIndex);
