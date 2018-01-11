@@ -351,26 +351,27 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 {
                     //####
                     // success get http post data and judge what
-                   JSONObject data = null;
+                    JSONObject data = null;
                     try
                     {
                         data = new JSONObject(message.get("message"));
                         //data.put("TTS", new String(data.getString("TTS").getBytes("UTF-8"), "UTF-8"));
-                        Logs.showTrace("[MainActivity] http post get Data: " + data.toString() /*data.toString()*/);
+                        Logs.showTrace("[MainActivity] http post get Data: " + data.toString() /*data
+                        .toString()*/);
                     }
-                    catch (JSONException  e)
+                    catch (JSONException e)
                     {
                         e.printStackTrace();
                         
                     }
                     
-                  //  if (null != data)
+                    //  if (null != data)
                     {
                         mLogicHandler.storyModeAPIAnalysis(message.get("message"));
                     }
                     //else
                     {
-                      //  Logs.showError("[MainActivity] METHOD_HTTP_POST_RESPONSE ERROR");
+                        //  Logs.showError("[MainActivity] METHOD_HTTP_POST_RESPONSE ERROR");
                     }
                     
                 }
@@ -1059,10 +1060,19 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                         }
                     }
                 }
+                
+                
                 if (null != imageHashMap)
                 {
-                    mDisplayHandler.setImageViewImageFromDrawable(mDisplayHandler.getDrawableIDFromFileName
-                        (imageHashMap.get("IMG_FILE_NAME")));
+                    if (Parameters.IS_STORY_MODE_USE_TASK_COMPOSER_EMOTION_TTS)
+                    {
+                        mDisplayHandler.setImageViewImageFromDrawable(mDisplayHandler
+                            .getDrawableIDFromFileName(imageHashMap.get("IMG_FILE_NAME")));
+                    }
+                    else
+                    {
+                        mDisplayHandler.setImageViewImageFromDrawable(R.drawable.g_o_speak);
+                    }
                 }
                 
             }

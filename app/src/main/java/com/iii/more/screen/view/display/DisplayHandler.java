@@ -12,6 +12,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.iii.more.animate.AnimationHandler;
 import com.iii.more.main.R;
 import com.iii.more.main.Tools;
@@ -169,7 +171,8 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         {
             if (mHashMapViews.get(key) instanceof ImageView)
             {
-                ((ImageView) mHashMapViews.get(key)).setImageResource(id);
+                Glide.with(mContext).load(id).apply(RequestOptions.diskCacheStrategyOf
+                    (DiskCacheStrategy.NONE)).into((ImageView) mHashMapViews.get(key));
                 break;
             }
         }
@@ -194,7 +197,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
                 }
                 else if (mHashMapViews.get(key) instanceof ImageView)
                 {
-                    ((ImageView) mHashMapViews.get(key)).setImageResource(R.drawable.default_image);
+                    ((ImageView) mHashMapViews.get(key)).setImageResource(R.drawable.p_o_normal);
                     // Glide.with(mContext)
                     //        .load("")
                     //        .listener(mRequestListener)
@@ -408,9 +411,11 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
                 }
                 if (drawableId != 0)
                 {
-                    Glide.with(mContext).load(drawableId)
-                        //.load(display.imageURL)
-                        .into((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID));
+                   
+                    Glide.with(mContext).load(R.drawable.g_o_speak).apply(RequestOptions.diskCacheStrategyOf
+                        (DiskCacheStrategy.NONE)).into((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID));
+                    
+                    
                 }
             }
         }

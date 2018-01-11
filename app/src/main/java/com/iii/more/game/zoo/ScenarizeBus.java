@@ -45,9 +45,9 @@ public class ScenarizeBus extends ScenarizeBase
             NEXT_TRIGER.RFID,
             true,
             true,
-            R.drawable.noeye,
+            R.drawable.p_o_noeye,
             R.drawable.bus,
-            "noeye.png",
+            "p_o_noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
@@ -59,9 +59,9 @@ public class ScenarizeBus extends ScenarizeBase
             NEXT_TRIGER.TTS_TEXT,
             true,
             true,
-            R.drawable.noeye,
+            R.drawable.p_o_noeye,
             R.drawable.bus,
-            "noeye.png",
+            "p_o_noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE, "逼，，逼");
@@ -100,7 +100,7 @@ public class ScenarizeBus extends ScenarizeBase
         ImageView.ScaleType.CENTER_INSIDE,
         ImageView.ScaleType.CENTER_INSIDE,
         FRONT.FACE,
-        "好棒！!!我們出發囉！");
+        "");
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_BUS_EMOTION_RESP,
@@ -108,13 +108,13 @@ public class ScenarizeBus extends ScenarizeBase
             NEXT_TRIGER.TTS_TEXT,
             true,
             false,
-            R.drawable.noeye,
+            R.drawable.p_o_noeye,
             R.drawable.bus,
-            "noeye.png",
+            "p_o_noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
-            "");
+            "好棒！!!我們出發囉！");
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_BUS_DRIVE,
@@ -122,9 +122,9 @@ public class ScenarizeBus extends ScenarizeBase
             NEXT_TRIGER.TTS_TEXT,
             true,
             true,
-            R.drawable.noeye,
+            R.drawable.p_o_noeye,
             R.drawable.bus_run,
-            "noeye.png",
+            "p_o_noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,

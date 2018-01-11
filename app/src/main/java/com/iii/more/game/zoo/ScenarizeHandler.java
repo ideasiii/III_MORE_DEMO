@@ -35,6 +35,17 @@ public class ScenarizeHandler extends ScenarizeBase
         scenarizeEnd = new ScenarizeEnd(handler);
     }
     
+    public void setHandler(Handler handler)
+    {
+        scenarizeBus.setHandler(handler);
+        scenarizeCar.setHandler(handler);
+        scenarizeMrt.setHandler(handler);
+        scenarizeZoo.setHandler(handler);
+        scenarizeFood.setHandler(handler);
+        scenarizeStart.setHandler(handler);
+        scenarizeEnd.setHandler(handler);
+    }
+    
     public void createScenarize(SparseArray<JSONObject> scenarize)
     {
         scenarize.clear();

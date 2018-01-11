@@ -30,7 +30,7 @@ public class FaceEmotionEventHandler
         jsonRoot = new JSONObject();
         try
         {
-            jsonRoot.put("IMG_FILE_RES_ID", Utility.getResourceId(theContext, "octobo16",
+            jsonRoot.put("IMG_FILE_RES_ID", Utility.getResourceId(theContext, "g_o_question",
                 "drawable"));
             jsonRoot.put("EMOTION_NAME", "ATTENTION");
             jsonRoot.put("TTS_TEXT", "你很專心喔");
@@ -89,13 +89,10 @@ public class FaceEmotionEventHandler
                     if (null != imageEmotionData)
                     {
                         jsonRoot.put("IMG_FILE_NAME", imageEmotionData.get("IMG_FILE_NAME"));
-//                        strImage = imageEmotionData.get("IMG_FILE_NAME").substring
-//                            (imageEmotionData.get("IMG_FILE_NAME").indexOf('-') + 1
-//                                , imageEmotionData.get("IMG_FILE_NAME").lastIndexOf('.'));
-                        strImage = "octobo" + imageEmotionData.get("IMG_FILE_NAME").substring
-                            (imageEmotionData.get("IMG_FILE_NAME").indexOf('-') + 1,
-                                imageEmotionData.get("IMG_FILE_NAME").lastIndexOf('.'));
-                        int nId = Utility.getResourceId(theContext, strImage, "drawable");
+//                        strImage = "octobo" + imageEmotionData.get("IMG_FILE_NAME").substring
+//                            (imageEmotionData.get("IMG_FILE_NAME").indexOf('-') + 1,
+//                                imageEmotionData.get("IMG_FILE_NAME").lastIndexOf('.'));
+                        int nId = Utility.getResourceId(theContext, "g_o_question", "drawable");
                         Logs.showTrace("[ZooActivity] onFaceEmotionResult image: " + strImage +
                             " resource id" + nId);
                         jsonRoot.put("IMG_FILE_RES_ID", nId);
@@ -111,9 +108,9 @@ public class FaceEmotionEventHandler
                     .getMessage());
             }
             
-            Message message = new Message();
-            message.what = SCEN.SENSOR_FACE_EMOTION;
-            message.obj = jsonRoot.toString();
+//            Message message = new Message();
+//            message.what = SCEN.SENSOR_FACE_EMOTION;
+//            message.obj = jsonRoot.toString();
             // handlerScenarize.sendMessage(message);
         }
         

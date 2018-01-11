@@ -28,9 +28,9 @@ public class ScenarizeStart extends ScenarizeBase
             NEXT_TRIGER.RFID,
             true,
             false,
-            R.drawable.octobo16,
+            R.drawable.g_o_speak,
             R.drawable.zoo,
-            "octobo16.png",
+            "g_o_speak.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_CROP,
             FRONT.FACE, "嗨! 你好 來玩遊戲吧");
@@ -41,9 +41,9 @@ public class ScenarizeStart extends ScenarizeBase
             NEXT_TRIGER.SENSOR_ALL,
             true,
             true,
-            R.drawable.noeye,
+            R.drawable.p_o_noeye,
             R.drawable.zoo,
-            "noeye.png",
+            "p_o_noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.OBJECT, "哈囉，" + GLOBAL.ChildName + "今天我們一起去動物園玩！牽著我的手，出發囉！");
@@ -54,11 +54,11 @@ public class ScenarizeStart extends ScenarizeBase
             NEXT_TRIGER.RFID,
             true,
             true,
-            R.drawable.noeye,
+            R.drawable.p_o_noeye,
             R.drawable.traffic,
-            "noeye.png",
+            "p_o_noeye.png",
             ImageView.ScaleType.CENTER_CROP,
-            ImageView.ScaleType.CENTER_INSIDE,
+            ImageView.ScaleType.CENTER_CROP,
             FRONT.OBJECT,
             "抓緊喔！今天，你想要坐什麼交通工具去呢");
     }

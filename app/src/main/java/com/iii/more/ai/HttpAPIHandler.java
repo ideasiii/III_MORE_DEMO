@@ -27,6 +27,8 @@ import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
+import android.os.Handler;
+
 /**
  * Created by joe on 2017/9/10.
  */
@@ -59,23 +61,32 @@ public class HttpAPIHandler extends BaseHandler
         
         if (HttpAPIParameters.isTest)
         {
-            HashMap<String, String> message = new HashMap<>();
-            String responseData = HttpAPIParameters.ERROR_POST_DEFAULT_RETURN;
-            if (testCounter++ >= HttpAPIParameters.TEST_MAX_COUNT)
+            
+            new Handler().postDelayed(new Runnable()
             {
-                responseData = HttpAPIParameters.TEST_RESUME_PLAY_POST_DEFAULT_RETURN;
-                testCounter = 0;
-            }
-            else
-            {
-                responseData = HttpAPIParameters.TEST_STT_POST_DEFAULT_RETURN;
-            }
-            if (!responseData.isEmpty())
-            {
-                message.put("message", responseData);
-                callBackMessage(ResponseCode.ERR_SUCCESS, HttpAPIParameters.CLASS_HTTP_API,
-                    HttpAPIParameters.METHOD_HTTP_POST_RESPONSE, message);
-            }
+                @Override
+                public void run()
+                {
+                    HashMap<String, String> message = new HashMap<>();
+                    String responseData = HttpAPIParameters.ERROR_POST_DEFAULT_RETURN;
+                    if (testCounter++ >= HttpAPIParameters.TEST_MAX_COUNT)
+                    {
+                        responseData = HttpAPIParameters.TEST_RESUME_PLAY_POST_DEFAULT_RETURN;
+                        testCounter = 0;
+                    }
+                    else
+                    {
+                        responseData = HttpAPIParameters.TEST_STT_POST_DEFAULT_RETURN;
+                    }
+                    if (!responseData.isEmpty())
+                    {
+                        message.put("message", responseData);
+                        callBackMessage(ResponseCode.ERR_SUCCESS, HttpAPIParameters.CLASS_HTTP_API,
+                            HttpAPIParameters.METHOD_HTTP_POST_RESPONSE, message);
+                    }
+                }
+            }, 2000);
+            
         }
         else
         {
