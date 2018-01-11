@@ -106,8 +106,8 @@ final class TTSVoicePool
         mCyberonTtsAdapter_KidFemale.setHandler(mHandler);
         mCyberonTtsAdapter_KidFemale.setVoiceName(CReaderPlayer.VoiceNameConstant
             .TRADITIONAL_CHINESE_KID_FEMALE_VOICE_NAME);
-        mCyberonTtsAdapter_KidFemale.setPitch(75);
-        mCyberonTtsAdapter_KidFemale.setSpeechRate(80);
+        mCyberonTtsAdapter_KidFemale.setPitch(50);
+        mCyberonTtsAdapter_KidFemale.setSpeechRate(60);
         mCyberonTtsAdapter_KidFemale.setVolume(500);
         mCyberonTtsAdapter_KidFemale.init();
 

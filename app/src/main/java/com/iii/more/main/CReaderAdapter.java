@@ -338,6 +338,10 @@ class CReaderAdapter
 
             mDoneInitialization = true;
 
+            Log.d(LOG_TAG, "init() setSpeed(" + mRate + ")");
+            Log.d(LOG_TAG, "init() setPitch(" + mPitch + ")");
+            Log.d(LOG_TAG, "init() setVolume(" + mVolume + ")");
+
             mCReader.setSpeed(mRate);
             mCReader.setPitch(mPitch);
             mCReader.setVolume(mVolume);

@@ -3,7 +3,6 @@ package com.iii.more.main;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -79,17 +78,6 @@ public class MainApplication extends Application
         // initInterruptLogic();
         // initFaceEmotionInterrupt();
         initTTS();
-    }
-
-    /**
-     * An alias of (MainApplication)context.getApplicationContext()
-     *
-     * @param context Context having access to getApplicationContext()
-     * @return MainApplication instance
-     */
-    public static MainApplication getApp(Context context)
-    {
-        return (MainApplication) context.getApplicationContext();
     }
 
     /**
