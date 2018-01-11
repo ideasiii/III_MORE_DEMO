@@ -1,5 +1,6 @@
 package com.iii.more.game.module;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -80,7 +81,6 @@ public class RobotHead extends RelativeLayout
         showFaceImg(false);
         
         imgObject = new ImageView(context);
-        imgObject.setTag("Object Image");
         imgObject.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imgObject.setAdjustViewBounds(true);
         LayoutParams layoutParams1 = new LayoutParams((int) Utility.convertDpToPixel(400,
@@ -101,19 +101,19 @@ public class RobotHead extends RelativeLayout
         return imgObject;
     }
     
-    public void setFace(int nResId, ImageView.ScaleType is)
+    public void setFace(Activity activity, int nResId, ImageView.ScaleType is)
     {
-        imgFace.setImageResource(nResId);
+        // imgFace.setImageResource(nResId);
         imgFace.setScaleType(is);
-       // imgFace.requestLayout();
+        Utility.loadImage(activity, nResId, imgFace);
         Logs.showTrace("[zoo] RobotHead set Face image:" + nResId);
     }
     
-    public void setObjectImg(int nResId, ImageView.ScaleType is)
+    public void setObjectImg(Activity activity, int nResId, ImageView.ScaleType is)
     {
-        imgObject.setImageResource(nResId);
+        // imgObject.setImageResource(nResId);
         imgObject.setScaleType(is);
-      //  imgObject.requestLayout();
+        Utility.loadImage(activity, nResId, imgObject);
         Logs.showTrace("[zoo] RobotHead set object image:" + nResId);
     }
     

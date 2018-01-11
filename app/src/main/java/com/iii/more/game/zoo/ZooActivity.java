@@ -107,7 +107,7 @@ public class ZooActivity extends Activity
         // application.setFaceEmotionEventListener(faceEmotionEventHandler
         // .getFaceEmotionEventListener());
         
-        robotHead.setObjectImg(R.drawable.busy, ImageView.ScaleType.CENTER_INSIDE);
+        robotHead.setObjectImg(this, R.drawable.busy, ImageView.ScaleType.CENTER_INSIDE);
         robotHead.showObjectImg(true);
         
         ivMan = new ImageView(this);
@@ -253,12 +253,12 @@ public class ZooActivity extends Activity
             robotHead.bringToFront();
             robotHead.showFaceImg(jsonScenarize.getBoolean("face_show"));
             robotHead.showObjectImg(jsonScenarize.getBoolean("object_show"));
-            robotHead.setFace(jsonScenarize.getInt("face_id"), (ImageView.ScaleType)
+            robotHead.setFace(this, jsonScenarize.getInt("face_id"), (ImageView.ScaleType)
                 jsonScenarize.get("face_scale_type"));
-            robotHead.setObjectImg(jsonScenarize.getInt("object_id"), (ImageView.ScaleType)
+            robotHead.setObjectImg(this, jsonScenarize.getInt("object_id"), (ImageView.ScaleType)
                 jsonScenarize.get("object_scale_type"));
             strFaceImg = jsonScenarize.getString("face_image");
-            // robotHead.bringObjImgtoFront();
+           
             if ((boolean) jsonScenarize.get("emotion"))
             {
                 application.setFaceEmotionEventListener(faceEmotionEventHandler
@@ -285,13 +285,13 @@ public class ZooActivity extends Activity
             {
                 if (550 < GLOBAL.mnDroppedX)
                 {
-                    robotHead.setFace(R.drawable.businside_right, (ImageView.ScaleType)
+                    robotHead.setFace(this,R.drawable.businside_right, (ImageView.ScaleType)
                         jsonScenarize.get("face_scale_type"));
                     strFaceImg = "businside_right.png";
                 }
                 else
                 {
-                    robotHead.setFace(R.drawable.businside_left, (ImageView.ScaleType)
+                    robotHead.setFace(this,R.drawable.businside_left, (ImageView.ScaleType)
                         jsonScenarize.get("face_scale_type"));
                     strFaceImg = "businside_left.png";
                 }
@@ -389,8 +389,7 @@ public class ZooActivity extends Activity
             if (SCEN.SCEN_INDEX_FOOD_EAT == nIndex)
             {
                 robotHead.removeView(foodListLayout);
-                Glide.with(this).load((int) object).apply(RequestOptions.diskCacheStrategyOf
-                    (DiskCacheStrategy.NONE)).into(imgvFoodEat);
+                Utility.loadImage(this, (int) object, imgvFoodEat);
                 robotHead.addView(imgvFoodEat);
             }
             
@@ -439,7 +438,7 @@ public class ZooActivity extends Activity
                     try
                     {
                         strTTS = (String) jsonEmotion.get("TTS_TEXT");
-                        robotHead.setFace((int) jsonEmotion.get("IMG_FILE_RES_ID"), ImageView
+                        robotHead.setFace(this,(int) jsonEmotion.get("IMG_FILE_RES_ID"), ImageView
                             .ScaleType.CENTER_CROP);
                     }
                     catch (Exception e)
@@ -448,7 +447,7 @@ public class ZooActivity extends Activity
                     }
                 }
             }
-    
+            
             switch (front)
             {
                 case FACE:
