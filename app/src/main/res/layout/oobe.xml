@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/oobe_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,10 +13,11 @@
         android:layout_height="match_parent">
 
         <LinearLayout
+            android:id="@+id/oobe_video_layout"
             android:layout_width="800dp"
             android:layout_height="650dp"
-            android:layout_marginTop="120dp"
-            android:background="@android:color/black"
+            android:layout_marginTop="80dp"
+            android:background="@android:color/transparent"
             android:gravity="center"
             android:orientation="horizontal"
             >
@@ -30,7 +29,7 @@
                 android:layout_alignTop="@+id/oobe_image_view"
                 android:layout_centerHorizontal="true"
                 android:focusable="false"
-                android:visibility="invisible">
+                android:visibility="gone">
 
 
             </VideoView>
@@ -40,16 +39,11 @@
             android:id="@+id/oobe_image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+
             android:layout_marginBottom="-60dp"
-            android:layout_marginEnd="-150dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginRight="0dp"
-            android:layout_marginStart="-150dp"
             android:layout_marginTop="60dp"
-            android:adjustViewBounds="false"
             android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            android:src="@drawable/default_image"
+            android:src="@drawable/p_o_normal"
             android:visibility="visible"/>
 
 

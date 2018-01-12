@@ -15,7 +15,7 @@ public abstract class Parameters
     public static final String TASK_COMPOSER_DATA = "taskcomposerdata";
     public static final String CLOCK_INTENT_DATA = "clockintentdata";
     
-    public static final boolean IS_STORY_MODE_USE_TASK_COMPOSER_EMOTION_TTS = true;
+    public static final boolean IS_STORY_MODE_USE_TASK_COMPOSER_EMOTION_TTS = false;
     
     
     public static final String CMP_HOST_IP = "54.199.198.94";
@@ -71,5 +71,7 @@ public abstract class Parameters
         "\"OCTOBO\",id: 7},{trigger_value: \"-1\",priority: 1,emotion_name: \"ATTENTION\"," +
         "emotion_id: 10,trigger_time: 3,img_name: \"OCTOBO_Expressions-16.png\",contents: [ ]," +
         "emotion_type: \"EXPRESSION\",data_type: \"OCTOBO\",id: 8}]";
+    
+    public static final String CHEAT_STT = "一起來玩";
     
 }

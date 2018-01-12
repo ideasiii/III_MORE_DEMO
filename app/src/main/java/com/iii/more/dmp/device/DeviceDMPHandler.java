@@ -152,7 +152,7 @@ public class DeviceDMPHandler extends BaseHandler
                             data.put("time", 0);
                             data.put("host", "https://ryejuice.sytes.net/edubot/OCTOBO_Expressions/");
                             data.put("file", tmp.getString("current_expression"));
-                            data.put("color", "#FFA0C9EC");
+                            data.put("color", "#6d94d5");
                             data.put("description", "快樂");
                             data.put("animation", animate);
                             data.put("text", new JSONObject());

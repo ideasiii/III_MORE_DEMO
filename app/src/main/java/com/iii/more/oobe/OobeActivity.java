@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -61,6 +62,8 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
     private VideoView mVideoView = null;
     
     private MediaPlayer mediaPlayer = null;
+    
+    private final static int MAX_VIDEO_VOLUME = 100;
     
     public void handleMessages(Message msg)
     {
@@ -164,10 +167,13 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                     {
                                         //返回上一次步驟
                                         mOobeLogicHandler.setState(mOobeLogicHandler.getState() - 1);
+                                        
+                                        //上一步驟regret time --
+                                        mStateData.get(mOobeLogicHandler.getState()).getRegret();
                                     }
                                     else
                                     {
-                                        //以三次命名錯誤，設其值為空
+                                        //以多次命名錯誤，設其值為空
                                         if (mOobeLogicHandler.getState() == 1)
                                         {
                                             mMainApplication.setName(Parameters.ID_CHILD_NAME, "");
@@ -414,6 +420,9 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
             newText = nameText.replace("我叫做", "");
             newText = newText.replace("我是", "");
             newText = newText.replace("我的名字是", "");
+            newText = newText.replace("我叫", "");
+            newText = newText.replace("我的名字叫做", "");
+            newText = newText.replace("我的名字叫", "");
         }
         return newText;
     }
@@ -533,13 +542,18 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                         mediaTrackHashMap.put("Local", "oobe_movie");
                                         
                                         
-                                        mOobeDisplayHandler.setImageViewImageFromDrawable(R.drawable.noeye);
+                                        mOobeDisplayHandler.setImageViewImageFromDrawable(R.drawable
+                                            .p_o_noeye);
                                         mVideoView.setVisibility(View.VISIBLE);
+                                        
+                                        findViewById(R.id.oobe_video_layout).setBackgroundColor
+                                            (getResources().getColor(R.color.black));
                                         
                                         Uri video = Uri.parse("android" + ".resource://" + getPackageName()
                                             + "/" + R.raw.oobe_movie);
                                         
                                         mVideoView.setVideoURI(video);
+                                        
                                         
                                         mVideoView.start();
                                         
@@ -660,7 +674,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
     
     private void startMainActivity()
     {
-        Toast.makeText(this.getApplicationContext(), "即將結束OOBE模式，跳轉至一般模式", Toast.LENGTH_LONG).show();
+        Toast.makeText(this.getApplicationContext(), "即將結束OOBE模式，跳轉至一般模式", Toast.LENGTH_SHORT).show();
         
         mHandler.postDelayed(new Runnable()
         {
@@ -674,7 +688,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                 startActivity(startMain);
                 finish();
             }
-        }, 3000);
+        }, 500);
         
     }
     

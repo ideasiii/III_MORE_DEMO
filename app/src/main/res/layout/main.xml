@@ -18,6 +18,8 @@
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginBottom="-60dp"
+            android:layout_marginTop="60dp"
             android:background="@android:color/transparent"
             android:src="@drawable/p_o_normal"/>
 
@@ -55,8 +57,7 @@
             android:layout_height="match_parent"
             app:arc_axisRadius="@dimen/layout_child_offset_large"
             app:arc_origin="center"
-            app:arc_radius="@dimen/layout_radius_large"
-            >
+            app:arc_radius="@dimen/layout_radius_large">
 
             <Button
                 android:id="@+id/story_btn"

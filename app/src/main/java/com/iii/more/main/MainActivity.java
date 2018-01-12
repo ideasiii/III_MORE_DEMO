@@ -111,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     private AlarmHandler mAlarmHandler = null;
     
     
+    private boolean isStoryAskAIFirst = false;
+    
     private Handler mHandler = new Handler()
     {
         @Override
@@ -404,6 +406,8 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                         //### pause story Streaming and call TTS to
                         //### ask question
                         startUpStoryMode();
+                        
+                        
                         break;
                     case LogicParameters.MODE_FRIEND:
                         
@@ -485,7 +489,16 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                                     // ####
                                     // write to send STT to Http Ai API
                                     HashMap<String, String> postBackData = new HashMap<>();
-                                    postBackData.put("STT", message.get("message"));
+                                    
+                                    if (isStoryAskAIFirst)
+                                    {
+                                        postBackData.put("STT", Parameters.CHEAT_STT);
+                                        isStoryAskAIFirst = false;
+                                    }
+                                    else
+                                    {
+                                        postBackData.put("STT", message.get("message"));
+                                    }
                                     
                                     if (null != mHttpAPIHandler)
                                     {
@@ -623,8 +636,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                         
                         //###
                         // new Zoo Activity Intent
-                        
-                        // startActivity(,new Intent());
                         Intent intent = new Intent();
                         intent.setClass(MainActivity.this, ZooActivity.class);
                         startActivity(intent);
@@ -833,6 +844,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             
             if (responseData.has("display"))
             {
+                /*
                 Logs.showTrace("[MainActivity] display Data:" + responseData.getJSONObject("display")
                     .toString());
                 if (responseData.getJSONObject("display").length() != 0)
@@ -844,7 +856,15 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 else
                 {
                     Logs.showError("[MainActivity] No Display Data!!");
-                }
+                }*/
+                
+                JSONObject defaultDisplay = new JSONObject(DisplayParameters.JSON_DISPLAY_STORY_DEFAULT);
+                
+                Logs.showTrace("[MainActivity] display Data:" + defaultDisplay.toString());
+                
+                mDisplayHandler.resetAllDisplayViews();
+                mDisplayHandler.setDisplayJson(defaultDisplay);
+                mDisplayHandler.startDisplay();
             }
             
             if (responseData.has("activity"))
@@ -906,7 +926,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 JSONObject data = new JSONObject();
                 data.put("time", 0);
                 data.put("host", "https://ryejuice.sytes.net/edubot/OCTOBO_Expressions/");
-                data.put("color", "#FFA0C9EC");
+                data.put("color", "#6d94d5");
                 data.put("description", "快樂");
                 data.put("animation", animate);
                 data.put("text", new JSONObject());
@@ -936,8 +956,9 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         ttsHashMap, HashMap<String, String> imageHashMap, Object extendData)
     {
         HashMap<String, String> emotionDetailHashMap = null;
+        emotionDetailHashMap = (HashMap<String, String>) extendData;
         //debug using start
-        if (null != faceEmotionData)
+        /*if (null != faceEmotionData)
         {
             Logs.showTrace("[MainActivity]onFaceEmotionResult faceEmotionData: " + faceEmotionData);
         }
@@ -954,9 +975,11 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             emotionDetailHashMap = (HashMap<String, String>) extendData;
             Logs.showTrace("[MainActivity]onFaceEmotionResult extendData: " + emotionDetailHashMap);
             
-        }
+        }*/
         //debug using end
         
+        Logs.showTrace("[MainActivity]%%%%isBlockFaceEmotionListener:%%%%" + String.valueOf
+            (isBlockFaceEmotionListener));
         
         if (!isBlockFaceEmotionListener)
         {
@@ -977,6 +1000,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 
                 trackerData.put("RobotFace", imageHashMapObj);
             }
+            
             //add tts data
             if (null != ttsHashMap)
             {
@@ -1055,7 +1079,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                                 .STRING_EMOTION_NAME));
                             
                             mHttpAPIHandler.executeByPost("https://chatbot.srm.pw/edubot/", postData, true);
-                            
+                            isStoryAskAIFirst = true;
                             
                         }
                     }
@@ -1064,15 +1088,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 
                 if (null != imageHashMap)
                 {
-                    if (Parameters.IS_STORY_MODE_USE_TASK_COMPOSER_EMOTION_TTS)
-                    {
-                        mDisplayHandler.setImageViewImageFromDrawable(mDisplayHandler
-                            .getDrawableIDFromFileName(imageHashMap.get("IMG_FILE_NAME")));
-                    }
-                    else
-                    {
-                        mDisplayHandler.setImageViewImageFromDrawable(R.drawable.g_o_speak);
-                    }
+                    mDisplayHandler.setImageViewImageFromDrawable(R.drawable.g_o_question);
                 }
                 
             }
@@ -1095,7 +1111,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             JSONObject data = new JSONObject();
             data.put("time", 0);
             data.put("host", "https://ryejuice.sytes.net/edubot/OCTOBO_Expressions/");
-            data.put("color", "#FFA0C9EC");
+            data.put("color", "#6d94d5");
             data.put("description", "快樂");
             data.put("animation", animate);
             data.put("text", new JSONObject());
@@ -1181,6 +1197,9 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                 }
                 
                 mDisplayHandler.resetAllDisplayViews();
+                
+                isBlockFaceEmotionListener = false;
+                
                 mLogicHandler.startUpStory(null, null, null);
             }
         }

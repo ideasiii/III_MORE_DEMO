@@ -129,8 +129,8 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
             else
             {
                 Logs.showError("[DisplayHandler] tmp is null!");
-                Logs.showError("[DisplayHandler] get the final element" );
-               
+                Logs.showError("[DisplayHandler] get the final element");
+                
                 mSaveDisplayQueue.add(theFinalDisplayElement);
             }
         }
@@ -171,8 +171,8 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         {
             if (mHashMapViews.get(key) instanceof ImageView)
             {
-                Glide.with(mContext).load(id).apply(RequestOptions.diskCacheStrategyOf
-                    (DiskCacheStrategy.NONE)).into((ImageView) mHashMapViews.get(key));
+                Glide.with(mContext).load(id).apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy
+                    .ALL)).into((ImageView) mHashMapViews.get(key));
                 break;
             }
         }
@@ -198,11 +198,7 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
                 else if (mHashMapViews.get(key) instanceof ImageView)
                 {
                     ((ImageView) mHashMapViews.get(key)).setImageResource(R.drawable.p_o_normal);
-                    // Glide.with(mContext)
-                    //        .load("")
-                    //        .listener(mRequestListener)
-                    //        .into(new GlideDrawableImageViewTarget(((ImageView) mHashMapViews.get
-                    // (DisplayParameters.IMAGE_VIEW_ID))));
+                    
                 }
                 else if (mHashMapViews.get(key) instanceof RelativeLayout)
                 {
@@ -369,8 +365,8 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
     {
         if (null != mDisplayQueue)
         {
-            Logs.showTrace("[DisplayHandler]in toDo function total mDisplayQueue Data size:" + String.valueOf
-                (mDisplayQueue.size()));
+            Logs.showTrace("[DisplayHandler]in toDo function total mDisplayQueue Data size:" + String
+                .valueOf(mDisplayQueue.size()));
             
             DisplayElement display = mDisplayQueue.poll();
             theLastDisplayElement = display;
@@ -396,24 +392,15 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
                 
                 int drawableId;
                 
-                if (display.imageURL.contains("OCTOBO_Expressions-"))
-                {
-                    drawableId = convertOctoboImageURLToDrawableID(display.imageURL);
-                }
-                else
-                {
-                    if (mHashMapViews.get(DisplayParameters.RELATIVE_LAYOUT_ID) instanceof RelativeLayout)
-                    {
-                        ViewHandler.setBackgroundColor(mContext.getResources().getColor(R.color
-                            .starfish_background), mHashMapViews.get(DisplayParameters.RELATIVE_LAYOUT_ID));
-                    }
-                    drawableId = convertStarFishImageURLToDrawableID(display.imageURL);
-                }
+                
+                drawableId = convertOctoboImageURLToDrawableID(display.imageURL);
+                
                 if (drawableId != 0)
                 {
-                   
-                    Glide.with(mContext).load(R.drawable.g_o_speak).apply(RequestOptions.diskCacheStrategyOf
-                        (DiskCacheStrategy.NONE)).into((ImageView) mHashMapViews.get(DisplayParameters.IMAGE_VIEW_ID));
+                    
+                    Glide.with(mContext).load(drawableId).apply(RequestOptions.diskCacheStrategyOf
+                        (DiskCacheStrategy.ALL)).into((ImageView) mHashMapViews.get(DisplayParameters
+                        .IMAGE_VIEW_ID));
                     
                     
                 }
@@ -429,21 +416,9 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         return getDrawableIDFromFileName(filename);
     }
     
-    private int convertStarFishImageURLToDrawableID(@NonNull String url)
-    {
-        String filename = Tools.stripFilenameFromUrl(url);
-        Logs.showTrace("convertStarFishImageURLToDrawableID() url = " + url + ", filename = " + filename);
-        
-        return getDrawableIDFromFileName(filename);
-    }
     
     public int getDrawableIDFromFileName(@NonNull String filename)
     {
-        if (filename.startsWith("OCTOBO_Expressions-"))
-        {
-            filename = "octobo" + filename.substring(filename.lastIndexOf('-') + 1, filename.length());
-        }
-        
         try
         {
             filename = Tools.removeFileExtension(filename);

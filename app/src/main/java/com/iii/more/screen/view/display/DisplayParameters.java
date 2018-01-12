@@ -37,4 +37,14 @@ public class DisplayParameters
     public static final String STRING_PATH_IMAGE = Environment.getExternalStorageDirectory() + "/more/image/";
     
     
+    public static final String JSON_DISPLAY_STORY_DEFAULT = "{\"enable\":1,\"show\":[{\"host\":\"https" +
+        ":\\/\\/ryejuice.sytes.net\\/edubot\\/OCTOBO_Expressions\\/\",\"color\":\"#6d94d5\"," +
+        "\"animation\":{\"type\":5,\"duration\":1000,\"repeat\":1,\"interpolate\":1},\"text\":{\"type\":0}," +
+        "\"description\":\"default\",\"time\":0,\"file\":\"g_o_speak.gif\"}," +
+        "{\"host\":\"https:\\/\\/ryejuice.sytes.net\\/edubot\\/OCTOBO_Expressions\\/\"," +
+        "\"color\":\"#6d94d5\",\"animation\":{\"type\":5,\"duration\":1000,\"repeat\":1," +
+        "\"interpolate\":1},\"text\":{\"type\":0},\"description\":\"default\",\"time\":900000," +
+        "\"file\":\"g_o_speak.gif\"}]}";
+    
+    
 }

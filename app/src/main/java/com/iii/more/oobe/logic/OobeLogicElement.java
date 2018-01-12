@@ -62,8 +62,8 @@ public class OobeLogicElement
         if (regretTTSArrayList.size() == 0)
         {
             //debug using
-            //Logs.showTrace("[OobeLogicElement] regretTTSArrayList.size: " + String.valueOf
-            //        (regretTTSArrayList.size()));
+            Logs.showTrace("[OobeLogicElement] regretTTSArrayList.size: " + String.valueOf
+                   (regretTTSArrayList.size()));
             return "";
         }
         else
@@ -72,7 +72,7 @@ public class OobeLogicElement
             Random r = new Random();
             int getTextId = r.nextInt(max);
             //debug using
-            //Logs.showTrace("[OobeLogicElement] regretTTSArrayList.getTextId: " + String.valueOf(getTextId));
+            Logs.showTrace("[OobeLogicElement] regretTTSArrayList.getTextId: " + String.valueOf(getTextId));
             
             return regretTTSArrayList.get(getTextId);
         }
@@ -123,7 +123,7 @@ public class OobeLogicElement
                 JSONObject data = new JSONObject();
                 data.put("time", 0);
                 data.put("host", "https://ryejuice.sytes.net/edubot/OCTOBO_Expressions/");
-                data.put("color", "#FFA0C9EC");
+                data.put("color", "#6d94d5");
                 data.put("description", "快樂");
                 data.put("animation", animate);
                 data.put("text", new JSONObject());
