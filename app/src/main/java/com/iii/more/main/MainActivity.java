@@ -25,6 +25,7 @@ import com.iii.more.cmp.CMPHandler;
 import com.iii.more.cmp.CMPParameters;
 import com.iii.more.cmp.semantic.SemanticWordCMPHandler;
 import com.iii.more.cmp.semantic.SemanticWordCMPParameters;
+import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.game.zoo.ZooActivity;
 import com.iii.more.logic.LogicHandler;
@@ -1021,75 +1022,82 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
             {
                 if (null != mLogicHandler)
                 {
-                    if (Parameters.IS_STORY_MODE_USE_TASK_COMPOSER_EMOTION_TTS)
+                    //濾除 不專心 表情
+                    if (!faceEmotionData.get(FaceEmotionInterruptParameters.STRING_EMOTION_NAME).equals
+                        (EmotionParameters.STRING_EXPRESSION_ATTENTION))
                     {
-                        if (null != ttsHashMap)
+                        if (Parameters.IS_STORY_MODE_USE_TASK_COMPOSER_EMOTION_TTS)
                         {
-                            isBlockFaceEmotionListener = true;
-                            
-                            //pause story
-                            mLogicHandler.pauseStoryStreaming();
-                            
-                            //Logs.showTrace("[MainActivity] tts" + ttsHashMap.get
-                            //     (FaceEmotionInterruptParameters.STRING_TTS_TEXT));
-                            mLogicHandler.ttsService(TTSParameters
-                                .ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE, ttsHashMap.get
-                                (FaceEmotionInterruptParameters.STRING_TTS_TEXT), "zh");
-                            
+                            if (null != ttsHashMap)
+                            {
+                                isBlockFaceEmotionListener = true;
+                                
+                                //pause story
+                                mLogicHandler.pauseStoryStreaming();
+                                
+                                //Logs.showTrace("[MainActivity] tts" + ttsHashMap.get
+                                //     (FaceEmotionInterruptParameters.STRING_TTS_TEXT));
+                                mLogicHandler.ttsService(TTSParameters
+                                    .ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE, ttsHashMap.get
+                                    (FaceEmotionInterruptParameters.STRING_TTS_TEXT), "zh");
+                                
+                            }
+                            else
+                            {
+                                if (mLogicHandler.getIsPlayingStory())
+                                {
+                                    isBlockFaceEmotionListener = true;
+                                    //pause story
+                                    mLogicHandler.pauseStoryStreaming();
+                                    Logs.showTrace("[MainActivity]*** now No TTS HashMap and pause Story "
+                                        + "Streaming!");
+                                    mHandler.postDelayed(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            Logs.showTrace("[MainActivity]*** now No TTS HashMap and " +
+                                                "resume" + " " + "Story " + "Streaming!");
+                                            mLogicHandler.resumeStoryStreaming();
+                                            mDisplayHandler.resumeDisplaying();
+                                            isBlockFaceEmotionListener = false;
+                                        }
+                                    }, 5000);
+                                }
+                            }
                         }
                         else
                         {
+                            
                             if (mLogicHandler.getIsPlayingStory())
                             {
                                 isBlockFaceEmotionListener = true;
-                                //pause story
                                 mLogicHandler.pauseStoryStreaming();
-                                Logs.showTrace("[MainActivity]*** now No TTS HashMap and pause Story " +
-                                    "Streaming!");
-                                mHandler.postDelayed(new Runnable()
-                                {
-                                    @Override
-                                    public void run()
-                                    {
-                                        Logs.showTrace("[MainActivity]*** now No TTS HashMap and resume " +
-                                            "Story " + "Streaming!");
-                                        mLogicHandler.resumeStoryStreaming();
-                                        mDisplayHandler.resumeDisplaying();
-                                        isBlockFaceEmotionListener = false;
-                                    }
-                                }, 5000);
+                                
+                                //####
+                                // call to http AI API
+                                
+                                
+                                HashMap<String, String> postData = new HashMap<>(emotionDetailHashMap);
+                                postData.put("STORYNAME", mLogicHandler.getIsPlayingStoryName());
+                                postData.put("EMOTIONSTATE", faceEmotionData.get
+                                    (FaceEmotionInterruptParameters.STRING_EMOTION_NAME));
+                                
+                                mHttpAPIHandler.executeByPost("https://chatbot.srm.pw/edubot/", postData,
+                                    true);
+                                isStoryAskAIFirst = true;
+                                
                             }
                         }
-                    }
-                    else
-                    {
-                        
-                        if (mLogicHandler.getIsPlayingStory())
+                        if (null != imageHashMap)
                         {
-                            isBlockFaceEmotionListener = true;
-                            mLogicHandler.pauseStoryStreaming();
-                            
-                            //####
-                            // call to http AI API
-                            
-                            
-                            HashMap<String, String> postData = new HashMap<>(emotionDetailHashMap);
-                            postData.put("STORYNAME", mLogicHandler.getIsPlayingStoryName());
-                            postData.put("EMOTIONSTATE", faceEmotionData.get(FaceEmotionInterruptParameters
-                                .STRING_EMOTION_NAME));
-                            
-                            mHttpAPIHandler.executeByPost("https://chatbot.srm.pw/edubot/", postData, true);
-                            isStoryAskAIFirst = true;
-                            
+                            mDisplayHandler.setImageViewImageFromDrawable(R.drawable.g_o_question);
                         }
                     }
                 }
                 
                 
-                if (null != imageHashMap)
-                {
-                    mDisplayHandler.setImageViewImageFromDrawable(R.drawable.g_o_question);
-                }
+               
                 
             }
         }
@@ -1140,7 +1148,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     {
         Logs.showTrace("[MainActivity] Face Detect: " + String.valueOf(isDetectFace));
         
-        MainApplication app = MainApplication.getApp(this);
+        MainApplication app = Tools.getApp(this);
         if (isDetectFace)
         {
             app.replaySoundEffect(R.raw.dong);
