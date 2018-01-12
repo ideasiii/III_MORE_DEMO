@@ -94,7 +94,7 @@ final class TTSVoicePool
         mCyberonTtsAdapter_KidMale.setVoiceName(CReaderPlayer.VoiceNameConstant
             .TRADITIONAL_CHINESE_KID_MALE_VOICE_NAME);
         mCyberonTtsAdapter_KidMale.setSpeechRate(85);
-        mCyberonTtsAdapter_KidMale.setVolume(500);
+        mCyberonTtsAdapter_KidMale.setVolume(200);
         mCyberonTtsAdapter_KidMale.init();
 
         if (mCyberonTtsAdapter_KidFemale != null)
@@ -108,7 +108,7 @@ final class TTSVoicePool
             .TRADITIONAL_CHINESE_KID_FEMALE_VOICE_NAME);
         mCyberonTtsAdapter_KidFemale.setPitch(50);
         mCyberonTtsAdapter_KidFemale.setSpeechRate(60);
-        mCyberonTtsAdapter_KidFemale.setVolume(500);
+        mCyberonTtsAdapter_KidFemale.setVolume(200);
         mCyberonTtsAdapter_KidFemale.init();
 
         if (mPreferredVoice != mActiveVoice)
