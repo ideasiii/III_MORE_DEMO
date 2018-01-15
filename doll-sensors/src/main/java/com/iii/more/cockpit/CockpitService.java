@@ -43,6 +43,9 @@ public abstract class CockpitService extends Service
     // 修改設定參數
     public static final int EVENT_DATA_PARAMETERS = 32;
 
+    // 從某個 Activity 跳到另一個 Activity
+    public static final int EVENT_JUMP_ACTIVITY = 42;
+
     // 重新連線事件的傳遞延遲時間 (重新連線間隔)
     private static final int RECONNECT_EVENT_DELAY = 1000;
 

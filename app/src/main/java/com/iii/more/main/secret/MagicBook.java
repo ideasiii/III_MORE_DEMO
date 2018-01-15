@@ -1,8 +1,17 @@
 package com.iii.more.main.secret;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.util.ArrayMap;
+import android.util.Log;
+import android.view.animation.AccelerateInterpolator;
+
 import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptHandler;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
+import com.iii.more.main.MainActivity;
+import com.iii.more.main.MainApplication;
+import com.iii.more.oobe.OobeActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,13 +20,18 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+import sdk.ideas.common.Logs;
 
 /**
  * 小秘方
  */
 public class MagicBook
 {
+    private static final String LOG_TAG = "MagicBook";
+
     // cookFaceEmotionDetectedEvent() 所回傳內容的基礎
     private static final HashMap<String, String> simFaceEmotionEventBase = new HashMap<>();
     private static final Random random = new Random();
@@ -86,6 +100,107 @@ public class MagicBook
         }
 
         return null;
+    }
+
+    public static void jumpToActivity(String from, String to)
+    {
+        try
+        {
+            Class fromClazz = Class.forName(from);
+            Class toClazz = Class.forName(to);
+
+            if (!Activity.class.isAssignableFrom(fromClazz))
+            {
+                Log.d(LOG_TAG, "jumpToActivity() 'from' (" + to + ") is not a Activity");
+                return;
+
+            }
+            else if (!Activity.class.isAssignableFrom(toClazz))
+            {
+                Log.d(LOG_TAG, "jumpToActivity() 'to' (" + to + ") is not a Activity");
+                return;
+            }
+
+            jumpToActivity(fromClazz, toClazz);
+        }
+        catch (ClassNotFoundException e)
+        {
+            Log.d(LOG_TAG, "jumpToActivity() class for name not found (from: " + from + ", to: " + to);
+        }
+    }
+    /**
+     * start Activity 'to' only if the top activity is now 'from'
+     */
+    public static void jumpToActivity(Class<? extends Activity> from, Class<? extends Activity> to)
+    {
+        Activity now = getActivity();
+        if (now == null)
+        {
+            Log.d(LOG_TAG, "jumpToActivity() now == null");
+            return;
+        }
+        else if (now.getClass() != from)
+        {
+            Log.d(LOG_TAG, "jumpToActivity() class of now (" + now.getClass().getName()
+                + ")is not equal to from (" + from.getName() + ")");
+            return;
+        }
+
+        if (now.getClass() == OobeActivity.class && to == MainActivity.class)
+        {
+            Log.w(LOG_TAG, "jumpToActivity() get ready to jump from " + from + " to " + to);
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startMain.setClass(now, MainActivity.class);
+            now.startActivity(startMain);
+            now.finish();
+        }
+        else
+        {
+            Log.d(LOG_TAG, "jumpToActivity() have no idea how to jump from " + from + " to " + to);
+        }
+
+    }
+
+    public static Activity getActivity()
+    {
+        try
+        {
+            Class clazz = Class.forName("android.app.ActivityThread");
+            Object obj = clazz.getMethod("currentActivityThread").invoke(null);
+            Field field = clazz.getDeclaredField("mActivities");
+            field.setAccessible(true);
+
+            Object activitiesObj = field.get(obj);
+            if (activitiesObj == null || !(activitiesObj instanceof ArrayMap))
+            {
+                Log.d(LOG_TAG, "getTopActivity() cannot get expected activities map");
+                return null;
+            }
+
+            ArrayMap activities =  (ArrayMap)activitiesObj;
+            for (Object activityRecord : activities.values())
+            {
+                Class activityRecordClazz = activityRecord.getClass();
+                Field pausedField = activityRecordClazz.getDeclaredField("paused");
+                pausedField.setAccessible(true);
+                if (!pausedField.getBoolean(activityRecord))
+                {
+                    Field activityField = activityRecordClazz.getDeclaredField("activity");
+                    activityField.setAccessible(true);
+                    Activity activity = (Activity) activityField.get(activityRecord);
+                    return activity;
+                }
+            }
+
+            return null;
+        }
+        catch (ReflectiveOperationException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private MagicBook()

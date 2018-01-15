@@ -38,6 +38,9 @@ public class InternetCockpitService extends CockpitService
 
         /** 修改設定參數 */
         private static final int PARAMETERS = 3;
+
+        /** 從某個 Activity 跳到另一個 Activity */
+        private static final int JUMP_ACTIVITY = 30;
     }
 
     private static boolean serviceSpawned = false;
@@ -229,6 +232,17 @@ public class InternetCockpitService extends CockpitService
                     {
                         JSONObject json = new JSONObject(text);
                         mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_DATA_PARAMETERS, json).sendToTarget();
+                    }
+                    catch (JSONException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    break;
+                case PaperType.JUMP_ACTIVITY:
+                    try
+                    {
+                        JSONObject json = new JSONObject(text);
+                        mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_JUMP_ACTIVITY, json).sendToTarget();
                     }
                     catch (JSONException e)
                     {

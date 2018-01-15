@@ -48,6 +48,8 @@ class CockpitListenerBridge
         void onFaceEmotionDetected(String emotionName);
 
         void onSetParameter(String action);
+
+        void onJumpActivity(String from, String to);
     }
 
     CockpitListenerBridge(Context context)
@@ -131,6 +133,22 @@ class CockpitListenerBridge
                 break;
             case CockpitService.EVENT_DATA_PARAMETERS:
                 handleCockpitServiceParameterEvents(msg);
+                break;
+            case CockpitService.EVENT_JUMP_ACTIVITY:
+                    if (mTellMeWhatToDo != null)
+                    {
+                        JSONObject j = (JSONObject) msg.obj;
+                        try
+                        {
+                            String f = j.getString("from");
+                            String t = j.getString("to");
+                            mTellMeWhatToDo.onJumpActivity(f, t);
+                        }
+                        catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
                 break;
             default:
                 handleCockpitServiceConnectionEvents(msg);

@@ -255,6 +255,7 @@ public class MainApplication extends Application
         Logs.showTrace("use " + mInternetCockpitFriendlyName + " as friendly name in InternetCockpitService");
     }
 
+
     /**
      * 初始化布偶裝置連結
      */
@@ -293,6 +294,12 @@ public class MainApplication extends Application
                         Logs.showTrace("mCockpitListenerBridge " + "onSetParameter() unknown action = `" +
                             action);
                 }
+            }
+
+            @Override
+            public void onJumpActivity(String from, String to)
+            {
+                MagicBook.jumpToActivity(from, to);
             }
         });
 
