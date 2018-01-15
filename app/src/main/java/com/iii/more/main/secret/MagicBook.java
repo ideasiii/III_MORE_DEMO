@@ -60,6 +60,7 @@ public class MagicBook
                 List<JSONObject> emotionMappingTTS = (List<JSONObject>) ttsField.get(emotionBrainElement);
 
                 HashMap<String, String> message = new HashMap<>(simFaceEmotionEventBase);
+                message.put(FaceEmotionInterruptParameters.STRING_EMOTION_NAME, emotionName);
                 message.put(FaceEmotionInterruptParameters.STRING_IMG_FILE_NAME,
                         emotionMappingImageName);
 
