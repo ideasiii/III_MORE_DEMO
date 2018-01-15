@@ -40,6 +40,7 @@ abstract class SCEN
     public static final int SCEN_INDEX_BUS_EMOTION_RESP = 155;
     public static final int SCEN_INDEX_MRT_EMOTION_RESP = 156;
     public static final int SCEN_INDEX_CAR_EMOTION_RESP = 157;
+    public static final int SCEN_INDEX_MRT_RUN = 158;
     public static final int SCEN_INDEX_GAME_OVER = 666;
     public static final int SCEN_INDEX_FINISH = 999;
     public static final int SENSOR_FACE_EMOTION = 1005;

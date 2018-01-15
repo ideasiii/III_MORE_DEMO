@@ -76,7 +76,7 @@ public class ScenarizeMrt extends ScenarizeBase
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_MRT_EMOTION_RESP,
-            SCEN.SCEN_INDEX_CHOICE_ZOO,
+            SCEN.SCEN_INDEX_MRT_RUN,
             NEXT_TRIGER.TTS_TEXT,
             true,
             false,
@@ -87,5 +87,21 @@ public class ScenarizeMrt extends ScenarizeBase
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
             "");
+    
+        setScenarize(scenarize,
+            SCEN.SCEN_INDEX_MRT_RUN,
+            SCEN.SCEN_INDEX_ZOO_DOOR,
+            NEXT_TRIGER.TTS_TEXT,
+            true,
+            true,
+            R.drawable.p_o_noeye,
+            R.drawable.mrt_run,
+            "p_o_noeye.png",
+            ImageView.ScaleType.CENTER_CROP,
+            ImageView.ScaleType.CENTER_INSIDE,
+            FRONT.FACE,
+            "坐好，我們要出發囉");
     }
+    
+    
 }
