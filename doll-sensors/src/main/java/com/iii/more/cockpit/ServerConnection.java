@@ -23,6 +23,8 @@ class ServerConnection extends WebSocketClient
 {
     private static final String LOG_TAG = "InternetCockpitClient";
 
+    private static final int RE_REGISTER_INTERVAL = 3000;
+
     private static final int PING_INTERVAL = 15000;
 
     private static final int SERVER_MESSAGE_ACTION_TYPE_SIGN_IN = 0;
@@ -158,7 +160,7 @@ class ServerConnection extends WebSocketClient
             switch (action)
             {
                 case SERVER_MESSAGE_ACTION_TYPE_SIGN_IN:
-                    handleSetIdResponse(json);
+                    handleSignInResponse(json);
                     break;
                 case SERVER_MESSAGE_ACTION_TYPE_PAPER:
                     handlePaperPush(json);
@@ -173,7 +175,7 @@ class ServerConnection extends WebSocketClient
         }
     }
 
-    private void handleSetIdResponse(JSONObject root) throws JSONException
+    private void handleSignInResponse(JSONObject root) throws JSONException
     {
         JSONObject actionBody = root.getJSONObject("body");
         boolean success = actionBody.getBoolean("success");
@@ -204,7 +206,7 @@ class ServerConnection extends WebSocketClient
                             }
                             catch (InterruptedException ie)
                             {
-                                continue;
+                                // just continue to next ping
                             }
                             catch (Exception e)
                             {
@@ -223,7 +225,24 @@ class ServerConnection extends WebSocketClient
         }
         else
         {
-            Log.w(LOG_TAG, "Registration failed, reason: " + actionBody.getString("message"));
+            Log.w(LOG_TAG, "Registration failed, message: " + actionBody.getString("message"));
+
+            new Thread()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        Thread.sleep(RE_REGISTER_INTERVAL);
+                        registerDeviceId();
+                    }
+                    catch (Exception e)
+                    {
+                        // nothing can be done, just let it go
+                    }
+                }
+            }.start();
         }
     }
 
