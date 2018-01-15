@@ -65,7 +65,7 @@ public class CarFixLayout extends DragDropLayout
         DragItemCube = new ImageView(context);
         
         DropTarget.setImageResource(R.drawable.fix_car_car);
-        DropTarget.setScaleType(ImageView.ScaleType.FIT_XY);
+        DropTarget.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         
         DragItemCircle.setImageResource(R.drawable.fix_car_circle);
         DragItemCircle.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
@@ -80,9 +80,9 @@ public class CarFixLayout extends DragDropLayout
         DragItemTriangle.setTag("wheel_triangle");
         
         addDropTarget(DropTarget, new ViewPosition());
-        addDragItem(DragItemCircle, new ViewPosition(60, 650, 150, 150));
-        addDragItem(DragItemCube, new ViewPosition(350, 650, 150, 150));
-        addDragItem(DragItemTriangle, new ViewPosition(620, 650, 150, 150));
+        addDragItem(DragItemCircle, new ViewPosition(60, 150, 150, 150));
+        addDragItem(DragItemCube, new ViewPosition(350, 150, 150, 150));
+        addDragItem(DragItemTriangle, new ViewPosition(620, 150, 150, 150));
         
         setOnDragDroppedListener(onDragDropped);
     }

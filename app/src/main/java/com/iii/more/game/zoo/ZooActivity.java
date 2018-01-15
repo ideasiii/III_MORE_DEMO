@@ -152,7 +152,11 @@ public class ZooActivity extends Activity
         trafficListLayout.setLayoutParams(layoutParamsExView);
         
         carFixLayout = new CarFixLayout(this, handlerScenarize);
-        carFixLayout.setLayoutParams(layoutParamsExView);
+        RelativeLayout.LayoutParams layoutParamsCarFix = new RelativeLayout.LayoutParams(800,
+            1100);
+        layoutParamsCarFix.setMargins((int) 0, (int) 80, (int) 0, (int) 0);
+        layoutParamsCarFix.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        carFixLayout.setLayoutParams(layoutParamsCarFix);
     }
     
     @Override
@@ -218,6 +222,8 @@ public class ZooActivity extends Activity
         
         String strTTS = "";
         String strFaceImg = "";
+    
+        GLOBAL.scenarizeCurr.ScenarizeIndex = nIndex;
         
         if (SCEN.MSG_TTS_PLAY == nIndex)
         {
@@ -246,8 +252,8 @@ public class ZooActivity extends Activity
             Logs.showError("[ZooActivity] Scenarize invalid Index:" + nIndex);
             return;
         }
+    
         
-        GLOBAL.scenarizeCurr.ScenarizeIndex = nIndex;
         
         try
         {

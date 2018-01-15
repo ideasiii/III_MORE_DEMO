@@ -113,7 +113,7 @@ public class ScenarizeCar extends ScenarizeBase
             "p_o_noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
-            FRONT.FACE,
+            FRONT.OBJECT,
             "");
         
         setScenarize(scenarize,
@@ -123,11 +123,11 @@ public class ScenarizeCar extends ScenarizeBase
             true,
             true,
             R.drawable.p_o_noeye,
-            R.drawable.car,
+            R.drawable.car_run,
             "p_o_noeye.png",
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
-            "太好了，車子修好了，謝謝你的幫忙");
+            "太好了，車子修好了，謝謝你的幫忙，我們出發吧");
     }
 }
