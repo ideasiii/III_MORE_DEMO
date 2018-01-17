@@ -39,7 +39,7 @@ import sdk.ideas.common.ResponseCode;
  * Created by joe on 2017/7/11.
  */
 
-public class DisplayHandler extends BaseHandler implements View.OnClickListener, View.OnTouchListener
+public class DisplayHandler extends BaseHandler implements View.OnClickListener
 {
     private JSONArray mDisplayJsonArray = null;
     private AnimationHandler mAnimationHandler = null;
@@ -64,6 +64,18 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
         mDisplayQueue = new ArrayDeque<>();
         mDisplayHandler = new Handler(Looper.getMainLooper());
         mDisplayRunnable = new DisplayRunnable();
+    }
+    
+    protected View getRootLayout()
+    {
+        if (null != mHashMapViews)
+        {
+            return mHashMapViews.get(DisplayParameters.RELATIVE_LAYOUT_ID);
+        }
+        else
+        {
+            return null;
+        }
     }
     
     public void pauseDisplaying(int seconds)
@@ -445,12 +457,6 @@ public class DisplayHandler extends BaseHandler implements View.OnClickListener,
             callBackMessage(ResponseCode.ERR_SUCCESS, DisplayParameters.CLASS_DISPLAY, DisplayParameters
                 .METHOD_CLICK, message);
         }
-    }
-    
-    @Override
-    public boolean onTouch(View view, MotionEvent motionEvent)
-    {
-        return false;
     }
     
     

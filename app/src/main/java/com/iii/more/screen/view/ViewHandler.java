@@ -2,6 +2,7 @@ package com.iii.more.screen.view;
 
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -24,7 +25,6 @@ public class ViewHandler
     }
     
     
-    
-    
+
     
 }
