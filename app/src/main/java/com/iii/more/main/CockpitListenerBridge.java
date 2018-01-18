@@ -47,8 +47,10 @@ class CockpitListenerBridge
         /** 當收到要假造偵測到臉部情緒的指令時的 callback */
         void onFaceEmotionDetected(String emotionName);
 
+        /** 當需要設定參數時的 callback */
         void onSetParameter(String action);
 
+        /** 當需要從 Activity (from) 跳到 Activity (to) 時的 callback*/
         void onJumpActivity(String from, String to);
     }
 
@@ -135,20 +137,20 @@ class CockpitListenerBridge
                 handleCockpitServiceParameterEvents(msg);
                 break;
             case CockpitService.EVENT_JUMP_ACTIVITY:
-                    if (mTellMeWhatToDo != null)
+                if (mTellMeWhatToDo != null)
+                {
+                    JSONObject j = (JSONObject) msg.obj;
+                    try
                     {
-                        JSONObject j = (JSONObject) msg.obj;
-                        try
-                        {
-                            String f = j.getString("from");
-                            String t = j.getString("to");
-                            mTellMeWhatToDo.onJumpActivity(f, t);
-                        }
-                        catch (JSONException e)
-                        {
-                            e.printStackTrace();
-                        }
+                        String f = j.getString("from");
+                        String t = j.getString("to");
+                        mTellMeWhatToDo.onJumpActivity(f, t);
                     }
+                    catch (JSONException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
                 break;
             default:
                 handleCockpitServiceConnectionEvents(msg);

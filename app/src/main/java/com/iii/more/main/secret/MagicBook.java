@@ -111,13 +111,13 @@ public class MagicBook
 
             if (!Activity.class.isAssignableFrom(fromClazz))
             {
-                Log.d(LOG_TAG, "jumpToActivity() 'from' (" + to + ") is not a Activity");
+                Log.d(LOG_TAG, "jumpToActivity() 'from' (" + to + ") is not an Activity");
                 return;
 
             }
             else if (!Activity.class.isAssignableFrom(toClazz))
             {
-                Log.d(LOG_TAG, "jumpToActivity() 'to' (" + to + ") is not a Activity");
+                Log.d(LOG_TAG, "jumpToActivity() 'to' (" + to + ") is not an Activity");
                 return;
             }
 
@@ -129,7 +129,7 @@ public class MagicBook
         }
     }
     /**
-     * start Activity 'to' only if the top activity is now 'from'
+     * start Activity 'to' only if the top activity in back stack is 'from'
      */
     public static void jumpToActivity(Class<? extends Activity> from, Class<? extends Activity> to)
     {
@@ -146,7 +146,7 @@ public class MagicBook
             return;
         }
 
-        if (now.getClass() == OobeActivity.class && to == MainActivity.class)
+        if (from == OobeActivity.class && to == MainActivity.class)
         {
             Log.w(LOG_TAG, "jumpToActivity() get ready to jump from " + from + " to " + to);
             Intent startMain = new Intent(Intent.ACTION_MAIN);
@@ -160,7 +160,6 @@ public class MagicBook
         {
             Log.d(LOG_TAG, "jumpToActivity() have no idea how to jump from " + from + " to " + to);
         }
-
     }
 
     public static Activity getActivity()
@@ -173,13 +172,13 @@ public class MagicBook
             field.setAccessible(true);
 
             Object activitiesObj = field.get(obj);
-            if (activitiesObj == null || !(activitiesObj instanceof ArrayMap))
+            if (activitiesObj == null || !(activitiesObj instanceof Map))
             {
                 Log.d(LOG_TAG, "getTopActivity() cannot get expected activities map");
                 return null;
             }
 
-            ArrayMap activities =  (ArrayMap)activitiesObj;
+            Map activities =  (Map)activitiesObj;
             for (Object activityRecord : activities.values())
             {
                 Class activityRecordClazz = activityRecord.getClass();
