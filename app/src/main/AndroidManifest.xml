@@ -22,7 +22,8 @@
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true"/>
@@ -61,7 +62,9 @@
             </intent-filter>
 
         </activity>
-        <activity android:name="com.iii.more.oobe.OobeActivity"/>
+        <activity
+            android:name="com.iii.more.oobe.OobeActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name="com.iii.more.game.zoo.ZooActivity"
             android:noHistory="true"
@@ -73,11 +76,11 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.iii.more.clock.receiver.ClockReceiver" >
-
+        <receiver android:name="com.iii.more.clock.receiver.ClockReceiver">
 
 
         </receiver>
+
         <activity
             android:name="com.iii.more.setting.SettingLv1Activity">
         </activity>

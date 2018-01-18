@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -27,13 +26,13 @@ import com.iii.more.oobe.logic.OobeLogicHandler;
 import com.iii.more.oobe.logic.OobeLogicParameters;
 import com.iii.more.oobe.track.OobeTracker;
 import com.iii.more.oobe.view.OobeDisplayHandler;
+import com.iii.more.oobe.view.OobeDisplayParameters;
 import com.iii.more.screen.view.display.DisplayParameters;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,10 +59,6 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
     private volatile String rfidString = "";
     
     private VideoView mVideoView = null;
-    
-    private MediaPlayer mediaPlayer = null;
-    
-    private final static int MAX_VIDEO_VOLUME = 100;
     
     public void handleMessages(Message msg)
     {
@@ -193,6 +188,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                             }
                             else
                             {
+                                /*
                                 if (mOobeLogicHandler.getState() == 0)
                                 {
                                     mMainApplication.setName(Parameters.ID_CHILD_NAME,
@@ -202,7 +198,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                                 {
                                     mMainApplication.setName(Parameters.ID_ROBOT_NAME, message.get
                                         ("message"));
-                                }
+                                }*/
                                 mOobeLogicHandler.setState(mOobeLogicHandler.getState() + 1);
                                 doNext();
                             }
@@ -235,7 +231,11 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
                 
                 
                 break;
-            case DisplayParameters.CLASS_DISPLAY:
+            case OobeDisplayParameters.OOBE_DISPLAY_CLASS:
+                if (msg.arg2 == OobeDisplayParameters.METHOD_ON_LONG_TOUCH)
+                {
+                    startMainActivity();
+                }
                 
                 
                 break;
@@ -626,8 +626,8 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
         mOobeDisplayHandler = new OobeDisplayHandler(this);
         mOobeDisplayHandler.setHandler(mHandler);
         
-        RelativeLayout mRelativeLayout = (RelativeLayout) findViewById(R.id.oobe_relative_layout);
-        ImageView mImageView = (ImageView) findViewById(R.id.oobe_image_view);
+        RelativeLayout mRelativeLayout = findViewById(R.id.oobe_relative_layout);
+        ImageView mImageView = findViewById(R.id.oobe_image_view);
         
         HashMap<Integer, View> hashMapViews = new HashMap<>();
         
@@ -648,9 +648,12 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
         
         mMainApplication = (MainApplication) this.getApplication();
         
-        mVideoView = (VideoView) findViewById(R.id.oobe_video_view);
+        mVideoView = findViewById(R.id.oobe_video_view);
         
         mOobeTracker = new OobeTracker(this);
+    
+        mMainApplication.setName(Parameters.ID_CHILD_NAME, "");
+        
     }
     
     
