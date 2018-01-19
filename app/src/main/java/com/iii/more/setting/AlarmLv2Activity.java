@@ -13,10 +13,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.iii.more.main.R;
+import com.iii.more.setting.utils.tools;
 
 import java.util.Calendar;
-
-import static com.iii.more.setting.AlarmLv1Activity.ITEM_BODY;
 
 /**
  * TODO: 此頁說明
@@ -153,7 +152,8 @@ public class AlarmLv2Activity extends SettingBaseActivity {
             tvBigTime.setText(alarm.time);
             tvTime.setText(alarm.time);
             etName.setText(alarm.name);
-            tvRecur.setText(alarm.recur);
+            String strRecure = tools.recurConvertDesc(alarm.recur);
+            tvRecur.setText(strRecure);
             tvStory.setText(alarm.story);
         } else {
             Calendar c = Calendar.getInstance();
@@ -216,42 +216,21 @@ public class AlarmLv2Activity extends SettingBaseActivity {
         }
 
         if( title.equals("新增") ){
-            String suffix = String.valueOf(maxUsedCount);
             AlarmLv1Activity.Alarm newAlarm = new AlarmLv1Activity.Alarm();
             newAlarm.alarmType = alarmType;
             newAlarm.time = tvTime.getText().toString();
             newAlarm.name = name;
-            newAlarm.recur = tvRecur.getText().toString();
+            String strRecure = tvRecur.getText().toString();
+            newAlarm.recur = tools.recurConvertAsc(strRecure);
             newAlarm.story = tvStory.getText().toString();
-
-            PrefEditor.putInt(key1itemType + suffix, ITEM_BODY);
-            PrefEditor.putInt(key2 + suffix, newAlarm.alarmType);
-            PrefEditor.putString(key3name + suffix, newAlarm.name);
-            PrefEditor.putString(key4time + suffix, newAlarm.time);
-            PrefEditor.putString(key5story + suffix, newAlarm.story);
-            PrefEditor.putString(key6recur + suffix, newAlarm.recur);
-            PrefEditor.putString(key7prefIndex + suffix, suffix);
-            PrefEditor.commit();
-
-            maxUsedCount = maxUsedCount + 1;
-            PrefEditor.putInt("maxUsedCount", maxUsedCount );
-            PrefEditor.commit();
+            AlarmLv1Activity.alarms.add(newAlarm);
         }
         if( title.equals("編輯") ){
-            String suffix = alarm.prefIndex;
             alarm.time = tvTime.getText().toString();
             alarm.name = name;
-            alarm.recur = tvRecur.getText().toString();
+            String strRecure = tvRecur.getText().toString();
+            alarm.recur = tools.recurConvertAsc(strRecure);
             alarm.story = tvStory.getText().toString();
-
-            //PrefEditor.putInt(key1itemType + suffix, ITEM_BODY);
-            //PrefEditor.putInt(key2 + suffix, alarm.alarmType);
-            PrefEditor.putString(key3name + suffix, alarm.name);
-            PrefEditor.putString(key4time + suffix, alarm.time);
-            PrefEditor.putString(key5story + suffix, alarm.story);
-            PrefEditor.putString(key6recur + suffix, alarm.recur);
-            //PrefEditor.putString(key7prefIndex + suffix, alarm.prefIndex);
-            PrefEditor.commit();
         }
 
         setResult(RESULT_OK);
