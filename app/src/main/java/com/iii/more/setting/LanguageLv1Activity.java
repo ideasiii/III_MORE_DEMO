@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import okhttp3.FormBody;
 
 import static com.iii.more.setting.Api.Table.HTTP_SUCCESS;
+import static com.iii.more.setting.Pref.KEY_LANGUAGE;
 
 /**
  * TODO: 此頁說明
@@ -44,6 +45,7 @@ public class LanguageLv1Activity extends SettingBaseActivity {
         mCtx = this;
         mActivity = this;
 
+        LanguageId = tinyInnerDB.getInt(KEY_LANGUAGE);
         setTitle("語言");
         setFooterVisible(View.GONE);
         init_UI();
@@ -97,46 +99,18 @@ public class LanguageLv1Activity extends SettingBaseActivity {
             }
         });
         ctv3 = (CheckedTextView) findViewById(R.id.ctv3);
-//        ctv3.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v)
-//            {
-//                if( ctv1.isChecked() ) {
-//                    ctv1.toggle();
-//                }
-//                if( ctv2.isChecked() ) {
-//                    ctv2.toggle();
-//                }
-//                if( ctv3.isChecked() == false ) {
-//                    ctv3.toggle();
-//                    LanguageId = 2;
-//                    TriggerSetting();
-//                }
-//                if( ctv4.isChecked() ) {
-//                    ctv4.toggle();
-//                }
-//            }
-//        });
         ctv4 = (CheckedTextView) findViewById(R.id.ctv4);
-//        ctv4.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v)
-//            {
-//                if( ctv1.isChecked() ) {
-//                    ctv1.toggle();
-//                }
-//                if( ctv2.isChecked() ) {
-//                    ctv2.toggle();
-//                }
-//                if( ctv3.isChecked() ) {
-//                    ctv3.toggle();
-//                }
-//                if( ctv4.isChecked() == false ) {
-//                    ctv4.toggle();
-//                    LanguageId = 3;
-//                    TriggerSetting();
-//                }
-//            }
-//        });
-        TriggerQuery();
+
+        // TriggerQuery();
+        // API 暫時 視為 儲存副本的功能。非，取出資料使用。
+        // Setting Pref 採用本機為主
+        if( LanguageId == 0 ) {
+            ctv1.toggle();
+        }
+        if( LanguageId == 1 ) {
+            ctv2.toggle();
+        }
+        TriggerSetting();
     }
     private void TriggerQuery() {
         Table.Request request = new Table.Request(Table.setting_option_language_id);
@@ -148,6 +122,8 @@ public class LanguageLv1Activity extends SettingBaseActivity {
     }
 
     private void TriggerSetting() {
+        tinyInnerDB.putInt(KEY_LANGUAGE, LanguageId);
+
         String action = String.valueOf(LanguageId);
         Table.Request request = new Table.Request(Table.setting_language_id);
         FormBody formBody = new FormBody.Builder()

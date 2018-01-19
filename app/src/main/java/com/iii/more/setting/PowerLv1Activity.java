@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import okhttp3.FormBody;
 
 import static com.iii.more.setting.Api.Table.HTTP_SUCCESS;
+import static com.iii.more.setting.Pref.KEY_IS_LOW_POWER;
 
 /**
  * TODO: 此頁說明
@@ -32,6 +33,7 @@ public class PowerLv1Activity extends SettingBaseActivity {
     private Activity mActivity;
 
     private Switch switch1;
+    private boolean isLowPower;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,7 @@ public class PowerLv1Activity extends SettingBaseActivity {
         mCtx = this;
         mActivity = this;
 
+        isLowPower = tinyInnerDB.getBoolean(KEY_IS_LOW_POWER);
         setTitle("電源");
         setFooterVisible(View.GONE);
         init_UI();
@@ -55,12 +58,21 @@ public class PowerLv1Activity extends SettingBaseActivity {
             @Override
             public void onClick(View v) {
                 boolean checked = ((Switch)v).isChecked();
-                switch1.setChecked(!checked);
-                String action = switch1.isChecked() ? "0" : "1";
+                String action = switch1.isChecked() ? "1" : "0";
                 TriggerSetting(action);
             }
         });
-        TriggerQuery();
+
+        // TriggerQuery();
+        // API 暫時 視為 儲存副本的功能。非，取出資料使用。
+        // Setting Pref 採用本機為主
+
+        String action = "0";
+        if( isLowPower ) {
+            switch1.setChecked(true);
+            action = "1";
+        }
+        TriggerSetting(action);
     }
 
     private void TriggerQuery() {
@@ -73,6 +85,15 @@ public class PowerLv1Activity extends SettingBaseActivity {
     }
 
     private void TriggerSetting(String action) {
+        boolean bValue = false;
+        if( action.equals("0") ) {
+            bValue = false;
+        }
+        if( action.equals("1") ) {
+            bValue = true;
+        }
+        tinyInnerDB.putBoolean(KEY_IS_LOW_POWER, bValue);
+
         Table.Request request = new Table.Request(Table.setting_lowpower_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)
@@ -123,7 +144,7 @@ public class PowerLv1Activity extends SettingBaseActivity {
                         JSONObject jsonObject = new JSONObject(response.httpBody);
                         boolean success = jsonObject.optBoolean("success");
                         if (success) {
-                            TriggerQuery();
+
                         } else {
                             String error = jsonObject.optString("error");
                             String messageInTable = response.getErrorDescription(error);

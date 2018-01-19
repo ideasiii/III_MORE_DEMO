@@ -3,7 +3,6 @@ package com.iii.more.setting;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
@@ -16,9 +15,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.iii.more.main.MainApplication;
 import com.iii.more.main.R;
 import com.iii.more.setting.Api.Core;
 import com.iii.more.setting.Api.Table;
+import com.iii.more.setting.utils.TinyDB;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -43,31 +44,19 @@ public abstract class SettingBaseActivity extends AppCompatActivity {
     private final String TAG = SettingBaseActivity.class.getSimpleName();
     private Context mCtx;
     private Activity mActivity;
-
-    public static final String PREFS_NAME = "iii.more.demo.setting";
-    public static SharedPreferences PrefSettings;
-    public static SharedPreferences.Editor PrefEditor;
-    public static int maxUsedCount;
-
-    public static final String key1itemType = "itemType";
-    public static final String key2 = "alarmType";
-    public static final String key3name = "name";
-    public static final String key4time = "time";
-    public static final String key5story = "story";
-    public static final String key6recur = "recur";
-    public static final String key7prefIndex = "prefIndex";
+    public static TinyDB tinyInnerDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((MainApplication) this.getApplication()).stopFaceEmotion();
         setContentView(getLayoutResourceId());
         mCtx = this;
         mActivity = this;
-
-        if (PrefSettings == null) {
+        if( tinyInnerDB == null ) {
+            Pref pref = new Pref(mCtx); // 在此先 new 一回 Pref，確保 資料有被 初始化
+            tinyInnerDB = new TinyDB(mCtx);
             TriggerGetInfo();
-            PrefSettings = mCtx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            PrefEditor = PrefSettings.edit();
         }
 
         init_UI();

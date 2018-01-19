@@ -19,6 +19,8 @@ import org.json.JSONObject;
 import okhttp3.FormBody;
 
 import static com.iii.more.setting.Api.Table.HTTP_SUCCESS;
+import static com.iii.more.setting.Pref.KEY_IS_LOW_POWER;
+import static com.iii.more.setting.Pref.KEY_LANGUAGE;
 
 /**
  * TODO: 此頁說明
@@ -48,6 +50,18 @@ public class SettingLv1Activity extends SettingBaseActivity {
         setLeftRes(R.drawable.ic_settings_white_24dp);
 
         init_UI();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+        // 取得設定資料的 範本
+//        Pref pref = new Pref(mCtx);
+//        List<Brush> brushes = pref.getBrush();
+//        List<Sleep> sleeps = pref.getSleep();
+//        int iLang = pref.getLanguage();
+//        boolean bLowPower = pref.isLowPower();
     }
 
     @Override
@@ -115,6 +129,9 @@ public class SettingLv1Activity extends SettingBaseActivity {
     }
 
     private void TriggerReset() {
+        tinyInnerDB.putBoolean(KEY_IS_LOW_POWER, false);
+        tinyInnerDB.putInt(KEY_LANGUAGE, 0);
+
         Table.Request request = new Table.Request(Table.setting_reset_id);
         FormBody formBody = new FormBody.Builder()
             .add("device_id", Table.device_id)

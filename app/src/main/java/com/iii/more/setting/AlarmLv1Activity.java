@@ -12,11 +12,14 @@ import android.util.Log;
 import android.view.View;
 
 import com.iii.more.main.R;
-import com.iii.more.setting.utils.RecyclerViewFriendsAdapter;
+import com.iii.more.setting.utils.RecyclerViewAlarmAdapter;
 import com.iii.more.setting.utils.SimpleDividerItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+import static com.iii.more.setting.Pref.KEY_ALARM;
 
 /**
  * TODO: 此頁說明
@@ -25,10 +28,10 @@ import java.util.List;
  */
 
 public class AlarmLv1Activity extends SettingBaseActivity implements
-    RecyclerViewFriendsAdapter.ItemClickListener,
-    RecyclerViewFriendsAdapter.DelToggleListener,
-    RecyclerViewFriendsAdapter.AddToggleListener,
-    RecyclerViewFriendsAdapter.DelClickListener {
+    RecyclerViewAlarmAdapter.ItemClickListener,
+    RecyclerViewAlarmAdapter.DelToggleListener,
+    RecyclerViewAlarmAdapter.AddToggleListener,
+    RecyclerViewAlarmAdapter.DelClickListener {
 
     private String TAG = AlarmLv1Activity.class.getSimpleName();
     private Context mCtx;
@@ -36,7 +39,7 @@ public class AlarmLv1Activity extends SettingBaseActivity implements
 
     private final int REQUEST_EDIT = 5555;
 
-    private RecyclerViewFriendsAdapter adapter;
+    private RecyclerViewAlarmAdapter adapter;
     private RecyclerView rvFriends;
 
     public static final int ITEM_HEADER = 0;
@@ -50,10 +53,9 @@ public class AlarmLv1Activity extends SettingBaseActivity implements
         public int alarmType; // 0 = sleep , 1 = brush
         public String name;
         public String time;
-        public String recur;
+        public boolean[] recur = new boolean[7];
         public String story;
         public boolean bShowDel = false;
-        public String prefIndex;
     }
 
     public static List<Alarm> alarms;
@@ -77,13 +79,13 @@ public class AlarmLv1Activity extends SettingBaseActivity implements
 
     @Override
     public void onBackPressed() {
-        if( ShopLv1Activity.mActivity != null ) {
+        if (ShopLv1Activity.mActivity != null) {
             ShopLv1Activity.mActivity.finish();
         }
-        if( AlarmLv1Activity.mActivity != null ) {
+        if (AlarmLv1Activity.mActivity != null) {
             AlarmLv1Activity.mActivity.finish();
         }
-        if( SettingLv1Activity.mActivity != null ) {
+        if (SettingLv1Activity.mActivity != null) {
             SettingLv1Activity.mActivity.finish();
         }
     }
@@ -92,6 +94,7 @@ public class AlarmLv1Activity extends SettingBaseActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_EDIT) {
             if (resultCode == RESULT_OK) {
+                tinyInnerDB.putListObject(KEY_ALARM, (ArrayList<?>) alarms);
                 init_data();
                 adapter.notifyDataSetChanged();
             }
@@ -100,49 +103,33 @@ public class AlarmLv1Activity extends SettingBaseActivity implements
 
     private void init_data() {
 
-        maxUsedCount = PrefSettings.getInt("maxUsedCount", 0);
-        List<Alarm> alarmsTmpSleep = new ArrayList<>();
-        List<Alarm> alarmsTmpBrush = new ArrayList<>();
-        for (int i = 0; i < maxUsedCount; i++) {
-            String suffix = String.valueOf(i);
-            if (PrefSettings.contains(key1itemType + suffix)) {
-                Alarm each = new Alarm();
-                each.itemType = PrefSettings.getInt(key1itemType + suffix, ITEM_BODY);
-                each.alarmType = PrefSettings.getInt(key2 + suffix, ALARM_SLEEP);
-                each.name = PrefSettings.getString(key3name + suffix, "未命名");
-                each.time = PrefSettings.getString(key4time + suffix, "12:34");
-                each.story = PrefSettings.getString(key5story + suffix, "小紅帽");
-                each.recur = PrefSettings.getString(key6recur + suffix, "一,二,三");
-                each.prefIndex = PrefSettings.getString(key7prefIndex + suffix, "9999");
-                if (each.alarmType == ALARM_SLEEP) {
-                    alarmsTmpSleep.add(each);
-                }
-                if (each.alarmType == ALARM_BRUSH) {
-                    alarmsTmpBrush.add(each);
-                }
-            }
-        }
-        Alarm headerSleep = new Alarm();
-        headerSleep.itemType = 0;
-        headerSleep.alarmType = ALARM_SLEEP;
-        headerSleep.name = "睡眠時間";
-        Alarm headerBrush = new Alarm();
-        headerBrush.itemType = 0;
-        headerBrush.alarmType = ALARM_BRUSH;
-        headerBrush.name = "刷牙時間";
-
-        if( alarms == null ) {
+        if (alarms == null) {
             alarms = new ArrayList<>();
         } else {
             alarms.clear();
         }
 
-        alarms.add(headerSleep);
+        ArrayList<? extends Object> ret = tinyInnerDB.getListObject(KEY_ALARM, Alarm.class);
+        List<Alarm> alarm = (List<Alarm>) ret;
+
+        List<Alarm> alarmsTmpSleep = new ArrayList<>();
+        List<Alarm> alarmsTmpBrush = new ArrayList<>();
+        for (int i = 0; i < alarm.size(); i++) {
+            Alarm each = alarm.get(i);
+            if (each.alarmType == ALARM_SLEEP) {
+                each.bShowDel = false;
+                alarmsTmpSleep.add(each);
+            }
+            if (each.alarmType == ALARM_BRUSH) {
+                each.bShowDel = false;
+                alarmsTmpBrush.add(each);
+            }
+        }
+
         for (int i = 0; i < alarmsTmpSleep.size(); i++) {
             alarms.add(alarmsTmpSleep.get(i));
         }
 
-        alarms.add(headerBrush);
         for (int i = 0; i < alarmsTmpBrush.size(); i++) {
             alarms.add(alarmsTmpBrush.get(i));
         }
@@ -163,7 +150,10 @@ public class AlarmLv1Activity extends SettingBaseActivity implements
                 each.name = String.format("name %d", i);
                 each.time = String.format("%d%d:%d%d", i, i, i, i);
                 each.story = String.format("story %d", i);
-                each.recur = String.format("一,二,五");
+                Random r = new Random();
+                for (int b = 0; b < each.recur.length; b++) {
+                    each.recur[b] = r.nextBoolean();
+                }
             }
             alarms.add(each);
         }
@@ -181,14 +171,17 @@ public class AlarmLv1Activity extends SettingBaseActivity implements
                 each.name = String.format("b name %d", i);
                 each.time = String.format("%d%d:%d%d", i, i, i, i);
                 each.story = String.format("b story %d", i);
-                each.recur = String.format("一 二 五");
+                Random r = new Random();
+                for (int b = 0; b < each.recur.length; b++) {
+                    each.recur[b] = r.nextBoolean();
+                }
             }
             alarms.add(each);
         }
     }
 
     private void init_UI() {
-        adapter = new RecyclerViewFriendsAdapter(this, alarms);
+        adapter = new RecyclerViewAlarmAdapter(this, alarms);
         adapter.setItemClickListener(this);
         adapter.setDelToggleListener(this);
         adapter.setAddToggleListener(this);
@@ -243,7 +236,7 @@ public class AlarmLv1Activity extends SettingBaseActivity implements
         delConfirm(delAlarm);
     }
 
-    private void delConfirm(final Alarm delAlarm){
+    private void delConfirm(final Alarm delAlarm) {
         AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
         builder.setMessage("確定刪除");
         builder.setNegativeButton("返回", new DialogInterface.OnClickListener() {
@@ -260,17 +253,9 @@ public class AlarmLv1Activity extends SettingBaseActivity implements
         dialog.show();
     }
 
-    private void doDel(Alarm delAlarm){
-        String suffix = delAlarm.prefIndex;
-        PrefEditor.remove(key1itemType + suffix);
-        PrefEditor.remove(key2 + suffix);
-        PrefEditor.remove(key3name + suffix);
-        PrefEditor.remove(key4time + suffix);
-        PrefEditor.remove(key5story + suffix);
-        PrefEditor.remove(key6recur + suffix);
-        PrefEditor.remove(key7prefIndex + suffix);
-        PrefEditor.commit();
+    private void doDel(Alarm delAlarm) {
         alarms.remove(delAlarm);
+        tinyInnerDB.putListObject(KEY_ALARM, (ArrayList<?>) alarms);
         adapter.notifyDataSetChanged();
     }
 }

@@ -21,7 +21,7 @@ import java.util.List;
  * @author ReadyChen
  */
 
-public class RecyclerViewFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class RecyclerViewAlarmAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<AlarmLv1Activity.Alarm> alarms = Collections.emptyList();
     private LayoutInflater mInflater;
@@ -34,7 +34,7 @@ public class RecyclerViewFriendsAdapter extends RecyclerView.Adapter<RecyclerVie
     private DelClickListener mDelClickListener;
 
     // data is passed into the constructor
-    public RecyclerViewFriendsAdapter(Context context, List<AlarmLv1Activity.Alarm> alarms) {
+    public RecyclerViewAlarmAdapter(Context context, List<AlarmLv1Activity.Alarm> alarms) {
         this.mInflater = LayoutInflater.from(context);
         this.alarms = alarms;
     }
