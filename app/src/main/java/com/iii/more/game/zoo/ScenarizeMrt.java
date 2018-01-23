@@ -36,7 +36,7 @@ public class ScenarizeMrt extends ScenarizeBase
             ImageView.ScaleType.CENTER_CROP,
             ImageView.ScaleType.CENTER_INSIDE,
             FRONT.FACE,
-            "坐捷運時要記得使用悠遊卡付錢喔!!這樣才是好寶寶! 請刷悠遊卡。");
+            "坐捷運時要記得使用悠遊卡付錢喔!!這樣才是好寶寶! 請刷悠遊卡");
     
         setScenarize(scenarize,
             SCEN.SCEN_INDEX_TRAFFIC_CARD_MRT,
