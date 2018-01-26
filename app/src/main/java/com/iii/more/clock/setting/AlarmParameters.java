@@ -9,6 +9,8 @@ public abstract class AlarmParameters
     public static final int TYPE_BRUSH_TEETH = 0;
     public static final int TYPE_BEFORE_SLEEP = 1;
     
-    public static final boolean isTest = true;
+    public static final boolean isTest = false;
+    
+    
     
 }

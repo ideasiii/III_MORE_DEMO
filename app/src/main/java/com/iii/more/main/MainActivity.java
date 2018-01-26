@@ -45,7 +45,9 @@ import com.iii.more.screen.view.menu.MenuParameters;
 import com.iii.more.screen.view.alterdialog.AlertDialogHandler;
 import com.iii.more.screen.view.alterdialog.AlertDialogParameters;
 import com.iii.more.screen.view.progressDialog.ProgressDialog;
+import com.iii.more.setting.Pref;
 import com.iii.more.setting.SettingLv1Activity;
+import com.iii.more.setting.struct.Sleep;
 import com.scalified.fab.ActionButton;
 
 import org.json.JSONArray;
@@ -54,6 +56,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.List;
 
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
@@ -254,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         
         mAlarmHandler = new AlarmHandler(this);
         mAlarmHandler.setHandler(mHandler);
-        mAlarmHandler.setAlarmData("");
+        mAlarmHandler.init();
     }
     
     
@@ -594,10 +597,17 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         mainApplication.startFaceEmotion();
         
         mainApplication.setTTSPitch(1.0f, 1.0f);
+    
+        Pref mPref = new Pref(this);
         
-        //String alarmTestData = "";
-        //mAlarmHandler.setAlarmData(alarmTestData);
-        //mAlarmHandler.startAll();
+        // ### pending to write
+        mAlarmHandler.clearAlarmData();
+        mAlarmHandler.addAlarmData(mPref.getSleep());
+        mAlarmHandler.addAlarmData(mPref.getBrush());
+        mAlarmHandler.startSetAlarms();
+        
+        
+        
     }
     
     private void handleMessageMenu(Message msg)

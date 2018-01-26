@@ -764,14 +764,14 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
     
     private String getResponseLogic(String textID)
     {
-        Logs.showTrace("[oobeActivity] getResponseLogic textID: " + textID);
+        Logs.showTrace("[OobeActivity] getResponseLogic textID: " + textID);
         for (int i = 0; i < mStateData.size(); i++)
         {
-            Logs.showTrace("[oobeActivity] getResponseLogic mStateData.get(i)" + ".state : " + String
+            Logs.showTrace("[OobeActivity] getResponseLogic mStateData.get(i)" + ".state : " + String
                 .valueOf(mStateData.get(i).state));
             if (String.valueOf(mStateData.get(i).state).equals(textID))
             {
-                Logs.showTrace("[oobeActivity] response: " + mStateData.get(i).response);
+                Logs.showTrace("[OobeActivity] response: " + mStateData.get(i).response);
                 return mStateData.get(i).response;
             }
             

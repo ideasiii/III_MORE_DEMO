@@ -18,9 +18,7 @@ import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
-/**
- * Created by joe on 2017/11/13.
- */
+
 
 public class FaceEmotionInterruptHandler extends BaseHandler
 {

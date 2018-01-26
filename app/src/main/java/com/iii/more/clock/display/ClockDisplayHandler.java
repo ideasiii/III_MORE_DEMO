@@ -17,6 +17,4 @@ public class ClockDisplayHandler extends DisplayHandler
     }
     
     
-    
-    
 }

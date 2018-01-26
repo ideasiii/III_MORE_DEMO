@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
 
+import com.amazonaws.util.Classes;
 import com.iii.more.animate.AnimationHandler;
 import com.iii.more.http.server.DeviceHttpServerHandler;
 import com.iii.more.http.server.DeviceHttpServerParameters;
@@ -34,13 +35,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 
+import dalvik.system.DexFile;
 import permission.settings.WriteSettingPermissionHandler;
 import permission.settings.WriteSettingPermissionParameters;
 import sdk.ideas.common.CtrlType;
@@ -180,8 +185,6 @@ public class InitActivity extends AppCompatActivity
                     editor.putString(Parameters.TASK_COMPOSER_DATA, message.get("message"));
                     editor.apply();
                     
-                 
-                    
                     
                     //call function
                     
@@ -197,10 +200,10 @@ public class InitActivity extends AppCompatActivity
                         .STATE_DEVICE_SERVER_INIT_SUCCESS);
                     
                 }
-    
+                
                 //call function MainApplication to initFaceEmotionInterrupt and initInterruptLogic
-                MainApplication mApp = (MainApplication)getApplication();
-    
+                MainApplication mApp = (MainApplication) getApplication();
+                
                 mApp.initInterruptLogic();
                 mApp.initFaceEmotionInterrupt();
                 
@@ -237,6 +240,8 @@ public class InitActivity extends AppCompatActivity
     }
     
     
+    
+    
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -245,6 +250,8 @@ public class InitActivity extends AppCompatActivity
         final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
             View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View
             .SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+    
+        
         
         // This work only for android 4.4+
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
@@ -305,8 +312,8 @@ public class InitActivity extends AppCompatActivity
         animationHandler.setView(findViewById(R.id.logo_image_view));
         try
         {
-            animationHandler.setAnimateJsonBehavior(new JSONObject("{\"type\":1,\"duration\":3000,"+
-            "\"repeat\":0, \"interpolate\":1}"));
+            animationHandler.setAnimateJsonBehavior(new JSONObject("{\"type\":1,\"duration\":3000," +
+                "\"repeat\":0, \"interpolate\":1}"));
             animationHandler.startAnimate();
             mHandler.sendEmptyMessageDelayed(InitActivityParameters.MESSAGE_END_WELCOME_LAYOUT, 3100);
         }
@@ -314,8 +321,8 @@ public class InitActivity extends AppCompatActivity
         {
             Logs.showError("[InitActivity] " + e.toString());
         }
-        
-      
+    
+        ArrayList<? > tmp = new ArrayList<>();
         
     }
     
@@ -334,7 +341,7 @@ public class InitActivity extends AppCompatActivity
             mAlertDialogHandler.show();
         }
     }
-
+    
     // 將 app 切換頁內，本 app 的顯示名稱換成 build date
     private void setTaskDescriptionLabelToBuildDate()
     {

@@ -164,6 +164,8 @@ public class ClockActivity extends AppCompatActivity
         mClockDisplayHandler.setDisplayView(hashMapViews);
         mClockDisplayHandler.setHandler(mHandler);
         mClockDisplayHandler.init();
+        mClockDisplayHandler.resetAllDisplayViews();
+        
         
         mClockLogicHandler = new ClockLogicHandler(this);
         mClockLogicHandler.setHandler(mHandler);
@@ -258,21 +260,13 @@ public class ClockActivity extends AppCompatActivity
         {
             JSONObject responseData = new JSONObject(data);
             
-            if (responseData.has("display"))
-            {
-                Logs.showTrace("[ClockActivity] display Data:" + responseData.getJSONObject("display")
-                    .toString());
-                if (responseData.getJSONObject("display").length() != 0)
-                {
-                    mClockDisplayHandler.resetAllDisplayViews();
-                    mClockDisplayHandler.setDisplayJson(responseData.getJSONObject("display"));
-                    mClockDisplayHandler.startDisplay();
-                }
-                else
-                {
-                    Logs.showError("[ClockActivity] No Display Data!!");
-                }
-            }
+            JSONObject defaultDisplay = new JSONObject(DisplayParameters.JSON_DISPLAY_STORY_DEFAULT);
+            Logs.showTrace("[ClockActivity] display Data:" + defaultDisplay.toString());
+            
+            mClockDisplayHandler.resetAllDisplayViews();
+            mClockDisplayHandler.setDisplayJson(defaultDisplay);
+            mClockDisplayHandler.startDisplay();
+            
             
             if (responseData.has("activity"))
             {

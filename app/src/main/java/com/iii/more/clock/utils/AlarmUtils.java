@@ -55,11 +55,7 @@ public abstract class AlarmUtils
             {
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
             }
-            if (isRepeat)
-            {
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 7 * 24 * 60
-                    * 60 * 1000, pendingIntent);
-            }
+          
             
             saveAlarmId(context, notificationId);
         }
