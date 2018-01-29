@@ -35,7 +35,7 @@ public class OtgCockpitService extends CockpitService
     private static final String BROADCAST_ACTION_SYSTEM_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
     private static final String BROADCAST_ACTION_SYSTEM_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
 
-    private static final int BAUD_RATE = 9600;
+    private static final int BAUD_RATE = 115200;
     private static final String RECEIVED_DATA_CHARSET_NAME = "UTF-8";
 
     private static boolean serviceSpawned = false;

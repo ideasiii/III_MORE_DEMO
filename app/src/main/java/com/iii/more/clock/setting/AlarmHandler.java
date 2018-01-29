@@ -200,27 +200,58 @@ public class AlarmHandler extends BaseHandler
          * @return Calendar Data Type
          */
         private Calendar getCalendarData(int day, int hour, int minute)
-        {     //todo 時區有問題啊!!!!
+        {
             Calendar calendar = Calendar.getInstance();
             
-            Logs.showTrace("[AlarmHandler] System.currentTimeMillis():" + System.currentTimeMillis());
+            //Logs.showTrace("[AlarmHandler] now time: " + Calendar.getInstance().getTime());
             
-            //todo 可能是day差一天
-            calendar.set(Calendar.DAY_OF_WEEK, day);
+            calendar.set(Calendar.DAY_OF_WEEK, getCalendarDayOfWeek(day));
             calendar.set(Calendar.HOUR_OF_DAY, hour);
             calendar.set(Calendar.MINUTE, minute);
             
-            Logs.showTrace("[AlarmHandler] calendar.getTimeInMillis(): " + calendar.getTimeInMillis());
+              Logs.showTrace("[AlarmHandler] set Alarm time: " + calendar.getTime());
             
-            if (calendar.getTimeInMillis() < System.currentTimeMillis())
+            if (calendar.getTimeInMillis() < Calendar.getInstance().getTimeInMillis())
             {
                 calendar.setTimeInMillis(calendar.getTimeInMillis() + 7 * 24 * 60 * 60 * 1000L);
-                Logs.showTrace("[AlarmHandler] after Set calendar.getTimeInMillis():" + calendar
-                    .getTimeInMillis());
+                Logs.showTrace("[AlarmHandler]after Set time: " + calendar.getTime());
             }
             
-            
             return calendar;
+        }
+        
+        private int getCalendarDayOfWeek(int day)
+        {
+            int returnDate;
+            switch (day)
+            {
+                case 0:
+                    returnDate = Calendar.SUNDAY;
+                    break;
+                case 1:
+                    returnDate = Calendar.MONDAY;
+                    break;
+                case 2:
+                    returnDate = Calendar.TUESDAY;
+                    break;
+                case 3:
+                    returnDate = Calendar.WEDNESDAY;
+                    break;
+                case 4:
+                    returnDate = Calendar.THURSDAY;
+                    break;
+                case 5:
+                    returnDate = Calendar.FRIDAY;
+                    break;
+                case 6:
+                    returnDate = Calendar.SATURDAY;
+                    break;
+                default:
+                    returnDate = Calendar.SUNDAY;
+                    break;
+                
+            }
+            return returnDate;
         }
         
         
