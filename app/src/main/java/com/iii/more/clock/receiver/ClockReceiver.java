@@ -22,24 +22,33 @@ import sdk.ideas.common.Logs;
  * Created by joe on 2018/1/3
  */
 
+
 public class ClockReceiver extends BroadcastReceiver
 {
+    
+    public static final String ACTION = "com.iii.more.clock.action.alarm";
+    
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        Logs.showTrace("[ClockReceiver] onReceive new message");
-        Bundle bundleData = getClockPref(context);
+        Logs.showTrace("[ClockReceiver] onReceive new message ACTION:" + intent.getAction());
         
-        if (null != bundleData)
+        if (ACTION.equals(intent.getAction()))
         {
-            Intent activityIntent = new Intent();
+            Logs.showTrace("[ClockReceiver] now start to doing Clock ");
+            Bundle bundleData = getClockPref(context);
             
-            activityIntent.putExtra(ClockParameters.KEY_BUNDLE_NAME, bundleData);
-            activityIntent.setClass(context, ClockActivity.class);
-            activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            //start clock Activity
-            
-            context.startActivity(activityIntent);
+            if (null != bundleData)
+            {
+                Intent activityIntent = new Intent();
+                
+                activityIntent.putExtra(ClockParameters.KEY_BUNDLE_NAME, bundleData);
+                activityIntent.setClass(context, ClockActivity.class);
+                activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                //start clock Activity
+                
+                context.startActivity(activityIntent);
+            }
         }
     }
     
@@ -99,6 +108,10 @@ public class ClockReceiver extends BroadcastReceiver
                     return bundleData;
                 }
             }
+            else
+            {
+                Logs.showTrace("[ClockReceiver] pass data.time" + data.time);
+            }
         }
         
         //check brush
@@ -116,6 +129,10 @@ public class ClockReceiver extends BroadcastReceiver
                     
                     return bundleData;
                 }
+            }
+            else
+            {
+                Logs.showTrace("[ClockReceiver] pass data.time" + data.time);
             }
         }
         

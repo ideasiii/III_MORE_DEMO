@@ -29,7 +29,7 @@ public abstract class AlarmUtils
     private static final String sTagAlarms = ":alarms";
     
     public static void addAlarm(Context context, Intent intent, int notificationId, Calendar calendar,
-        boolean isRepeat)
+        boolean isRepeat, long repeatTime)
     {
         
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -38,25 +38,36 @@ public abstract class AlarmUtils
         
         if (null != alarmManager)
         {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            
+            if (isRepeat)
             {
-                Logs.showTrace("[AlarmUtils] @@@!!! calendar.getTimeInMillis():" + String.valueOf(calendar
-                    .getTimeInMillis()));
-                //alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                //    pendingIntent);
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 60
-                    * 60 * 1000, pendingIntent);
-            }
-            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-            {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                Logs.showTrace("[AlarmUtils] set setRepeating calendar time: " + calendar.getTime());
+                alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), repeatTime,
+                    pendingIntent);
             }
             else
             {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                
+                
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                {
+                    Logs.showTrace("[AlarmUtils] @@@!!! calendar.getTimeInMillis():" + String.valueOf
+                        (calendar.getTimeInMillis()));
+                    
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar
+                        .getTimeInMillis(), pendingIntent);
+                    
+                }
+                else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                {
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                }
+                else
+                {
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                }
+                
             }
-          
-            
             saveAlarmId(context, notificationId);
         }
         else
@@ -73,8 +84,6 @@ public abstract class AlarmUtils
             PendingIntent.FLAG_CANCEL_CURRENT);
         if (null != alarmManager)
         {
-            Logs.showTrace("[AlarmUtils]##@@### has:" + String.valueOf(hasAlarm(context, intent,
-                notificationId)));
             if (hasAlarm(context, intent, notificationId))
             {
                 

@@ -36,4 +36,7 @@ public abstract class FaceEmotionInterruptParameters
     public  static final boolean isDebugging = true;
     public static final int attentionTriggerTime = 120;
     
+    public static final boolean IS_TEST_FOR_JOY_EMOTION = false;
+    
+    
 }

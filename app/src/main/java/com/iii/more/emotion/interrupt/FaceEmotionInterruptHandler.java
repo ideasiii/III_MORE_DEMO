@@ -19,14 +19,13 @@ import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
 
-
 public class FaceEmotionInterruptHandler extends BaseHandler
 {
     private ArrayList<EmotionBrainElement> mEmotionBrainArrayListData = null;
     private HashMap<String, String> mEmotionHashMapData = null;
     
     private EmotionElement nowEmotionState = new EmotionElement(FaceEmotionInterruptParameters
-        .STRING_NATURAL, FaceEmotionInterruptParameters.INT_NATURAL_RULE);
+        .STRING_NATURAL, FaceEmotionInterruptParameters.INT_NATURAL_RULE, 0);
     
     public FaceEmotionInterruptHandler(Context context)
     {
@@ -83,7 +82,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                         // strNowEmotionValue);
                         
                         data = new EmotionElement(mEmotionBrainArrayListData.get(i).emotionName,
-                            mEmotionBrainArrayListData.get(i).triggerTime);
+                            mEmotionBrainArrayListData.get(i).triggerTime, 0);
                         data.emotionHashMapValue = emotionHashMapData;
                         
                     }
@@ -96,7 +95,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                         if (floatNowEmotionValue >= ruleEmotionValue)
                         {
                             data = new EmotionElement(mEmotionBrainArrayListData.get(i).emotionName,
-                                mEmotionBrainArrayListData.get(i).triggerTime);
+                                mEmotionBrainArrayListData.get(i).triggerTime, floatNowEmotionValue);
                             data.emotionHashMapValue = emotionHashMapData;
                         }
                     }
@@ -173,6 +172,35 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                             {
                                 Logs.showError("[FaceEmotionInterruptHandler] get TTS RULE ERROR" + e
                                     .toString());
+                            }
+                            
+                            // FOR RD DEMO USE
+                            if (FaceEmotionInterruptParameters.IS_TEST_FOR_JOY_EMOTION)
+                            {
+                                if (nowEmotionState.emotionName.equals("JOY"))
+                                {
+                                    
+                                    //### toDo edit text to this
+                                    //
+                                    if (nowEmotionState.emotionTriggerValue >= 70)
+                                    {
+                                        message.put(FaceEmotionInterruptParameters.STRING_TTS_TEXT, "");
+                                        
+                                    }
+                                    else if (nowEmotionState.emotionTriggerValue < 70 && nowEmotionState
+                                        .emotionTriggerValue > 40)
+                                    {
+                                        message.put(FaceEmotionInterruptParameters.STRING_TTS_TEXT, "");
+                                    }
+                                    else
+                                    {
+                                        message.put(FaceEmotionInterruptParameters.STRING_TTS_TEXT, "");
+                                    }
+                                    
+                                    
+                                }
+                                
+                                
                             }
                         }
                         callBackMessage(ResponseCode.ERR_SUCCESS, FaceEmotionInterruptParameters
@@ -291,18 +319,23 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         String emotionName = null;
         int emotionTriggerTimeRule = 0;
         int emotionTriggerTime = 0;
+        
+        float emotionTriggerValue = 0;
+        
         HashMap<String, String> emotionHashMapValue = new HashMap<>();
         
-        EmotionElement(@NonNull String emotionName, int emotionTriggerTimeRule)
+        EmotionElement(@NonNull String emotionName, int emotionTriggerTimeRule, float emotionTriggerValue)
         {
             this.emotionName = emotionName;
             this.emotionTriggerTimeRule = emotionTriggerTimeRule;
+            this.emotionTriggerValue = emotionTriggerValue;
         }
         
         void print()
         {
             Logs.showTrace("[FaceEmotionInterruptHandler][EmotionElement] EmotionName: " + emotionName + " " +
-                "" + "" + "" + "" + "emotionTriggerTime: " + String.valueOf(emotionTriggerTimeRule));
+                "" + "" + "" + "" + "" + "" + "" + "" + "emotionTriggerTime: " + String.valueOf
+                (emotionTriggerTimeRule));
         }
     }
     

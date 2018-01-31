@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 
+import com.iii.more.clock.ClockParameters;
 import com.iii.more.clock.receiver.ClockReceiver;
 import com.iii.more.clock.utils.AlarmUtils;
 
@@ -35,6 +36,7 @@ public class AlarmHandler extends BaseHandler
     {
         mAlarmElementList = new ArrayList<>();
     }
+    
     
     public void clearAlarmData()
     {
@@ -79,23 +81,34 @@ public class AlarmHandler extends BaseHandler
         if (null != mAlarmElementList)
         {
             //cancel all alarms
-            Intent intent = new Intent(mContext, ClockReceiver.class);
-            AlarmUtils.cancelAllAlarms(mContext, intent);
+            
+            AlarmUtils.cancelAllAlarms(mContext, getAlarmReceiverIntent());
+            
+            
             
             //set all alarms
+            Logs.showTrace("[AlarmHandler] start to add Alarm! ");
             for (int i = 0; i < mAlarmElementList.size(); i++)
             {
                 AlarmUtils.addAlarm(mContext, mAlarmElementList.get(i).mDataIntent, mAlarmElementList.get
-                    (i).mID, mAlarmElementList.get(i).mCalendar, false);
+                    (i).mID, mAlarmElementList.get(i).mCalendar, false, AlarmParameters.ONE_WEEK_TIME);
             }
         }
+    }
+    
+    
+    private Intent getAlarmReceiverIntent()
+    {
+        Intent intent = new Intent(mContext, ClockReceiver.class);
+        intent.setAction(ClockReceiver.ACTION);
+        return intent;
     }
     
     private ArrayList<AlarmElement> convertData(List<?> alarmRowData, int listType)
     {
         //###
         //Data Intent
-        Intent intent = new Intent(mContext, ClockReceiver.class);
+        Intent intent = getAlarmReceiverIntent();
         
         //alarm id
         int alarmID = 1;
@@ -169,12 +182,12 @@ public class AlarmHandler extends BaseHandler
     
     private Intent getDataIntentData(@NonNull Class<?> whichClass, @NonNull String storyName, int alarmType)
     {
-        Intent dataIntent = new Intent(mContext, ClockReceiver.class);
        /* Bundle activityBundle = new Bundle();
         activityBundle.putString(ClockParameters.KEY_PLAY_STREAM_NAME, storyName);
         activityBundle.putInt(ClockParameters.KEY_ALARM_TYPE, alarmType);
         dataIntent.putExtra(ClockParameters.KEY_BUNDLE_NAME, activityBundle);*/
-        return dataIntent;
+        
+        return getAlarmReceiverIntent();
     }
     
     public class AlarmElement
@@ -208,8 +221,8 @@ public class AlarmHandler extends BaseHandler
             calendar.set(Calendar.DAY_OF_WEEK, getCalendarDayOfWeek(day));
             calendar.set(Calendar.HOUR_OF_DAY, hour);
             calendar.set(Calendar.MINUTE, minute);
-            
-              Logs.showTrace("[AlarmHandler] set Alarm time: " + calendar.getTime());
+            calendar.set(Calendar.SECOND, 0);
+            Logs.showTrace("[AlarmHandler] set Alarm time: " + calendar.getTime());
             
             if (calendar.getTimeInMillis() < Calendar.getInstance().getTimeInMillis())
             {

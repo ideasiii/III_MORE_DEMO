@@ -78,7 +78,6 @@
 
         <receiver android:name="com.iii.more.clock.receiver.ClockReceiver">
 
-
         </receiver>
 
         <activity

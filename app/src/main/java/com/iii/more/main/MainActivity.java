@@ -104,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
     private FloatingActionButtonHandler mFABSettingHandler = null;
     //BLE connect read pen
     private ReadPenBLEHandler mReadPenBLEHandler = null;
-    private MediaPlayer mRfidScannedSoundPlayer;
     
     //it can block face listen let it don't get message
     private volatile boolean isBlockFaceEmotionListener = false;

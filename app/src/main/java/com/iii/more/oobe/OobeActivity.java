@@ -652,7 +652,7 @@ public class OobeActivity extends AppCompatActivity implements CockpitSensorEven
         
         mOobeTracker = new OobeTracker(this);
     
-        mMainApplication.setName(Parameters.ID_CHILD_NAME, "");
+        mMainApplication.setName(Parameters.ID_CHILD_NAME, "乖小孩");
         
     }
     

@@ -16,5 +16,5 @@ public abstract class ClockParameters
     public static final String STRING_ALARM_SLEEP_DATA = "現在是睡前時間";
 
     
-    public static final int ALARM_TIME_ERROR_RANGE = 1;
+    public static final int ALARM_TIME_ERROR_RANGE = 2;
 }

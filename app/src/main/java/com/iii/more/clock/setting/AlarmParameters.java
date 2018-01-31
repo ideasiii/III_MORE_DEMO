@@ -11,6 +11,9 @@ public abstract class AlarmParameters
     
     public static final boolean isTest = false;
     
+    public static final long ONE_DAY_TIME = 24 * 60 * 60 * 1000;
+    
+    public static final long ONE_WEEK_TIME = ONE_DAY_TIME * 7;
     
     
 }
