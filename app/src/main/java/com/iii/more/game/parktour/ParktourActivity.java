@@ -9,7 +9,10 @@ import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.R;
+import com.iii.more.main.listeners.FaceEmotionEventListener;
 import com.iii.more.main.listeners.TTSEventListener;
+
+import java.util.HashMap;
 
 import sdk.ideas.common.Logs;
 
@@ -93,10 +96,12 @@ public class ParktourActivity extends Activity
                     String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_LION_HO:
+                application.setFaceEmotionEventListener(faceEmotionEventListener);
                 faceView.loadImage(R.drawable.iii_lion_ho_102);
                 managerOfSound(R.raw.iii_lion_ho);
                 break;
             case Scenarize.SCEN_LION_GO:
+                application.setFaceEmotionEventListener(null);
                 faceView.loadImage(R.drawable.iii_lion_102);
                 application.playTTS("太好了，獅子都下跑了，讓我們繼續看看，有什麼好玩的吧，走", String.valueOf(mnScenarize));
                 break;
@@ -118,9 +123,50 @@ public class ParktourActivity extends Activity
             public void onCompletion(MediaPlayer mp)
             {
                 Logs.showTrace("[ParktourActivity] managerOfSound onCompletion...");
-                theActivity.scenarize(Scenarize.SCEN_LION_GO, null);
             }
         });
         mp.start();
     }
+    
+    //========= 臉部表情 ===========//
+    private FaceEmotionEventListener faceEmotionEventListener = new FaceEmotionEventListener()
+    {
+        @Override
+        public void onFaceEmotionResult(HashMap<String, String> faceEmotionData, HashMap<String,
+            String> ttsEmotionData, HashMap<String, String> imageEmotionData, Object extendData)
+        {
+            Logs.showTrace("[ParktourActivity] onFaceEmotionResult Trig.");
+            try
+            {
+                if (null != faceEmotionData)
+                {
+                    String strEmotionName = faceEmotionData.get("EMOTION_NAME");
+                    Logs.showTrace("[ParktourActivity] onFaceEmotionResult EMOTION_NAME:" +
+                        strEmotionName);
+                    
+                    switch (mnScenarize)
+                    {
+                        case Scenarize.SCEN_LION_HO:
+                            if (null != strEmotionName && 0 == strEmotionName.compareTo("angry"))
+                            {
+                                theActivity.scenarize(Scenarize.SCEN_LION_GO, null);
+                            }
+                            break;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logs.showError("[FaceEmotionEventHandler] onFaceEmotionResult Exception:" + e
+                    .getMessage());
+            }
+        }
+        
+        @Override
+        public void onFaceDetectResult(boolean isDetectFace)
+        {
+        
+        }
+    };
+    
 }

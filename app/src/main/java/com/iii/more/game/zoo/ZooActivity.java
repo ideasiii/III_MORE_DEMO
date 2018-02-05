@@ -227,7 +227,7 @@ public class ZooActivity extends Activity
         
         if (SCEN.MSG_TTS_PLAY == nIndex)
         {
-            application.setTTSPitch(1.0f, 1.0f);
+            //application.setTTSPitch(1.0f, 1.0f);
             application.playTTS((String) object, String.valueOf(nIndex));
             return;
         }
