@@ -36,6 +36,8 @@ public class ParktourActivity extends Activity
         setContentView(faceView);
         application = (MainApplication) getApplication();
         registerService();
+        application.stopFaceEmotion();
+        application.startFaceEmotion();
         scenarize(Scenarize.SCEN_START_ZOO, null);
     }
     
