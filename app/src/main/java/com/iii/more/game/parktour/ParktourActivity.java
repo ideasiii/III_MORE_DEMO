@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
+import com.iii.more.emotion.EmotionParameters;
+import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
@@ -142,14 +144,16 @@ public class ParktourActivity extends Activity
             {
                 if (null != faceEmotionData)
                 {
-                    String strEmotionName = faceEmotionData.get("EMOTION_NAME");
+                    String strEmotionName = faceEmotionData.get(FaceEmotionInterruptParameters
+                        .STRING_EMOTION_NAME);
                     Logs.showTrace("[ParktourActivity] onFaceEmotionResult EMOTION_NAME:" +
                         strEmotionName);
                     
                     switch (mnScenarize)
                     {
                         case Scenarize.SCEN_LION_HO:
-                            if (null != strEmotionName && 0 == strEmotionName.compareTo("angry"))
+                            if (null != strEmotionName && 0 == strEmotionName.compareTo
+                                (EmotionParameters.STRING_EMOTION_ANGER))
                             {
                                 theActivity.scenarize(Scenarize.SCEN_LION_GO, null);
                             }
