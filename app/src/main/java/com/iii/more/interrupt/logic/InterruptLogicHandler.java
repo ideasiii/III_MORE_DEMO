@@ -41,7 +41,7 @@ public class InterruptLogicHandler extends BaseHandler
 
         mLogicBrainArrayListData = new ArrayList<>();
     }
-    
+
     public void refillInterruptRules(@NonNull String src)
     {
         Logs.showTrace("[InterruptLogicHandler] set logic behavior data: " + src);
@@ -118,8 +118,8 @@ public class InterruptLogicHandler extends BaseHandler
     }
 
     /**
-     * Synchronous version of startEventDataAnalysis() which returns result directly,
-     * not going through android.os.Handler
+     * Synchronous version of startEventDataAnalysis() which returns result immediately,
+     * without going through android.os.Handler
      */
     public HashMap<String, String> eventDataAnalysisSync(@NonNull String deviceEventData)
     {
@@ -190,7 +190,7 @@ public class InterruptLogicHandler extends BaseHandler
             animate.put("duration", 3000);
             animate.put("repeat", 0);
             animate.put("interpolate", 1);
-            
+
             //create display json
             JSONObject data = new JSONObject();
             data.put("time", 0);
@@ -202,7 +202,7 @@ public class InterruptLogicHandler extends BaseHandler
             data.put("file", inputHashMap.get(InterruptLogicParameters.JSON_STRING_TRIGGER_RESULT));
             JSONArray show = new JSONArray();
             show.put(data);
-            
+
             JSONObject display = new JSONObject();
             display.put("enable", 1);
             display.put("show", show);
@@ -216,7 +216,7 @@ public class InterruptLogicHandler extends BaseHandler
         return message;
     }
 
-    
+
     private HashMap<String, String> logicJudgement(HashMap<String, String> eventHashMapData)
     {
         if (null == eventHashMapData || null == mLogicBrainArrayListData)
@@ -262,8 +262,8 @@ public class InterruptLogicHandler extends BaseHandler
         // no match
         return null;
     }
-    
-    // data example: {"model":001,"s_bright":6,"s_head":[1,0,0,0],"s_cheek":[0,0],"s_rfid":2812938271}
+
+    // data example: {"model":"001","s_hand":[0,29989,7686,0],"s_cheek":[0,0],"s_rfid":"2812938271","s_bright":74}
     // RFID tag 數字從 10 位數至 13 位數都有可能·所以必須用 Long 類型儲存
     private HashMap<String, String> convertToHashMapData(String data)
     {
@@ -271,19 +271,24 @@ public class InterruptLogicHandler extends BaseHandler
         {
             HashMap<String, String> hashMapData = new HashMap<>();
             JSONObject json = new JSONObject(data);
-            
+
             if (json.has("s_hand"))
             {
                 JSONArray handReadings = json.getJSONArray("s_hand");
                 if (handReadings.length() >= 4)
                 {
-                    hashMapData.put(InterruptLogicParameters.STRING_F1, Integer.toString(handReadings.getInt(0)));
-                    hashMapData.put(InterruptLogicParameters.STRING_F2, Integer.toString(handReadings.getInt(1)));
-                    hashMapData.put(InterruptLogicParameters.STRING_C, Integer.toString(handReadings.getInt(2)));
-                    hashMapData.put(InterruptLogicParameters.STRING_D, Integer.toString(handReadings.getInt(3)));
+                    int f1 = convertToUint8(handReadings.getInt(0));
+                    int f2 = convertToUint8(handReadings.getInt(1));
+                    int c = convertToUint8(handReadings.getInt(2));
+                    int d = convertToUint8(handReadings.getInt(3));
+
+                    hashMapData.put(InterruptLogicParameters.STRING_F1, Integer.toString(f1));
+                    hashMapData.put(InterruptLogicParameters.STRING_F2, Integer.toString(f2));
+                    hashMapData.put(InterruptLogicParameters.STRING_C, Integer.toString(c));
+                    hashMapData.put(InterruptLogicParameters.STRING_D, Integer.toString(d));
                 }
             }
-            
+
             if (json.has("s_cheek"))
             {
                 JSONArray cheekReadings = json.getJSONArray("s_cheek");
@@ -293,17 +298,16 @@ public class InterruptLogicHandler extends BaseHandler
                     hashMapData.put(InterruptLogicParameters.STRING_FSR2, Integer.toString(cheekReadings.getInt(1)));
                 }
             }
-            
+
             if (json.has("s_bright"))
             {
                 int brightReading = json.getInt("s_bright");
                 hashMapData.put(InterruptLogicParameters.STRING_H, Integer.toString(brightReading));
             }
-            
+
             if (json.has("s_rfid"))
             {
-                long tag = json.getLong("s_rfid");
-                hashMapData.put(InterruptLogicParameters.STRING_RFID, Long.toString(tag));
+                hashMapData.put(InterruptLogicParameters.STRING_RFID, json.getString("s_rfid"));
             }
 
             return hashMapData;
@@ -314,6 +318,13 @@ public class InterruptLogicHandler extends BaseHandler
             e.printStackTrace();
             return null;
         }
+    }
+
+    // ..... e.g., 舉例 val 是 -19755, 而我假設該數值其實應該是 uint8, 範圍是 0~65535
+    // 那就將 -19755 這個數字轉化成 uint8 表示, 即 45781
+    private static int convertToUint8(int val)
+    {
+        return 65535 - val + 1;
     }
 
     private static boolean isSensorValueAboveTriggeringThreshold(String sensorName, double value)
@@ -328,10 +339,10 @@ public class InterruptLogicHandler extends BaseHandler
             return value >= InterruptLogicParameters.SENSOR_AMBIENT_LIGHT_TRIGGER_THRESHOLD;
         }
 
-        return value >= InterruptLogicParameters.SENSOR_GENERAL_TRIGGER_THRESHOLD;
+        return value <= InterruptLogicParameters.SENSOR_HAND_TRIGGER_THRESHOLD;
     }
-    
-    
+
+
     private static class InterruptRule
     {
         ArrayList<String> sensors = null;
@@ -341,7 +352,7 @@ public class InterruptLogicHandler extends BaseHandler
         String triggerResult = null;
         String value = null;
         String description = null;
-        
+
         InterruptRule(@NonNull ArrayList<String> sensors, int triggerCount, int actionPriority,
                       @NonNull String tag, @NonNull String triggerResult, @NonNull String value,
                       @NonNull String description)
@@ -354,12 +365,12 @@ public class InterruptLogicHandler extends BaseHandler
             this.value = value;
             this.description = description;
         }
-        
+
         int getActionPriority()
         {
             return actionPriority;
         }
-        
+
         void print()
         {
             Logs.showTrace("***********************");
