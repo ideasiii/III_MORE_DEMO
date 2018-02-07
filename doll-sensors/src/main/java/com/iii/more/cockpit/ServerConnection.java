@@ -30,6 +30,9 @@ class ServerConnection extends WebSocketClient
     private static final int SERVER_MESSAGE_ACTION_TYPE_SIGN_IN = 0;
     private static final int SERVER_MESSAGE_ACTION_TYPE_PAPER = 1;
 
+    // Response to a paper which was sent by master some time ago
+    private static final int SERVER_MESSAGE_ACTION_TYPE_PAPER_RESPONSE = 129;
+
     private static final int API_VERSION = 1;
 
     private final String mDeviceId;

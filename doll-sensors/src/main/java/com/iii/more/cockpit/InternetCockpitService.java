@@ -150,7 +150,17 @@ public class InternetCockpitService extends CockpitService
         }
 
         mReconnectOnDisconnect = false;
-        mServerConnection.close();
+
+        try
+        {
+            mServerConnection.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            // ignore any error when closing connection
+        }
+
         mServerConnection = null;
     }
 
@@ -170,7 +180,16 @@ public class InternetCockpitService extends CockpitService
         {
             if (mServerConnection != null)
             {
-                mServerConnection.close();
+                try
+                {
+                    mServerConnection.close();
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    // ignore any error when closing connection
+                }
+
                 mServerConnection = null;
             }
 
