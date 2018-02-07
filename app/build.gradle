@@ -68,10 +68,11 @@ android {
     }
     flavorDimensions("demo")
     productFlavors {
-        demo {dimension "demo"}
-        review {dimension "demo"}
+        demo { dimension "demo" }
+        review { dimension "demo" }
     }
 }
 dependencies {
     implementation 'com.android.support.constraint:constraint-layout:+'
+    implementation project(':Widget')
 }

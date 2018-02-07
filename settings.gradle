@@ -1,2 +1,2 @@
-include ':app', ':moduleservice', ':doll-sensors', ':cyberon-creader'
+include ':app', ':moduleservice', ':doll-sensors', ':cyberon-creader', ':Widget'
 
