@@ -62,6 +62,7 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
     }
     
     
+    
     private ServiceConnection mConnection = new ServiceConnection()
     {
         

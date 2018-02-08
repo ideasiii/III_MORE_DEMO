@@ -968,11 +968,11 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         HashMap<String, String> emotionDetailHashMap = null;
         emotionDetailHashMap = (HashMap<String, String>) extendData;
         //debug using start
-        /*if (null != faceEmotionData)
+        if (null != faceEmotionData)
         {
             Logs.showTrace("[MainActivity]onFaceEmotionResult faceEmotionData: " + faceEmotionData);
         }
-        if (null != ttsHashMap)
+        /*if (null != ttsHashMap)
         {
             Logs.showTrace("[MainActivity]onFaceEmotionResult ttsHashMap: " + ttsHashMap);
         }

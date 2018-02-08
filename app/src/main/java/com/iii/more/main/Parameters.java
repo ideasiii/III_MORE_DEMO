@@ -9,6 +9,7 @@ public abstract class Parameters
     public static final boolean OOBE_DEBUG_ENABLE = BuildConfig.OOBE;
     public static final String DEMO_REVIEW_GAME = BuildConfig.FLAVOR;
     
+    
     public static final String ID_CHILD_NAME = "child_name";
     public static final String ID_ROBOT_NAME = "edubot_name";
     public static final String STRING_DEFAULT_ROBOT_NAME = "章魚寶";

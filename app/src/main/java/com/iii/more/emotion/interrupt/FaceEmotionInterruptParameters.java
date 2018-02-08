@@ -28,15 +28,19 @@ public abstract class FaceEmotionInterruptParameters
     public static final String STRING_TTS_PITCH = "TTS_PITCH";
     public static final String STRING_TTS_SPEED = "TTS_SPEED";
     
+    public static final String JSON_INTEGER_TTS_SCORE_RANGE_MIN = "min";
+    public static final String JSON_INTEGER_TTS_SCORE_RANGE_MAX = "max";
+    
     public static final String STRING_EMOTION_NAME = "EMOTION_NAME";
+    public static final String STRING_EMOTION_VALUE = "EMOTION_VALUE";
     
     public static final String STRING_NATURAL = "NATURAL";
     public static final int INT_NATURAL_RULE = 999;
     
-    public  static final boolean isDebugging = true;
+    public static final boolean isDebugging = true;
     public static final int attentionTriggerTime = 120;
     
-    public static final boolean IS_TEST_FOR_JOY_EMOTION = false;
+    public static final boolean IS_USE_EMOTION_SCORE_TO_JUDGE = false;
     
     
 }
