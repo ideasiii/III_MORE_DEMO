@@ -11,6 +11,7 @@ import android.widget.RelativeLayout;
 
 import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
+import com.iii.more.game.module.EmotionBar;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
@@ -32,7 +33,7 @@ public class ParktourActivity extends Activity
     private int mnScenarize = Scenarize.SCEN_START_ZOO;
     private static ParktourActivity theActivity = null;
     private MediaPlayer mp = null;
-    private ProgressBar emotionBar = null;
+    private EmotionBar emotionBar = null;
     
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -48,16 +49,14 @@ public class ParktourActivity extends Activity
         application.startFaceEmotion();
         scenarize(Scenarize.SCEN_START_ZOO, null);
         
-        // progressbar test
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup
-            .LayoutParams.MATCH_PARENT, 280);
-        emotionBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
-        emotionBar.setLayoutParams(layoutParams);
+        //========= Emotion Bar ============//
+        emotionBar = new EmotionBar(this);
+        RelativeLayout.LayoutParams lpEmotionBar = new RelativeLayout.LayoutParams(RelativeLayout
+            .LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        lpEmotionBar.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        lpEmotionBar.setMargins(0, 0, 0, 150);
+        emotionBar.setLayoutParams(lpEmotionBar);
         faceView.addView(emotionBar);
-        emotionBar.setBackgroundColor(Color.rgb(34, 45, 56));
-        emotionBar.setMax(100);
-        emotionBar.setProgress(50);
-
     }
     
     private void registerService()
@@ -163,8 +162,11 @@ public class ParktourActivity extends Activity
                 {
                     String strEmotionName = faceEmotionData.get(FaceEmotionInterruptParameters
                         .STRING_EMOTION_NAME);
+                    String strEmotionValue = faceEmotionData.get(FaceEmotionInterruptParameters
+                        .STRING_EMOTION_VALUE);
+                    
                     Logs.showTrace("[ParktourActivity] onFaceEmotionResult EMOTION_NAME:" +
-                        strEmotionName);
+                        strEmotionName + " EMOTION_VALUE: " + strEmotionValue);
                     
                     switch (mnScenarize)
                     {
