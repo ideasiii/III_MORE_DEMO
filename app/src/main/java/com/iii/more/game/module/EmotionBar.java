@@ -87,4 +87,9 @@ public class EmotionBar extends LinearLayout
         progressView.setLayoutParams(layoutParams);
         addView(progressView);
     }
+    
+    public void setPosition(final int nPosition)
+    {
+        progressView.setPosition(nPosition);
+    }
 }

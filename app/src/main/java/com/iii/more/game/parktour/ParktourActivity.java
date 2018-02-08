@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.ColorSpace;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -57,6 +58,7 @@ public class ParktourActivity extends Activity
         lpEmotionBar.setMargins(0, 0, 0, 150);
         emotionBar.setLayoutParams(lpEmotionBar);
         faceView.addView(emotionBar);
+        emotionBar.setVisibility(View.INVISIBLE);
     }
     
     private void registerService()
@@ -174,6 +176,12 @@ public class ParktourActivity extends Activity
                             if (null != strEmotionName && 0 == strEmotionName.compareTo
                                 (EmotionParameters.STRING_EMOTION_ANGER))
                             {
+                                if (null != strEmotionValue)
+                                {
+                                    emotionBar.setVisibility(View.VISIBLE);
+                                    int nValue = Integer.valueOf(strEmotionValue);
+                                    emotionBar.setPosition(nValue);
+                                }
                                 theActivity.scenarize(Scenarize.SCEN_LION_GO, null);
                             }
                             break;
