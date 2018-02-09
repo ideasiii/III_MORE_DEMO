@@ -59,6 +59,9 @@ public class ParktourActivity extends Activity
         emotionBar.setLayoutParams(lpEmotionBar);
         faceView.addView(emotionBar);
         emotionBar.setVisibility(View.INVISIBLE);
+        
+        //========= TTS Pitch ===========//
+        application.setTTSPitch(1.0f, 1.0f);
     }
     
     private void registerService()
@@ -83,6 +86,7 @@ public class ParktourActivity extends Activity
             
             }
             
+            //=========== TTS 講完幹話後 =============//
             @Override
             public void onUtteranceDone(String utteranceId)
             {
@@ -95,6 +99,13 @@ public class ParktourActivity extends Activity
                         break;
                     case Scenarize.SCEN_LION_STAY:
                         theActivity.scenarize(Scenarize.SCEN_LION_HO, null);
+                        break;
+                    case Scenarize.SCEN_LION_GO:
+                        emotionBar.setVisibility(View.INVISIBLE);
+                        theActivity.scenarize(Scenarize.SCEN_MONKEY_SEE, null);
+                        break;
+                    case Scenarize.SCEN_MONKEY_SEE:
+                        theActivity.scenarize(Scenarize.SCEN_MONKEY_FUNNY, null);
                         break;
                 }
             }
@@ -126,6 +137,15 @@ public class ParktourActivity extends Activity
                 application.setFaceEmotionEventListener(null);
                 faceView.loadImage(R.drawable.iii_lion_102);
                 application.playTTS("太好了，獅子都下跑了，讓我們繼續看看，有什麼好玩的吧，走", String.valueOf(mnScenarize));
+                break;
+            case Scenarize.SCEN_MONKEY_SEE:
+                faceView.loadImage(R.drawable.iii_monkey_103);
+                application.playTTS("耶~~那裏有一隻猴子，原來我們來到了台灣動物區，我們去看看他在做什麼吧,原來猴子們正在舉辦不能笑比賽，被牠逗笑就輸囉,"
+                    + "那我們要小心,忍住不要笑喔,要忍住喔", String.valueOf(mnScenarize));
+                break;
+            case Scenarize.SCEN_MONKEY_FUNNY:
+                application.setFaceEmotionEventListener(faceEmotionEventListener);
+                faceView.loadImage(R.drawable.iii_monkey_funny);
                 break;
         }
     }
@@ -176,12 +196,13 @@ public class ParktourActivity extends Activity
                             if (null != strEmotionName && 0 == strEmotionName.compareTo
                                 (EmotionParameters.STRING_EMOTION_ANGER))
                             {
+                                int nValue = 50;
                                 if (null != strEmotionValue)
                                 {
-                                    emotionBar.setVisibility(View.VISIBLE);
-                                    int nValue = Integer.valueOf(strEmotionValue);
-                                    emotionBar.setPosition(nValue);
+                                    nValue = Integer.valueOf(strEmotionValue);
                                 }
+                                emotionBar.setVisibility(View.VISIBLE);
+                                emotionBar.setPosition(nValue);
                                 theActivity.scenarize(Scenarize.SCEN_LION_GO, null);
                             }
                             break;

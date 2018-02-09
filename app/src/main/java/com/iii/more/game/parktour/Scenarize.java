@@ -10,4 +10,6 @@ abstract class Scenarize
     final static int SCEN_LION_STAY = 2;
     final static int SCEN_LION_HO = 3;
     final static int SCEN_LION_GO = 4;
+    final static int SCEN_MONKEY_SEE = 5;
+    final static int SCEN_MONKEY_FUNNY = 6;
 }
