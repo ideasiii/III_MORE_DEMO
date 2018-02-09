@@ -1,6 +1,7 @@
 package com.iii.more.game.parktour;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -44,6 +45,7 @@ public class FaceView extends RelativeLayout
     
     private void init(Context context)
     {
+        setBackgroundColor(Color.rgb(108, 147, 213));
         theContext = context;
         mimgFace = new ImageView(context);
         LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -54,6 +56,7 @@ public class FaceView extends RelativeLayout
     
     public void loadImage(final int nResId)
     {
+        setBackgroundResource(nResId);
         Utility.loadImage(theContext, nResId, mimgFace);
     }
     

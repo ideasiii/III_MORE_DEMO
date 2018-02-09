@@ -119,19 +119,22 @@ public class ParktourActivity extends Activity
         switch (mnScenarize)
         {
             case Scenarize.SCEN_START_ZOO:
-                faceView.setBackgroundResource(R.drawable.iii_zoo_101);
+                faceView.loadImage(R.drawable.iii_zoo_101);
                 application.playTTS("今天是欣欣動物園年度園遊會，沿路都可以看到大家開心的來參加，所有的動物也都來了，讓我們來看看今天會遇到誰呢，走吧",
                     String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_LION_STAY:
-                faceView.setBackgroundResource(R.drawable.iii_lion_102);
+                faceView.loadImage(R.drawable.iii_lion_ho_102);
                 application.playTTS("哇，來到了非洲動物區，獅子在舉行吼叫大賽，看誰可以做出最生氣的表情，比獅子兇就贏了，快來試試看，做出你最生氣的表情",
                     String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_LION_HO:
                 application.setFaceEmotionEventListener(faceEmotionEventListener);
-                faceView.loadImage(R.drawable.iii_lion_ho_102);
-                managerOfSound(R.raw.iii_lion_ho);
+                emotionBar.setColor(252, 42, 29, 253, 183, 175);
+                emotionBar.setIcon(R.drawable.iii_face_joy, R.drawable.iii_face_angry);
+                emotionBar.setVisibility(View.VISIBLE);
+                emotionBar.setPosition(0);
+                managerOfSound(R.raw.lion_sound_effect);
                 break;
             case Scenarize.SCEN_LION_GO:
                 application.setFaceEmotionEventListener(null);
@@ -145,11 +148,23 @@ public class ParktourActivity extends Activity
                 break;
             case Scenarize.SCEN_MONKEY_FUNNY:
                 application.setFaceEmotionEventListener(faceEmotionEventListener);
+                emotionBar.setColor(27, 80, 132, 165, 222, 249);
+                emotionBar.setIcon(R.drawable.iii_face_sad, R.drawable.iii_face_cry);
+                emotionBar.setVisibility(View.VISIBLE);
+                emotionBar.setPosition(0);
                 faceView.loadImage(R.drawable.iii_monkey_funny);
+                managerOfSound(R.raw.monkey_sound_effect);
+                break;
+            case Scenarize.SCEN_MONKEY_GO:
+                application.setFaceEmotionEventListener(null);
+                emotionBar.setPosition(10);
+                faceView.loadImage(R.drawable.iii_monkey_103);
+                application.playTTS("你好厲害喔，都沒有笑出來耶，那我們再繼續去探險吧", String.valueOf(mnScenarize));
                 break;
         }
     }
     
+    //========== 幹 聲音播完了 =============//
     protected void managerOfSound(final int nResId)
     {
         if (mp != null)
@@ -165,6 +180,12 @@ public class ParktourActivity extends Activity
             public void onCompletion(MediaPlayer mp)
             {
                 Logs.showTrace("[ParktourActivity] managerOfSound onCompletion...");
+                switch (mnScenarize)
+                {
+                    case Scenarize.SCEN_MONKEY_FUNNY:
+                        theActivity.scenarize(Scenarize.SCEN_MONKEY_GO, null);
+                        break;
+                }
             }
         });
         mp.start();
@@ -182,11 +203,16 @@ public class ParktourActivity extends Activity
             {
                 if (null != faceEmotionData)
                 {
+                    int nValue = 50;
                     String strEmotionName = faceEmotionData.get(FaceEmotionInterruptParameters
                         .STRING_EMOTION_NAME);
                     String strEmotionValue = faceEmotionData.get(FaceEmotionInterruptParameters
                         .STRING_EMOTION_VALUE);
-                    
+                    if (null != strEmotionValue)
+                    {
+                        double d = Double.parseDouble(strEmotionValue);
+                        nValue = (int) d;
+                    }
                     Logs.showTrace("[ParktourActivity] onFaceEmotionResult EMOTION_NAME:" +
                         strEmotionName + " EMOTION_VALUE: " + strEmotionValue);
                     
@@ -196,14 +222,15 @@ public class ParktourActivity extends Activity
                             if (null != strEmotionName && 0 == strEmotionName.compareTo
                                 (EmotionParameters.STRING_EMOTION_ANGER))
                             {
-                                int nValue = 50;
-                                if (null != strEmotionValue)
-                                {
-                                    nValue = Integer.valueOf(strEmotionValue);
-                                }
-                                emotionBar.setVisibility(View.VISIBLE);
                                 emotionBar.setPosition(nValue);
                                 theActivity.scenarize(Scenarize.SCEN_LION_GO, null);
+                            }
+                            break;
+                        case Scenarize.SCEN_MONKEY_FUNNY:
+                            if (null != strEmotionName && 0 == strEmotionName.compareTo
+                                (EmotionParameters.STRING_EMOTION_JOY))
+                            {
+                                emotionBar.setPosition(nValue / 2);
                             }
                             break;
                     }

@@ -49,7 +49,7 @@ public class ProgressView extends View
     }
     
     public ProgressView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int
-            defStyleRes)
+        defStyleRes)
     {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
@@ -66,9 +66,9 @@ public class ProgressView extends View
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
     {
         setMeasuredDimension(Global.measureWidth(widthMeasureSpec), Global.measureHeight
-                (heightMeasureSpec));
+            (heightMeasureSpec));
         Logs.showTrace("[ProgressBar] onMeasure width: " + Global.measureWidth(widthMeasureSpec)
-                + " height: " + Global.measureHeight(heightMeasureSpec));
+            + " height: " + Global.measureHeight(heightMeasureSpec));
     }
     
     @Override
@@ -96,6 +96,7 @@ public class ProgressView extends View
     public void setPosition(final int nPosition)
     {
         mnCurrentPosition = nPosition;
+        this.invalidate();
     }
     
     public void setPositionLevel(final int nMin, final int nMax)

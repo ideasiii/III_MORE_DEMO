@@ -76,8 +76,8 @@ public class EmotionBar extends LinearLayout
         imgFaceRight.setLayoutParams(lpFaceRight);
         imgFaceLeft.setScaleType(ImageView.ScaleType.FIT_XY);
         imgFaceRight.setScaleType(ImageView.ScaleType.FIT_XY);
-        imgFaceLeft.setImageResource(R.drawable.iii_face_joy);
-        imgFaceRight.setImageResource(R.drawable.iii_face_angry);
+        // imgFaceLeft.setImageResource(R.drawable.iii_face_joy);
+        //imgFaceRight.setImageResource(R.drawable.iii_face_angry);
         
         rlFaceLayout.addView(imgFaceLeft);
         rlFaceLayout.addView(imgFaceRight);
@@ -91,5 +91,18 @@ public class EmotionBar extends LinearLayout
     public void setPosition(final int nPosition)
     {
         progressView.setPosition(nPosition);
+    }
+    
+    public void setIcon(int nResIdLeft, int nResIdRight)
+    {
+        imgFaceLeft.setImageResource(nResIdLeft);
+        imgFaceRight.setImageResource(nResIdRight);
+    }
+    
+    public void setColor(final int nFR, final int nFG, final int nFB, final int nBR, final int
+        nBG, final int nBB)
+    {
+        progressView.setFrontColor(nFR, nFG, nFB);
+        progressView.setBackColor(nBR, nBG, nBB);
     }
 }
