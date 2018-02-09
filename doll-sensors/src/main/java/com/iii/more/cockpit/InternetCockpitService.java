@@ -244,7 +244,15 @@ public class InternetCockpitService extends CockpitService
                     }
                     break;
                 case PaperType.FACE_EMOTION_DETECTED:
-                    mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_DATA_FACE_EMOTION, text).sendToTarget();
+                    try
+                    {
+                        JSONObject json = new JSONObject(text);
+                        mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_DATA_FACE_EMOTION, json).sendToTarget();
+                    }
+                    catch (JSONException e)
+                    {
+                        e.printStackTrace();
+                    }
                     break;
                 case PaperType.PARAMETERS:
                     try

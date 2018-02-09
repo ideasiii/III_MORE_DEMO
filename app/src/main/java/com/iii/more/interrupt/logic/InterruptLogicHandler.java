@@ -324,7 +324,7 @@ public class InterruptLogicHandler extends BaseHandler
     // 那就將 -19755 這個數字轉化成 uint8 表示, 即 45781
     private static int convertToUint8(int val)
     {
-        return 65535 - val + 1;
+        return val < 0 ? 65535 - val + 1 : val;
     }
 
     private static boolean isSensorValueAboveTriggeringThreshold(String sensorName, double value)

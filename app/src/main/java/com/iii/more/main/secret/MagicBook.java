@@ -38,24 +38,28 @@ public class MagicBook
 
     static
     {
-        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_ANGER, "-100");
-        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_DISGUST, "-100");
-        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_FEAR, "-100");
-        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_JOY, "-100");
-        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_SADNESS, "-100");
-        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_SURPRISE, "-100");
-        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_CONTEMPT, "-100");
-        simFaceEmotionEventBase.put(EmotionParameters.STRING_EXPRESSION_ATTENTION, "-100");
-        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_ENGAGEMENT, "-100");
-        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_VALENCE, "-100");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_ANGER, "-2333");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_CONTEMPT, "-2333");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_DISGUST, "-2333");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_FEAR, "-2333");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_JOY, "-2333");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_SADNESS, "-2333");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_SURPRISE, "-2333");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EXPRESSION_ATTENTION, "-2333");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_VALENCE, "-2333");
+        simFaceEmotionEventBase.put(EmotionParameters.STRING_EMOTION_ENGAGEMENT, "-2333");
         simFaceEmotionEventBase.put("This is", "fake");
     }
 
     /**
      * 根據 emotionName 從 emotionHandler 產生一個辨識到臉部情緒時的模擬訊息
+     * @param emotionHandler 產生的訊息的接收者
+     * @param emotionName 情緒名稱
+     * @param score 情緒得分, 0~100
+     * @return
      */
     public static HashMap<String, String> cookFaceEmotionDetectedEvent(
-            FaceEmotionInterruptHandler emotionHandler, String emotionName)
+            FaceEmotionInterruptHandler emotionHandler, String emotionName, int score)
     {
         try
         {
@@ -75,6 +79,7 @@ public class MagicBook
 
                 HashMap<String, String> message = new HashMap<>(simFaceEmotionEventBase);
                 message.put(FaceEmotionInterruptParameters.STRING_EMOTION_NAME, emotionName);
+                message.put(FaceEmotionInterruptParameters.STRING_EMOTION_VALUE, String.valueOf(score));
                 message.put(FaceEmotionInterruptParameters.STRING_IMG_FILE_NAME,
                         emotionMappingImageName);
 

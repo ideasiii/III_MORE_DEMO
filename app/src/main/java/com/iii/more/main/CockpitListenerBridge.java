@@ -45,7 +45,7 @@ class CockpitListenerBridge
     interface TellMeWhatToDo
     {
         /** 當收到要假造偵測到臉部情緒的指令時的 callback */
-        void onFaceEmotionDetected(String emotionName);
+        void onFaceEmotionDetected(String emotionName, int score);
 
         /** 當需要設定參數時的 callback */
         void onSetParameter(String action);
@@ -126,8 +126,17 @@ class CockpitListenerBridge
             case CockpitService.EVENT_DATA_FACE_EMOTION:
                 if (mTellMeWhatToDo != null)
                 {
-                    String emotionName = (String) msg.obj;
-                    mTellMeWhatToDo.onFaceEmotionDetected(emotionName);
+                    JSONObject j = (JSONObject) msg.obj;
+                    try
+                    {
+                        String emotionName = j.getString("emotionName");
+                        int score = j.getInt("score");
+                        mTellMeWhatToDo.onFaceEmotionDetected(emotionName, score);
+                    }
+                    catch (JSONException e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case CockpitService.EVENT_DATA_FILM_MAKING:
