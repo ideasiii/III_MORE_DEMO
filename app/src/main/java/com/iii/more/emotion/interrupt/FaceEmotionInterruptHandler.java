@@ -68,7 +68,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         {
             //debug using
             //Logs.showTrace("[FaceEmotionInterruptHandler] now check emotionName: " +
-            // mEmotionBrainArrayListData.get(i).emotionName);
+            //    mEmotionBrainArrayListData.get(i).emotionName);
             String strNowEmotionValue = emotionHashMapData.get(mEmotionBrainArrayListData.get(i).emotionName);
             if (null != strNowEmotionValue)
             {
@@ -79,14 +79,14 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                     {
                         //debug using
                         //Logs.showTrace("[FaceEmotionInterruptHandler] strNowEmotionValue: " +
-                        // strNowEmotionValue);
+                        //    strNowEmotionValue);
                         
                         data = new EmotionElement(mEmotionBrainArrayListData.get(i).emotionName,
-                            mEmotionBrainArrayListData.get(i).triggerTime, 0);
+                            mEmotionBrainArrayListData.get(i).triggerTime, -1);
                         data.emotionHashMapValue = emotionHashMapData;
                         
                     }
-                    else if (!mEmotionBrainArrayListData.get(i).emotionType.equals("EXPRESSION"))
+                    else if (mEmotionBrainArrayListData.get(i).emotionType.equals("EMOTION"))
                     {
                         
                         float floatNowEmotionValue = Float.valueOf(strNowEmotionValue);
@@ -97,6 +97,15 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                             data = new EmotionElement(mEmotionBrainArrayListData.get(i).emotionName,
                                 mEmotionBrainArrayListData.get(i).triggerTime, floatNowEmotionValue);
                             data.emotionHashMapValue = emotionHashMapData;
+                            
+                            break;
+                        }
+                        else
+                        {
+                            //debug using
+                            //Logs.showError("[FaceEmotionInterruptHandler] runFaceEmotionRule ERROR:" + " " +
+                            //    "floatNowEmotionValue is" + String.valueOf(floatNowEmotionValue) + " but " +
+                             //   "ruleEmotionValue is" + String.valueOf(ruleEmotionValue));
                         }
                     }
                     
@@ -106,6 +115,12 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                     Logs.showError("[FaceEmotionInterruptHandler] runFaceEmotionRule ERROR:" + e.toString());
                 }
             }
+            else
+            {
+                //debug using
+               // Logs.showError("[FaceEmotionInterruptHandler] runFaceEmotionRule ERROR while get " +
+               //     "strNowEmotionValue is null");
+            }
         }
         
         return data;
@@ -113,40 +128,45 @@ public class FaceEmotionInterruptHandler extends BaseHandler
     
     private JSONObject getEmotionTTS(ArrayList<JSONObject> ttsEmotionData, float emotionScore)
     {
-        if (FaceEmotionInterruptParameters.IS_USE_EMOTION_SCORE_TO_JUDGE)
+        try
         {
-            try
+            for (JSONObject ttsData : ttsEmotionData)
             {
-                for (JSONObject ttsData : ttsEmotionData)
+                if (ttsData.has(FaceEmotionInterruptParameters.JSON_INTEGER_TTS_SCORE_RANGE_MIN) && ttsData
+                    .has(FaceEmotionInterruptParameters.JSON_INTEGER_TTS_SCORE_RANGE_MAX))
                 {
-                    if (ttsData.has(FaceEmotionInterruptParameters.JSON_INTEGER_TTS_SCORE_RANGE_MIN) &&
-                        ttsData.has(FaceEmotionInterruptParameters.JSON_INTEGER_TTS_SCORE_RANGE_MAX))
+                    if (ttsData.getInt(FaceEmotionInterruptParameters.JSON_INTEGER_TTS_SCORE_RANGE_MIN) ==
+                        -1 && ttsData.getInt(FaceEmotionInterruptParameters
+                        .JSON_INTEGER_TTS_SCORE_RANGE_MAX) == -1)
                     {
-                        if (emotionScore >= ttsData.getInt(FaceEmotionInterruptParameters
-                            .JSON_INTEGER_TTS_SCORE_RANGE_MIN) && emotionScore <= ttsData.getInt
-                            (FaceEmotionInterruptParameters.JSON_INTEGER_TTS_SCORE_RANGE_MAX))
-                        {
-                            return ttsData;
-                        }
+                        break;
+                    }
+                    else if (emotionScore >= ttsData.getInt(FaceEmotionInterruptParameters
+                        .JSON_INTEGER_TTS_SCORE_RANGE_MIN) && emotionScore <= ttsData.getInt
+                        (FaceEmotionInterruptParameters.JSON_INTEGER_TTS_SCORE_RANGE_MAX))
+                    {
+                        return ttsData;
                     }
                 }
-                
+                else
+                {
+                    break;
+                }
             }
-            catch (Exception e)
-            {
-                Logs.showError("[FaceEmotionInterruptHandler] getEmotionTTS ERROR" + e.toString());
-            }
-            return null;
         }
-        else
+        catch (Exception e)
         {
-            int min = 0;
-            int max = ttsEmotionData.size() - 1;
-            Random r = new Random();
-            int getTextId = r.nextInt(max - min + 1) + min;
-            return ttsEmotionData.get(getTextId);
+            Logs.showError("[FaceEmotionInterruptHandler] getEmotionTTS ERROR" + e.toString());
         }
         
+        return ttsEmotionData.get(randomReturnNum(0, ttsEmotionData.size() - 1));
+        
+    }
+    
+    private int randomReturnNum(int min, int max)
+    {
+        Random r = new Random();
+        return r.nextInt(max - min + 1) + min;
     }
     
     private synchronized void judgeNowEmotionState(EmotionElement newFaceData)
@@ -366,9 +386,8 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         
         void print()
         {
-            Logs.showTrace("[FaceEmotionInterruptHandler][EmotionElement] EmotionName: " + emotionName + " " +
-                "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" + "" +
-                "" + "" + "" + "" + "emotionTriggerTime: " + "" + String.valueOf(emotionTriggerTimeRule));
+            Logs.showTrace("[FaceEmotionInterruptHandler][EmotionElement] EmotionName: " + emotionName +
+                "emotionTriggerTime: " + "" + String.valueOf(emotionTriggerTimeRule));
         }
     }
     

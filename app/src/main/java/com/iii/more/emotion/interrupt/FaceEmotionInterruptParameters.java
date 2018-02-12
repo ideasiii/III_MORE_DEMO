@@ -40,7 +40,6 @@ public abstract class FaceEmotionInterruptParameters
     public static final boolean isDebugging = true;
     public static final int attentionTriggerTime = 120;
     
-    public static final boolean IS_USE_EMOTION_SCORE_TO_JUDGE = false;
     
     
 }

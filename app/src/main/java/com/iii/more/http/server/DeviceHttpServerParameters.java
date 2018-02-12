@@ -11,7 +11,7 @@ public abstract class DeviceHttpServerParameters
     
     public static final int METHOD_HTTP_GET_RESPONSE = 1;
     
-    public static final String URL_SERVER = "http://service.inmedia.com.tw/task/api/botdata.do?jdatas=";
+    public static final String URL_SERVER = "http://150.117.122.192/task/api/botdata.do?jdatas=";
     public static final String URL_DEFAULT_PARAM = "{\"data_type\":\"OCTOBO\"}";//"{%22data_type%22:%22OCTOBO%22}";
     
     public static final String FORMAT_TYPE = "utf-8";
