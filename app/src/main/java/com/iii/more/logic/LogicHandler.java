@@ -91,7 +91,7 @@ public class LogicHandler extends BaseHandler
     
     private Handler selfHandler = new SelfHandler(this);
     
-    private void handleMessages(Message msg)
+    public void handleMessages(Message msg)
     {
         switch (msg.what)
         {
@@ -509,11 +509,11 @@ public class LogicHandler extends BaseHandler
         }
     }
     
-    private static class SelfHandler extends Handler
+    public static class SelfHandler extends Handler
     {
         private final WeakReference<LogicHandler> mWeakSelf;
         
-        SelfHandler(LogicHandler lh)
+        public SelfHandler(LogicHandler lh)
         {
             mWeakSelf = new WeakReference<>(lh);
         }

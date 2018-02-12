@@ -1,13 +1,11 @@
 package com.iii.more.game.parktour;
 
 import android.app.Activity;
-import android.graphics.Color;
-import android.graphics.ColorSpace;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.iii.more.emotion.EmotionParameters;
@@ -16,14 +14,22 @@ import com.iii.more.game.module.EmotionBar;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
+import com.iii.more.logic.LogicParameters;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.R;
+import com.iii.more.main.TTSParameters;
 import com.iii.more.main.listeners.FaceEmotionEventListener;
 import com.iii.more.main.listeners.TTSEventListener;
+import com.iii.more.stream.WebMediaPlayerParameters;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.Locale;
 
+import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.ResponseCode;
+import sdk.ideas.tool.speech.voice.VoiceRecognition;
 
 public class ParktourActivity extends Activity
 {
@@ -35,6 +41,8 @@ public class ParktourActivity extends Activity
     private static ParktourActivity theActivity = null;
     private MediaPlayer mp = null;
     private EmotionBar emotionBar = null;
+    private VoiceRecognition mVoiceRecognition = null;
+    
     
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -45,7 +53,6 @@ public class ParktourActivity extends Activity
         faceView = new FaceView(this);
         setContentView(faceView);
         application = (MainApplication) getApplication();
-        registerService();
         application.stopFaceEmotion();
         application.startFaceEmotion();
         scenarize(Scenarize.SCEN_START_ZOO, null);
@@ -62,6 +69,11 @@ public class ParktourActivity extends Activity
         
         //========= TTS Pitch ===========//
         application.setTTSPitch(1.0f, 1.0f);
+        
+        //========= Google Speech =========//
+        mVoiceRecognition = new VoiceRecognition(this);
+        
+        registerService();
     }
     
     private void registerService()
@@ -95,6 +107,9 @@ public class ParktourActivity extends Activity
                 switch (nIndex)
                 {
                     case Scenarize.SCEN_START_ZOO:
+                        mVoiceRecognition.startListen(String.valueOf(Scenarize.SCEN_START_ZOO));
+                        break;
+                    case Scenarize.SCEN_PARKTOUR_GO:
                         theActivity.scenarize(Scenarize.SCEN_LION_STAY, null);
                         break;
                     case Scenarize.SCEN_LION_STAY:
@@ -107,9 +122,18 @@ public class ParktourActivity extends Activity
                     case Scenarize.SCEN_MONKEY_SEE:
                         theActivity.scenarize(Scenarize.SCEN_MONKEY_FUNNY, null);
                         break;
+                    case Scenarize.SCEN_MONKEY_GO:
+                        theActivity.scenarize(Scenarize.SCEN_ANIMAL_RACE_1, null);
+                        break;
+                    case Scenarize.SCEN_ANIMAL_RACE_1:
+                        theActivity.scenarize(Scenarize.SCEN_ANIMAL_RACE_2, null);
+                        break;
                 }
             }
         });
+        
+        mVoiceRecognition.setLocale(Locale.TAIWAN);
+        mVoiceRecognition.setHandler(selfHandler);
     }
     
     private void scenarize(int nIndex, Object object)
@@ -120,12 +144,15 @@ public class ParktourActivity extends Activity
         {
             case Scenarize.SCEN_START_ZOO:
                 faceView.loadImage(R.drawable.iii_zoo_101);
-                application.playTTS("今天是欣欣動物園年度園遊會，沿路都可以看到大家開心的來參加，所有的動物也都來了，讓我們來看看今天會遇到誰呢，走吧",
+                application.playTTS("今天是動物園一年一度的園遊會，沿路都可以看到大家開心的來參加，所有的動物也都來了，要不要一起去動物園看看呀",
                     String.valueOf(mnScenarize));
                 break;
+            case Scenarize.SCEN_PARKTOUR_GO:
+                application.playTTS("那我們出發吧", String.valueOf(mnScenarize));
+                break;
             case Scenarize.SCEN_LION_STAY:
-                faceView.loadImage(R.drawable.iii_lion_ho_102);
-                application.playTTS("哇，來到了非洲動物區，獅子在舉行吼叫大賽，看誰可以做出最生氣的表情，比獅子兇就贏了，快來試試看，做出你最生氣的表情",
+                faceView.loadImage(R.drawable.iii_lion_ani);
+                application.playTTS("哇！來到了非洲動物區！獅子在舉行吼叫大賽，看誰可以做出最生氣的表情，比獅子兇就贏了,準備開始囉,3,2,1,開始",
                     String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_LION_HO:
@@ -135,6 +162,10 @@ public class ParktourActivity extends Activity
                 emotionBar.setVisibility(View.VISIBLE);
                 emotionBar.setPosition(0);
                 managerOfSound(R.raw.lion_sound_effect);
+                break;
+            case Scenarize.SCEN_LION_ANGRY_AGAIN_1:
+                application.playTTS("不夠兇餒,快再試試看做出你最生氣的表情", String.valueOf(mnScenarize));
+                emotionBar.setPosition(10);
                 break;
             case Scenarize.SCEN_LION_GO:
                 application.setFaceEmotionEventListener(null);
@@ -152,13 +183,22 @@ public class ParktourActivity extends Activity
                 emotionBar.setIcon(R.drawable.iii_face_sad, R.drawable.iii_face_cry);
                 emotionBar.setVisibility(View.VISIBLE);
                 emotionBar.setPosition(0);
-                faceView.loadImage(R.drawable.iii_monkey_funny);
+                faceView.loadImage(R.drawable.iii_monkey_ani_1);
                 managerOfSound(R.raw.monkey_sound_effect);
                 break;
             case Scenarize.SCEN_MONKEY_GO:
                 application.setFaceEmotionEventListener(null);
                 emotionBar.setPosition(10);
                 faceView.loadImage(R.drawable.iii_monkey_103);
+                application.playTTS("你好厲害喔，都沒有笑出來耶，那我們再繼續去探險吧", String.valueOf(mnScenarize));
+                break;
+            case Scenarize.SCEN_ANIMAL_RACE_1:
+                faceView.loadImage(R.drawable.iii_animal_race_1);
+                application.playTTS
+                    ("前面圍了好多人，我們去看看怎麼回事，加油，加油，聽到了好大聲的加油聲，原來是花豹、黑熊、獅子三種動物在賽跑，最快的人可以獲得食物當獎勵，那我們也一起去幫忙加油吧", String.valueOf(mnScenarize));
+                break;
+            case Scenarize.SCEN_ANIMAL_RACE_2:
+                faceView.loadImage(R.drawable.iii_animal_race_2);
                 application.playTTS("你好厲害喔，都沒有笑出來耶，那我們再繼續去探險吧", String.valueOf(mnScenarize));
                 break;
         }
@@ -182,6 +222,9 @@ public class ParktourActivity extends Activity
                 Logs.showTrace("[ParktourActivity] managerOfSound onCompletion...");
                 switch (mnScenarize)
                 {
+                    case Scenarize.SCEN_LION_HO:
+                        theActivity.scenarize(Scenarize.SCEN_LION_ANGRY_AGAIN_1, null);
+                        break;
                     case Scenarize.SCEN_MONKEY_FUNNY:
                         theActivity.scenarize(Scenarize.SCEN_MONKEY_GO, null);
                         break;
@@ -222,7 +265,7 @@ public class ParktourActivity extends Activity
                             if (null != strEmotionName && 0 == strEmotionName.compareTo
                                 (EmotionParameters.STRING_EMOTION_ANGER))
                             {
-                                emotionBar.setPosition(nValue);
+                                emotionBar.setPosition(nValue * 7);
                                 theActivity.scenarize(Scenarize.SCEN_LION_GO, null);
                             }
                             break;
@@ -250,4 +293,100 @@ public class ParktourActivity extends Activity
         }
     };
     
+    private Handler selfHandler = new ParktourActivity.SelfHandler(this);
+    
+    private static class SelfHandler extends Handler
+    {
+        private final WeakReference<ParktourActivity> mWeakSelf;
+        
+        SelfHandler(ParktourActivity lh)
+        {
+            mWeakSelf = new WeakReference<>(lh);
+        }
+        
+        @Override
+        public void handleMessage(Message msg)
+        {
+            ParktourActivity self = mWeakSelf.get();
+            if (null == self)
+            {
+                return;
+            }
+            self.handleMessages(msg);
+        }
+    }
+    
+    private void handleMessages(Message msg)
+    {
+        switch (msg.what)
+        {
+            case CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER:
+                handleMessageVoiceRecognition(msg);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    private void handleMessageVoiceRecognition(Message msg)
+    {
+        if (null == msg)
+        {
+            return;
+        }
+        
+        final HashMap<String, String> message = (HashMap<String, String>) msg.obj;
+        if (null != message && msg.arg1 == ResponseCode.ERR_SUCCESS && msg.arg2 == ResponseCode
+            .METHOD_RETURN_TEXT_VOICE_RECOGNIZER)
+        {
+            mVoiceRecognition.stopListen();
+            String strWord = message.get("message");
+            Logs.showTrace("[LogicHandler] Get voice Text: " + strWord);
+            
+            if (null != strWord && !strWord.isEmpty())
+            {
+                if (null != message.get("sttID"))
+                {
+                    int nId = Integer.valueOf(message.get("sttID"));
+                    switch (nId)
+                    {
+                        case Scenarize.SCEN_START_ZOO:
+                            if (strWord.contains("好") || strWord.contains("要") || strWord
+                                .contains("號") || strWord.contains("浩") || strWord.contains("藥")
+                                || strWord.contains("耀") || strWord.contains("樂") || strWord
+                                .contains("淘寶"))
+                            {
+                                if (strWord.contains("不") || strWord.contains("布") || strWord
+                                    .contains("部") || strWord.contains("晡") || strWord.contains
+                                    ("暴") || strWord.contains("曝"))
+                                {
+                                    // 不去園遊會
+                                    theActivity.scenarize(Scenarize.SCEN_START_ZOO, null);
+                                }
+                                else
+                                {
+                                    // 去園遊會
+                                    theActivity.scenarize(Scenarize.SCEN_PARKTOUR_GO, null);
+                                }
+                            }
+                            else
+                                theActivity.scenarize(Scenarize.SCEN_START_ZOO, null);
+                            break;
+                    }
+                }
+            }
+        }
+        else if (msg.arg1 == ResponseCode.ERR_SPEECH_ERRORMESSAGE)
+        {
+            Logs.showTrace("get ERROR message: " + message.get("message"));
+            mVoiceRecognition.stopListen();
+            switch (mnScenarize)
+            {
+                case Scenarize.SCEN_START_ZOO:
+                    theActivity.scenarize(Scenarize.SCEN_START_ZOO, null);
+                    break;
+            }
+            
+        }
+    }
 }
