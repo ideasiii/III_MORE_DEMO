@@ -27,11 +27,11 @@ class ServerConnection extends WebSocketClient
 
     private static final int PING_INTERVAL = 15000;
 
-    private static final int SERVER_MESSAGE_ACTION_TYPE_SIGN_IN = 0;
-    private static final int SERVER_MESSAGE_ACTION_TYPE_PAPER = 1;
+    static final int SERVER_MESSAGE_ACTION_TYPE_SIGN_IN = 0;
+    static final int SERVER_MESSAGE_ACTION_TYPE_PAPER = 1;
 
-    // Response to a paper which was sent by master some time ago
-    private static final int SERVER_MESSAGE_ACTION_TYPE_PAPER_RESPONSE = 129;
+    // Response to a paper which was sent by master
+    static final int SERVER_MESSAGE_ACTION_TYPE_TICKET = 129;
 
     private static final int API_VERSION = 1;
 
@@ -168,6 +168,9 @@ class ServerConnection extends WebSocketClient
                 case SERVER_MESSAGE_ACTION_TYPE_PAPER:
                     handlePaperPush(json);
                     break;
+                case SERVER_MESSAGE_ACTION_TYPE_TICKET:
+                    handleTicket(json);
+                    break;
                 default:
                     Log.w(LOG_TAG, "Got unknown type of action (" + action + ")");
             }
@@ -262,6 +265,33 @@ class ServerConnection extends WebSocketClient
         }
     }
 
+    private void handleTicket(JSONObject root) throws JSONException
+    {
+        JSONObject actionBody = root.getJSONObject("body");
+
+        if (!actionBody.has("ticketId")) {
+            // no ticket ID, assuming this is a response to a previous ticket response we sent
+            String message = actionBody.getString("message");
+            boolean success = actionBody.getBoolean("success");
+            if (success) {
+                Log.i(LOG_TAG, "Got GOOD response of a ticket response we sent, message = `" + message + "`");
+            } else {
+                Log.w(LOG_TAG, "Got BAD response of a ticket response we sent, message = `" + message + "`");
+            }
+            return;
+        }
+
+        String ticketID = actionBody.getString("ticketId");
+        int paperType = actionBody.getInt("paperType");
+        JSONObject paperBody = actionBody.getJSONObject("paperBody");
+        String text = paperBody.getString("text");
+
+        if (mEventListener != null)
+        {
+            mEventListener.onTicket(ticketID, paperType, text);
+        }
+    }
+
     private JSONObject getJsonObject(String src)
     {
         try
@@ -297,5 +327,7 @@ class ServerConnection extends WebSocketClient
         void onProtocolNotSupported();
 
         void onPaper(int type, String text);
+
+        void onTicket(String ticketId, int type, String text);
     }
 }

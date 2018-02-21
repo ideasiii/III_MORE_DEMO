@@ -46,6 +46,9 @@ public abstract class CockpitService extends Service
     // 從某個 Activity 跳到另一個 Activity
     public static final int EVENT_JUMP_ACTIVITY = 42;
 
+    // master 要求回傳頂端 activity 的名稱
+    public static final int EVENT_REPORT_ACTIVITY = 130;
+
     // 重新連線事件的傳遞延遲時間 (重新連線間隔)
     private static final int RECONNECT_EVENT_DELAY = 1000;
 

@@ -52,6 +52,9 @@ class CockpitListenerBridge
 
         /** 當需要從 Activity (from) 跳到 Activity (to) 時的 callback*/
         void onJumpActivity(String from, String to);
+
+        /** 當某個 master 要求 app 頂端的 activity 時的 callbask */
+        String onRequestTopActivityName();
     }
 
     CockpitListenerBridge(Context context)
@@ -159,6 +162,22 @@ class CockpitListenerBridge
                     {
                         e.printStackTrace();
                     }
+                }
+                break;
+            case CockpitService.EVENT_REPORT_ACTIVITY:
+                String t = mTellMeWhatToDo.onRequestTopActivityName();
+
+                try
+                {
+                    HashMap<String, Object> additionalParams = (HashMap)msg.obj;
+
+                    InternetCockpitService mailer = (InternetCockpitService)additionalParams.get("mailer");
+                    mailer.sendTicketResponse(InternetCockpitService.PaperType.REPORT_TOP_ACTIVITY,
+                        new JSONObject("{\"text\":\""+t+"\"}"), (String)additionalParams.get("ticketId"));
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
                 }
                 break;
             default:

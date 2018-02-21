@@ -1,5 +1,6 @@
 package com.iii.more.main;
 
+import android.app.Activity;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -255,6 +256,16 @@ public class MainApplication extends Application
         Logs.showTrace("use " + mInternetCockpitFriendlyName + " as friendly name in InternetCockpitService");
     }
 
+    private String getTopActivityName()
+    {
+        final Activity top = MagicBook.getActivity();
+        if (top == null)
+        {
+            return "N/A";
+        }
+
+        return top.getLocalClassName();
+    }
 
     /**
      * 初始化布偶裝置連結
@@ -300,6 +311,12 @@ public class MainApplication extends Application
             public void onJumpActivity(String from, String to)
             {
                 MagicBook.jumpToActivity(from, to);
+            }
+
+            @Override
+            public String onRequestTopActivityName()
+            {
+                return getTopActivityName();
             }
         });
 
