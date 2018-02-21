@@ -2,6 +2,7 @@ package com.iii.more.cockpit;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
 import android.util.Log;
 
@@ -25,7 +26,7 @@ public class InternetCockpitService extends CockpitService
     private static final String LOG_TAG = "InternetCockpitService";
 
     /** paper 內容的類型 */
-    private static class PaperType
+    public static class PaperType
     {
         /** 只是文字，這類指令內的文字會被當作 OTG 裝置傳出的字串 */
         private static final int TEXT = 0;
@@ -41,6 +42,9 @@ public class InternetCockpitService extends CockpitService
 
         /** 從某個 Activity 跳到另一個 Activity */
         private static final int JUMP_ACTIVITY = 30;
+
+        /** master 要求回傳頂端 activity 的名稱 */
+        public static final int REPORT_TOP_ACTIVITY = 130;
     }
 
     private static boolean serviceSpawned = false;
@@ -164,6 +168,26 @@ public class InternetCockpitService extends CockpitService
         mServerConnection = null;
     }
 
+    public void sendTicketResponse(int paperType, JSONObject paperBody, String ticketId)
+    {
+        try
+        {
+            JSONObject actionBody = new JSONObject();
+            actionBody.put("paperType", paperType);
+            actionBody.put("paperBody", paperBody);
+            actionBody.put("ticketId", ticketId);
+
+            JSONObject jsonRoot = new JSONObject();
+            jsonRoot.put("action", ServerConnection.SERVER_MESSAGE_ACTION_TYPE_TICKET);
+            jsonRoot.put("body", actionBody);
+            mServerConnection.send(jsonRoot.toString());
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+    }
     private ServerConnection.EventListener mServerConnectionEventListener = new ServerConnection.EventListener()
     {
         @Override
@@ -280,5 +304,28 @@ public class InternetCockpitService extends CockpitService
                     Log.w(LOG_TAG, "Drop paper with unknown type " + type);
             }
         }
+
+        @Override
+        public void onTicket(String ticketId, int type, String text)
+        {
+            if (mHandler == null)
+            {
+                return;
+            }
+
+            HashMap<String, Object> obj = new HashMap<>();
+            obj.put("ticketId", ticketId);
+            obj.put("mailer", InternetCockpitService.this);
+
+            switch (type)
+            {
+                case PaperType.REPORT_TOP_ACTIVITY:
+                    mHandler.obtainMessage(MSG_WHAT, MSG_ARG1, EVENT_REPORT_ACTIVITY, obj).sendToTarget();
+                    break;
+                default:
+                    Log.w(LOG_TAG, "Drop ticket with unknown type " + type);
+            }
+        }
+
     };
 }
