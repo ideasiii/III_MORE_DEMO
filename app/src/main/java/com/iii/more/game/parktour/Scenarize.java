@@ -31,6 +31,8 @@ abstract class Scenarize
     final static int SCEN_ANIMAL_RACE_12 = 61;
     final static int SCEN_ANIMAL_RACE_13 = 62;
     final static int SCEN_END_PHOTO_1 = 70;
-    final static int SCEN_END_PHOTO_2 = 71;
-    final static int SCEN_END_PHOTO_3 = 72;
+    final static int SCEN_END_PHOTO_BEAR = 71;
+    final static int SCEN_END_PHOTO_LION = 72;
+    final static int SCEN_END_PHOTO_LEOPARD = 73;
+    final static int SCEN_END_PHOTO_MONKEY = 74;
 }

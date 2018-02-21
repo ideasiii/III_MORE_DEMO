@@ -52,7 +52,6 @@ public class ParktourActivity extends Activity
         application = (MainApplication) getApplication();
         application.stopFaceEmotion();
         application.startFaceEmotion();
-        scenarize(Scenarize.SCEN_START_ZOO, null);
         
         //========= Emotion Bar ============//
         emotionBar = new EmotionBar(this);
@@ -70,6 +69,10 @@ public class ParktourActivity extends Activity
         mVoiceRecognition = new VoiceRecognition(this);
         
         registerService();
+        
+        //========= Start Scenarize =========//
+        //scenarize(Scenarize.SCEN_START_ZOO, null);
+        scenarize(Scenarize.SCEN_END_PHOTO_BEAR, null);
     }
     
     private void registerService()
@@ -160,6 +163,9 @@ public class ParktourActivity extends Activity
                         break;
                     case Scenarize.SCEN_ANIMAL_RACE_13:
                         theActivity.scenarize(Scenarize.SCEN_END_PHOTO_1, null);
+                        break;
+                    case Scenarize.SCEN_END_PHOTO_1:
+                        mVoiceRecognition.startListen(String.valueOf(nIndex));
                         break;
                 }
             }
@@ -284,6 +290,14 @@ public class ParktourActivity extends Activity
                 application.playTTS("花豹最先抵達終點囉,也獲得了好多好吃的食物，你看!他吃的多開心", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_END_PHOTO_1:
+                faceView.loadImage(R.drawable.iii_zoo_101);
+                application.playTTS("今天好好玩喔,園遊會好熱鬧,看到了好多的動物,有黑熊,花豹,獅子,猴子,還參加了各種比賽,你最喜歡哪一種動物", String.valueOf(mnScenarize));
+                break;
+            case Scenarize.SCEN_END_PHOTO_BEAR:
+            case Scenarize.SCEN_END_PHOTO_LION:
+            case Scenarize.SCEN_END_PHOTO_LEOPARD:
+            case Scenarize.SCEN_END_PHOTO_MONKEY:
+                
                 break;
         }
     }
@@ -485,6 +499,47 @@ public class ParktourActivity extends Activity
                                 {
                                     Logs.showTrace("[ParktourActivity] handleMessageVoiceRecognition Word: " + strWord + " Contain: " + aLeopard);
                                     theActivity.scenarize(Scenarize.SCEN_ANIMAL_RACE_10, null);
+                                    return;
+                                }
+                            }
+                            break;
+                        case Scenarize.SCEN_END_PHOTO_1:
+                            for (String aBear : Dictionary.bear)
+                            {
+                                if (strWord.contains(aBear))
+                                {
+                                    Logs.showTrace("[ParktourActivity] handleMessageVoiceRecognition Word: " + strWord + " Contain: " + aBear);
+                                    theActivity.scenarize(Scenarize.SCEN_END_PHOTO_BEAR, null);
+                                    return;
+                                }
+                            }
+                            
+                            for (String aLion : Dictionary.lion)
+                            {
+                                if (strWord.contains(aLion))
+                                {
+                                    Logs.showTrace("[ParktourActivity] handleMessageVoiceRecognition Word: " + strWord + " Contain: " + aLion);
+                                    theActivity.scenarize(Scenarize.SCEN_END_PHOTO_LION, null);
+                                    return;
+                                }
+                            }
+                            
+                            for (String aLeopard : Dictionary.leopard)
+                            {
+                                if (strWord.contains(aLeopard))
+                                {
+                                    Logs.showTrace("[ParktourActivity] handleMessageVoiceRecognition Word: " + strWord + " Contain: " + aLeopard);
+                                    theActivity.scenarize(Scenarize.SCEN_END_PHOTO_LEOPARD, null);
+                                    return;
+                                }
+                            }
+                            
+                            for (String aMonkey : Dictionary.monkey)
+                            {
+                                if (strWord.contains(aMonkey))
+                                {
+                                    Logs.showTrace("[ParktourActivity] handleMessageVoiceRecognition Word: " + strWord + " Contain: " + aMonkey);
+                                    theActivity.scenarize(Scenarize.SCEN_END_PHOTO_MONKEY, null);
                                     return;
                                 }
                             }

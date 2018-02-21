@@ -83,4 +83,19 @@ public abstract class Dictionary
         add("胞");
         add("鉋");
     }};
+    
+    public static ArrayList<String> monkey = new ArrayList<String>()
+    {{
+        add("猴");
+        add("齁");
+        add("吼");
+        add("後");
+        add("侯");
+        add("喉");
+        add("葔");
+        add("后");
+        add("厚");
+        add("逅");
+        add("鱟");
+    }};
 }
