@@ -305,8 +305,6 @@ public class ParktourActivity extends Activity
                 photoView.setLayoutParams(layoutParams);
                 setContentView(photoView);
                 photoView.start(this);
-                //setContentView(R.layout.activity_camera);
-                //getSupportFragmentManager().beginTransaction().replace(R.id.container, Camera2BasicFragment.newInstance()).commit();
                 break;
         }
     }
