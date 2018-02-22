@@ -121,11 +121,12 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
             isCloseEmotionDataThread = true;
             
             //###need to add ready code stopService
-            if (mBound)
-            {
+           // if (mBound) // mark by jugo, because....I can't stop service
+            //{
                 mContext.unbindService(mConnection);
                 mBound = false;
-            }
+                Logs.showTrace("[EmotionHandler] stop unbindService");
+           // }
         }
     }
     

@@ -6,12 +6,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
 import com.iii.more.game.module.EmotionBar;
-import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
 import com.iii.more.main.MainApplication;
@@ -21,7 +21,6 @@ import com.iii.more.main.listeners.TTSEventListener;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 
 import sdk.ideas.common.CtrlType;
@@ -39,6 +38,7 @@ public class ParktourActivity extends Activity
     private MediaPlayer mp = null;
     private EmotionBar emotionBar = null;
     private VoiceRecognition mVoiceRecognition = null;
+    private PhotoView photoView = null;
     
     
     @Override
@@ -69,6 +69,9 @@ public class ParktourActivity extends Activity
         mVoiceRecognition = new VoiceRecognition(this);
         
         registerService();
+        
+        //========== init photo layout =========//
+        photoView = new PhotoView(this);
         
         //========= Start Scenarize =========//
         //scenarize(Scenarize.SCEN_START_ZOO, null);
@@ -297,7 +300,13 @@ public class ParktourActivity extends Activity
             case Scenarize.SCEN_END_PHOTO_LION:
             case Scenarize.SCEN_END_PHOTO_LEOPARD:
             case Scenarize.SCEN_END_PHOTO_MONKEY:
-                
+                application.stopFaceEmotion();
+                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+                photoView.setLayoutParams(layoutParams);
+                setContentView(photoView);
+                photoView.start(this);
+                //setContentView(R.layout.activity_camera);
+                //getSupportFragmentManager().beginTransaction().replace(R.id.container, Camera2BasicFragment.newInstance()).commit();
                 break;
         }
     }
