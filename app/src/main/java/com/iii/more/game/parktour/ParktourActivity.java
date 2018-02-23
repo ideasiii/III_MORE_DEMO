@@ -1,6 +1,7 @@
 package com.iii.more.game.parktour;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +12,7 @@ import android.widget.RelativeLayout;
 
 import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
+import com.iii.more.game.module.CameraPreview;
 import com.iii.more.game.module.EmotionBar;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
@@ -39,6 +41,7 @@ public class ParktourActivity extends Activity
     private EmotionBar emotionBar = null;
     private VoiceRecognition mVoiceRecognition = null;
     private PhotoView photoView = null;
+    private String strAnimal = null;
     
     
     @Override
@@ -49,6 +52,7 @@ public class ParktourActivity extends Activity
         Utility.fullScreenNoBar(this);
         faceView = new FaceView(this);
         setContentView(faceView);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         application = (MainApplication) getApplication();
         application.stopFaceEmotion();
         application.startFaceEmotion();
@@ -74,8 +78,18 @@ public class ParktourActivity extends Activity
         photoView = new PhotoView(this);
         
         //========= Start Scenarize =========//
-        //scenarize(Scenarize.SCEN_START_ZOO, null);
-        scenarize(Scenarize.SCEN_END_PHOTO_BEAR, null);
+        scenarize(Scenarize.SCEN_START_ZOO, null);
+        //scenarize(Scenarize.SCEN_END_PHOTO_BEAR, null);
+    }
+    
+    @Override
+    protected void onPause()
+    {
+        if (null != photoView)
+        {
+         //   photoView.stop();
+        }
+        super.onPause();
     }
     
     private void registerService()
@@ -169,6 +183,9 @@ public class ParktourActivity extends Activity
                         break;
                     case Scenarize.SCEN_END_PHOTO_1:
                         mVoiceRecognition.startListen(String.valueOf(nIndex));
+                        break;
+                    case Scenarize.SCEN_END_CAMERA_OPENED:
+                        photoView.picture();
                         break;
                 }
             }
@@ -300,14 +317,27 @@ public class ParktourActivity extends Activity
             case Scenarize.SCEN_END_PHOTO_LION:
             case Scenarize.SCEN_END_PHOTO_LEOPARD:
             case Scenarize.SCEN_END_PHOTO_MONKEY:
+                strAnimal = photoView.setFrame(mnScenarize);
                 application.stopFaceEmotion();
                 RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
                 photoView.setLayoutParams(layoutParams);
                 setContentView(photoView);
+                photoView.setOnCameraOpenedListener(new PhotoView.OnCameraOpened()
+                {
+                    @Override
+                    public void opened()
+                    {
+                        theActivity.scenarize(Scenarize.SCEN_END_CAMERA_OPENED, null);
+                    }
+                });
                 photoView.start(this);
+                break;
+            case Scenarize.SCEN_END_CAMERA_OPENED:
+                application.playTTS("那我們來跟" + strAnimal + "拍張照吧,準備好了嗎,3,2,1,笑一個", String.valueOf(mnScenarize));
                 break;
         }
     }
+    
     
     //========== 幹 聲音播完了 =============//
     protected void managerOfSound(final int nResId)
@@ -509,6 +539,8 @@ public class ParktourActivity extends Activity
                                     return;
                                 }
                             }
+                            
+                            theActivity.scenarize(Scenarize.SCEN_ANIMAL_RACE_7, null);
                             break;
                         case Scenarize.SCEN_END_PHOTO_1:
                             for (String aBear : Dictionary.bear)
@@ -550,6 +582,8 @@ public class ParktourActivity extends Activity
                                     return;
                                 }
                             }
+                            
+                            theActivity.scenarize(Scenarize.SCEN_END_PHOTO_1, null);
                             break;
                     }
                 }
@@ -559,13 +593,14 @@ public class ParktourActivity extends Activity
         {
             Logs.showTrace("get ERROR message: " + message.get("message"));
             mVoiceRecognition.stopListen();
-            switch (mnScenarize)
+            theActivity.scenarize(mnScenarize, null);
+           /* switch (mnScenarize)
             {
                 case Scenarize.SCEN_START_ZOO:
                     theActivity.scenarize(Scenarize.SCEN_START_ZOO, null);
                     break;
             }
-            
+            */
         }
     }
 }

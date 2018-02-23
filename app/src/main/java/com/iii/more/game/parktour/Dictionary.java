@@ -64,6 +64,8 @@ public abstract class Dictionary
         add("蚩");
         add("癡");
         add("痴");
+        add("世");
+        add("識");
     }};
     
     public static ArrayList<String> leopard = new ArrayList<String>()

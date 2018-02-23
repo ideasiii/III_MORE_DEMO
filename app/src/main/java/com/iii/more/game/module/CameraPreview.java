@@ -234,6 +234,18 @@ public class CameraPreview extends TextureView
         }
     };
     
+    private OnCameraOpened onCameraOpenedListener = null;
+    
+    public static interface OnCameraOpened
+    {
+        public void opened();
+    }
+    
+    public void setOnCameraOpenedListener(OnCameraOpened listener)
+    {
+        onCameraOpenedListener = listener;
+    }
+    
     /**
      * 相机状态改变回调
      */
@@ -247,6 +259,10 @@ public class CameraPreview extends TextureView
             Logs.showTrace("相机已打开");
             mCameraDevice = cameraDevice;
             createCameraPreviewSession();
+            if (null != onCameraOpenedListener)
+            {
+                onCameraOpenedListener.opened();
+            }
         }
         
         @Override
@@ -282,14 +298,17 @@ public class CameraPreview extends TextureView
             {
                 case STATE_PREVIEW:
                 {
-                    break;
+                
                 }
+                break;
                 case STATE_WAITING_LOCK:
                 {
                     Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
+                   // Logs.showTrace("afStateddddddddddddddddddddddddd  " + afState.toString());
                     if (afState == null)
                     {
                         captureStillPicture();
+                        Logs.showTrace("310");
                     }
                     else if (CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED == afState || CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED == afState)
                     {
@@ -298,14 +317,17 @@ public class CameraPreview extends TextureView
                         {
                             mState = STATE_PICTURE_TAKEN;
                             captureStillPicture();
+                            Logs.showTrace("319");
                         }
                         else
                         {
                             runPreCaptureSequence();
+                            Logs.showTrace("324");
                         }
                     }
-                    break;
+                    Logs.showTrace("327");
                 }
+                break;
                 case STATE_WAITING_PRE_CAPTURE:
                 {
                     Integer aeState = result.get(CaptureResult.CONTROL_AE_STATE);
@@ -313,8 +335,8 @@ public class CameraPreview extends TextureView
                     {
                         mState = STATE_WAITING_NON_PRE_CAPTURE;
                     }
-                    break;
                 }
+                break;
                 case STATE_WAITING_NON_PRE_CAPTURE:
                 {
                     Integer aeState = result.get(CaptureResult.CONTROL_AE_STATE);
@@ -323,8 +345,8 @@ public class CameraPreview extends TextureView
                         mState = STATE_PICTURE_TAKEN;
                         captureStillPicture();
                     }
-                    break;
                 }
+                break;
             }
         }
         
@@ -676,11 +698,14 @@ public class CameraPreview extends TextureView
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START);
             // 通知mCaptureCallback等待锁定
             mState = STATE_WAITING_LOCK;
-            mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback, mBackgroundHandler);
+            int nResult = mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback, mBackgroundHandler);
+            
+            Logs.showTrace("[CameraPreview] lockFocus capture result: " + nResult);
         }
         catch (CameraAccessException e)
         {
             e.printStackTrace();
+            Logs.showError("[CameraPreview] lockFocus Exception: " + e.toString());
         }
     }
     
@@ -712,6 +737,7 @@ public class CameraPreview extends TextureView
         {
             if (null == activity || null == mCameraDevice)
             {
+                Logs.showError("[CameraPreview] captureStillPicture Fail, invalid activity or mCameraDevice");
                 return;
             }
             final CaptureRequest.Builder captureBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
@@ -735,6 +761,7 @@ public class CameraPreview extends TextureView
             mCaptureSession.stopRepeating();
             mCaptureSession.abortCaptures();
             mCaptureSession.capture(captureBuilder.build(), captureCallback, null);
+            Logs.showTrace("[CameraPreview] captureStillPicture capture finish");
         }
         catch (CameraAccessException e)
         {

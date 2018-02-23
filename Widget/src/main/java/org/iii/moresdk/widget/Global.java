@@ -3,20 +3,20 @@ package org.iii.moresdk.widget;
 import android.content.Context;
 import android.view.View;
 
-abstract class Global
+public abstract class Global
 {
-    static int getResourceId(Context context, String name, String defType)
+    public static int getResourceId(Context context, String name, String defType)
     {
         return context.getResources().getIdentifier(name, defType, context.getPackageName());
     }
     
-    static int ScaleSize(Context context, int nSize)
+    public static int ScaleSize(Context context, int nSize)
     {
         float fScale = new Device(context).getScaleSize();
         return (int) Math.floor(nSize * fScale);
     }
     
-    static int measureWidth(int measureSpec)
+    public static int measureWidth(int measureSpec)
     {
         int nResult = 0;
         int nSpecMode = View.MeasureSpec.getMode(measureSpec);
@@ -35,7 +35,7 @@ abstract class Global
         return nResult;
     }
     
-    static int measureHeight(int measureSpec)
+    public static int measureHeight(int measureSpec)
     {
         int nResult = 0;
         int nSpecMode = View.MeasureSpec.getMode(measureSpec);
