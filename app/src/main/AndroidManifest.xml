@@ -92,6 +92,13 @@
 
         <activity android:name="com.iii.more.game.parktour.ParktourActivity">
         </activity>
+        <activity
+            android:name="com.iii.more.game.module.CameraActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        </activity>
     </application>
 
 </manifest>

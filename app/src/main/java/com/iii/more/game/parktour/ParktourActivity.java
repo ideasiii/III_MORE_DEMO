@@ -1,6 +1,7 @@
 package com.iii.more.game.parktour;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.RelativeLayout;
 
 import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
+import com.iii.more.game.module.CameraActivity;
 import com.iii.more.game.module.CameraPreview;
 import com.iii.more.game.module.EmotionBar;
 import com.iii.more.game.module.TrackerHandler;
@@ -78,8 +80,8 @@ public class ParktourActivity extends Activity
         photoView = new PhotoView(this);
         
         //========= Start Scenarize =========//
-        scenarize(Scenarize.SCEN_START_ZOO, null);
-        //scenarize(Scenarize.SCEN_END_PHOTO_BEAR, null);
+        //scenarize(Scenarize.SCEN_START_ZOO, null);
+        scenarize(Scenarize.SCEN_END_PHOTO_BEAR, null);
     }
     
     @Override
@@ -87,7 +89,7 @@ public class ParktourActivity extends Activity
     {
         if (null != photoView)
         {
-         //   photoView.stop();
+            //   photoView.stop();
         }
         super.onPause();
     }
@@ -319,6 +321,8 @@ public class ParktourActivity extends Activity
             case Scenarize.SCEN_END_PHOTO_MONKEY:
                 strAnimal = photoView.setFrame(mnScenarize);
                 application.stopFaceEmotion();
+                showCamera();
+                /*
                 RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
                 photoView.setLayoutParams(layoutParams);
                 setContentView(photoView);
@@ -331,6 +335,7 @@ public class ParktourActivity extends Activity
                     }
                 });
                 photoView.start(this);
+                */
                 break;
             case Scenarize.SCEN_END_CAMERA_OPENED:
                 application.playTTS("那我們來跟" + strAnimal + "拍張照吧,準備好了嗎,3,2,1,笑一個", String.valueOf(mnScenarize));
@@ -602,5 +607,12 @@ public class ParktourActivity extends Activity
             }
             */
         }
+    }
+    
+    private void showCamera()
+    {
+        Intent openCameraIntent = new Intent(theActivity, CameraActivity.class);
+        openCameraIntent.putExtra("animal", strAnimal);
+        startActivityForResult(openCameraIntent, mnScenarize);
     }
 }
