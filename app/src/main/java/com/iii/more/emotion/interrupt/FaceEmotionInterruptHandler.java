@@ -235,26 +235,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                                     .toString());
                             }
                             
-                            // FOR RD DEMO USE
-                            /*if (FaceEmotionInterruptParameters.IS_TEST_FOR_JOY_EMOTION)
-                            {
-                                if (nowEmotionState.emotionName.equals("JOY"))
-                                {
-                                    if (nowEmotionState.emotionTriggerValue >= 70)
-                                    {
-                                        message.put(FaceEmotionInterruptParameters.STRING_TTS_TEXT, "");
-                                    }
-                                    else if (nowEmotionState.emotionTriggerValue < 70 && nowEmotionState
-                                        .emotionTriggerValue > 40)
-                                    {
-                                        message.put(FaceEmotionInterruptParameters.STRING_TTS_TEXT, "");
-                                    }
-                                    else
-                                    {
-                                        message.put(FaceEmotionInterruptParameters.STRING_TTS_TEXT, "");
-                                    }
-                                }
-                            }*/
+                          
                         }
                         callBackMessage(ResponseCode.ERR_SUCCESS, FaceEmotionInterruptParameters
                             .CLASS_FACE_EMOTION_INTERRUPT, FaceEmotionInterruptParameters.METHOD_EVENT,

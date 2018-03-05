@@ -201,8 +201,8 @@ public class ClockActivity extends AppCompatActivity
                 case ClockLogicParameters.METHOD_MEDIA_STREAM:
                     if (message.get("state").equals("complete"))
                     {
-                        //jump to MainActivity
-                        Logs.showTrace("[ClockActivity] now jump to MainActivity");
+                        //close app;
+                        finish();
                     }
                     
                     break;
@@ -220,7 +220,7 @@ public class ClockActivity extends AppCompatActivity
             if (message.get("message").equals(TTSParameters.ID_SERVICE_UNKNOWN) || message.get("message")
                 .equals(TTSParameters.ID_SERVICE_IO_EXCEPTION))
             {
-                //something happened , and jump to MainActivity
+                //something happened , and jump to ClockActivity
                 Logs.showError("[ClockActivity] something happened!");
                 
             }
