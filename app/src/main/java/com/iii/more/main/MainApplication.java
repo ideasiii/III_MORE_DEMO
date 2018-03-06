@@ -294,12 +294,37 @@ public class MainApplication extends Application
             }
 
             @Override
-            public void onSetParameter(String action)
+            public void onSetParameter(String action, String text)
             {
                 switch (action)
                 {
                     case "switchTtsEngine":
-                        mTTSVoicePool.setVoice((byte) ((mTTSVoicePool.getActiveVoice() % 3) + 1));
+                        mTTSVoicePool.setVoice(
+                            (byte) ((mTTSVoicePool.getActiveVoice() % TTSVoicePool.TTS_VOICE_SIZE) + 1));
+                        break;
+                    case "setTtsPitchCyberonScaling":
+                        int pitch;
+                        try
+                        {
+                            pitch = Integer.valueOf(text);
+                        }
+                        catch(NumberFormatException nfe)
+                        {
+                            pitch = 100;
+                        }
+                        mTTSVoicePool.setPitchCyberonScaling(pitch);
+                        break;
+                    case "setTtsSpeechRateCyberonScaling":
+                        int rate;
+                        try
+                        {
+                            rate = Integer.valueOf(text);
+                        }
+                        catch(NumberFormatException nfe)
+                        {
+                            rate = 100;
+                        }
+                        mTTSVoicePool.setSpeechRateCyberonScaling(rate);
                         break;
                     default:
                         Logs.showTrace("mCockpitListenerBridge " + "onSetParameter() unknown action = `" + action);

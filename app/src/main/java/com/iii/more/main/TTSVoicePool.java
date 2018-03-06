@@ -18,6 +18,7 @@ final class TTSVoicePool
     static final byte TTS_VOICE_GOOGLE = 1;
     static final byte TTS_VOICE_CYBERON_KID_FEMALE = 2;
     static final byte TTS_VOICE_CYBERON_KID_MALE = 3;
+    static final int TTS_VOICE_SIZE = TTS_VOICE_CYBERON_KID_MALE;
     private static final String LOG_TAG = "TTSVoicePool";
 
     private final Context mContext;
@@ -160,10 +161,61 @@ final class TTSVoicePool
         }
     }
 
+    public void setPitchCyberonScaling(int pitch)
+    {
+        float googleMappedPitch = pitch / 100.0f;
+
+        switch (mActiveVoice)
+        {
+            case TTS_VOICE_GOOGLE:
+                mGoogleTtsHandler.setPitch(googleMappedPitch);
+                break;
+            case TTS_VOICE_CYBERON_KID_FEMALE:
+                mCyberonTtsAdapter_KidFemale.setPitch(pitch);
+                break;
+            case TTS_VOICE_CYBERON_KID_MALE:
+                mCyberonTtsAdapter_KidMale.setPitch(pitch);
+                break;
+            default:
+                Log.d(LOG_TAG, "Unknown mActiveVoice: " + mActiveVoice);
+        }
+    }
+
+    public void setSpeechRateCyberonScaling(int rate)
+    {
+        float googleMappedSpeed = rate / 100.0f;
+
+        switch (mActiveVoice)
+        {
+            case TTS_VOICE_GOOGLE:
+                mGoogleTtsHandler.setSpeechRate(googleMappedSpeed);
+                break;
+            case TTS_VOICE_CYBERON_KID_FEMALE:
+                mCyberonTtsAdapter_KidFemale.setSpeechRate(rate);
+                break;
+            case TTS_VOICE_CYBERON_KID_MALE:
+                mCyberonTtsAdapter_KidMale.setSpeechRate(rate);
+                break;
+            default:
+                Log.d(LOG_TAG, "Unknown mActiveVoice: " + mActiveVoice);
+        }
+    }
+
     /**
      * 設定 TTS pitch & speech rate
+     * 參數是賽微 TTS 的 scaling (i.e., 預設值是 100)
      */
-    public void setPitch(float pitch, float rate)
+    public void setPitchCyberonScaling(int pitch, int rate)
+    {
+        setPitchCyberonScaling(pitch);
+        setSpeechRateCyberonScaling(rate);
+    }
+
+    /**
+     * 設定 TTS pitch & speech rate
+     * 參數是 google TTS 的 scaling (i.e., 預設值是 1.0)
+     */
+    public void setPitchGoogleScaling(float pitch, float rate)
     {
         int cyberonMappedPitch = (int) ((pitch - 0.5) * 120) + 70;
         int cyberonMappedSpeed = (int) ((rate - 0.5) * 60) + 70;
@@ -183,8 +235,13 @@ final class TTSVoicePool
                 mCyberonTtsAdapter_KidMale.setSpeechRate(cyberonMappedSpeed);
                 break;
             default:
-                Log.d(LOG_TAG, "Unknown mCurrentUsingTts: " + mActiveVoice);
+                Log.d(LOG_TAG, "Unknown mActiveVoice: " + mActiveVoice);
         }
+    }
+
+    public void setPitch(float pitch, float rate)
+    {
+        setPitchGoogleScaling(pitch, rate);
     }
 
     /**

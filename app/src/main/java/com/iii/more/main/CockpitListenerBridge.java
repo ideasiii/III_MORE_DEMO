@@ -48,7 +48,7 @@ class CockpitListenerBridge
         void onFaceEmotionDetected(String emotionName, int score);
 
         /** 當需要設定參數時的 callback */
-        void onSetParameter(String action);
+        void onSetParameter(String action, String text);
 
         /** 當需要從 Activity (from) 跳到 Activity (to) 時的 callback*/
         void onJumpActivity(String from, String to);
@@ -266,7 +266,7 @@ class CockpitListenerBridge
                 default:
                     if (mTellMeWhatToDo != null)
                     {
-                        mTellMeWhatToDo.onSetParameter(action);
+                        mTellMeWhatToDo.onSetParameter(action, text);
                     }
             }
         }
