@@ -1,4 +1,4 @@
-package com.iii.more.game.module;
+package com.iii.more.game.parktour;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,33 +17,38 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.hardware.Camera.Face;
 import android.hardware.Camera.PictureCallback;
+import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
+import android.widget.ImageView;
 
+import com.iii.more.main.MainApplication;
 import com.iii.more.main.R;
+import com.iii.more.main.listeners.TTSEventListener;
 
 import sdk.ideas.common.Logs;
-
-import static android.os.Environment.DIRECTORY_DCIM;
 
 @SuppressWarnings("deprecation")
 public class CameraActivity extends Activity
 {
+    private MainApplication application = null;
     private Camera mCamera;
     private CameraPreview mPreview;
     private String mstrPicPath = null;
+    private ImageView imgMask = null;
+    private int mnIndex = 0;
+    private String mstrAnimal = "動物";
     
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.camera);
-        
+        imgMask = findViewById(R.id.imageViewCameraFrame);
         if (checkCameraHardware(this))
         {
             mCamera = getCameraInstance(Camera.CameraInfo.CAMERA_FACING_FRONT, this);
@@ -52,19 +57,24 @@ public class CameraActivity extends Activity
             mPreview = new CameraPreview(this, mCamera);
             FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
             preview.addView(mPreview);
-            // Add a listener to the Capture button
             findViewById(R.id.imageViewCameraCapture).setOnClickListener(new View.OnClickListener()
             {
                 @Override
                 public void onClick(View v)
                 {
-                    // get an image from the camera
                     mCamera.takePicture(null, null, mPicture);
                 }
             });
         }
         
         Bundle b = this.getIntent().getExtras();
+        mnIndex = b.getInt("index");
+        Logs.showTrace("[CameraActivity] onCreate get intent index: " + mnIndex);
+        mstrAnimal = setFrame(mnIndex);
+        
+        application = (MainApplication) getApplication();
+        application.stopFaceEmotion();
+        registerService();
     }
     
     @Override
@@ -72,6 +82,26 @@ public class CameraActivity extends Activity
     {
         super.onPause();
         releaseCamera(); // release the camera immediately on pause event
+    }
+    
+    private String setFrame(final int nIndex)
+    {
+        switch (nIndex)
+        {
+            case Scenarize.SCEN_END_PHOTO_BEAR:
+                imgMask.setImageResource(R.drawable.iii_zoo_bear_frame);
+                return "黑熊";
+            case Scenarize.SCEN_END_PHOTO_LION:
+                imgMask.setImageResource(R.drawable.iii_zoo_lion_frame);
+                return "獅子";
+            case Scenarize.SCEN_END_PHOTO_LEOPARD:
+                imgMask.setImageResource(R.drawable.iii_zoo_leopard_frame);
+                return "花豹";
+            case Scenarize.SCEN_END_PHOTO_MONKEY:
+                imgMask.setImageResource(R.drawable.iii_zoo_monkey_frame);
+                return "猴子";
+        }
+        return "動物";
     }
     
     /**
@@ -101,8 +131,8 @@ public class CameraActivity extends Activity
         {
             c = Camera.open(nType); // attempt to get a Camera instance
             Camera.Parameters parameters = c.getParameters();
-            parameters.setPreviewSize(720, 1280);
-            parameters.setPictureSize(720, 1280);
+            parameters.setPreviewSize(800, 1280);
+            parameters.setPictureSize(800, 1280);
             parameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
             parameters.setPictureFormat(ImageFormat.JPEG);
             parameters.setPreviewFrameRate(29);
@@ -135,23 +165,19 @@ public class CameraActivity extends Activity
             super(context);
             mCamera = camera;
             
-            // Install a SurfaceHolder.Callback so we get notified when the
-            // underlying surface is created and destroyed.
             mHolder = getHolder();
             mHolder.addCallback(this);
-            // deprecated setting, but required on Android versions prior to 3.0
             mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         }
         
         public void surfaceCreated(SurfaceHolder holder)
         {
-            // The Surface has been created, now tell the camera where to draw
-            // the preview.
             try
             {
                 mCamera.setPreviewDisplay(holder);
                 mCamera.startPreview();
-                // startFaceDetection();
+                Logs.showTrace("[CameraActivity] surfaceCreated Start");
+                application.playTTS("那我們來跟" + mstrAnimal + "拍張照吧,準備好了嗎,3,2,1,笑一個", String.valueOf(Scenarize.SCEN_END_CAMERA_OPENED));
             }
             catch (IOException e)
             {
@@ -166,16 +192,11 @@ public class CameraActivity extends Activity
         
         public void surfaceChanged(SurfaceHolder holder, int format, int w, int h)
         {
-            // If your preview can change or rotate, take care of those events
-            // here.
-            // Make sure to stop the preview before resizing or reformatting it.
-            
             if (mHolder.getSurface() == null)
             {
                 return;
             }
             
-            // stop preview before making changes
             try
             {
                 mCamera.stopPreview();
@@ -185,16 +206,10 @@ public class CameraActivity extends Activity
                 Logs.showError("Error stopping camera preview: " + e.getMessage());
             }
             
-            // set preview size and make any resize, rotate or
-            // reformatting changes here
-            
-            // start preview with new settings
             try
             {
                 mCamera.setPreviewDisplay(mHolder);
                 mCamera.startPreview();
-                // startFaceDetection(); // re-start face detection feature
-                
             }
             catch (Exception e)
             {
@@ -223,11 +238,32 @@ public class CameraActivity extends Activity
         public void onPictureTaken(byte[] data, Camera camera)
         {
             Bitmap bmPhoto = convertBmp(BitmapFactory.decodeByteArray(data, 0, data.length));
-            Bitmap bmRabbit = BitmapFactory.decodeResource(getResources(), R.drawable.iii_photo_frame);
-            Bitmap bmCombine = combineBitmap(bmPhoto, bmRabbit);
+            Bitmap bmFrame = null;
+            
+            switch (mnIndex)
+            {
+                case Scenarize.SCEN_END_PHOTO_BEAR:
+                    bmFrame = BitmapFactory.decodeResource(getResources(), R.drawable.iii_zoo_bear_frame);
+                    break;
+                case Scenarize.SCEN_END_PHOTO_LION:
+                    bmFrame = BitmapFactory.decodeResource(getResources(), R.drawable.iii_zoo_lion_frame);
+                    break;
+                case Scenarize.SCEN_END_PHOTO_LEOPARD:
+                    bmFrame = BitmapFactory.decodeResource(getResources(), R.drawable.iii_zoo_leopard_frame);
+                    break;
+                case Scenarize.SCEN_END_PHOTO_MONKEY:
+                    bmFrame = BitmapFactory.decodeResource(getResources(), R.drawable.iii_zoo_monkey_frame);
+                    break;
+                default:
+                    bmFrame = BitmapFactory.decodeResource(getResources(), R.drawable.iii_photo_frame);
+                    break;
+            }
+            
+            
+            Bitmap bmCombine = combineBitmap(bmPhoto, bmFrame);
             SaveImage(bmCombine);
             bmCombine.recycle();
-            bmRabbit.recycle();
+            bmFrame.recycle();
             bmPhoto.recycle();
             close();
         }
@@ -235,15 +271,17 @@ public class CameraActivity extends Activity
     
     private void SaveImage(Bitmap finalBitmap)
     {
-        //String root = getFilesDir().getParent();
-        String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
-        //String root = Environment.getExternalStorageDirectory().toString();
+        String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
         Logs.showTrace("[CameraActivity] SaveImage path: " + root);
-        File myDir = new File(root + "/Camera");
+        File myDir = new File(root + "/edubot");
         if (!myDir.exists())
         {
             myDir.mkdirs();
         }
+    
+        myDir.setExecutable(true);
+        myDir.setReadable(true);
+        myDir.setWritable(true);
         
         String strFileName = "edubot_" + String.valueOf(System.currentTimeMillis()) + ".jpg";
         File file = new File(myDir, strFileName);
@@ -258,6 +296,8 @@ public class CameraActivity extends Activity
             out.flush();
             out.close();
             mstrPicPath = file.getPath();
+            MediaScannerConnection.scanFile(this, new String[]{mstrPicPath}, null, null);
+            
         }
         catch (Exception e)
         {
@@ -357,5 +397,43 @@ public class CameraActivity extends Activity
         intent.putExtras(bundle);
         setResult(RESULT_OK, intent);
         finish();
+    }
+    
+    private void registerService()
+    {
+        application.setTTSEventListener(new TTSEventListener()
+        {
+            @Override
+            public void onInitSuccess()
+            {
+            
+            }
+            
+            @Override
+            public void onInitFailed(int status, String message)
+            {
+            
+            }
+            
+            @Override
+            public void onUtteranceStart(String utteranceId)
+            {
+            
+            }
+            
+            //=========== TTS 講完幹話後 =============//
+            @Override
+            public void onUtteranceDone(String utteranceId)
+            {
+                Logs.showTrace("[CameraActivity] onUtteranceDone utteranceId: " + utteranceId);
+                int nIndex = Integer.valueOf(utteranceId);
+                switch (nIndex)
+                {
+                    case Scenarize.SCEN_END_CAMERA_OPENED:
+                        mCamera.takePicture(null, null, mPicture);
+                        break;
+                }
+            }
+        });
     }
 }

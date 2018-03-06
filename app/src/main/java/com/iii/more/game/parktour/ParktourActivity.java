@@ -8,13 +8,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.iii.more.emotion.EmotionParameters;
 import com.iii.more.emotion.interrupt.FaceEmotionInterruptParameters;
-import com.iii.more.game.module.CameraActivity;
-import com.iii.more.game.module.CameraPreview;
 import com.iii.more.game.module.EmotionBar;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
@@ -42,8 +39,6 @@ public class ParktourActivity extends Activity
     private MediaPlayer mp = null;
     private EmotionBar emotionBar = null;
     private VoiceRecognition mVoiceRecognition = null;
-    private PhotoView photoView = null;
-    private String strAnimal = null;
     
     
     @Override
@@ -76,21 +71,14 @@ public class ParktourActivity extends Activity
         
         registerService();
         
-        //========== init photo layout =========//
-        photoView = new PhotoView(this);
-        
         //========= Start Scenarize =========//
-        //scenarize(Scenarize.SCEN_START_ZOO, null);
-        scenarize(Scenarize.SCEN_END_PHOTO_BEAR, null);
+        scenarize(Scenarize.SCEN_START_ZOO, null);
+        //scenarize(Scenarize.SCEN_END_PHOTO_BEAR, null);
     }
     
     @Override
     protected void onPause()
     {
-        if (null != photoView)
-        {
-            //   photoView.stop();
-        }
         super.onPause();
     }
     
@@ -185,9 +173,6 @@ public class ParktourActivity extends Activity
                         break;
                     case Scenarize.SCEN_END_PHOTO_1:
                         mVoiceRecognition.startListen(String.valueOf(nIndex));
-                        break;
-                    case Scenarize.SCEN_END_CAMERA_OPENED:
-                        photoView.picture();
                         break;
                 }
             }
@@ -319,26 +304,12 @@ public class ParktourActivity extends Activity
             case Scenarize.SCEN_END_PHOTO_LION:
             case Scenarize.SCEN_END_PHOTO_LEOPARD:
             case Scenarize.SCEN_END_PHOTO_MONKEY:
-                strAnimal = photoView.setFrame(mnScenarize);
                 application.stopFaceEmotion();
-                showCamera();
-                /*
-                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-                photoView.setLayoutParams(layoutParams);
-                setContentView(photoView);
-                photoView.setOnCameraOpenedListener(new PhotoView.OnCameraOpened()
-                {
-                    @Override
-                    public void opened()
-                    {
-                        theActivity.scenarize(Scenarize.SCEN_END_CAMERA_OPENED, null);
-                    }
-                });
-                photoView.start(this);
-                */
+                showCamera(mnScenarize);
                 break;
-            case Scenarize.SCEN_END_CAMERA_OPENED:
-                application.playTTS("那我們來跟" + strAnimal + "拍張照吧,準備好了嗎,3,2,1,笑一個", String.valueOf(mnScenarize));
+            case Scenarize.SCEN_END_PHOTO_FINISH:
+                faceView.loadImage(R.drawable.iii_zoo_101);
+                application.playTTS("今天的園遊會真有趣,我們下次再一起來玩吧", String.valueOf(mnScenarize));
                 break;
         }
     }
@@ -599,20 +570,22 @@ public class ParktourActivity extends Activity
             Logs.showTrace("get ERROR message: " + message.get("message"));
             mVoiceRecognition.stopListen();
             theActivity.scenarize(mnScenarize, null);
-           /* switch (mnScenarize)
-            {
-                case Scenarize.SCEN_START_ZOO:
-                    theActivity.scenarize(Scenarize.SCEN_START_ZOO, null);
-                    break;
-            }
-            */
         }
     }
     
-    private void showCamera()
+    private void showCamera(int nIndex)
     {
         Intent openCameraIntent = new Intent(theActivity, CameraActivity.class);
-        openCameraIntent.putExtra("animal", strAnimal);
+        openCameraIntent.putExtra("index", nIndex);
         startActivityForResult(openCameraIntent, mnScenarize);
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        String strPicture = data.getStringExtra("picture");
+        Logs.showTrace("[ParktourActivity] onActivityResult requestCode=" + requestCode + " resultCode=" + resultCode + " picture=" + strPicture);
+        super.onActivityResult(requestCode, resultCode, data);
+        theActivity.scenarize(Scenarize.SCEN_END_PHOTO_FINISH, null);
     }
 }

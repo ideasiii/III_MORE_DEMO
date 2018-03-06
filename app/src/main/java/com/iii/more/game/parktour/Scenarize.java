@@ -36,4 +36,5 @@ abstract class Scenarize
     final static int SCEN_END_PHOTO_LEOPARD = 73;
     final static int SCEN_END_PHOTO_MONKEY = 74;
     final static int SCEN_END_CAMERA_OPENED = 75;
+    final static int SCEN_END_PHOTO_FINISH = 76;
 }
