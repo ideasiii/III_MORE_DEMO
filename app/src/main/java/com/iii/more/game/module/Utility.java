@@ -11,9 +11,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 
-/**
- * Created by joe on 2017/11/2
- */
 
 public abstract class Utility
 {

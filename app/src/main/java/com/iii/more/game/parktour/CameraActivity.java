@@ -40,6 +40,7 @@ public class CameraActivity extends Activity
     private CameraPreview mPreview;
     private String mstrPicPath = null;
     private ImageView imgMask = null;
+    private ImageView imgCounter = null;
     private int mnIndex = 0;
     private String mstrAnimal = "動物";
     
@@ -49,6 +50,7 @@ public class CameraActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.camera);
         imgMask = findViewById(R.id.imageViewCameraFrame);
+        imgCounter = findViewById(R.id.imageViewCounter);
         if (checkCameraHardware(this))
         {
             mCamera = getCameraInstance(Camera.CameraInfo.CAMERA_FACING_FRONT, this);
@@ -177,7 +179,7 @@ public class CameraActivity extends Activity
                 mCamera.setPreviewDisplay(holder);
                 mCamera.startPreview();
                 Logs.showTrace("[CameraActivity] surfaceCreated Start");
-                application.playTTS("那我們來跟" + mstrAnimal + "拍張照吧,準備好了嗎,3,2,1,笑一個", String.valueOf(Scenarize.SCEN_END_CAMERA_OPENED));
+                application.playTTS("那我們來跟" + mstrAnimal + "拍張照吧,準備好了嗎", String.valueOf(Scenarize.SCEN_END_CAMERA_OPENED));
             }
             catch (IOException e)
             {
@@ -278,7 +280,7 @@ public class CameraActivity extends Activity
         {
             myDir.mkdirs();
         }
-    
+        
         myDir.setExecutable(true);
         myDir.setReadable(true);
         myDir.setWritable(true);
@@ -421,7 +423,7 @@ public class CameraActivity extends Activity
             
             }
             
-            //=========== TTS 講完幹話後 =============//
+            //=========== TTS 講完幹話後 =============// ,3,2,1,笑一個
             @Override
             public void onUtteranceDone(String utteranceId)
             {
@@ -430,6 +432,20 @@ public class CameraActivity extends Activity
                 switch (nIndex)
                 {
                     case Scenarize.SCEN_END_CAMERA_OPENED:
+                        imgCounter.setImageResource(R.drawable.iii_counter_3);
+                        imgCounter.setVisibility(View.VISIBLE);
+                        application.playTTS("3", String.valueOf(Scenarize.SCEN_END_COUNT_THREE));
+                        break;
+                    case Scenarize.SCEN_END_COUNT_THREE:
+                        imgCounter.setImageResource(R.drawable.iii_counter_2);
+                        application.playTTS("2", String.valueOf(Scenarize.SCEN_END_COUNT_TWO));
+                        break;
+                    case Scenarize.SCEN_END_COUNT_TWO:
+                        imgCounter.setImageResource(R.drawable.iii_counter_1);
+                        application.playTTS("1,笑一個", String.valueOf(Scenarize.SCEN_END_COUNT_ONE));
+                        break;
+                    case Scenarize.SCEN_END_COUNT_ONE:
+                        imgCounter.setVisibility(View.INVISIBLE);
                         mCamera.takePicture(null, null, mPicture);
                         break;
                 }

@@ -73,7 +73,7 @@ public class ParktourActivity extends Activity
         
         //========= Start Scenarize =========//
         scenarize(Scenarize.SCEN_START_ZOO, null);
-        //scenarize(Scenarize.SCEN_END_PHOTO_BEAR, null);
+        //scenarize(Scenarize.SCEN_END_PHOTO_1, null);
     }
     
     @Override
@@ -173,6 +173,9 @@ public class ParktourActivity extends Activity
                         break;
                     case Scenarize.SCEN_END_PHOTO_1:
                         mVoiceRecognition.startListen(String.valueOf(nIndex));
+                        break;
+                    case Scenarize.SCEN_END_PHOTO_FINISH:
+                        application.stopTTS();
                         break;
                 }
             }

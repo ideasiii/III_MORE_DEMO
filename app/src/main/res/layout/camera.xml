@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="@android:color/background_light"
@@ -25,6 +26,17 @@
             android:contentDescription="@string/content_description"
             android:scaleType="fitXY"
             android:src="@drawable/iii_photo_frame"/>
+
+        <ImageView
+            android:id="@+id/imageViewCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="83dp"
+            android:scaleType="centerCrop"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/iii_counter_3"/>
 
     </RelativeLayout>
 
