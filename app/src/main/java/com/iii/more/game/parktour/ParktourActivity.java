@@ -300,7 +300,7 @@ public class ParktourActivity extends Activity
                 application.playTTS("花豹最先抵達終點囉,也獲得了好多好吃的食物，你看!他吃的多開心", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_END_PHOTO_1:
-                faceView.loadImage(R.drawable.iii_zoo_101);
+                faceView.loadImage(R.drawable.iii_photo_animal);
                 application.playTTS("今天好好玩喔,園遊會好熱鬧,看到了好多的動物,有黑熊,花豹,獅子,猴子,還參加了各種比賽,你最喜歡哪一種動物", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_END_PHOTO_BEAR:
