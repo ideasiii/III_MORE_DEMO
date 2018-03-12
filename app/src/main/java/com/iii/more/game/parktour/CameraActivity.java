@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import android.os.Handler;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -267,7 +269,8 @@ public class CameraActivity extends Activity
             bmCombine.recycle();
             bmFrame.recycle();
             bmPhoto.recycle();
-            close();
+            // close();
+            
         }
     };
     
@@ -452,4 +455,9 @@ public class CameraActivity extends Activity
             }
         });
     }
+    
+    private Handler theHandler = new Handler()
+    {
+    
+    };
 }

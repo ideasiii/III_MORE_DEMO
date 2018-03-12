@@ -192,7 +192,12 @@ public class MainApplication extends Application
     {
         mTTSVoicePool.setPitch(pitch, rate);
     }
-
+    
+    public void setTTSPitchCyberonScaling(int pitch, int rate)
+    {
+        mTTSVoicePool.setPitchCyberonScaling(pitch, rate);
+    }
+    
     /**
      * 設定 TTS 的輸出語言
      */
@@ -232,6 +237,12 @@ public class MainApplication extends Application
     public void stopTTS()
     {
         mTTSVoicePool.stop();
+    }
+    
+    public void setVoice(byte voice)
+    {
+        //mTTSVoicePool.setVoice((byte) (voice % (TTSVoicePool.TTS_VOICE_SIZE+ 1)));
+        mTTSVoicePool.setVoice(voice);
     }
 
     public void replaySoundEffect(final int resId)

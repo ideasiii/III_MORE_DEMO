@@ -13,12 +13,12 @@ import sdk.ideas.tool.speech.tts.TextToSpeechHandler;
 /**
  * 不同 TTS 聲音的集中地
  */
-final class TTSVoicePool
+public final class TTSVoicePool
 {
-    static final byte TTS_VOICE_GOOGLE = 1;
-    static final byte TTS_VOICE_CYBERON_KID_FEMALE = 2;
-    static final byte TTS_VOICE_CYBERON_KID_MALE = 3;
-    static final int TTS_VOICE_SIZE = TTS_VOICE_CYBERON_KID_MALE;
+    public static final byte TTS_VOICE_GOOGLE = 1;
+    public static final byte TTS_VOICE_CYBERON_KID_FEMALE = 2;
+    public static final byte TTS_VOICE_CYBERON_KID_MALE = 3;
+    public static final int TTS_VOICE_SIZE = TTS_VOICE_CYBERON_KID_MALE;
     private static final String LOG_TAG = "TTSVoicePool";
 
     private final Context mContext;

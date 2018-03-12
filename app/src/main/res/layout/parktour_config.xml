@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:layout_width="600dp"
+        android:layout_height="873dp"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/llVoiceMan"
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:weightSum="0.5">
+
+                <ImageButton
+                    android:id="@+id/imageButtonVoiceMan"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/iii_voice_man"
+                    app:srcCompat="@drawable/iii_voice_man"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llVoiceGirl"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/default_app_color"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageButton
+                    android:id="@+id/imageButtonVoiceGirl"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/iii_voice_girl"
+                    app:srcCompat="@drawable/iii_voice_girl"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewPitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Pitch"
+            android:textColor="@color/fab_material_white"
+            android:textSize="24sp"/>
+
+        <SeekBar
+            android:id="@+id/SeekBarPitch"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:max="200"
+            android:min="10"/>
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

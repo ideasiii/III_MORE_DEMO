@@ -4,12 +4,12 @@
     <color name="white">#ffffff</color>
     <color name="colorPrimary">#323232</color>
     <color name="colorPrimaryDark">#191919</color>
-    <color name="default_app_color">#6d94d5 </color>
+    <color name="default_app_color">#7d6d94d5</color>
     <color name="starfish_background">#EB6F9F</color>>
     <color name="tumblr_primary">#36465D</color>
 
     <color name="setting_main">#2dbda4</color>
     <color name="setting_white">#ffffff</color>
     <color name="setting_div">#c2c2c2</color>
-
+    <color name="Trans_Black">#4c000000</color>
 </resources>

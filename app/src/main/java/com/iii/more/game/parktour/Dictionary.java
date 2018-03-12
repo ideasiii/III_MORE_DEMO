@@ -84,6 +84,8 @@ public abstract class Dictionary
         add("苞");
         add("胞");
         add("鉋");
+        add("好吧");
+        add("爸爸");
     }};
     
     public static ArrayList<String> monkey = new ArrayList<String>()

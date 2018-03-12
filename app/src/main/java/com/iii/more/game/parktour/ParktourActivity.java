@@ -206,28 +206,34 @@ public class ParktourActivity extends Activity
                 application.setFaceEmotionEventListener(faceEmotionEventListener);
                 emotionBar.setColor(252, 42, 29, 253, 183, 175);
                 emotionBar.setIcon(R.drawable.iii_face_joy, R.drawable.iii_face_angry);
-                emotionBar.setVisibility(View.VISIBLE);
+                //emotionBar.setVisibility(View.VISIBLE);
                 emotionBar.setPosition(0);
                 managerOfSound(R.raw.lion_sound_effect);
                 break;
             case Scenarize.SCEN_LION_ANGRY_AGAIN_1:
                 application.playTTS("不夠兇餒,快再試試看做出你最生氣的表情", String.valueOf(mnScenarize));
                 emotionBar.setPosition(10);
+                faceView.showMouth(true);
+                faceView.loadImageMouth(R.drawable.iii_bg_angry_10);
                 break;
             case Scenarize.SCEN_LION_ANGRY_AGAIN_2:
                 application.playTTS("試試看，做出你最生氣的表情", String.valueOf(mnScenarize));
                 emotionBar.setPosition(20);
+                faceView.loadImageMouth(R.drawable.iii_bg_angry_30);
                 break;
             case Scenarize.SCEN_LION_ANGRY_AGAIN_3:
                 application.playTTS("還不夠,還是沒有比獅子兇耶,再試著生氣一點", String.valueOf(mnScenarize));
                 emotionBar.setPosition(30);
+                faceView.loadImageMouth(R.drawable.iii_bg_angry_50);
                 break;
             case Scenarize.SCEN_LION_GO:
                 application.setFaceEmotionEventListener(null);
                 faceView.loadImage(R.drawable.iii_lion_102);
                 application.playTTS("太好了，獅子都下跑了，讓我們繼續看看，有什麼好玩的吧，走", String.valueOf(mnScenarize));
+                faceView.loadImageMouth(R.drawable.iii_bg_angry_80);
                 break;
             case Scenarize.SCEN_MONKEY_SEE:
+                faceView.showMouth(false);
                 faceView.loadImage(R.drawable.iii_monkey_103);
                 application.playTTS("耶~~那裏有一隻猴子，原來我們來到了台灣動物區，我們去看看他在做什麼吧,原來猴子們正在舉辦不能笑比賽，被牠逗笑就輸囉," + "那我們要小心,忍住不要笑喔,要忍住喔", String.valueOf(mnScenarize));
                 break;
@@ -235,7 +241,7 @@ public class ParktourActivity extends Activity
                 application.setFaceEmotionEventListener(faceEmotionEventListener);
                 emotionBar.setColor(27, 80, 132, 165, 222, 249);
                 emotionBar.setIcon(R.drawable.iii_face_sad, R.drawable.iii_face_cry);
-                emotionBar.setVisibility(View.VISIBLE);
+                //  emotionBar.setVisibility(View.VISIBLE);
                 emotionBar.setPosition(0);
                 faceView.loadImage(R.drawable.iii_monkey_ani_1);
                 managerOfSound(R.raw.monkey_sound_effect);
@@ -243,6 +249,8 @@ public class ParktourActivity extends Activity
             case Scenarize.SCEN_MONKEY_GO:
                 application.setFaceEmotionEventListener(null);
                 emotionBar.setPosition(10);
+                faceView.showMouth(true);
+                faceView.loadImageMouth(R.drawable.iii_bg_laugh_10);
                 faceView.loadImage(R.drawable.iii_monkey_103);
                 application.playTTS("你好厲害喔，都沒有笑出來耶，那我們再繼續去探險吧", String.valueOf(mnScenarize));
                 break;
