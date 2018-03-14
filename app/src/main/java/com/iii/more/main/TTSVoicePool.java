@@ -201,9 +201,10 @@ public final class TTSVoicePool
         }
     }
 
-    /**
-     * 設定 TTS pitch & speech rate
-     * 參數是賽微 TTS 的 scaling (i.e., 預設值是 100)
+    /** 使用賽微 TTS 的數值範圍設定 pitch & 速度
+     *
+     * @param pitch 0~200，預設 100
+     * @param rate 0~200，預設 100
      */
     public void setPitchCyberonScaling(int pitch, int rate)
     {
