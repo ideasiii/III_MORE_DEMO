@@ -258,6 +258,31 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         mAlarmHandler = new AlarmHandler(this);
         mAlarmHandler.setHandler(mHandler);
         mAlarmHandler.init();
+        
+        /*new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                while (true)
+                {
+                    try
+                    {
+                        Logs.showTrace("[MainActivity] #### now Emotion state: " + ((MainApplication)
+                            getApplication()).getNowEmotionStateName());
+                        
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    
+                }
+                
+                
+            }
+        }).start();*/
     }
     
     

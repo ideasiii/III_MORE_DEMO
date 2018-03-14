@@ -34,8 +34,7 @@ public abstract class FaceEmotionInterruptParameters
     public static final String STRING_EMOTION_NAME = "EMOTION_NAME";
     public static final String STRING_EMOTION_VALUE = "EMOTION_VALUE";
     
-    public static final String STRING_NATURAL = "NATURAL";
-    public static final int INT_NATURAL_RULE = 999;
+    public static final int INT_NEUTRAL_RULE = 999;
     
     public static final boolean isDebugging = true;
     public static final int attentionTriggerTime = 120;

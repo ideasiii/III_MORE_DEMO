@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 
+import com.iii.more.emotion.EmotionParameters;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,8 +26,8 @@ public class FaceEmotionInterruptHandler extends BaseHandler
     private ArrayList<EmotionBrainElement> mEmotionBrainArrayListData = null;
     private HashMap<String, String> mEmotionHashMapData = null;
     
-    private EmotionElement nowEmotionState = new EmotionElement(FaceEmotionInterruptParameters
-        .STRING_NATURAL, FaceEmotionInterruptParameters.INT_NATURAL_RULE, 0);
+    private volatile EmotionElement nowEmotionState = new EmotionElement(EmotionParameters
+        .STRING_EMOTION_NEUTRAL, FaceEmotionInterruptParameters.INT_NEUTRAL_RULE, 0);
     
     public FaceEmotionInterruptHandler(Context context)
     {
@@ -33,6 +35,15 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         mEmotionBrainArrayListData = new ArrayList<>();
     }
     
+    
+    public String getNowEmotionStateName()
+    {
+        if (nowEmotionState.emotionName.equals(EmotionParameters.STRING_EXPRESSION_ATTENTION))
+        {
+            return EmotionParameters.STRING_EMOTION_NA;
+        }
+        return nowEmotionState.emotionName;
+    }
     
     public void setEmotionEventData(@NonNull HashMap<String, String> emotionEventData)
     {
@@ -105,7 +116,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                             //debug using
                             //Logs.showError("[FaceEmotionInterruptHandler] runFaceEmotionRule ERROR:" + " " +
                             //    "floatNowEmotionValue is" + String.valueOf(floatNowEmotionValue) + " but " +
-                             //   "ruleEmotionValue is" + String.valueOf(ruleEmotionValue));
+                            //   "ruleEmotionValue is" + String.valueOf(ruleEmotionValue));
                         }
                     }
                     
@@ -117,9 +128,10 @@ public class FaceEmotionInterruptHandler extends BaseHandler
             }
             else
             {
+                //
                 //debug using
-               // Logs.showError("[FaceEmotionInterruptHandler] runFaceEmotionRule ERROR while get " +
-               //     "strNowEmotionValue is null");
+                // Logs.showError("[FaceEmotionInterruptHandler] runFaceEmotionRule ERROR while get " +
+                //     "strNowEmotionValue is null");
             }
         }
         
@@ -174,9 +186,9 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         if (newFaceData == null)
         {
             //無符合規則，則將其臉部改為NATURAL值，並將reset trigger time
-            nowEmotionState.emotionName = FaceEmotionInterruptParameters.STRING_NATURAL;
+            nowEmotionState.emotionName = EmotionParameters.STRING_EMOTION_NEUTRAL;
             nowEmotionState.emotionTriggerTime = 0;
-            nowEmotionState.emotionTriggerTimeRule = FaceEmotionInterruptParameters.INT_NATURAL_RULE;
+            nowEmotionState.emotionTriggerTimeRule = FaceEmotionInterruptParameters.INT_NEUTRAL_RULE;
         }
         else
         {
@@ -235,7 +247,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                                     .toString());
                             }
                             
-                          
+                            
                         }
                         callBackMessage(ResponseCode.ERR_SUCCESS, FaceEmotionInterruptParameters
                             .CLASS_FACE_EMOTION_INTERRUPT, FaceEmotionInterruptParameters.METHOD_EVENT,
@@ -244,10 +256,10 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                         
                     }
                     
-                    
                     //reset
-                    nowEmotionState.emotionName = FaceEmotionInterruptParameters.STRING_NATURAL;
+                    nowEmotionState.emotionName = EmotionParameters.STRING_EMOTION_NEUTRAL;
                     nowEmotionState.emotionTriggerTime = 0;
+                    nowEmotionState.emotionTriggerTimeRule = FaceEmotionInterruptParameters.INT_NEUTRAL_RULE;
                 }
             }
             else

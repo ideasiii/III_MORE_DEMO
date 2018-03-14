@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:id="@+id/root_layout"
-              android:orientation="vertical"
-              android:weightSum="1">
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/root_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/default_app_color"
+                android:orientation="vertical"
+                android:weightSum="1">
 
 
     <RelativeLayout
         android:id="@+id/relativelayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/default_app_color">
 
         <ImageView
             android:id="@+id/imageView"
@@ -33,14 +35,13 @@
     </RelativeLayout>
 
 
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:textColor="@color/black"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
     <com.iii.more.screen.ClipRevealFrame
         android:id="@+id/menu_layout"
@@ -89,8 +90,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
         />
 
 
@@ -100,8 +101,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
 
         />
 

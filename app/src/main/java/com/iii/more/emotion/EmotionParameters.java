@@ -23,6 +23,8 @@ public abstract class EmotionParameters
     public static final String STRING_EMOTION_SADNESS = "SADNESS";
     public static final String STRING_EMOTION_SURPRISE = "SURPRISE";
     public static final String STRING_EMOTION_CONTEMPT = "CONTEMPT";
+    public static final String STRING_EMOTION_NEUTRAL = "NEUTRAL";
+    public static final String STRING_EMOTION_NA = "NA";
     public static final String STRING_EXPRESSION_ATTENTION = "ATTENTION";
     
     //new add in

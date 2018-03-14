@@ -40,24 +40,26 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
     private volatile HashMap<String, String> emotionVolatileHashMap = null;
     private boolean isTest = true;
     
-    private HashMap<String, String> noEmotionHashMap = null;
+    private HashMap<String, String> noEmotionDataHashMap = null;
     
     public EmotionHandler(Context context)
     {
         super(context);
-        noEmotionHashMap = new HashMap<>();
-        noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_ANGER, "-1");
-        noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_CONTEMPT, "-1");
-        noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_DISGUST, "-1");
-        noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_FEAR, "-1");
-        noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_JOY, "-1");
-        noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_SADNESS, "-1");
-        noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_SURPRISE, "-1");
-        noEmotionHashMap.put(EmotionParameters.STRING_EXPRESSION_ATTENTION, "-1");
+        
+        //create no Emotion Data
+        noEmotionDataHashMap = new HashMap<>();
+        noEmotionDataHashMap.put(EmotionParameters.STRING_EMOTION_ANGER, "-1");
+        noEmotionDataHashMap.put(EmotionParameters.STRING_EMOTION_CONTEMPT, "-1");
+        noEmotionDataHashMap.put(EmotionParameters.STRING_EMOTION_DISGUST, "-1");
+        noEmotionDataHashMap.put(EmotionParameters.STRING_EMOTION_FEAR, "-1");
+        noEmotionDataHashMap.put(EmotionParameters.STRING_EMOTION_JOY, "-1");
+        noEmotionDataHashMap.put(EmotionParameters.STRING_EMOTION_SADNESS, "-1");
+        noEmotionDataHashMap.put(EmotionParameters.STRING_EMOTION_SURPRISE, "-1");
+        noEmotionDataHashMap.put(EmotionParameters.STRING_EXPRESSION_ATTENTION, "-1");
         
         //new add in
-        noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_VALENCE, "-1");
-        noEmotionHashMap.put(EmotionParameters.STRING_EMOTION_ENGAGEMENT, "-1");
+        noEmotionDataHashMap.put(EmotionParameters.STRING_EMOTION_VALENCE, "-1");
+        noEmotionDataHashMap.put(EmotionParameters.STRING_EMOTION_ENGAGEMENT, "-1");
         
     }
     
@@ -267,7 +269,7 @@ public class EmotionHandler extends BaseHandler implements OnDetectionListener
                         else
                         {
                             callBackMessage(ResponseCode.ERR_SUCCESS, EmotionParameters.CLASS_EMOTION,
-                                    EmotionParameters.METHOD_EMOTION_DETECT, noEmotionHashMap);
+                                    EmotionParameters.METHOD_EMOTION_DETECT, noEmotionDataHashMap);
                             
                         }
                         
