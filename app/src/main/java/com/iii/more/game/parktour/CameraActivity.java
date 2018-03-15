@@ -22,6 +22,7 @@ import android.hardware.Camera.PictureCallback;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Message;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -270,6 +271,7 @@ public class CameraActivity extends Activity
             bmFrame.recycle();
             bmPhoto.recycle();
             // close();
+            theHandler.sendEmptyMessageDelayed(666, 3000);
             
         }
     };
@@ -458,6 +460,15 @@ public class CameraActivity extends Activity
     
     private Handler theHandler = new Handler()
     {
-    
+        @Override
+        public void handleMessage(Message msg)
+        {
+            switch (msg.what)
+            {
+                case 666:
+                    close();
+                    break;
+            }
+        }
     };
 }

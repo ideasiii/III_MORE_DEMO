@@ -56,7 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:text="Pitch"
+            android:text="Pitch : 100"
             android:textColor="@color/fab_material_white"
             android:textSize="24sp"/>
 
@@ -64,7 +64,36 @@
             android:id="@+id/SeekBarPitch"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:layout_marginEnd="50dp"
+            android:layout_marginStart="50dp"
             android:max="200"
             android:min="10"/>
+
+        <TextView
+            android:id="@+id/textViewRate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Rate : 100"
+            android:textColor="@color/fab_material_white"
+            android:textSize="24sp"/>
+
+        <SeekBar
+            android:id="@+id/SeekBarRate"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginEnd="50dp"
+            android:layout_marginStart="50dp"
+            android:max="200"
+            android:min="10"/>
+
+        <Button
+            android:id="@+id/buttonOverScen"
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:layout_marginEnd="100dp"
+            android:layout_marginStart="100dp"
+            android:text="跳  關"
+            android:textSize="24sp"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

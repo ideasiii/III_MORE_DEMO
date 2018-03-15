@@ -160,6 +160,13 @@ public class MainApplication extends Application
         }
     }
     
+    /**
+     *
+     * @return
+     * STRING_EMOTION_NA : 沒有臉見人
+     * STRING_EMOTION_NEUTRAL : 情緒不知
+     * 其他參數請看 EmotionParameters.java
+     */
     public String getNowEmotionStateName()
     {
         if (null != mFaceEmotionInterruptHandler)

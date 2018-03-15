@@ -17,6 +17,7 @@ import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
 import com.iii.more.main.MainApplication;
 import com.iii.more.main.R;
+import com.iii.more.main.TTSVoicePool;
 import com.iii.more.main.listeners.FaceEmotionEventListener;
 import com.iii.more.main.listeners.TTSEventListener;
 
@@ -48,6 +49,7 @@ public class ParktourActivity extends Activity
         theActivity = this;
         Utility.fullScreenNoBar(this);
         faceView = new FaceView(this);
+        faceView.setHandler(selfHandler);
         setContentView(faceView);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         application = (MainApplication) getApplication();
@@ -63,8 +65,9 @@ public class ParktourActivity extends Activity
         faceView.addView(emotionBar);
         emotionBar.setVisibility(View.INVISIBLE);
         
-        //========= TTS Pitch ===========//
-        application.setTTSPitch(1.0f, 1.0f);
+        //========= TTS Default Setting ===========//
+        application.setVoice(TTSVoicePool.TTS_VOICE_CYBERON_KID_MALE);
+        application.setTTSPitchCyberonScaling(150, 110);
         
         //========= Google Speech =========//
         mVoiceRecognition = new VoiceRecognition(this);
@@ -79,6 +82,7 @@ public class ParktourActivity extends Activity
     @Override
     protected void onPause()
     {
+        application.stopTTS();
         super.onPause();
     }
     
@@ -101,13 +105,14 @@ public class ParktourActivity extends Activity
             @Override
             public void onUtteranceStart(String utteranceId)
             {
-            
+                faceView.showSpeak(true);
             }
             
             //=========== TTS 講完幹話後 =============//
             @Override
             public void onUtteranceDone(String utteranceId)
             {
+                faceView.showSpeak(false);
                 Logs.showTrace("[ParktourActivity] onUtteranceDone utteranceId: " + utteranceId);
                 int nIndex = Integer.valueOf(utteranceId);
                 switch (nIndex)
@@ -175,7 +180,8 @@ public class ParktourActivity extends Activity
                         mVoiceRecognition.startListen(String.valueOf(nIndex));
                         break;
                     case Scenarize.SCEN_END_PHOTO_FINISH:
-                        application.stopTTS();
+                        //application.stopTTS();
+                        Logs.showTrace("[ParktourActivity]");
                         break;
                 }
             }
@@ -448,6 +454,9 @@ public class ParktourActivity extends Activity
             case CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER:
                 handleMessageVoiceRecognition(msg);
                 break;
+            case Scenarize.SCEN_OVER:
+                scenarize(++mnScenarize, null);
+                break;
             default:
                 break;
         }
@@ -594,8 +603,6 @@ public class ParktourActivity extends Activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        String strPicture = data.getStringExtra("picture");
-        Logs.showTrace("[ParktourActivity] onActivityResult requestCode=" + requestCode + " resultCode=" + resultCode + " picture=" + strPicture);
         super.onActivityResult(requestCode, resultCode, data);
         theActivity.scenarize(Scenarize.SCEN_END_PHOTO_FINISH, null);
     }
