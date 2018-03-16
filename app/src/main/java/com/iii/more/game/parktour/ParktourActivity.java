@@ -241,7 +241,7 @@ public class ParktourActivity extends Activity
             case Scenarize.SCEN_MONKEY_SEE:
                 faceView.showMouth(false);
                 faceView.loadImage(R.drawable.iii_monkey_103);
-                application.playTTS("耶~~那裏有一隻猴子，原來我們來到了台灣動物區，我們去看看他在做什麼吧,原來猴子們正在舉辦不能笑比賽，被牠逗笑就輸囉," + "那我們要小心,忍住不要笑喔,要忍住喔", String.valueOf(mnScenarize));
+                application.playTTS("遠遠看到有一隻猴子在走單槓耶,原來我們來到了台灣動物區,我們去看看他在做什麼吧,原來猴子們正在舉辦搞笑大賽,他們要讓大家都很開心喔,那我們來看看猴子們有什麼有趣的表演吧", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_MONKEY_FUNNY:
                 application.setFaceEmotionEventListener(faceEmotionEventListener);
@@ -258,7 +258,7 @@ public class ParktourActivity extends Activity
                 faceView.showMouth(true);
                 faceView.loadImageMouth(R.drawable.iii_bg_laugh_10);
                 faceView.loadImage(R.drawable.iii_monkey_103);
-                application.playTTS("你好厲害喔，都沒有笑出來耶，那我們再繼續去探險吧", String.valueOf(mnScenarize));
+                application.playTTS("猴子們真的好好笑喔,哈,哈,哈", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_1:
                 emotionBar.setVisibility(View.INVISIBLE);
@@ -354,7 +354,7 @@ public class ParktourActivity extends Activity
                         theActivity.scenarize(Scenarize.SCEN_LION_ANGRY_AGAIN_1, null);
                         break;
                     case Scenarize.SCEN_MONKEY_FUNNY:
-                        theActivity.scenarize(Scenarize.SCEN_MONKEY_GO, null);
+                        //theActivity.scenarize(Scenarize.SCEN_MONKEY_GO, null);
                         break;
                     case Scenarize.SCEN_ANIMAL_RACE_2:
                         theActivity.scenarize(Scenarize.SCEN_ANIMAL_RACE_3, null);
@@ -405,7 +405,8 @@ public class ParktourActivity extends Activity
                         case Scenarize.SCEN_MONKEY_FUNNY:
                             if (null != strEmotionName && 0 == strEmotionName.compareTo(EmotionParameters.STRING_EMOTION_JOY))
                             {
-                                emotionBar.setPosition(nValue / 2);
+                                theActivity.scenarize(Scenarize.SCEN_MONKEY_GO, null);
+                                //emotionBar.setPosition(nValue / 2);
                             }
                             break;
                     }
