@@ -231,6 +231,7 @@ public class ParktourActivity extends Activity
                 application.playTTS("還不夠,還是沒有比獅子兇耶,再試著生氣一點", String.valueOf(mnScenarize));
                 emotionBar.setPosition(30);
                 faceView.loadImageMouth(R.drawable.iii_bg_angry_50);
+                selfHandler.sendEmptyMessageDelayed(Scenarize.SCEN_MONKEY_SEE, 10000);
                 break;
             case Scenarize.SCEN_LION_GO:
                 application.setFaceEmotionEventListener(null);
@@ -241,7 +242,7 @@ public class ParktourActivity extends Activity
             case Scenarize.SCEN_MONKEY_SEE:
                 faceView.showMouth(false);
                 faceView.loadImage(R.drawable.iii_monkey_103);
-                application.playTTS("遠遠看到有一隻猴子在走單槓耶,原來我們來到了台灣動物區,我們去看看他在做什麼吧,原來猴子們正在舉辦搞笑大賽,他們要讓大家都很開心喔,那我們來看看猴子們有什麼有趣的表演吧", String.valueOf(mnScenarize));
+                application.playTTS("遠遠看到有一隻猴子在走單槓,原來我們來到了台灣動物區,我們去看看他在做什麼吧,原來猴子們正在舉辦搞笑大賽,那我們來看看猴子們有什麼有趣的表演吧", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_MONKEY_FUNNY:
                 application.setFaceEmotionEventListener(faceEmotionEventListener);
@@ -258,20 +259,20 @@ public class ParktourActivity extends Activity
                 faceView.showMouth(true);
                 faceView.loadImageMouth(R.drawable.iii_bg_laugh_10);
                 faceView.loadImage(R.drawable.iii_monkey_103);
-                application.playTTS("猴子們真的好好笑喔,哈,哈,哈", String.valueOf(mnScenarize));
+                application.playTTS("猴子們真的好好笑喔,看完猴子的搞笑表演後,那我們再繼續去探險吧", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_1:
                 emotionBar.setVisibility(View.INVISIBLE);
                 emotionBar.setPosition(0);
                 faceView.loadImage(R.drawable.iii_animal_race_1);
-                application.playTTS("前面圍了好多人，我們去看看怎麼回事", String.valueOf(mnScenarize));
+                application.playTTS(" ", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_2:
                 managerOfSound(R.raw.iii_animal_race_oil_add);
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_3:
                 faceView.loadImage(R.drawable.iii_animal_race_2);
-                application.playTTS("聽到了好大聲的加油聲，原來是花豹、黑熊、獅子三種動物在賽跑，最快的人可以獲得食物當獎勵，那我們也一起去幫忙加油吧", String.valueOf(mnScenarize));
+                application.playTTS("加油,加油,前面圍了好多人,原來是動物賽跑大賽,最快的人可以獲得食物當獎勵,那我們也一起去幫忙加油吧", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_4:
                 faceView.loadImage(R.drawable.iii_animal_race_3_1);
@@ -279,11 +280,11 @@ public class ParktourActivity extends Activity
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_5:
                 faceView.loadImage(R.drawable.iii_animal_race_3_2);
-                application.playTTS("我是花豹，我的腿很有力，食物一定是我的啦", String.valueOf(mnScenarize));
+                application.playTTS("我是花豹,我的腿很有力", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_6:
                 faceView.loadImage(R.drawable.iii_animal_race_3_3);
-                application.playTTS("我是獅子，萬獸之王啊，挖哈哈，食物絕對是我的", String.valueOf(mnScenarize));
+                application.playTTS("我是獅子,萬獸之王啊", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_7:
                 faceView.loadImage(R.drawable.iii_animal_race_4);
@@ -311,11 +312,11 @@ public class ParktourActivity extends Activity
             case Scenarize.SCEN_ANIMAL_RACE_13:
                 faceView.loadImage(R.drawable.iii_animal_race_6);
                 managerOfSound(R.raw.iii_animal_race_yaya);
-                application.playTTS("花豹最先抵達終點囉,也獲得了好多好吃的食物，你看!他吃的多開心", String.valueOf(mnScenarize));
+                application.playTTS("花豹最先抵達終點囉!獲得了好多好吃的食物,你看他吃的多開心", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_END_PHOTO_1:
                 faceView.loadImage(R.drawable.iii_photo_animal);
-                application.playTTS("今天好好玩喔,園遊會好熱鬧,看到了好多的動物,有黑熊,花豹,獅子,猴子,還參加了各種比賽,你最喜歡哪一種動物", String.valueOf(mnScenarize));
+                application.playTTS("今天好好玩喔,園遊會好熱鬧,看到了好多的動物,你最喜歡哪一種動物", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_END_PHOTO_BEAR:
             case Scenarize.SCEN_END_PHOTO_LION:
@@ -455,6 +456,9 @@ public class ParktourActivity extends Activity
             case CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER:
                 handleMessageVoiceRecognition(msg);
                 break;
+            case Scenarize.SCEN_MONKEY_SEE:
+                scenarize(Scenarize.SCEN_MONKEY_SEE, null);
+                break;
             case Scenarize.SCEN_OVER:
                 scenarize(++mnScenarize, null);
                 break;
@@ -590,7 +594,14 @@ public class ParktourActivity extends Activity
         {
             Logs.showTrace("get ERROR message: " + message.get("message"));
             mVoiceRecognition.stopListen();
-            theActivity.scenarize(mnScenarize, null);
+            if (Scenarize.SCEN_START_ZOO == mnScenarize)
+            {
+                theActivity.scenarize(++mnScenarize, null);
+            }
+            else
+            {
+                theActivity.scenarize(mnScenarize, null);
+            }
         }
     }
     

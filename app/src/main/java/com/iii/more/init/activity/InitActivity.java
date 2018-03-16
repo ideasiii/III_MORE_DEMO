@@ -566,10 +566,18 @@ public class InitActivity extends AppCompatActivity
                 }
             }
             Logs.showTrace("[InitActivity] END Permission Check");
-            Logs.showTrace("[InitActivity] start to show Licences Permission!");
             
             //### show licenses.txt dialog to let user know this
-            showAlertDialogLicencesPermission();
+            if (0 == Parameters.DEMO_REVIEW_GAME.compareTo("review"))
+            {
+                initLoadingData();
+                ((MainApplication) getApplication()).startTracker();
+            }
+            else
+            {
+                Logs.showTrace("[InitActivity] start to show Licences Permission!");
+                showAlertDialogLicencesPermission();
+            }
         }
         else
         {
