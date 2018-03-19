@@ -105,7 +105,14 @@ public class ParktourActivity extends Activity
             @Override
             public void onUtteranceStart(String utteranceId)
             {
-                faceView.showSpeak(true);
+                if (Scenarize.SCEN_LION_HO <= mnScenarize && Scenarize.SCEN_LION_ANGRY_AGAIN_3 >= mnScenarize)
+                {
+                    faceView.showSpeak(false);
+                }
+                else
+                {
+                    faceView.showSpeak(true);
+                }
             }
             
             //=========== TTS 講完幹話後 =============//
