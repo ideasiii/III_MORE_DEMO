@@ -249,7 +249,7 @@ public class ParktourActivity extends Activity
             case Scenarize.SCEN_MONKEY_SEE:
                 faceView.showMouth(false);
                 faceView.loadImage(R.drawable.iii_monkey_103);
-                application.playTTS("遠遠看到有一隻猴子在走單槓,原來我們來到了台灣動物區,我們去看看他在做什麼吧,原來猴子們正在舉辦搞笑大賽,那我們來比比看誰笑得比較開心吧", String.valueOf(mnScenarize));
+                application.playTTS("遠遠看到有一隻猴子在走單槓,原來猴子們正在舉辦搞笑大賽,那我們來比比看誰笑得比較開心吧", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_MONKEY_FUNNY:
                 application.setFaceEmotionEventListener(faceEmotionEventListener);
@@ -465,7 +465,7 @@ public class ParktourActivity extends Activity
                 handleMessageVoiceRecognition(msg);
                 break;
             case Scenarize.SCEN_MONKEY_SEE:
-                scenarize(Scenarize.SCEN_MONKEY_SEE, null);
+                scenarize(Scenarize.SCEN_LION_GO, null);
                 break;
             case Scenarize.SCEN_OVER:
                 scenarize(++mnScenarize, null);
