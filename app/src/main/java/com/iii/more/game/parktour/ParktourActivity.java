@@ -242,7 +242,7 @@ public class ParktourActivity extends Activity
             case Scenarize.SCEN_MONKEY_SEE:
                 faceView.showMouth(false);
                 faceView.loadImage(R.drawable.iii_monkey_103);
-                application.playTTS("遠遠看到有一隻猴子在走單槓,原來我們來到了台灣動物區,我們去看看他在做什麼吧,原來猴子們正在舉辦搞笑大賽,那我們來看看猴子們有什麼有趣的表演吧", String.valueOf(mnScenarize));
+                application.playTTS("遠遠看到有一隻猴子在走單槓,原來我們來到了台灣動物區,我們去看看他在做什麼吧,原來猴子們正在舉辦搞笑大賽,那我們來比比看誰笑得比較開心吧", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_MONKEY_FUNNY:
                 application.setFaceEmotionEventListener(faceEmotionEventListener);
@@ -259,7 +259,7 @@ public class ParktourActivity extends Activity
                 faceView.showMouth(true);
                 faceView.loadImageMouth(R.drawable.iii_bg_laugh_10);
                 faceView.loadImage(R.drawable.iii_monkey_103);
-                application.playTTS("猴子們真的好好笑喔,看完猴子的搞笑表演後,那我們再繼續去探險吧", String.valueOf(mnScenarize));
+                application.playTTS("猴子們真的好好笑喔,哈哈哈,看完猴子的搞笑表演後,那我們再繼續去探險吧", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_1:
                 emotionBar.setVisibility(View.INVISIBLE);
@@ -303,10 +303,11 @@ public class ParktourActivity extends Activity
                 application.playTTS("花豹的奔跑時速可以達到每小時80公里，是跑得最快的動物", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_11:
-                faceView.loadImage(R.drawable.iii_animal_race_5);
+                faceView.loadImage(R.drawable.iii_race_before_gun);
                 application.playTTS("那就讓我們看看比賽結果", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_12:
+                faceView.loadImage(R.drawable.iii_animal_race_5);
                 application.playTTS("槍聲響起，比賽開始了，果然花豹一路領先，得到了第一名呢", String.valueOf(mnScenarize));
                 break;
             case Scenarize.SCEN_ANIMAL_RACE_13:
