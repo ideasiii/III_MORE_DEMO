@@ -25,26 +25,40 @@ final class CyberonAssetsExtractor
 {
     private static final String LOG_TAG = "CyberonAssetsExtractor";
 
+    /** 儲存資料包版本的檔案的檔名 */
     private static final String ZIP_VERSION_FILENAME = "cyberon_creader_zip_version";
+    /** 儲存資料包版本的檔案的暫存檔名 */
     private static final String TMP_ZIP_VERSION_FILENAME = ZIP_VERSION_FILENAME + ".tmp";
+    /** 資料包檔名 */
     private static final String ZIP_FILENAME = "cyberon_creader.zip";
+    /** 伺服器網址 */
     private static final String HOST = "https://ryejuice.sytes.net";
+    /** 儲存資料包版本的檔案的 URL */
     private static final String ZIP_VERSION_URL = HOST + "/edubot/cyberon-tts-data/" + ZIP_VERSION_FILENAME;
+    /** 資料包 URL */
     private static final String ZIP_URL = HOST + "/edubot/cyberon-tts-data/" + ZIP_FILENAME;
 
     /**
-     * retrive CReader data files
+     * retrieve CReader data files
      * @return whether newer data is extracted
      */
     static boolean extract(AssetManager assetManager, String dstDir)
     {
-        // AssetManager.list() is taking too long!!!
+        // AssetManager.list() is taking too much time!!!
         //copyAssetToDataDir(assetManager, "cyberon", dstDir);
 
+        // This is faster, using a hardcoded list instead of dynamic scanning
         //copyAssetToDataDirHardCoded(assetManager, dstDir);
+
+        // Download CReader data files from the Internet
         return downloadDataIfNewer(dstDir);
     }
 
+    /**
+     * 此方法會先從伺服器下載一個 metadata 確認伺服器上的資料包版本，若本地的資料包較舊，則下載新的。
+     * @param dstDir 資料包要解壓縮到哪裡
+     * @return 若伺服器的資料較新，且資料包的資料「全部解壓縮成功」時，回傳 true; 否則回傳 false
+     */
     private static boolean downloadDataIfNewer(String dstDir)
     {
         if (!needReDownloadData(dstDir))
@@ -68,6 +82,11 @@ final class CyberonAssetsExtractor
         return dataDownload;
     }
 
+    /**
+     * 從伺服器下載一個標記伺服器資料包版本的 metadata，用此 metadata 檢查本地的資料是否較舊，需要更新。
+     * @param dstDir metadata 要下載到哪裡
+     * @return 若需要下載更新資料，回傳 true，否則回傳 false
+     */
     private static boolean needReDownloadData(String dstDir)
     {
         URL url;
@@ -205,6 +224,11 @@ final class CyberonAssetsExtractor
         return true;
     }
 
+    /**
+     * 從 apk 複製賽微 TTS 的資料包到指定目錄，要複製的內容已經寫死在方法內
+     * @param am
+     * @param dstDir 解壓縮到哪裡
+     */
     private static void copyAssetToDataDirHardCoded(AssetManager am, String dstDir)
     {
         // AssetManager.list() is very very slow, so predefine a list needed to
@@ -240,6 +264,11 @@ final class CyberonAssetsExtractor
         }
     }
 
+    /**
+     * 從 apk 複製賽微 TTS 的資料包到指定目錄，要複製的內容使用動態方式檢查
+     * @param am
+     * @param dstDir 解壓縮到哪裡
+     */
     private static void copyAssetToDataDir(AssetManager am, String assetPath, String dstDir)
     {
         try
@@ -272,6 +301,12 @@ final class CyberonAssetsExtractor
         }
     }
 
+    /**
+     * 將 apk 內的檔案解壓縮到 dstDir
+     * @param am
+     * @param assetPath
+     * @param dstDir
+     */
     private static void copyFile(AssetManager am, String assetPath, String dstDir)
     {
         try
@@ -290,6 +325,12 @@ final class CyberonAssetsExtractor
         }
     }
 
+    /**
+     * 將 in 的內容複製到 out
+     * @param in
+     * @param out
+     * @throws IOException
+     */
     private static void copyStream(InputStream in, OutputStream out) throws IOException
     {
         byte[] buffer = new byte[16 * 1024];

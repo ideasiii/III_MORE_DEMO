@@ -11,28 +11,39 @@ import java.util.Locale;
 import sdk.ideas.tool.speech.tts.TextToSpeechHandler;
 
 /**
- * 不同 TTS 聲音的集中地
+ * TTSVoicePool 類別整合 Google, 賽微等 TTS engine，提供單一的呼叫方式。<br>
+ * 此類別使用 Handler 非同步地傳送事件，故使用前須先呼叫 {@link TTSVoicePool#setHandler(Handler)}
+ * 方法設定接收事件的 Handler 物件。<br>
+ * 使用 {@link TTSVoicePool#init()} } 方法初始化內部的 TTS 引擎，注意賽微 TTS 在初始化時會進行的其他動作。
+ * 這個類別最好搭配 {@link TTSEventListenerBridge}，將原本要由 Handler 處理的、不同 TTS 引擎丟過來的各種事件
+ * 改由 {@link com.iii.more.main.listeners.TTSEventListener} 統一進行處理
  */
 public final class TTSVoicePool
 {
+    // TTS 引擎的編號
+
+    /** Google TTS 的編號 */
     public static final byte TTS_VOICE_GOOGLE = 1;
+    /** 賽微 TTS (kid, 女) 的編號 */
     public static final byte TTS_VOICE_CYBERON_KID_FEMALE = 2;
+    /** 賽微 TTS (kid, 男) 的編號 */
     public static final byte TTS_VOICE_CYBERON_KID_MALE = 3;
-    public static final int TTS_VOICE_SIZE = TTS_VOICE_CYBERON_KID_MALE;
+    /** 有幾種聲音能用 */
+    static final int TTS_VOICE_SIZE = TTS_VOICE_CYBERON_KID_MALE;
+
     private static final String LOG_TAG = "TTSVoicePool";
 
     private final Context mContext;
     private Handler mHandler;
-    private String cReaderDataRoot;
 
-    private TextToSpeechHandler mGoogleTtsHandler; // Google TTS (女性)
-    private CReaderAdapter mCyberonTtsAdapter_KidMale; // 賽微 TTS: 女性
-    private CReaderAdapter mCyberonTtsAdapter_KidFemale; // 賽微 TTS: 男性
+    private TextToSpeechHandler mGoogleTtsHandler; // Google TTS
+    private CReaderAdapter mCyberonTtsAdapter_KidMale; // 賽微 TTS: kid, 女性
+    private CReaderAdapter mCyberonTtsAdapter_KidFemale; // 賽微 TTS: kid, 男性
 
     // 目前正在使用的 TTS 語音的編號
     private byte mActiveVoice = TTS_VOICE_CYBERON_KID_FEMALE;
 
-    // 偏好使用的 TTS 語音的編號
+    // 偏好使用的 TTS 語音的編號，但由於資源等現實狀況的限制，不一定等於 mActiveVoice
     private byte mPreferredVoice;
 
     public TTSVoicePool(Context context, byte preferredVoice)
@@ -47,17 +58,23 @@ public final class TTSVoicePool
         mHandler = handler;
     }
 
+    /**
+     * 初始化 TTSVoicePool 需要使用的資源。注意賽微 TTS 初始化時所進行的動作
+     */
     public void init()
     {
         mGoogleTtsHandler = new TextToSpeechHandler(mContext);
         mGoogleTtsHandler.setHandler(mHandler);
         mGoogleTtsHandler.init();
 
-        // init CReader using existing data (if exists) to prevent any NullPointerException
+        // init CReader using existing data (if any) to prevent any NullPointerException
         initCReader();
         downloadCReaderData();
     }
 
+    /**
+     * 下載賽微 TTS 需要的額外資料
+     */
     private void downloadCReaderData()
     {
         new Thread()
@@ -81,15 +98,15 @@ public final class TTSVoicePool
         }.start();
     }
 
+    /** 初始化賽微 TTS 所需的資源 */
     private void initCReader()
     {
-        cReaderDataRoot = mContext.getFilesDir().getAbsolutePath() + "/cyberon/CReader";
+        String cReaderDataRoot = mContext.getFilesDir().getAbsolutePath() + "/cyberon/CReader";
 
         if (mCyberonTtsAdapter_KidMale != null)
         {
             mCyberonTtsAdapter_KidMale.shutdown();
         }
-
         mCyberonTtsAdapter_KidMale = new CReaderAdapter(mContext, cReaderDataRoot);
         mCyberonTtsAdapter_KidMale.setHandler(mHandler);
         mCyberonTtsAdapter_KidMale.setVoiceName(CReaderPlayer.VoiceNameConstant
@@ -102,7 +119,6 @@ public final class TTSVoicePool
         {
             mCyberonTtsAdapter_KidFemale.shutdown();
         }
-
         mCyberonTtsAdapter_KidFemale = new CReaderAdapter(mContext, cReaderDataRoot);
         mCyberonTtsAdapter_KidFemale.setHandler(mHandler);
         mCyberonTtsAdapter_KidFemale.setVoiceName(CReaderPlayer.VoiceNameConstant
@@ -112,17 +128,20 @@ public final class TTSVoicePool
         mCyberonTtsAdapter_KidFemale.setVolume(200);
         mCyberonTtsAdapter_KidFemale.init();
 
+        // switch to CReader if we wanted it but couldn't be done
         if (mPreferredVoice != mActiveVoice)
         {
             setVoice(mPreferredVoice);
         }
     }
 
+    /** 取得目前正在使用中的 TTS 引擎編號 */
     public byte getActiveVoice()
     {
         return mActiveVoice;
     }
 
+    /** 設定要使用的 TTS 引擎 */
     public void setVoice(byte who)
     {
         switch (who)
@@ -161,6 +180,10 @@ public final class TTSVoicePool
         }
     }
 
+    /**
+     * 使用賽微 TTS 的數值範圍設定音高
+     * @param pitch 音高，範圍為 50~200，預設為 100
+     */
     public void setPitchCyberonScaling(int pitch)
     {
         float googleMappedPitch = pitch / 100.0f;
@@ -181,6 +204,10 @@ public final class TTSVoicePool
         }
     }
 
+    /**
+     * 使用賽微 TTS 的數值範圍設定語速
+     * @param rate 語速，範圍為 50~200，預設為 100
+     */
     public void setSpeechRateCyberonScaling(int rate)
     {
         float googleMappedSpeed = rate / 100.0f;
@@ -201,10 +228,10 @@ public final class TTSVoicePool
         }
     }
 
-    /** 使用賽微 TTS 的數值範圍設定 pitch & 速度
-     *
-     * @param pitch 0~200，預設 100
-     * @param rate 0~200，預設 100
+    /**
+     * 使用賽微 TTS 的數值範圍設定音高 & 速度
+     * @param pitch 音高，範圍為 50~200，預設為 100
+     * @param rate 語速，範圍為 50~200，預設為 100
      */
     public void setPitchCyberonScaling(int pitch, int rate)
     {
@@ -213,8 +240,9 @@ public final class TTSVoicePool
     }
 
     /**
-     * 設定 TTS pitch & speech rate
-     * 參數是 google TTS 的 scaling (i.e., 預設值是 1.0)
+     * 使用 Google TTS 的數值範圍設定音高 & 速度
+     * @param pitch 音高，預設為 1.0
+     * @param rate 語速，預設為 1.0
      */
     public void setPitchGoogleScaling(float pitch, float rate)
     {
@@ -240,13 +268,20 @@ public final class TTSVoicePool
         }
     }
 
+    /**
+     * 使用 Google TTS 的數值範圍設定音高 & 速度
+     * This method is left for backward compatibility.
+     * @param pitch 音高，預設為 1.0
+     * @param rate 語速，預設為 1.0
+     */
     public void setPitch(float pitch, float rate)
     {
         setPitchGoogleScaling(pitch, rate);
     }
 
     /**
-     * 設定 TTS 的輸出語言
+     * 設定 TTS 的輸出語言。
+     * I'm afraid if this will have any effect to the TTS engines.
      */
     public void setLanguage(Locale language)
     {
@@ -286,7 +321,7 @@ public final class TTSVoicePool
     }
 
     /**
-     * 將 text 轉為語音輸出
+     * 將 text 轉為語音輸出，開始發聲、結束發聲、將要結束發聲 (如果引擎支援) 等事件會傳遞至 Handler。
      */
     public void speak(String text, String textId)
     {
