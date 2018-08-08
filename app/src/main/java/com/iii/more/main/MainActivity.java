@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
         TextView mResultTextView = (TextView) findViewById(R.id.result_text);
         ImageView mImageView = (ImageView) findViewById(R.id.imageView);
         RelativeLayout mRelativeLayout = (RelativeLayout) findViewById(R.id.relativelayout);
-        
+       
         CMPHandler.setIPAndPort(Parameters.CMP_HOST_IP, Parameters.CMP_HOST_PORT);
         mSemanticWordCMPHandler = new SemanticWordCMPHandler(this);
         mSemanticWordCMPHandler.setHandler(mHandler);
@@ -579,7 +579,7 @@ public class MainActivity extends AppCompatActivity implements CockpitFilmMaking
                     if (message.get("ttsID").equals(TTSParameters
                         .ID_SERVICE_INTERRUPT_STORY_EMOTION_RESPONSE))
                     {
-                        // ### call faceEmotionInterruptHandler to set record emotion on
+                        // ### call faceEmotionInterruptHandler to set record com.iii.more.emotion on
                         mHandler.postDelayed(new Runnable()
                         {
                             @Override

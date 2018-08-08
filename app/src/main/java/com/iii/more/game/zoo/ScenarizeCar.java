@@ -95,7 +95,7 @@ public class ScenarizeCar extends ScenarizeBase
             "車子故障了，請幫忙修補輪胎");
         try
         {
-            getScenarize(SCEN.SCEN_INDEX_CAR_FIX).put("emotion", true);
+            getScenarize(SCEN.SCEN_INDEX_CAR_FIX).put("com/iii/more/emotion", true);
         }
         catch(Exception e)
         {

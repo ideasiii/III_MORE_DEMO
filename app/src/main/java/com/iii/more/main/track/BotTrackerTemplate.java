@@ -63,7 +63,7 @@ public abstract class BotTrackerTemplate
 // 臉部情緒辨識 SDK 傳給 tracker 的資料
 {
     "Source": "1", // 固定為 1
-    "Description": "raw data from face emotion recognition SDK", // 這筆資料的描述
+    "Description": "raw data from face com.iii.more.emotion recognition SDK", // 這筆資料的描述
     "Value": { // SDK 來的讀數
         "time":"2017_11_14_10:18:45", // 從 SDK 拿到數值的時間
         "ANGER":"26.3",

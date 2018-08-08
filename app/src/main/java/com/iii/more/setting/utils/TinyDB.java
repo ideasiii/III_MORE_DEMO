@@ -168,8 +168,7 @@ public class TinyDB {
 
     /**
      * Get int value from SharedPreferences at 'key'. If key not found, return 'defaultValue'
-     * @param key SharedPreferences key
-     * @param defaultValue int value returned if key was not found
+     * @param key SharedPreferences key, defaultValue int value returned if key was not found
      * @return int value at 'key' or 'defaultValue' if key not found
      */
     public int getInt(String key) {
@@ -204,8 +203,7 @@ public class TinyDB {
 
     /**
      * Get float value from SharedPreferences at 'key'. If key not found, return 'defaultValue'
-     * @param key SharedPreferences key
-     * @param defaultValue float value returned if key was not found
+     * @param key SharedPreferences key , defaultValue float value returned if key was not found
      * @return float value at 'key' or 'defaultValue' if key not found
      */
     public float getFloat(String key) {
@@ -281,8 +279,7 @@ public class TinyDB {
 
     /**
      * Get boolean value from SharedPreferences at 'key'. If key not found, return 'defaultValue'
-     * @param key SharedPreferences key
-     * @param defaultValue boolean value returned if key was not found
+     * @param key SharedPreferences key, defaultValue boolean value returned if key was not found
      * @return boolean value at 'key' or 'defaultValue' if key not found
      */
     public boolean getBoolean(String key) {
@@ -557,7 +554,7 @@ public class TinyDB {
     }
     /**
      * null keys would corrupt the shared pref file and make them unreadable this is a preventive measure
-     * @param the pref key
+     * @param key pref key
      */
     public void checkForNullKey(String key){
         if (key == null){
@@ -566,7 +563,7 @@ public class TinyDB {
     }
     /**
      * null keys would corrupt the shared pref file and make them unreadable this is a preventive measure
-     * @param the pref key
+     * @param value pref key
      */
     public void checkForNullValue(String value){
         if (value == null){

@@ -16,7 +16,6 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
 
-import com.amazonaws.util.Classes;
 import com.iii.more.animate.AnimationHandler;
 import com.iii.more.game.parktour.ParktourActivity;
 import com.iii.more.http.server.DeviceHttpServerHandler;
@@ -491,7 +490,7 @@ public class InitActivity extends AppCompatActivity
             MainApplication app = (MainApplication) this.getApplicationContext();
             if (null == app.getName(Parameters.ID_CHILD_NAME) || app.getName(Parameters.ID_CHILD_NAME).equals(""))
             {
-                return true;
+                return false;
             }
             return false;
             

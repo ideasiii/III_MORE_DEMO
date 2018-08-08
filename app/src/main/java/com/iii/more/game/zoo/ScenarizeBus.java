@@ -81,7 +81,7 @@ public class ScenarizeBus extends ScenarizeBase
             "請你幫忙讓大家都有座位坐。要把人放到位置上喔");
     try
     {
-        getScenarize(SCEN.SCEN_INDEX_BUS_INSIDE).put("emotion", true);
+        getScenarize(SCEN.SCEN_INDEX_BUS_INSIDE).put("com/iii/more/emotion", true);
     }
     catch(Exception e)
     {

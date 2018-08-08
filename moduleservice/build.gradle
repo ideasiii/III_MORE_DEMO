@@ -1,14 +1,14 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.2"
+    compileSdkVersion 28
+    buildToolsVersion '28.0.2'
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 27
-        versionCode 2
-        versionName "1.1"
+        targetSdkVersion 28
+        versionCode 3
+        versionName "1.2"
     }
     buildTypes {
         debug{
@@ -24,12 +24,14 @@ android {
 repositories {
     jcenter()
     mavenLocal()
-    maven {
-        url "http://maven.affectiva.com"
+    flatDir {
+        dirs 'libs'
     }
 }
 
 dependencies {
-    compile 'com.android.support:support-annotations:27.0.2'
-    compile('com.affectiva.android:affdexsdk:3.+')
+    implementation 'com.android.support:support-annotations:28.+'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api files('libs/affsdk.aar')
+    api 'com.google.code.gson:gson:2.8.2'
 }

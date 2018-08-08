@@ -16,9 +16,6 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.iii.more.game.module.RobotHead;
 import com.iii.more.game.module.TrackerHandler;
 import com.iii.more.game.module.Utility;
@@ -38,7 +35,6 @@ import org.json.JSONObject;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.WeakHashMap;
 
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
@@ -269,7 +265,7 @@ public class ZooActivity extends Activity
                 jsonScenarize.get("object_scale_type"));
             strFaceImg = jsonScenarize.getString("face_image");
             
-            if ((boolean) jsonScenarize.get("emotion"))
+            if ((boolean) jsonScenarize.get("com/iii/more/emotion"))
             {
                 application.setFaceEmotionEventListener(faceEmotionEventHandler
                     .getFaceEmotionEventListener());
@@ -434,7 +430,7 @@ public class ZooActivity extends Activity
                 robotHead.removeView(mrtMap);
                 robotHead.removeView(carFixLayout);
                 JSONObject jsonEmotion = faceEmotionEventHandler.getEmotion();
-                Logs.showTrace("[ZooActivity] emotion response: " + jsonEmotion.toString());
+                Logs.showTrace("[ZooActivity] com.iii.more.emotion response: " + jsonEmotion.toString());
                 if (!jsonEmotion.isNull("EMOTION_NAME"))
                 {
                     try

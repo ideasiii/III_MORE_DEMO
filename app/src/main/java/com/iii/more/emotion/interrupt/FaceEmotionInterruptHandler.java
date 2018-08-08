@@ -47,7 +47,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
     
     public void setEmotionEventData(@NonNull HashMap<String, String> emotionEventData)
     {
-        Logs.showTrace("[FaceEmotionInterruptHandler] emotion event data: " + emotionEventData);
+        Logs.showTrace("[FaceEmotionInterruptHandler] com.iii.more.emotion event data: " + emotionEventData);
         mEmotionHashMapData = emotionEventData;
         startEmotionEventDataAnalysis();
     }
@@ -64,7 +64,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         }
         else
         {
-            //Logs.showTrace("[FaceEmotionInterruptHandler] No Rule for face emotion");
+            //Logs.showTrace("[FaceEmotionInterruptHandler] No Rule for face com.iii.more.emotion");
         }
         */
         judgeNowEmotionState(data);
@@ -217,7 +217,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
                         //debug using
                         //emotionBrainElement.print();
                         
-                        //put all emotion value to message
+                        //put all com.iii.more.emotion value to message
                         for (String key : newFaceData.emotionHashMapValue.keySet())
                         {
                             message.put(key, newFaceData.emotionHashMapValue.get(key));
@@ -293,7 +293,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
     public void setInterruptEmotionLogicBehaviorDataArray(@NonNull String emotionLogicBehavior)
     {
         //debug using
-        //Logs.showTrace("[FaceEmotionInterruptHandler] set emotion logic behavior data: " +
+        //Logs.showTrace("[FaceEmotionInterruptHandler] set com.iii.more.emotion logic behavior data: " +
         // emotionLogicBehavior);
         
         try
@@ -355,7 +355,7 @@ public class FaceEmotionInterruptHandler extends BaseHandler
         }
         catch (JSONException e)
         {
-            Logs.showError("[FaceEmotionInterruptHandler] data emotion parse ERROR: " + e.toString());
+            Logs.showError("[FaceEmotionInterruptHandler] data com.iii.more.emotion parse ERROR: " + e.toString());
         }
     }
     

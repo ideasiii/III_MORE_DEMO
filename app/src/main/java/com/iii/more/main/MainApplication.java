@@ -310,7 +310,7 @@ public class MainApplication extends Application
             public void onFaceEmotionDetected(String emotionName, int score)
             {
                 Logs.showTrace("[MainApplication] handleCockpitServiceMessage() " + "simulates when face "
-                    + "emotion is detected, emotionName = `" + emotionName + "`, score: " + score);
+                    + "com.iii.more.emotion is detected, emotionName = `" + emotionName + "`, score: " + score);
                 
                 HashMap<String, String> faceEmotionEvent = MagicBook.cookFaceEmotionDetectedEvent
                     (mFaceEmotionInterruptHandler, emotionName, score);
@@ -375,13 +375,15 @@ public class MainApplication extends Application
             }
         });
         
-        CockpitService.startThenBindService(this, InternetCockpitService.class, mCockpitServiceConnection,
-            null);
-        CockpitService.startThenBindService(this, OtgCockpitService.class, mCockpitServiceConnection, null);
+        //end of 遙控器
+        
+      //  CockpitService.startThenBindService(this, InternetCockpitService.class, mCockpitServiceConnection,
+      //      null);
+      //  CockpitService.startThenBindService(this, OtgCockpitService.class, mCockpitServiceConnection, null);
     }
     
     /**
-     * 初始化 FaceEmotionInterruptHandler 處理 face emotion 邏輯的部分
+     * 初始化 FaceEmotionInterruptHandler 處理 face com.iii.more.emotion 邏輯的部分
      */
     public void initFaceEmotionInterrupt()
     {
@@ -393,7 +395,7 @@ public class MainApplication extends Application
             JSONObject tmp = new JSONObject(message);
             
             JSONObject rules = tmp.getJSONObject("rules");
-            interruptEmotionBehaviorDataArrayInput = rules.getJSONArray("emotion").toString();
+            interruptEmotionBehaviorDataArrayInput = rules.getJSONArray("com/iii/more/emotion").toString();
             Logs.showTrace("[MainApplication] Use SharedPreferences for interrupt logic behavior");
         }
         catch (JSONException e)
@@ -599,7 +601,7 @@ public class MainApplication extends Application
                 {
                     HashMap<String, String> trackFaceEmotionData = new HashMap<>();
                     trackFaceEmotionData.put("Source", "1");
-                    trackFaceEmotionData.put("Description", "data from face emotion recognition SDK");
+                    trackFaceEmotionData.put("Description", "data from face com.iii.more.emotion recognition SDK");
                     JSONObject emotionJsonObj = new JSONObject(emotionHashMap);
                     trackFaceEmotionData.put("Value", emotionJsonObj.toString());
                     

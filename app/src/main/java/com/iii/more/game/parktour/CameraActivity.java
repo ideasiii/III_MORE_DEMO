@@ -373,7 +373,10 @@ public class CameraActivity extends Activity
         canvas.drawBitmap(background, 0, 0, null);
         //canvas.drawBitmap(foreground, (bgWidth - fgWidth), (bgHeight - fgHeight), null);
         canvas.drawBitmap(foreground, 0, 0, null);
-        canvas.save(Canvas.ALL_SAVE_FLAG);
+        
+        //this is died
+        //canvas.save(Canvas.ALL_SAVE_FLAG);
+        canvas.save();
         canvas.restore();
         return newmap;
     }
@@ -391,7 +394,8 @@ public class CameraActivity extends Activity
         Canvas canvas = new Canvas(newmap);
         canvas.drawBitmap(background, 0, 0, null);
         canvas.drawBitmap(foreground, 5, (bgHeight - fgHeight) - 5, null);
-        canvas.save(Canvas.ALL_SAVE_FLAG);
+        //canvas.save(Canvas.ALL_SAVE_FLAG);
+        canvas.save();
         canvas.restore();
         return newmap;
     }

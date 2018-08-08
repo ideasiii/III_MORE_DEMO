@@ -67,7 +67,7 @@ public class ScenarizeMrt extends ScenarizeBase
             GLOBAL.ChildName + "請你幫忙畫出坐車的路線圖");
         try
         {
-            getScenarize(SCEN.SCEN_INDEX_MRT_MAP).put("emotion", true);
+            getScenarize(SCEN.SCEN_INDEX_MRT_MAP).put("com/iii/more/emotion", true);
         }
         catch(Exception e)
         {
