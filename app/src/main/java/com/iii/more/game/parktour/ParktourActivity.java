@@ -77,6 +77,7 @@ public class ParktourActivity extends Activity
         //========= Start Scenarize =========//
         scenarize(Scenarize.SCEN_START_ZOO, null);
         //scenarize(Scenarize.SCEN_END_PHOTO_1, null);
+        //faceView.loadImage(R.drawable.iii_lion_ani);
     }
     
     @Override
