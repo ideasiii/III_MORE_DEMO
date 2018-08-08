@@ -8,13 +8,9 @@ android {
             storePassword 'ideas123!'
         }
     }
-<<<<<<< HEAD
     compileSdkVersion 28
     buildToolsVersion '28.0.2'
-=======
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
->>>>>>> b48f6fdba3e0c4b0f4f4acdd9d5d0067486e8f55
+
     defaultConfig {
         applicationId "com.iii.more.main"
         minSdkVersion 21
